@@ -70,8 +70,7 @@ public sealed partial class ServerPage : Page {
 
     private void OnConsoleLinesChanged(object? sender, NotifyCollectionChangedEventArgs e)
         => DispatcherQueue.TryEnqueue(() => {
-            if (Console.Lines.Count > 0)
-                ConsoleLogScroller.ScrollIntoView(Console.Lines[^1]);
+            ConsoleLogScroller.ChangeView(null, ConsoleLogScroller.ScrollableHeight, null);
         });
 
     // ── Header state button ───────────────────────────────────────────────────

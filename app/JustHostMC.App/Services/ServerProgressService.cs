@@ -28,7 +28,13 @@ public partial class ServerProgressTracker : ObservableObject
     public string ServerName
     {
         get => _serverName;
-        set => SetProperty(ref _serverName, value);
+        set
+        {
+            if (SetProperty(ref _serverName, value))
+            {
+                OnPropertyChanged(nameof(TooltipText));
+            }
+        }
     }
 
     private bool _isActive;
@@ -40,6 +46,7 @@ public partial class ServerProgressTracker : ObservableObject
             if (SetProperty(ref _isActive, value))
             {
                 OnPropertyChanged(nameof(NavigationText));
+                OnPropertyChanged(nameof(TooltipText));
                 IsActiveChanged?.Invoke(this);
             }
         }
@@ -61,6 +68,7 @@ public partial class ServerProgressTracker : ObservableObject
             if (SetProperty(ref _currentStep, value))
             {
                 OnPropertyChanged(nameof(NavigationText));
+                OnPropertyChanged(nameof(TooltipText));
             }
         }
     }
@@ -90,19 +98,41 @@ public partial class ServerProgressTracker : ObservableObject
     public bool HasFailed
     {
         get => _hasFailed;
-        set => SetProperty(ref _hasFailed, value);
+        set
+        {
+            if (SetProperty(ref _hasFailed, value))
+            {
+                OnPropertyChanged(nameof(TooltipText));
+            }
+        }
     }
 
     private bool _isReadyToRun;
     public bool IsReadyToRun
     {
         get => _isReadyToRun;
-        set => SetProperty(ref _isReadyToRun, value);
+        set
+        {
+            if (SetProperty(ref _isReadyToRun, value))
+            {
+                OnPropertyChanged(nameof(TooltipText));
+            }
+        }
     }
 
     public ObservableCollection<string> InstallLog { get; } = new();
 
     public double ProgressPercentage => ProgressFraction * 100;
+
+    public string TooltipText
+    {
+        get
+        {
+            if (IsReadyToRun || IsActive || HasFailed)
+                return string.IsNullOrEmpty(CurrentStep) ? ServerName : $"{ServerName}: {CurrentStep}";
+            return ServerName;
+        }
+    }
 
     public string NavigationText
     {

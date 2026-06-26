@@ -180,7 +180,11 @@ public sealed partial class MainWindow : Window {
         panel.Children.Add(dot);
         panel.Children.Add(text);
 
-        return new NavigationViewItem { Content = panel, Tag = server };
+        var item = new NavigationViewItem { Content = panel, Tag = server };
+        item.SetBinding(ToolTipService.ToolTipProperty,
+            new Binding { Source = server.ProgressTracker, Path = new PropertyPath("TooltipText"), Mode = BindingMode.OneWay });
+
+        return item;
     }
 
     private void OnNavSelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args) {

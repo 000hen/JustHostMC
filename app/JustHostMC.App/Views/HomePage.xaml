@@ -280,30 +280,12 @@
                     Height="40" />
         </Grid>
 
-        <StackPanel Grid.Row="1" Spacing="12">
-            <InfoBar x:Uid="OnMachineNotice"
-                     x:Name="OnMachineInfoBar"
-                     Severity="Informational"
-                     IsClosable="True"
-                     CloseButtonClick="OnMachineNoticeClosed" />
-            <ItemsControl ItemsSource="{x:Bind Main.Servers, Mode=OneWay}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <InfoBar x:Uid="InstallReadyInfoBar"
-                                 IsOpen="{Binding ProgressTracker.IsReadyToRun, Mode=TwoWay}"
-                                 Severity="Success"
-                                 Margin="0,0,0,12">
-                            <InfoBar.ActionButton>
-                                <Button x:Uid="InfoBarStartServerButton"
-                                        Click="OnCardStateClick"
-                                        Tag="{Binding}"
-                                        Style="{StaticResource AccentButtonStyle}" />
-                            </InfoBar.ActionButton>
-                        </InfoBar>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </StackPanel>
+        <InfoBar Grid.Row="1"
+                 x:Uid="OnMachineNotice"
+                 x:Name="OnMachineInfoBar"
+                 Severity="Informational"
+                 IsClosable="True"
+                 CloseButtonClick="OnMachineNoticeClosed" />
 
         <Grid Grid.Row="2" ColumnSpacing="12">
             <Grid.ColumnDefinitions>
@@ -378,34 +360,47 @@
             </ItemsRepeater>
         </ScrollViewer>
 
-        <Border Grid.Row="4"
-                Visibility="{x:Bind Main.IsInstalling, Mode=OneWay, Converter={StaticResource BoolToVis}}"
-                Background="{ThemeResource LayerFillColorDefaultBrush}"
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                CornerRadius="8" Padding="16">
-            <StackPanel Spacing="8">
-                <TextBlock x:Uid="InstallProgressHeader" Style="{StaticResource BodyStrongTextBlockStyle}" />
-                <TextBlock Text="{x:Bind Main.InstallStep, Mode=OneWay}" />
-                <ProgressBar Minimum="0" Maximum="1"
-                             Value="{x:Bind Main.InstallFraction, Mode=OneWay}"
-                             IsIndeterminate="{x:Bind Main.InstallIsIndeterminate, Mode=OneWay}" />
-                <ScrollViewer x:Name="LogScroller" Height="140"
-                              Background="{ThemeResource ControlFillColorDefaultBrush}"
-                              BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                              CornerRadius="4" Padding="8">
-                    <ItemsControl ItemsSource="{x:Bind Main.InstallLog, Mode=OneWay}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding}" FontFamily="Consolas" FontSize="12"
-                                           TextWrapping="NoWrap" IsTextSelectionEnabled="True" />
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-                <Button x:Uid="InstallDismissButton" HorizontalAlignment="Right"
-                        Command="{x:Bind Main.DismissInstallCommand}"
-                        Visibility="{x:Bind Main.InstallFailed, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
-            </StackPanel>
-        </Border>
+        <Expander Grid.Row="4"
+                  Visibility="{x:Bind Main.IsInstalling, Mode=OneWay, Converter={StaticResource BoolToVis}}"
+                  HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                  IsExpanded="True"
+                  Background="{ThemeResource LayerFillColorDefaultBrush}"
+                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+            <Expander.Header>
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock x:Uid="InstallProgressHeader" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    <TextBlock Grid.Column="1" Text="{x:Bind Main.InstallStep, Mode=OneWay}"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                </Grid>
+            </Expander.Header>
+            <Expander.Content>
+                <StackPanel Spacing="12">
+                    <ProgressBar Minimum="0" Maximum="1"
+                                 Value="{x:Bind Main.InstallFraction, Mode=OneWay}"
+                                 IsIndeterminate="{x:Bind Main.InstallIsIndeterminate, Mode=OneWay}" />
+                    <ScrollViewer x:Name="LogScroller" Height="140"
+                                  Background="{ThemeResource ControlFillColorDefaultBrush}"
+                                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                                  CornerRadius="4" Padding="8">
+                        <ItemsControl ItemsSource="{x:Bind Main.InstallLog, Mode=OneWay}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}" FontFamily="Consolas" FontSize="12"
+                                               TextWrapping="NoWrap" IsTextSelectionEnabled="True" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                    <Button x:Uid="InstallDismissButton" HorizontalAlignment="Right"
+                            Command="{x:Bind Main.DismissInstallCommand}"
+                            Visibility="{x:Bind Main.InstallFailed, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                </StackPanel>
+            </Expander.Content>
+        </Expander>
     </Grid>
 </Page>

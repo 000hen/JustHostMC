@@ -12,8 +12,9 @@ import (
 )
 
 const (
-	defaultPort   = 25565
-	portScanLimit = 100
+	defaultPort          = 25565
+	portScanLimit        = 100
+	largeHeapThresholdMB = 12 * 1024
 )
 
 // javaHeapMB computes the JVM -Xmx that fits under the job object's hard memory
@@ -40,14 +41,32 @@ func javaHeapMB(memoryMB int) int {
 	return xmx
 }
 
+func javaInitialHeapMB(heapMB int) int {
+	if heapMB <= 0 {
+		return 0
+	}
+	// The server process runs under a hard memory cap; with AlwaysPreTouch,
+	// setting Xms to Xmx commits too much heap up front and starves native memory.
+	xms := heapMB / 2
+	if xms < 256 {
+		xms = 256
+	}
+	if xms > heapMB {
+		xms = heapMB
+	}
+	return xms
+}
+
 // buildJavaArgs prepends heap and JVM tuning flags to the provider's program args.
 func buildJavaArgs(memoryMB, javaMajor int, providerArgs []string, customJavaArgs string) []string {
 	defaults := defaultJavaArgs(javaHeapMB(memoryMB), javaMajor)
 	custom := splitJavaArgs(customJavaArgs)
+	locale := forcedLogLocaleJavaArgs()
 
-	args := make([]string, 0, len(defaults)+len(custom)+len(providerArgs))
+	args := make([]string, 0, len(defaults)+len(custom)+len(locale)+len(providerArgs))
 	args = append(args, defaults...)
 	args = append(args, custom...)
+	args = append(args, locale...)
 	return append(args, providerArgs...)
 }
 
@@ -62,10 +81,26 @@ func maxJavaMajor(stored int, mcVersion string) int {
 func defaultJavaArgs(heapMB, javaMajor int) []string {
 	args := make([]string, 0, 20)
 	if heapMB > 0 {
-		args = append(args, fmt.Sprintf("-Xmx%dM", heapMB), fmt.Sprintf("-Xms%dM", heapMB/2))
+		args = append(args,
+			fmt.Sprintf("-Xmx%dM", heapMB),
+			fmt.Sprintf("-Xms%dM", javaInitialHeapMB(heapMB)),
+		)
 	}
 	if javaMajor < 8 {
 		return args
+	}
+
+	newSizePercent := 30
+	maxNewSizePercent := 40
+	heapRegionSize := "8M"
+	reservePercent := 20
+	initiatingHeapOccupancyPercent := 15
+	if heapMB > largeHeapThresholdMB {
+		newSizePercent = 40
+		maxNewSizePercent = 50
+		heapRegionSize = "16M"
+		reservePercent = 15
+		initiatingHeapOccupancyPercent = 20
 	}
 
 	args = append(args,
@@ -75,22 +110,29 @@ func defaultJavaArgs(heapMB, javaMajor int) []string {
 		"-XX:+UnlockExperimentalVMOptions",
 		"-XX:+DisableExplicitGC",
 		"-XX:+AlwaysPreTouch",
-		"-XX:G1NewSizePercent=30",
-		"-XX:G1MaxNewSizePercent=40",
-		"-XX:G1HeapRegionSize=8M",
-		"-XX:G1ReservePercent=20",
+		fmt.Sprintf("-XX:G1NewSizePercent=%d", newSizePercent),
+		fmt.Sprintf("-XX:G1MaxNewSizePercent=%d", maxNewSizePercent),
+		"-XX:G1HeapRegionSize="+heapRegionSize,
+		fmt.Sprintf("-XX:G1ReservePercent=%d", reservePercent),
 		"-XX:G1HeapWastePercent=5",
 		"-XX:G1MixedGCCountTarget=4",
-		"-XX:InitiatingHeapOccupancyPercent=15",
+		fmt.Sprintf("-XX:InitiatingHeapOccupancyPercent=%d", initiatingHeapOccupancyPercent),
 		"-XX:G1MixedGCLiveThresholdPercent=90",
+		"-XX:G1RSetUpdatingPauseTimePercent=5",
 		"-XX:SurvivorRatio=32",
 		"-XX:+PerfDisableSharedMem",
 		"-XX:MaxTenuringThreshold=1",
+		"-Dusing.aikars.flags=https://mcflags.emc.gs",
+		"-Daikars.new.flags=true",
 	)
-	if javaMajor >= 9 {
-		args = append(args, "-XX:+UseStringDeduplication")
-	}
 	return args
+}
+
+func forcedLogLocaleJavaArgs() []string {
+	return []string{
+		"-Duser.language=en",
+		"-Duser.country=US",
+	}
 }
 
 func splitJavaArgs(s string) []string {

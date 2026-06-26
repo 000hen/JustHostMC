@@ -13,7 +13,9 @@ internal static class EngineFixture
         if (!File.Exists(path))
             throw new FileNotFoundException(
                 $"engine.exe not found at '{path}'. Build it first: " +
-                "from /engine run `go build -o ../build/engine.exe ./cmd/engine`.",
+                "from /engine run `go build -trimpath -buildvcs=false -mod=readonly " +
+                "-ldflags=\"-s -w -buildid=\" -o ../build/engine.exe ./cmd/engine` " +
+                "with CGO_ENABLED=0.",
                 path);
         return path;
     }

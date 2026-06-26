@@ -15,6 +15,8 @@
     <RepoRoot>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)..'))</RepoRoot>
     <EngineSourceDir>$(RepoRoot)engine</EngineSourceDir>
     <EngineExe>$(RepoRoot)build\engine.exe</EngineExe>
+    <EngineGoBuildArgs Condition="'$(EngineGoBuildArgs)' == ''">-trimpath -buildvcs=false -mod=readonly -ldflags=&quot;-s -w -buildid=&quot;</EngineGoBuildArgs>
+    <EngineGoBuildEnvironment Condition="'$(EngineGoBuildEnvironment)' == ''">CGO_ENABLED=0</EngineGoBuildEnvironment>
   </PropertyGroup>
 
   <Target Name="BuildEngine" BeforeTargets="BeforeBuild"
@@ -28,17 +30,18 @@
     </Exec>
 
     <Message Condition="'$(_GoExitCode)' == '0'" Importance="high"
-             Text="BuildEngine: go build -&gt; $(EngineExe)" />
+             Text="BuildEngine: $(EngineGoBuildEnvironment) go build $(EngineGoBuildArgs) -&gt; $(EngineExe)" />
     <Exec Condition="'$(_GoExitCode)' == '0'"
           WorkingDirectory="$(EngineSourceDir)"
-          Command="go build -buildvcs=false -o &quot;$(EngineExe)&quot; ./cmd/engine" />
+          EnvironmentVariables="$(EngineGoBuildEnvironment)"
+          Command="go build $(EngineGoBuildArgs) -o &quot;$(EngineExe)&quot; ./cmd/engine" />
 
     <!-- Go missing: tolerate a prebuilt engine, but fail clearly if there is
          nothing to launch. -->
     <Warning Condition="'$(_GoExitCode)' != '0' And Exists('$(EngineExe)')"
              Text="Go toolchain not found on PATH; using the existing engine at $(EngineExe). Install Go (https://go.dev/dl) to rebuild it on each build." />
     <Error Condition="'$(_GoExitCode)' != '0' And !Exists('$(EngineExe)')"
-           Text="Cannot produce the engine: Go is not on PATH and no prebuilt engine exists at $(EngineExe). Install Go (https://go.dev/dl), or build it manually: cd engine, then go build -o ../build/engine.exe ./cmd/engine" />
+           Text="Cannot produce the engine: Go is not on PATH and no prebuilt engine exists at $(EngineExe). Install Go (https://go.dev/dl), or build it manually: cd engine, then run go build $(EngineGoBuildArgs) -o ../build/engine.exe ./cmd/engine with $(EngineGoBuildEnvironment)" />
   </Target>
 
 </Project>

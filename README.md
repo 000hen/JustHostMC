@@ -59,7 +59,11 @@ WinUI 3 (C#)  <-- gRPC (loopback) -->  engine (Go)  <-- IsolationBackend -->  pe
 cd proto ; buf generate
 
 # 2. Build & test the engine, then produce the bundled binary the app launches.
-cd ../engine ; go build ./... ; go test ./... ; go build -o ../build/engine.exe ./cmd/engine
+cd ../engine
+go build ./...
+go test ./...
+$env:CGO_ENABLED = '0'
+go build -trimpath -buildvcs=false -mod=readonly -ldflags="-s -w -buildid=" -o ../build/engine.exe ./cmd/engine
 
 # 3. Build the app (WinUI requires an explicit platform; AnyCPU is unsupported).
 cd .. ; dotnet build app/JustHostMC.App/JustHostMC.App.csproj -p:Platform=x64

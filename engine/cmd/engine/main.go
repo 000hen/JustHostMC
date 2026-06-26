@@ -66,6 +66,7 @@ func main() {
 	providers := map[mcmanagerv1.ServerType]provider.Provider{
 		mcmanagerv1.ServerType_VANILLA:  provider.NewVanilla(),
 		mcmanagerv1.ServerType_PAPER:    provider.NewPaper(),
+		mcmanagerv1.ServerType_SPIGOT:   provider.NewSpigot(jreMgr.EnsureJDK),
 		mcmanagerv1.ServerType_FORGE:    provider.NewForge(jreMgr.EnsureJRE),
 		mcmanagerv1.ServerType_NEOFORGE: provider.NewNeoForge(jreMgr.EnsureJRE),
 		mcmanagerv1.ServerType_FABRIC:   provider.NewFabric(),

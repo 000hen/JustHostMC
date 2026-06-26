@@ -30,6 +30,7 @@ public sealed class ServerItem : ObservableObject
     }
 
     public string Id { get; }
+    public ServerProgressTracker ProgressTracker { get; set; } = null!;
 
     public string Name
     {

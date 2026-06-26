@@ -340,17 +340,53 @@
         <Grid x:Name="DetailLayout" Grid.Row="1" Padding="24,20,24,24" RowSpacing="16">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <SelectorBar x:Name="SectionBar" Grid.Row="0" SelectionChanged="OnSectionChanged">
+            <StackPanel Grid.Row="0" Spacing="12">
+                <Border Padding="16" CornerRadius="8"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        Visibility="{x:Bind Server.ProgressTracker.IsActive, Mode=OneWay, Converter={StaticResource BoolToVis}}">
+                    <StackPanel Spacing="12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{x:Bind Server.ProgressTracker.CurrentStep, Mode=OneWay}"
+                                       Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <Button Grid.Column="1" x:Uid="InstallDismissButton"
+                                    Command="{x:Bind Server.ProgressTracker.DismissCommand}"
+                                    Visibility="{x:Bind Server.ProgressTracker.HasFailed, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                        </Grid>
+                        <ProgressBar IsIndeterminate="{x:Bind Server.ProgressTracker.IsIndeterminate, Mode=OneWay}"
+                                     Value="{x:Bind Server.ProgressTracker.ProgressPercentage, Mode=OneWay}" />
+                    </StackPanel>
+                </Border>
+
+                <InfoBar x:Uid="InstallReadyInfoBar"
+                         IsOpen="{x:Bind Server.ProgressTracker.IsReadyToRun, Mode=OneWay}"
+                         Severity="Success"
+                         CloseButtonClick="OnReadyInfoBarClosed">
+                    <InfoBar.ActionButton>
+                        <Button x:Uid="InfoBarStartServerButton"
+                                Click="OnStateButtonClick"
+                                Style="{StaticResource AccentButtonStyle}" />
+                    </InfoBar.ActionButton>
+                </InfoBar>
+            </StackPanel>
+
+            <SelectorBar x:Name="SectionBar" Grid.Row="1" SelectionChanged="OnSectionChanged">
                 <SelectorBarItem x:Uid="ServerSectionConsole" Tag="console" IsSelected="True" />
                 <SelectorBarItem x:Uid="ServerSectionPlayers" Tag="players" />
                 <SelectorBarItem x:Uid="ServerSectionPerformance" Tag="performance" />
                 <SelectorBarItem x:Uid="ServerSectionMods" Tag="mods" />
             </SelectorBar>
 
-            <Grid Grid.Row="1">
+            <Grid Grid.Row="2">
 
                 <!-- Console -->
                 <Grid x:Name="ConsolePanel" RowSpacing="10">

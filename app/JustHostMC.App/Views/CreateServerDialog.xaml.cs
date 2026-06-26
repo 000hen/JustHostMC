@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using JustHostMC.App.Services;
 using JustHostMC.App.ViewModels;
@@ -27,6 +27,7 @@ public sealed partial class CreateServerDialog : ContentDialog
         {
             new(ServerType.Vanilla, loc.Get("ServerType_Vanilla")),
             new(ServerType.Paper, loc.Get("ServerType_Paper")),
+            new(ServerType.Spigot, loc.Get("ServerType_Spigot")),
             new(ServerType.Forge, loc.Get("ServerType_Forge")),
             new(ServerType.Neoforge, loc.Get("ServerType_NeoForge")),
             new(ServerType.Fabric, loc.Get("ServerType_Fabric")),

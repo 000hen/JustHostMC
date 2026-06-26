@@ -78,6 +78,7 @@ public sealed partial class MainWindow : Window {
         Shell = new NavShellViewModel(new MainViewModel(localizer, DispatcherQueue));
 
         InitializeComponent();
+        PaneFooterGrid.DataContext = Shell.Main.ProgressService;
         Title = localizer.Get("AppTitle");
         ExtendsContentIntoTitleBar = true;
         InstallMinimumWindowSizeHook();

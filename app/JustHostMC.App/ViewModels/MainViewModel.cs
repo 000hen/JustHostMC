@@ -31,6 +31,7 @@ public partial class MainViewModel : ObservableObject
 
     public ObservableCollection<ServerItem> Servers { get; } = new();
     public ObservableCollection<string> InstallLog { get; } = new();
+    public ServerProgressService ProgressService { get; }
 
     public int TotalServers => Servers.Count;
     public int RunningServers => Servers.Count(s => s.Status == ServerStatus.Running);
@@ -83,6 +84,7 @@ public partial class MainViewModel : ObservableObject
     {
         _localizer = localizer;
         _dispatcher = dispatcher;
+        ProgressService = new ServerProgressService(_dispatcher);
         _engineStatus = _localizer.Get("EngineStatus_Connecting");
     }
 
@@ -152,14 +154,24 @@ public partial class MainViewModel : ObservableObject
     /// <summary>Creates a server, streaming localized install progress + raw log.</summary>
     public async Task InstallServerAsync(CreateServerRequest request)
     {
+        var tracker = ProgressService.GetOrCreateTracker(null, request.Name);
         RunOnUI(() =>
         {
+            tracker.InstallLog.Clear();
+            tracker.HasFailed = false;
+            tracker.IsInstalling = true;
+            tracker.IsActive = true;
+            tracker.IsReadyToRun = false;
+            tracker.IsIndeterminate = true;
+            tracker.ProgressFraction = 0;
+            tracker.CurrentStep = _localizer.Get("install_progress_preparing");
+
             InstallLog.Clear();
             InstallFailed = false;
             IsInstalling = true;
             InstallIsIndeterminate = true;
             InstallFraction = 0;
-            InstallStep = _localizer.Get("install.progress.preparing");
+            InstallStep = _localizer.Get("install_progress_preparing");
         });
 
         try
@@ -169,19 +181,50 @@ public partial class MainViewModel : ObservableObject
             await foreach (var progress in call.ResponseStream.ReadAllAsync().ConfigureAwait(false))
             {
                 var snapshot = progress;
-                RunOnUI(() => ApplyInstallProgress(snapshot));
+                RunOnUI(() =>
+                {
+                    ApplyInstallProgress(snapshot);
+                    if (snapshot.Step is { Key.Length: > 0 } step)
+                        tracker.CurrentStep = _localizer.Get(step.Key);
+                    if (snapshot.Fraction >= 0)
+                    {
+                        tracker.IsIndeterminate = false;
+                        tracker.ProgressFraction = snapshot.Fraction;
+                    }
+                    else
+                    {
+                        tracker.IsIndeterminate = true;
+                    }
+                    if (!string.IsNullOrEmpty(snapshot.LogLine))
+                        tracker.AppendLog(snapshot.LogLine);
+                });
             }
             await RefreshAsync();
-            RunOnUI(() => IsInstalling = false);
+            RunOnUI(() =>
+            {
+                IsInstalling = false;
+                tracker.IsInstalling = false;
+                tracker.IsActive = false;
+                tracker.IsReadyToRun = true;
+                tracker.CurrentStep = _localizer.Get("install_progress_done") + " " + _localizer.Get("install_ready_to_run");
+            });
         }
         catch (RpcException ex)
         {
             var key = MapErrorKey(ex);
+            var detail = ex.Status.Detail;
             RunOnUI(() =>
             {
                 InstallFailed = true;
                 InstallIsIndeterminate = false;
-                InstallStep = _localizer.Get(key);
+                InstallStep = string.IsNullOrEmpty(detail)
+                    ? _localizer.Get(key)
+                    : $"{_localizer.Get(key)}: {detail}";
+
+                tracker.HasFailed = true;
+                tracker.IsIndeterminate = false;
+                tracker.IsActive = false;
+                tracker.CurrentStep = InstallStep;
             });
         }
     }
@@ -255,6 +298,17 @@ public partial class MainViewModel : ObservableObject
     {
         if (item is null)
             return;
+        var tracker = item.ProgressTracker;
+        RunOnUI(() =>
+        {
+            if (tracker is not null)
+            {
+                tracker.IsReadyToRun = false;
+                tracker.IsActive = true;
+                tracker.IsIndeterminate = true;
+                tracker.CurrentStep = _localizer.Get("ServerState_Starting");
+            }
+        });
         try
         {
             var daemon = await App.Current.DaemonReady;
@@ -271,6 +325,17 @@ public partial class MainViewModel : ObservableObject
     {
         if (item is null)
             return;
+        var tracker = item.ProgressTracker;
+        RunOnUI(() =>
+        {
+            if (tracker is not null)
+            {
+                tracker.IsReadyToRun = false;
+                tracker.IsActive = true;
+                tracker.IsIndeterminate = true;
+                tracker.CurrentStep = _localizer.Get("ServerState_Stopping");
+            }
+        });
         try
         {
             var daemon = await App.Current.DaemonReady;
@@ -333,15 +398,35 @@ public partial class MainViewModel : ObservableObject
 
         foreach (var proto in list)
         {
+            var tracker = ProgressService.GetOrCreateTracker(proto.Id, proto.Name);
+            if (proto.Status is not (ServerStatus.Installing or ServerStatus.Starting or ServerStatus.Stopping))
+            {
+                if (tracker.IsActive)
+                    tracker.IsActive = false;
+            }
+            else
+            {
+                if (!tracker.IsActive)
+                    tracker.IsActive = true;
+                tracker.CurrentStep = _localizer.Get(proto.Status switch
+                {
+                    ServerStatus.Installing => "ServerState_Installing",
+                    ServerStatus.Starting => "ServerState_Starting",
+                    ServerStatus.Stopping => "ServerState_Stopping",
+                    _ => "ServerStatus_Unknown"
+                });
+            }
+
             if (existing.TryGetValue(proto.Id, out var item))
             {
+                item.ProgressTracker = tracker;
                 item.Apply(proto);
                 if (TryGetPendingUpdate(proto.Id, out var pending))
                     item.ApplyLocal(pending);
             }
             else
             {
-                var newItem = new ServerItem(proto, _localizer);
+                var newItem = new ServerItem(proto, _localizer) { ProgressTracker = tracker };
                 if (TryGetPendingUpdate(proto.Id, out var pending))
                     newItem.ApplyLocal(pending);
                 Servers.Add(newItem);

@@ -39,6 +39,11 @@ public sealed class NavShellViewModel : ObservableObject
         {
             cache = new ServerViewModelCache(serverId, serverName, dispatcher, localizer);
             _serverVmCache[serverId] = cache;
+
+            var tracker = Main.ProgressService.GetOrCreateTracker(serverId, serverName);
+            foreach (var line in tracker.InstallLog)
+                cache.Console.AppendExternalLine(line);
+            tracker.LogAppended += line => cache.Console.AppendExternalLine(line);
         }
         else
         {

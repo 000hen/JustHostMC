@@ -104,6 +104,8 @@ public partial class ConsoleViewModel : ObservableObject, IAsyncDisposable
             Lines.RemoveAt(0);
     }
 
+    public void AppendExternalLine(string line) => RunOnUI(() => AppendLine(line));
+
     private void RunOnUI(Action action)
     {
         if (_dispatcher.HasThreadAccess)

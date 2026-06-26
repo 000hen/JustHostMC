@@ -10,11 +10,29 @@ public sealed class LocalizationService : ILocalizer
 {
     private readonly ResourceLoader _loader = new();
 
-    public string Get(string key) => _loader.GetString(NormalizeKey(key));
+    public string Get(string key)
+    {
+        try
+        {
+            return _loader.GetString(NormalizeKey(key));
+        }
+        catch
+        {
+            return key;
+        }
+    }
 
     public string Get(string key, params (string Name, string Value)[] args)
     {
-        var format = _loader.GetString(NormalizeKey(key));
+        string format;
+        try
+        {
+            format = _loader.GetString(NormalizeKey(key));
+        }
+        catch
+        {
+            format = key;
+        }
         foreach (var (name, value) in args)
             format = format.Replace("{" + name + "}", value);
         return format;

@@ -285,4 +285,9 @@ public sealed partial class ServerPage : Page {
         if (sender is FrameworkElement { Tag: ModFileItem item })
             await Mods.RemoveAsync(item);
     }
+
+    private void OnReadyInfoBarClosed(InfoBar sender, object args) {
+        if (Server?.ProgressTracker is not null)
+            Server.ProgressTracker.IsReadyToRun = false;
+    }
 }

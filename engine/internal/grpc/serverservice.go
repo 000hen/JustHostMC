@@ -150,12 +150,15 @@ func (s *ServerService) Create(req *mcmanagerv1.CreateServerRequest, stream grpc
 
 	spec, err := prov.Install(ctx, dir, req.McVersion, send)
 	if err != nil {
+		// Surface the error in the live log so the user can see what went wrong.
+		send(provider.Progress{LogLine: "[error] " + err.Error()})
 		il.recordLine("[error] install: " + err.Error())
 		cleanup()
 		return mapInstallError(err)
 	}
 	spec.JavaMajor = maxJavaMajor(spec.JavaMajor, req.McVersion)
 	if _, err := s.cfg.JRE.EnsureJRE(ctx, spec.JavaMajor, send); err != nil {
+		send(provider.Progress{LogLine: "[error] " + err.Error()})
 		il.recordLine("[error] jre: " + err.Error())
 		cleanup()
 		return mapInstallError(err)

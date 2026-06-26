@@ -40,6 +40,35 @@
                 </NavigationViewItem>
             </NavigationView.MenuItems>
 
+            <NavigationView.PaneFooter>
+                <Grid x:Name="PaneFooterGrid"
+                      Visibility="{Binding HasActiveTracker, Mode=OneWay, Converter={StaticResource BoolToVis}}"
+                      MinHeight="48" Padding="12,8">
+                    <StackPanel Spacing="6" VerticalAlignment="Center"
+                                Visibility="{Binding ElementName=Nav, Path=IsPaneOpen, Mode=OneWay, Converter={StaticResource BoolToVis}}">
+                        <TextBlock Text="{Binding CurrentActiveTracker.ServerName, Mode=OneWay}"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   TextTrimming="CharacterEllipsis"
+                                   FontWeight="SemiBold" />
+                        <ProgressBar IsIndeterminate="{Binding CurrentActiveTracker.IsIndeterminate, Mode=OneWay}"
+                                     Value="{Binding CurrentActiveTracker.ProgressPercentage, Mode=OneWay}"
+                                     HorizontalAlignment="Stretch" />
+                        <TextBlock Text="{Binding CurrentActiveTracker.CurrentStep, Mode=OneWay}"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+
+                    <Grid VerticalAlignment="Center" HorizontalAlignment="Center"
+                          Visibility="{Binding ElementName=Nav, Path=IsPaneOpen, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter='invert'}">
+                        <ProgressRing Width="20" Height="20"
+                                      IsIndeterminate="{Binding CurrentActiveTracker.IsIndeterminate, Mode=OneWay}"
+                                      Value="{Binding CurrentActiveTracker.ProgressPercentage, Mode=OneWay}"
+                                      ToolTipService.ToolTip="{Binding CurrentActiveTracker.CurrentStep, Mode=OneWay}" />
+                    </Grid>
+                </Grid>
+            </NavigationView.PaneFooter>
+
             <NavigationView.FooterMenuItems>
                 <NavigationViewItem x:Uid="NavAddServer" Tag="add" SelectsOnInvoked="False">
                     <NavigationViewItem.Icon>

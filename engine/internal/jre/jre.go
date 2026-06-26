@@ -60,7 +60,7 @@ func (m *Manager) EnsureJRE(ctx context.Context, major int, progress func(provid
 		return java, nil // cache hit; shared across servers
 	}
 
-	link, checksum, err := m.resolveAsset(ctx, major)
+	link, checksum, err := m.resolveAsset(ctx, major, "jre")
 	if err != nil {
 		return "", err
 	}
@@ -106,6 +106,60 @@ func (m *Manager) EnsureJRE(ctx context.Context, major int, progress func(provid
 	return java, nil
 }
 
+// EnsureJDK returns a path to java.exe for the given Java feature version from a JDK package,
+// which includes the Java compiler (javac) required by build tools like Spigot BuildTools.
+func (m *Manager) EnsureJDK(ctx context.Context, major int, progress func(provider.Progress)) (string, error) {
+	dir := filepath.Join(m.cacheDir, "jdk", strconv.Itoa(major))
+	if java, ok := findJava(dir); ok {
+		return java, nil // cache hit; shared across servers
+	}
+
+	link, checksum, err := m.resolveAsset(ctx, major, "jdk")
+	if err != nil {
+		return "", err
+	}
+
+	report(progress, provider.Progress{Step: "install.progress.downloading_jre", Fraction: 0})
+	tmp, err := os.CreateTemp("", "jhmc-jdk-*.zip")
+	if err != nil {
+		return "", err
+	}
+	tmpPath := tmp.Name()
+	_ = tmp.Close()
+	defer os.Remove(tmpPath)
+
+	sum, _, err := dl.Download(ctx, m.client, link, tmpPath, sha256.New(), func(done, total int64) {
+		frac := -1.0
+		if total > 0 {
+			frac = float64(done) / float64(total)
+		}
+		report(progress, provider.Progress{Fraction: frac})
+	})
+	if err != nil {
+		return "", err
+	}
+	if checksum != "" && !strings.EqualFold(sum, checksum) {
+		return "", fmt.Errorf("jdk %d: %w (got %s want %s)", major, provider.ErrChecksumMismatch, sum, checksum)
+	}
+
+	report(progress, provider.Progress{Step: "install.progress.extracting_jre", Fraction: -1})
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return "", err
+	}
+	if err := extractZip(tmpPath, dir); err != nil {
+		// Leave no half-extracted cache behind to mask the failure next time.
+		_ = os.RemoveAll(dir)
+		return "", err
+	}
+
+	java, ok := findJava(dir)
+	if !ok {
+		_ = os.RemoveAll(dir)
+		return "", fmt.Errorf("jdk %d: java.exe not found after extraction: %w", major, ErrJREUnavailable)
+	}
+	return java, nil
+}
+
 type adoptiumAsset struct {
 	Binary struct {
 		Package struct {
@@ -116,9 +170,9 @@ type adoptiumAsset struct {
 	} `json:"binary"`
 }
 
-func (m *Manager) resolveAsset(ctx context.Context, major int) (link, checksum string, err error) {
-	url := fmt.Sprintf("%s/v3/assets/latest/%d/hotspot?architecture=x64&image_type=jre&os=windows&vendor=eclipse",
-		m.apiBase, major)
+func (m *Manager) resolveAsset(ctx context.Context, major int, imageType string) (link, checksum string, err error) {
+	url := fmt.Sprintf("%s/v3/assets/latest/%d/hotspot?architecture=x64&image_type=%s&os=windows&vendor=eclipse",
+		m.apiBase, major, imageType)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return "", "", err

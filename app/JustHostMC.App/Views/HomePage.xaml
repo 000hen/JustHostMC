@@ -92,8 +92,18 @@
                     </Grid>
 
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8">
-                        <controls:StatusDot Status="{Binding Status}" />
-                        <TextBlock Text="{Binding StatusText}" Style="{StaticResource CaptionTextBlockStyle}" />
+                        <controls:StatusDot Status="{Binding Status}" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding StatusText}" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" />
+                        <ProgressRing Width="14" Height="14"
+                                      VerticalAlignment="Center"
+                                      IsIndeterminate="{Binding ProgressTracker.IsIndeterminate}"
+                                      Value="{Binding ProgressTracker.ProgressPercentage}"
+                                      Visibility="{Binding ProgressTracker.IsActive, Converter={StaticResource BoolToVis}}" />
+                        <TextBlock Text="{Binding ProgressTracker.NavigationText}"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   VerticalAlignment="Center"
+                                   Visibility="{Binding ProgressTracker.IsActive, Converter={StaticResource BoolToVis}}" />
                     </StackPanel>
 
                     <Grid Grid.Row="2" RowSpacing="10" MinHeight="92">
@@ -270,12 +280,30 @@
                     Height="40" />
         </Grid>
 
-        <InfoBar x:Uid="OnMachineNotice"
-                 x:Name="OnMachineInfoBar"
-                 Grid.Row="1"
-                 Severity="Informational"
-                 IsClosable="True"
-                 CloseButtonClick="OnMachineNoticeClosed" />
+        <StackPanel Grid.Row="1" Spacing="12">
+            <InfoBar x:Uid="OnMachineNotice"
+                     x:Name="OnMachineInfoBar"
+                     Severity="Informational"
+                     IsClosable="True"
+                     CloseButtonClick="OnMachineNoticeClosed" />
+            <ItemsControl ItemsSource="{x:Bind Main.Servers, Mode=OneWay}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <InfoBar x:Uid="InstallReadyInfoBar"
+                                 IsOpen="{Binding ProgressTracker.IsReadyToRun, Mode=TwoWay}"
+                                 Severity="Success"
+                                 Margin="0,0,0,12">
+                            <InfoBar.ActionButton>
+                                <Button x:Uid="InfoBarStartServerButton"
+                                        Click="OnCardStateClick"
+                                        Tag="{Binding}"
+                                        Style="{StaticResource AccentButtonStyle}" />
+                            </InfoBar.ActionButton>
+                        </InfoBar>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
 
         <Grid Grid.Row="2" ColumnSpacing="12">
             <Grid.ColumnDefinitions>

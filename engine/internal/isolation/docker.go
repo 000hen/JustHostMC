@@ -208,7 +208,6 @@ type dockerInstance struct {
 	mu     sync.Mutex
 	stdin  *bufio.Writer
 	closed bool
-	tps    tpsTracker
 
 	// metMu guards the previous cumulative network counters used to derive the
 	// per-second network rates across successive Sample calls.
@@ -239,7 +238,6 @@ func (d *dockerInstance) stream() {
 	sc := bufio.NewScanner(stdout)
 	sc.Buffer(make([]byte, 0, 64*1024), 1024*1024)
 	for sc.Scan() {
-		d.tps.Observe(sc.Text())
 		select {
 		case d.out <- sc.Text():
 		default: // drop if nobody is reading, never block the stream
@@ -336,7 +334,6 @@ func (d *dockerInstance) Sample(ctx context.Context) (Stats, bool) {
 		NetRxBytesPerSec: rxRate,
 		NetTxBytesPerSec: txRate,
 		NetworkAvailable: true,
-		TPS:              d.tps.Value(),
 	}, true
 }
 

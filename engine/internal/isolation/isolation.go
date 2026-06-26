@@ -50,7 +50,6 @@ type Stats struct {
 	NetRxBytesPerSec int64
 	NetTxBytesPerSec int64
 	NetworkAvailable bool // false when the backend can't measure per-instance network
-	TPS              float64
 }
 
 // Sampler is an optional Instance capability: callers type-assert an Instance to

@@ -41,9 +41,6 @@ public sealed partial class MetricsViewModel : ObservableObject, IAsyncDisposabl
     private string _netText = "—";
     public string NetText { get => _netText; private set => SetProperty(ref _netText, value); }
 
-    private string _tpsText = "—";
-    public string TpsText { get => _tpsText; private set => SetProperty(ref _tpsText, value); }
-
     private bool _networkAvailable;
     public bool NetworkAvailable { get => _networkAvailable; private set => SetProperty(ref _networkAvailable, value); }
 
@@ -77,7 +74,6 @@ public sealed partial class MetricsViewModel : ObservableObject, IAsyncDisposabl
     {
         Push(CpuSeries, Math.Clamp(s.CpuPercent / 100.0, 0, 1));
         CpuText = $"{s.CpuPercent:0}%";
-        TpsText = s.Tps > 0 ? $"{s.Tps:0.0}" : "—";
 
         double memNormalized;
         if (s.MemoryLimitBytes > 0)

@@ -109,15 +109,6 @@ func (s *ServerService) Instance(id string) (isolation.Instance, bool) {
 	return inst, ok
 }
 
-// ServerType returns the configured server type for a server id.
-func (s *ServerService) ServerType(id string) (mcmanagerv1.ServerType, bool) {
-	rec, ok := s.cfg.Store.Get(id)
-	if !ok {
-		return mcmanagerv1.ServerType_SERVER_TYPE_UNSPECIFIED, false
-	}
-	return rec.Type, true
-}
-
 // Create provisions a new server, streaming install progress, and registers it
 // ready to start.
 func (s *ServerService) Create(req *mcmanagerv1.CreateServerRequest, stream grpc.ServerStreamingServer[mcmanagerv1.InstallProgress]) error {

@@ -300,9 +300,6 @@
   <data name="PlayerInventoryMenuItem.Text" xml:space="preserve">
     <value>Show inventory</value>
   </data>
-  <data name="MetricsTps.Text" xml:space="preserve">
-    <value>TPS</value>
-  </data>
   <data name="BackupOpenFolderButton.Content" xml:space="preserve">
     <value>Open backup folder</value>
   </data>

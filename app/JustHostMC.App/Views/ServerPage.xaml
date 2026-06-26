@@ -605,15 +605,6 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Grid.Row="1" Grid.Column="0" Padding="16" CornerRadius="8"
-                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
-                        <StackPanel Spacing="8">
-                            <TextBlock x:Uid="MetricsTps" Style="{StaticResource CaptionTextBlockStyle}"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                            <TextBlock Text="{x:Bind Metrics.TpsText, Mode=OneWay}" Style="{StaticResource SubtitleTextBlockStyle}" />
-                        </StackPanel>
-                    </Border>
                     </Grid>
                 </ScrollViewer>
 

@@ -117,7 +117,7 @@ func main() {
 		BackupService:   backupService,
 		SettingsService: settingsService,
 		PlayerService:   grpcsvc.NewPlayerService(hub),
-		MetricsService:  grpcsvc.NewMetricsService(serverService, hub),
+		MetricsService:  grpcsvc.NewMetricsService(serverService),
 		ModService:      grpcsvc.NewModService(registry, paths),
 	})
 	log.Printf("engine data dir: %s", paths.Base)

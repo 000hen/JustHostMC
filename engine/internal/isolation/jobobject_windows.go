@@ -167,7 +167,6 @@ type jobInstance struct {
 	output     chan string
 	done       chan struct{}
 	memLimitMB int
-	tps        tpsTracker
 
 	mu      sync.Mutex
 	exitErr error
@@ -208,7 +207,6 @@ func (i *jobInstance) scan(wg *sync.WaitGroup, r io.Reader) {
 	sc := bufio.NewScanner(r)
 	sc.Buffer(make([]byte, 0, 64*1024), maxConsoleLine)
 	for sc.Scan() {
-		i.tps.Observe(sc.Text())
 		select {
 		case i.output <- sc.Text():
 		default:
@@ -323,7 +321,6 @@ func (i *jobInstance) Sample(_ context.Context) (Stats, bool) {
 	if mem, ok := processWorkingSet(i.procHandle); ok {
 		stats.MemoryBytes = mem
 	}
-	stats.TPS = i.tps.Value()
 	return stats, true
 }
 

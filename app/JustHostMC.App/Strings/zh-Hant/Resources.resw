@@ -297,9 +297,6 @@
   <data name="PlayerInventoryMenuItem.Text" xml:space="preserve">
     <value>顯示物品欄</value>
   </data>
-  <data name="MetricsTps.Text" xml:space="preserve">
-    <value>TPS</value>
-  </data>
   <data name="BackupOpenFolderButton.Content" xml:space="preserve">
     <value>開啟備份資料夾</value>
   </data>

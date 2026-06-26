@@ -196,7 +196,7 @@ message ResourceSample {
   int64 net_rx_bytes_per_sec = 5; // 0 when network_available = false
   int64 net_tx_bytes_per_sec = 6;
   bool network_available = 7; // false on the on-machine backend (Windows per-process net is impractical)
-  double tps = 8; // ticks per second; 0 when unavailable
+  reserved 8;
 }
 
 // -- Plugins/Mods: jar files in the server's plugins|mods folder ---------------

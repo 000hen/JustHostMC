@@ -8,6 +8,7 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Data;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Runtime.InteropServices;
 using Windows.Graphics;
@@ -67,9 +68,11 @@ public sealed partial class MainWindow : Window {
     private readonly Dictionary<string, NavigationViewItem> _serverItems = new();
     private readonly SubclassProc _subclassProc;
     private IntPtr _hwnd;
+    private readonly NavigationViewItem HomeItem;
 
     /// <summary>The navigation shell: owns the shared MainViewModel.</summary>
     public NavShellViewModel Shell { get; }
+    public ObservableCollection<object> MenuItems { get; } = new();
 
     public MainWindow() {
         _subclassProc = WindowSubclassProc;
@@ -77,7 +80,14 @@ public sealed partial class MainWindow : Window {
         var localizer = new LocalizationService();
         Shell = new NavShellViewModel(new MainViewModel(localizer, DispatcherQueue));
 
+        HomeItem = new NavigationViewItem {
+            Tag = "home",
+            Content = localizer.Get("NavHome/Content"),
+            Icon = new FontIcon { Glyph = "\uE80F" }
+        };
+
         InitializeComponent();
+        MenuItems.Add(HomeItem);
         PaneFooterGrid.DataContext = Shell.Main.ProgressService;
         Title = localizer.Get("AppTitle");
         ExtendsContentIntoTitleBar = true;
@@ -140,12 +150,12 @@ public sealed partial class MainWindow : Window {
                 continue;
             var item = CreateServerItem(server);
             _serverItems[server.Id] = item;
-            Nav.MenuItems.Add(item);
+            MenuItems.Add(item);
         }
 
         var live = Shell.Main.Servers.Select(s => s.Id).ToHashSet();
         foreach (var (id, item) in _serverItems.Where(kv => !live.Contains(kv.Key)).ToList()) {
-            Nav.MenuItems.Remove(item);
+            MenuItems.Remove(item);
             _serverItems.Remove(id);
             _ = Shell.EvictServerCacheAsync(id);
         }
@@ -155,10 +165,9 @@ public sealed partial class MainWindow : Window {
             if (!_serverItems.TryGetValue(server.Id, out var item))
                 continue;
 
-            var currentIndex = Nav.MenuItems.IndexOf(item);
+            var currentIndex = MenuItems.IndexOf(item);
             if (currentIndex >= 0 && currentIndex != insertIndex) {
-                Nav.MenuItems.RemoveAt(currentIndex);
-                Nav.MenuItems.Insert(insertIndex, item);
+                MenuItems.Move(currentIndex, insertIndex);
             }
             insertIndex++;
         }

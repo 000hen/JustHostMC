@@ -29,17 +29,10 @@
                     PaneDisplayMode="Left"
                     IsBackButtonVisible="Collapsed"
                     IsSettingsVisible="False"
+                    MenuItemsSource="{x:Bind MenuItems}"
                     SelectionChanged="OnNavSelectionChanged"
                     ItemInvoked="OnNavItemInvoked"
                     Grid.Row="1">
-            <NavigationView.MenuItems>
-                <NavigationViewItem x:Uid="NavHome" x:Name="HomeItem" Tag="home">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE80F;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-            </NavigationView.MenuItems>
-
             <NavigationView.PaneFooter>
                 <Grid x:Name="PaneFooterGrid"
                       Visibility="{Binding HasActiveTracker, Mode=OneWay, Converter={StaticResource BoolToVis}}"

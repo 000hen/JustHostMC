@@ -1,10 +1,12 @@
 using JustHostMC.App.Models;
+using JustHostMC.App.Controls;
 using JustHostMC.App.Services;
 using JustHostMC.App.ViewModels;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -13,7 +15,7 @@ using Windows.Storage.Pickers;
 namespace JustHostMC.App.Views;
 
 /// <summary>Modal backup manager for one server: list, create, restore, delete.</summary>
-public sealed partial class BackupsDialog : ContentDialog
+public sealed partial class BackupsDialog : FluentContentDialog
 {
     private readonly string _serverId;
     private readonly string _serverName;

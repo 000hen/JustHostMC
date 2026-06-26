@@ -191,7 +191,7 @@ public partial class ServerProgressTracker : ObservableObject
 /// <summary>
 /// Centralized repository managing per-server progress trackers shared across pages and navigation menus.
 /// </summary>
-public sealed class ServerProgressService : ObservableObject
+public sealed partial class ServerProgressService : ObservableObject
 {
     private readonly DispatcherQueue _dispatcher;
     private readonly Dictionary<string, ServerProgressTracker> _trackers = new();
@@ -208,11 +208,63 @@ public sealed class ServerProgressService : ObservableObject
             if (SetProperty(ref _currentActiveTracker, value))
             {
                 OnPropertyChanged(nameof(HasActiveTracker));
+                UpdatePaginationProps();
             }
         }
     }
 
     public bool HasActiveTracker => CurrentActiveTracker is not null;
+
+    public int ActiveCount => ActiveTrackers.Count;
+    public bool HasMultipleActive => ActiveTrackers.Count > 1;
+    public string ActiveIndexText
+    {
+        get
+        {
+            if (ActiveTrackers.Count == 0 || CurrentActiveTracker == null)
+                return "";
+            var index = ActiveTrackers.IndexOf(CurrentActiveTracker) + 1;
+            return $"({index}/{ActiveTrackers.Count})";
+        }
+    }
+
+    public bool CanGoPrevious => ActiveTrackers.Count > 1 && CurrentActiveTracker != null && ActiveTrackers.IndexOf(CurrentActiveTracker) > 0;
+    public bool CanGoNext => ActiveTrackers.Count > 1 && CurrentActiveTracker != null && ActiveTrackers.IndexOf(CurrentActiveTracker) < ActiveTrackers.Count - 1;
+
+    [RelayCommand(CanExecute = nameof(CanGoPrevious))]
+    public void Previous()
+    {
+        if (CurrentActiveTracker == null) return;
+        var index = ActiveTrackers.IndexOf(CurrentActiveTracker);
+        if (index > 0)
+        {
+            CurrentActiveTracker = ActiveTrackers[index - 1];
+            UpdatePaginationProps();
+        }
+    }
+
+    [RelayCommand(CanExecute = nameof(CanGoNext))]
+    public void Next()
+    {
+        if (CurrentActiveTracker == null) return;
+        var index = ActiveTrackers.IndexOf(CurrentActiveTracker);
+        if (index >= 0 && index < ActiveTrackers.Count - 1)
+        {
+            CurrentActiveTracker = ActiveTrackers[index + 1];
+            UpdatePaginationProps();
+        }
+    }
+
+    private void UpdatePaginationProps()
+    {
+        OnPropertyChanged(nameof(ActiveCount));
+        OnPropertyChanged(nameof(HasMultipleActive));
+        OnPropertyChanged(nameof(ActiveIndexText));
+        OnPropertyChanged(nameof(CanGoPrevious));
+        OnPropertyChanged(nameof(CanGoNext));
+        PreviousCommand.NotifyCanExecuteChanged();
+        NextCommand.NotifyCanExecuteChanged();
+    }
 
     public ServerProgressService(DispatcherQueue dispatcher)
     {
@@ -249,10 +301,13 @@ public sealed class ServerProgressService : ObservableObject
             }
             _trackers[keyByName] = newTracker;
 
-            if (_dispatcher.HasThreadAccess)
-                ActiveTrackers.Add(newTracker);
-            else
-                _dispatcher.TryEnqueue(() => ActiveTrackers.Add(newTracker));
+            if (newTracker.IsActive)
+            {
+                if (_dispatcher.HasThreadAccess)
+                    ActiveTrackers.Add(newTracker);
+                else
+                    _dispatcher.TryEnqueue(() => ActiveTrackers.Add(newTracker));
+            }
 
             return newTracker;
         }
@@ -270,8 +325,37 @@ public sealed class ServerProgressService : ObservableObject
     {
         lock (_gate)
         {
-            var active = _trackers.Values.FirstOrDefault(t => t.IsActive);
-            CurrentActiveTracker = active;
+            var activeList = _trackers.Values.Where(t => t.IsActive).Distinct().ToList();
+            RunOnUI(() =>
+            {
+                for (int i = ActiveTrackers.Count - 1; i >= 0; i--)
+                {
+                    if (!activeList.Contains(ActiveTrackers[i]))
+                        ActiveTrackers.RemoveAt(i);
+                }
+                foreach (var t in activeList)
+                {
+                    if (!ActiveTrackers.Contains(t))
+                        ActiveTrackers.Add(t);
+                }
+
+                if (CurrentActiveTracker == null || !ActiveTrackers.Contains(CurrentActiveTracker))
+                {
+                    CurrentActiveTracker = ActiveTrackers.FirstOrDefault();
+                }
+                else
+                {
+                    UpdatePaginationProps();
+                }
+            });
         }
+    }
+
+    private void RunOnUI(Action action)
+    {
+        if (_dispatcher.HasThreadAccess)
+            action();
+        else
+            _dispatcher.TryEnqueue(() => action());
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using JustHostMC.App.Controls;
 using JustHostMC.App.Services;
 using JustHostMC.App.ViewModels;
 using McManager.Grpc;
@@ -9,7 +10,7 @@ using Microsoft.UI.Xaml.Controls;
 namespace JustHostMC.App.Views;
 
 /// <summary>Collects the parameters for creating a new server.</summary>
-public sealed partial class CreateServerDialog : ContentDialog
+public sealed partial class CreateServerDialog : FluentContentDialog
 {
     private readonly MainViewModel _viewModel;
     private bool _isLoadingVersions;
@@ -80,9 +81,7 @@ public sealed partial class CreateServerDialog : ContentDialog
         }
     }
 
-    /// <summary>
-    /// Enables the primary button only when versions are loaded and one is selected.
-    /// </summary>
+    /// <summary>Enables the primary button only when versions are loaded and one is selected.</summary>
     private void UpdatePrimaryButtonState()
     {
         IsPrimaryButtonEnabled = !_isLoadingVersions
@@ -114,4 +113,3 @@ public sealed partial class CreateServerDialog : ContentDialog
         };
     }
 }
-

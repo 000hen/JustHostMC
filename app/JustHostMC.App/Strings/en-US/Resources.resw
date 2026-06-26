@@ -62,8 +62,8 @@
   <!-- App + shell -->
   <data name="AppTitle" xml:space="preserve"><value>JustHostMC</value></data>
   <data name="MainTitle.Text" xml:space="preserve"><value>JustHostMC ??Minecraft Server Manager</value></data>
-  <data name="RefreshButton.Content" xml:space="preserve"><value>Refresh</value></data>
-  <data name="CreateServerButton.Content" xml:space="preserve"><value>Create server</value></data>
+  <data name="RefreshButton.ToolTipService.ToolTip" xml:space="preserve"><value>Refresh</value></data>
+  <data name="CreateServerButtonLabel.Text" xml:space="preserve"><value>Create server</value></data>
   <data name="NoServersHint.Text" xml:space="preserve"><value>No servers yet. Select ?reate server??to add one.</value></data>
 
   <!-- First-run on-machine notice -->
@@ -210,6 +210,8 @@
   <data name="ServerSectionPlayers.Text" xml:space="preserve"><value>Players</value></data>
   <data name="ServerSectionPerformance.Text" xml:space="preserve"><value>Performance</value></data>
   <data name="ServerSectionMods.Text" xml:space="preserve"><value>Plugins / Mods</value></data>
+  <data name="ServerSectionConfig.Text" xml:space="preserve"><value>Configuration</value></data>
+  <data name="ServerSectionConfigHint.Text" xml:space="preserve"><value>Manage server launch settings and advanced options</value></data>
   <data name="ServerBackupsMenuItem.Text" xml:space="preserve"><value>Backups</value></data>
   <data name="ServerDeleteMenuItem.Text" xml:space="preserve"><value>Delete server</value></data>
   <data name="ServerMoreButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>More options</value></data>
@@ -217,6 +219,8 @@
   <data name="ServerMetaVersionLabel.Text" xml:space="preserve"><value>Version</value></data>
   <data name="ServerMetaPortLabel.Text" xml:space="preserve"><value>Port</value></data>
   <data name="ServerMetaMemoryLabel.Text" xml:space="preserve"><value>Memory</value></data>
+  <data name="ServerMetaNameLabel.Text" xml:space="preserve"><value>Name</value></data>
+  <data name="ServerMetaCustomJavaArgsLabel.Text" xml:space="preserve"><value>Custom Java arguments</value></data>
   <data name="Server_PortLabel" xml:space="preserve"><value>Port {port}</value></data>
   <data name="Server_PortAutoValue" xml:space="preserve"><value>Auto</value></data>
   <data name="Server_MemoryValue" xml:space="preserve"><value>{memory} MB</value></data>
@@ -233,6 +237,82 @@
   <!-- Players -->
   <data name="Players_Header" xml:space="preserve"><value>Players ({count})</value></data>
   <data name="PlayersEmptyHint.Text" xml:space="preserve"><value>No players online.</value></data>
+  <data name="ManageBansButtonLabel.Text" xml:space="preserve"><value>Manage bans</value></data>
+  <data name="ManageBansButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Manage bans</value></data>
+  <!-- Configuration -->
+  <data name="ConfigStoppedHint.Text" xml:space="preserve"><value>Stop the server to save server.properties, gamerules, or ban-list file changes safely.</value></data>
+  <data name="ConfigPropertiesHeader.Text" xml:space="preserve"><value>server.properties</value></data>
+  <data name="ConfigPropertiesHint.Text" xml:space="preserve"><value>Available properties and editors are filtered for this server's Minecraft version.</value></data>
+  <data name="ConfigSavePropertiesButton.Content" xml:space="preserve"><value>Save properties</value></data>
+  <data name="ConfigGameRulesHeader.Text" xml:space="preserve"><value>Gamerules</value></data>
+  <data name="ConfigSaveGameRulesButton.Content" xml:space="preserve"><value>Save gamerules</value></data>
+  <data name="Config_LoadFailed" xml:space="preserve"><value>Could not load server configuration.</value></data>
+  <data name="Config_SaveFailed" xml:space="preserve"><value>Could not save server configuration.</value></data>
+  <data name="Config_Saved" xml:space="preserve"><value>Configuration saved.</value></data>
+  <data name="ConfigType_Boolean" xml:space="preserve"><value>Boolean</value></data>
+  <data name="ConfigType_Integer" xml:space="preserve"><value>Integer</value></data>
+  <data name="ConfigType_Choice" xml:space="preserve"><value>Choice</value></data>
+  <data name="ConfigType_Text" xml:space="preserve"><value>Text</value></data>
+  <data name="ConfigName_server_port" xml:space="preserve"><value>Server port</value></data>
+  <data name="ConfigName_query_port" xml:space="preserve"><value>Query port</value></data>
+  <data name="ConfigName_motd" xml:space="preserve"><value>Message of the day</value></data>
+  <data name="ConfigName_difficulty" xml:space="preserve"><value>Difficulty</value></data>
+  <data name="ConfigName_gamemode" xml:space="preserve"><value>Game mode</value></data>
+  <data name="ConfigName_max_players" xml:space="preserve"><value>Maximum players</value></data>
+  <data name="ConfigName_pvp" xml:space="preserve"><value>Player versus player</value></data>
+  <data name="ConfigName_online_mode" xml:space="preserve"><value>Online mode</value></data>
+  <data name="ConfigName_white_list" xml:space="preserve"><value>Whitelist</value></data>
+  <data name="ConfigName_view_distance" xml:space="preserve"><value>View distance</value></data>
+  <data name="ConfigName_simulation_distance" xml:space="preserve"><value>Simulation distance</value></data>
+  <data name="ConfigName_spawn_protection" xml:space="preserve"><value>Spawn protection</value></data>
+  <data name="ConfigName_allow_flight" xml:space="preserve"><value>Allow flight</value></data>
+  <data name="ConfigName_allow_nether" xml:space="preserve"><value>Allow Nether</value></data>
+  <data name="ConfigName_enable_command_block" xml:space="preserve"><value>Enable command blocks</value></data>
+  <data name="ConfigName_enable_rcon" xml:space="preserve"><value>Enable RCON</value></data>
+  <data name="ConfigName_enforce_whitelist" xml:space="preserve"><value>Enforce whitelist</value></data>
+  <data name="ConfigName_resource_pack" xml:space="preserve"><value>Resource pack URL</value></data>
+  <data name="ConfigName_level_name" xml:space="preserve"><value>World folder</value></data>
+  <data name="ConfigName_level_seed" xml:space="preserve"><value>World seed</value></data>
+  <data name="ConfigName_keepInventory" xml:space="preserve"><value>Keep inventory</value></data>
+  <data name="ConfigName_mobGriefing" xml:space="preserve"><value>Mob griefing</value></data>
+  <data name="ConfigName_doDaylightCycle" xml:space="preserve"><value>Daylight cycle</value></data>
+  <data name="ConfigName_doWeatherCycle" xml:space="preserve"><value>Weather cycle</value></data>
+  <data name="ConfigName_doMobSpawning" xml:space="preserve"><value>Mob spawning</value></data>
+  <data name="ConfigName_doMobLoot" xml:space="preserve"><value>Mob loot</value></data>
+  <data name="ConfigName_doFireTick" xml:space="preserve"><value>Fire spread</value></data>
+  <data name="ConfigName_randomTickSpeed" xml:space="preserve"><value>Random tick speed</value></data>
+  <data name="ConfigName_spawnRadius" xml:space="preserve"><value>Spawn radius</value></data>
+  <data name="ConfigName_showDeathMessages" xml:space="preserve"><value>Show death messages</value></data>
+  <data name="ConfigName_playersSleepingPercentage" xml:space="preserve"><value>Players sleeping percentage</value></data>
+  <data name="ConfigName_doImmediateRespawn" xml:space="preserve"><value>Immediate respawn</value></data>
+  <!-- Ban list -->
+  <data name="BanListDialog_Title" xml:space="preserve"><value>Ban list</value></data>
+  <data name="BanListDialog.CloseButtonText" xml:space="preserve"><value>Close</value></data>
+  <data name="BanListStoppedNotice.Title" xml:space="preserve"><value>Stop server to edit</value></data>
+  <data name="BanListStoppedNotice.Message" xml:space="preserve"><value>The ban files are safest to change while the server is stopped. Console ban commands still work while running.</value></data>
+  <data name="BanListStoppedNotice_Title" xml:space="preserve"><value>Stop server to edit</value></data>
+  <data name="BanListStoppedNotice_Message" xml:space="preserve"><value>The ban files are safest to change while the server is stopped. Console ban commands still work while running.</value></data>
+  <data name="BanListAddHeader.Text" xml:space="preserve"><value>Add ban</value></data>
+  <data name="BanListAddHint.Text" xml:space="preserve"><value>Add a player name, UUID, or IP address to the vanilla ban-list files.</value></data>
+  <data name="BanListTypeBox.Header" xml:space="preserve"><value>Type</value></data>
+  <data name="BanListTypePlayerItem.Content" xml:space="preserve"><value>Player</value></data>
+  <data name="BanListTypeIpItem.Content" xml:space="preserve"><value>IP address</value></data>
+  <data name="BanListTargetBox.Header" xml:space="preserve"><value>Target</value></data>
+  <data name="BanListTargetBox.PlaceholderText" xml:space="preserve"><value>Player name, UUID, or IP</value></data>
+  <data name="BanListReasonBox.Header" xml:space="preserve"><value>Reason</value></data>
+  <data name="BanListReasonBox.PlaceholderText" xml:space="preserve"><value>Optional</value></data>
+  <data name="BanListAddButtonLabel.Text" xml:space="preserve"><value>Add</value></data>
+  <data name="BanListEmptyHint.Text" xml:space="preserve"><value>No bans yet.</value></data>
+  <data name="BanListRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Remove ban</value></data>
+  <data name="BanList_TypePlayer" xml:space="preserve"><value>Player</value></data>
+  <data name="BanList_TypeIp" xml:space="preserve"><value>IP</value></data>
+  <data name="BanList_NoReason" xml:space="preserve"><value>No reason provided</value></data>
+  <data name="BanList_LoadFailed" xml:space="preserve"><value>Could not load ban list.</value></data>
+  <data name="BanList_AddFailed" xml:space="preserve"><value>Could not add ban.</value></data>
+  <data name="BanList_RemoveFailed" xml:space="preserve"><value>Could not remove ban.</value></data>
+  <data name="BanList_TargetRequired" xml:space="preserve"><value>Enter a player, UUID, or IP address.</value></data>
+  <data name="BanList_StoppedRequired" xml:space="preserve"><value>Stop the server to edit ban-list files.</value></data>
+  <data name="PlayerDataDialog.CloseButtonText" xml:space="preserve"><value>Close</value></data>
   <!-- Performance metrics -->
   <data name="MetricsCpu.Text" xml:space="preserve"><value>CPU</value></data>
   <data name="MetricsMemory.Text" xml:space="preserve"><value>Memory</value></data>

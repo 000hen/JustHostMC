@@ -61,7 +61,7 @@ func TestSettingsServicePurgeLogsAppliesPolicy(t *testing.T) {
 	svc, logsRoot := newSettingsService(t)
 	ctx := context.Background()
 
-	// One old log (8 days) and one fresh; keep_days=7 should drop only the old one.
+	// One old log (8 days) and one fresh; PurgeLogs forces removing all logs.
 	oldLog := filepath.Join(logsRoot, "srv1", "console-old.log")
 	freshLog := filepath.Join(logsRoot, "srv1", "console-new.log")
 	for _, p := range []string{oldLog, freshLog} {
@@ -84,14 +84,14 @@ func TestSettingsServicePurgeLogsAppliesPolicy(t *testing.T) {
 	if err != nil {
 		t.Fatalf("PurgeLogs: %v", err)
 	}
-	if res.RemovedFiles != 1 || res.FreedBytes != 5 {
-		t.Errorf("PurgeResult = %+v, want RemovedFiles=1 FreedBytes=5", res)
+	if res.RemovedFiles != 2 || res.FreedBytes != 10 {
+		t.Errorf("PurgeResult = %+v, want RemovedFiles=2 FreedBytes=10", res)
 	}
 	if _, err := os.Stat(oldLog); !os.IsNotExist(err) {
 		t.Error("old log should have been purged")
 	}
-	if _, err := os.Stat(freshLog); err != nil {
-		t.Error("fresh log should have been kept")
+	if _, err := os.Stat(freshLog); !os.IsNotExist(err) {
+		t.Error("fresh log should have been purged")
 	}
 }
 

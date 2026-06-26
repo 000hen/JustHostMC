@@ -106,9 +106,10 @@ func main() {
 		Store:      settingsStore,
 		LogsRoot:   paths.LogsRoot(),
 		ActiveMode: string(activeMode),
+		CloseLogs:  sink.CloseAll,
 	})
 	// Apply the retention policy at startup, then periodically.
-	go runLogJanitor(settingsStore, paths.LogsRoot())
+	go runLogJanitor(settingsStore, paths.LogsRoot(), sink.CloseAll)
 
 	srv := grpcsvc.NewServer(grpcsvc.Config{
 		Token:           token,
@@ -117,9 +118,10 @@ func main() {
 		ConsoleService:  grpcsvc.NewConsoleService(hub),
 		BackupService:   backupService,
 		SettingsService: settingsService,
-		PlayerService:   grpcsvc.NewPlayerService(hub),
+		PlayerService:   grpcsvc.NewPlayerService(hub, registry, paths),
 		MetricsService:  grpcsvc.NewMetricsService(serverService),
 		ModService:      grpcsvc.NewModService(registry, paths),
+		ConfigService:   grpcsvc.NewConfigService(registry, paths),
 	})
 	log.Printf("engine data dir: %s", paths.Base)
 
@@ -161,12 +163,15 @@ const logRetentionInterval = 6 * time.Hour
 
 // runLogJanitor applies the stored retention policy immediately and then on a
 // timer for the life of the process (PROMPT 禮15).
-func runLogJanitor(settingsStore *settings.Store, logsRoot string) {
+func runLogJanitor(settingsStore *settings.Store, logsRoot string, closeLogs func()) {
 	purge := func() {
 		s, err := settingsStore.Load()
 		if err != nil {
 			log.Printf("log retention: load settings: %v", err)
 			return
+		}
+		if closeLogs != nil {
+			closeLogs()
 		}
 		removed, freed, err := logging.Purge(logsRoot, s.Policy(), time.Now())
 		if err != nil {

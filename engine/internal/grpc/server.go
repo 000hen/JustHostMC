@@ -29,6 +29,7 @@ type Config struct {
 	PlayerService   mcmanagerv1.PlayerServiceServer
 	MetricsService  mcmanagerv1.MetricsServiceServer
 	ModService      mcmanagerv1.ModServiceServer
+	ConfigService   mcmanagerv1.ConfigServiceServer
 }
 
 // NewServer builds a gRPC server with session-token auth interceptors installed
@@ -59,6 +60,9 @@ func NewServer(cfg Config) *grpc.Server {
 	}
 	if cfg.ModService != nil {
 		mcmanagerv1.RegisterModServiceServer(srv, cfg.ModService)
+	}
+	if cfg.ConfigService != nil {
+		mcmanagerv1.RegisterConfigServiceServer(srv, cfg.ConfigService)
 	}
 	return srv
 }

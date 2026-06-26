@@ -23,6 +23,8 @@ public sealed partial class ModsViewModel : ObservableObject
     private readonly DispatcherQueue _dispatcher;
     private readonly ILocalizer _localizer;
     private bool _serverStopped;
+    private bool _loaded;
+    private Task? _refreshTask;
 
     public ModsViewModel(string serverId, DispatcherQueue dispatcher, ILocalizer localizer)
     {
@@ -82,6 +84,27 @@ public sealed partial class ModsViewModel : ObservableObject
     /// <summary>Reloads the jar list from the engine.</summary>
     public async Task RefreshAsync()
     {
+        if (_refreshTask is { IsCompleted: false })
+        {
+            await _refreshTask;
+            return;
+        }
+
+        _refreshTask = RefreshCoreAsync();
+        await _refreshTask;
+    }
+
+    /// <summary>Loads the jar list once; repeated tab visits reuse cached data.</summary>
+    public async Task EnsureLoadedAsync()
+    {
+        if (_loaded)
+            return;
+
+        await RefreshAsync();
+    }
+
+    private async Task RefreshCoreAsync()
+    {
         try
         {
             var daemon = await App.Current.DaemonReady;
@@ -93,6 +116,7 @@ public sealed partial class ModsViewModel : ObservableObject
                 Files.Clear();
                 foreach (var file in list.Files)
                     Files.Add(new ModFileItem(file.Name, file.SizeBytes));
+                _loaded = true;
             });
         }
         catch (RpcException)

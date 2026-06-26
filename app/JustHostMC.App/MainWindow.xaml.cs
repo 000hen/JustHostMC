@@ -68,11 +68,9 @@ public sealed partial class MainWindow : Window {
     private readonly Dictionary<string, NavigationViewItem> _serverItems = new();
     private readonly SubclassProc _subclassProc;
     private IntPtr _hwnd;
-    private readonly NavigationViewItem HomeItem;
 
     /// <summary>The navigation shell: owns the shared MainViewModel.</summary>
     public NavShellViewModel Shell { get; }
-    public ObservableCollection<object> MenuItems { get; } = new();
 
     public MainWindow() {
         _subclassProc = WindowSubclassProc;
@@ -80,14 +78,7 @@ public sealed partial class MainWindow : Window {
         var localizer = new LocalizationService();
         Shell = new NavShellViewModel(new MainViewModel(localizer, DispatcherQueue));
 
-        HomeItem = new NavigationViewItem {
-            Tag = "home",
-            Content = localizer.Get("NavHome/Content"),
-            Icon = new FontIcon { Glyph = "\uE80F" }
-        };
-
         InitializeComponent();
-        MenuItems.Add(HomeItem);
         PaneFooterGrid.DataContext = Shell.Main.ProgressService;
         Title = localizer.Get("AppTitle");
         ExtendsContentIntoTitleBar = true;
@@ -145,17 +136,18 @@ public sealed partial class MainWindow : Window {
 
     /// <summary>Reconciles the sidebar's per-server entries with the live server list.</summary>
     private void SyncServerItems() {
+        var selectedItem = Nav.SelectedItem as NavigationViewItem;
         foreach (var server in Shell.Main.Servers) {
             if (_serverItems.ContainsKey(server.Id))
                 continue;
             var item = CreateServerItem(server);
             _serverItems[server.Id] = item;
-            MenuItems.Add(item);
+            Nav.MenuItems.Add(item);
         }
 
         var live = Shell.Main.Servers.Select(s => s.Id).ToHashSet();
         foreach (var (id, item) in _serverItems.Where(kv => !live.Contains(kv.Key)).ToList()) {
-            MenuItems.Remove(item);
+            Nav.MenuItems.Remove(item);
             _serverItems.Remove(id);
             _ = Shell.EvictServerCacheAsync(id);
         }
@@ -165,12 +157,21 @@ public sealed partial class MainWindow : Window {
             if (!_serverItems.TryGetValue(server.Id, out var item))
                 continue;
 
-            var currentIndex = MenuItems.IndexOf(item);
+            var currentIndex = Nav.MenuItems.IndexOf(item);
             if (currentIndex >= 0 && currentIndex != insertIndex) {
-                MenuItems.Move(currentIndex, insertIndex);
+                Nav.MenuItems.RemoveAt(currentIndex);
+                Nav.MenuItems.Insert(insertIndex, item);
             }
             insertIndex++;
         }
+
+        if (selectedItem != null && Nav.SelectedItem != selectedItem && (Nav.MenuItems.Contains(selectedItem) || Nav.FooterMenuItems.Contains(selectedItem))) {
+            Nav.SelectedItem = selectedItem;
+        }
+
+        Nav.IsTitleBarAutoPaddingEnabled = true;
+        Nav.IsTitleBarAutoPaddingEnabled = false;
+        Nav.UpdateLayout();
     }
 
     private static NavigationViewItem CreateServerItem(ServerItem server) {
@@ -201,13 +202,17 @@ public sealed partial class MainWindow : Window {
             return;
         switch (item.Tag) {
             case "home":
-                ContentFrame.Navigate(typeof(HomePage), Shell);
+                if (ContentFrame.Content is not HomePage)
+                    ContentFrame.Navigate(typeof(HomePage), Shell);
                 break;
             case ServerItem server:
+                if (ContentFrame.Content is ServerPage page && page.Server == server)
+                    break;
                 ContentFrame.Navigate(typeof(ServerPage), new ServerPageArgs(server, Shell));
                 break;
             case "settings":
-                ContentFrame.Navigate(typeof(SettingsPage));
+                if (ContentFrame.Content is not SettingsPage)
+                    ContentFrame.Navigate(typeof(SettingsPage));
                 break;
         }
     }

@@ -34,8 +34,9 @@ public sealed partial class ServerPage : Page {
     public PlayersViewModel Players { get; private set; } = null!;
     public MetricsViewModel Metrics { get; private set; } = null!;
     public ModsViewModel Mods { get; private set; } = null!;
+    public ServerConfigViewModel Config { get; private set; } = null!;
 
-    protected override async void OnNavigatedTo(NavigationEventArgs e) {
+    protected override void OnNavigatedTo(NavigationEventArgs e) {
         var args = (ServerPageArgs)e.Parameter;
         Server = args.Server;
         _shell = args.Shell;
@@ -48,13 +49,21 @@ public sealed partial class ServerPage : Page {
         Players = cache.Players;
         Metrics = cache.Metrics;
         Mods = cache.Mods;
+        Config = cache.Config;
 
         Server.PropertyChanged += OnServerPropertyChanged;
         Console.Lines.CollectionChanged += OnConsoleLinesChanged;
         Mods.SetServerStopped(IsStopped(Server.Status));
+        Config.SetServerStopped(IsStopped(Server.Status));
 
-        // AttachAsync is a no-op on revisits; first call runs all 4 in parallel.
-        await cache.AttachAsync();
+        // Attach live streams immediately, then warm heavier tab data after the
+        // page has had a chance to render.
+        _ = RunSilentlyAsync(cache.AttachAsync());
+        DispatcherQueue.TryEnqueue(async () =>
+        {
+            await Task.Delay(150);
+            await RunSilentlyAsync(cache.PreloadAsync());
+        });
     }
 
     protected override void OnNavigatedFrom(NavigationEventArgs e) {
@@ -64,8 +73,10 @@ public sealed partial class ServerPage : Page {
     }
 
     private void OnServerPropertyChanged(object? sender, PropertyChangedEventArgs e) {
-        if (e.PropertyName == nameof(ServerItem.Status))
+        if (e.PropertyName == nameof(ServerItem.Status)) {
             Mods.SetServerStopped(IsStopped(Server.Status));
+            Config.SetServerStopped(IsStopped(Server.Status));
+        }
     }
 
     private void OnConsoleLinesChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -128,11 +139,29 @@ public sealed partial class ServerPage : Page {
         var tag = sender.SelectedItem?.Tag as string ?? "console";
         ConsolePanel.Visibility = Show(tag == "console");
         PlayersPanel.Visibility = Show(tag == "players");
+        ConfigPanel.Visibility = Show(tag == "config");
         PerformancePanel.Visibility = Show(tag == "performance");
         ModsPanel.Visibility = Show(tag == "mods");
+
+        if (tag == "config" && Config is not null) {
+            Config.PrepareInitialLoad();
+            _ = RunSilentlyAsync(Config.EnsureLoadedAsync());
+        }
+        else if (tag == "mods" && Mods is not null)
+            _ = RunSilentlyAsync(Mods.EnsureLoadedAsync());
     }
 
     private static Visibility Show(bool visible) => visible ? Visibility.Visible : Visibility.Collapsed;
+
+    private static async Task RunSilentlyAsync(Task task) {
+        try {
+            await task;
+        }
+        catch {
+            // View models surface transient load failures through their own status
+            // messages; background warm-up should not make navigation noisy.
+        }
+    }
 
     private void OnCommandKeyDown(object sender, KeyRoutedEventArgs e) {
         if (e.Key == VirtualKey.Enter && Console.SendCommand.CanExecute(null)) {
@@ -201,18 +230,28 @@ public sealed partial class ServerPage : Page {
     private void OnPlayerDeopClick(object sender, RoutedEventArgs e) => SendPlayerCommand(sender, "deop \"{0}\"");
     private void OnPlayerKickClick(object sender, RoutedEventArgs e) => SendPlayerCommand(sender, "kick \"{0}\"");
     private void OnPlayerBanClick(object sender, RoutedEventArgs e) => SendPlayerCommand(sender, "ban \"{0}\"");
-    private void OnPlayerRawClick(object sender, RoutedEventArgs e) => SendPlayerCommand(sender, "data get entity \"{0}\"");
-    private void OnPlayerInventoryClick(object sender, RoutedEventArgs e) => SendPlayerCommand(sender, "data get entity \"{0}\" Inventory");
+    private async void OnPlayerRawClick(object sender, RoutedEventArgs e) => await ShowPlayerDataDialogAsync(sender);
+    private async void OnPlayerInventoryClick(object sender, RoutedEventArgs e) => await ShowPlayerDataDialogAsync(sender);
+
+    private async Task ShowPlayerDataDialogAsync(object sender) {
+        if (GetPlayer(sender) is not { } player)
+            return;
+
+        var dialog = new PlayerDataDialog(Server.Id, player) { XamlRoot = XamlRoot };
+        await dialog.ShowAsync();
+    }
+
+    private async void OnManageBansClick(object sender, RoutedEventArgs e) {
+        var dialog = new BanListDialog(Server.Id, IsStopped(Server.Status)) { XamlRoot = XamlRoot };
+        await dialog.ShowAsync();
+    }
+
+    private async void OnSavePropertiesClick(object sender, RoutedEventArgs e) => await Config.SavePropertiesAsync();
+
+    private async void OnSaveGameRulesClick(object sender, RoutedEventArgs e) => await Config.SaveGameRulesAsync();
 
     private void SendPlayerCommand(object sender, string format) {
-        var player = sender switch
-        {
-            FrameworkElement { Tag: PlayerItem taggedPlayer } => taggedPlayer.Name,
-            FrameworkElement { DataContext: PlayerItem dataPlayer } => dataPlayer.Name,
-            FrameworkElement { Tag: string taggedName } => taggedName,
-            FrameworkElement { DataContext: string dataName } => dataName,
-            _ => null,
-        };
+        var player = GetPlayer(sender)?.Name ?? GetPlayerName(sender);
         if (string.IsNullOrWhiteSpace(player))
             return;
 
@@ -220,6 +259,22 @@ public sealed partial class ServerPage : Page {
         if (Console.SendCommand.CanExecute(null))
             Console.SendCommand.Execute(null);
     }
+
+    private static PlayerItem? GetPlayer(object sender)
+        => sender switch
+        {
+            FrameworkElement { Tag: PlayerItem taggedPlayer } => taggedPlayer,
+            FrameworkElement { DataContext: PlayerItem dataPlayer } => dataPlayer,
+            _ => null,
+        };
+
+    private static string? GetPlayerName(object sender)
+        => sender switch
+        {
+            FrameworkElement { Tag: string taggedName } => taggedName,
+            FrameworkElement { DataContext: string dataName } => dataName,
+            _ => null,
+        };
 
     private string? ResolveInstanceFolder() {
         var roots = new[] {
@@ -248,8 +303,7 @@ public sealed partial class ServerPage : Page {
     private static string? GetPackagedDataRoot() {
         try {
             return Windows.Storage.ApplicationData.Current.LocalFolder.Path;
-        }
-        catch {
+        } catch {
             return null;
         }
     }

@@ -17,6 +17,7 @@ type SettingsServiceConfig struct {
 	Store      *settings.Store
 	LogsRoot   string
 	ActiveMode string // the isolation backend chosen at startup, for reporting
+	CloseLogs  func() // close open log files before purging
 	// Detector reports live Docker availability; defaults to the real probe when nil
 	// (injectable for tests).
 	Detector func(context.Context) isolation.Availability
@@ -48,10 +49,13 @@ func (s *SettingsService) SetLogRetention(_ context.Context, req *mcmanagerv1.Lo
 	if req.KeepDays < 0 || req.MaxTotalBytes < 0 {
 		return nil, status.Error(codes.InvalidArgument, "retention values must be non-negative")
 	}
-	err := s.cfg.Store.Save(settings.Settings{
-		KeepLogDays:      int(req.KeepDays),
-		MaxLogTotalBytes: req.MaxTotalBytes,
-	})
+	v, err := s.cfg.Store.Load()
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "load settings: %v", err)
+	}
+	v.KeepLogDays = int(req.KeepDays)
+	v.MaxLogTotalBytes = req.MaxTotalBytes
+	err = s.cfg.Store.Save(v)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "save settings: %v", err)
 	}
@@ -64,7 +68,12 @@ func (s *SettingsService) PurgeLogs(_ context.Context, _ *mcmanagerv1.Empty) (*m
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "load settings: %v", err)
 	}
-	removed, freed, err := logging.Purge(s.cfg.LogsRoot, v.Policy(), time.Now())
+	if s.cfg.CloseLogs != nil {
+		s.cfg.CloseLogs()
+	}
+	p := v.Policy()
+	p.ForceAll = true
+	removed, freed, err := logging.Purge(s.cfg.LogsRoot, p, time.Now())
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "purge logs: %v", err)
 	}

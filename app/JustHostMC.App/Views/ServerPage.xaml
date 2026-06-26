@@ -347,6 +347,7 @@
             <SelectorBar x:Name="SectionBar" Grid.Row="0" SelectionChanged="OnSectionChanged">
                 <SelectorBarItem x:Uid="ServerSectionConsole" Tag="console" IsSelected="True" />
                 <SelectorBarItem x:Uid="ServerSectionPlayers" Tag="players" />
+                <SelectorBarItem x:Uid="ServerSectionConfig" Tag="config" />
                 <SelectorBarItem x:Uid="ServerSectionPerformance" Tag="performance" />
                 <SelectorBarItem x:Uid="ServerSectionMods" Tag="mods" />
             </SelectorBar>
@@ -447,6 +448,7 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <FontIcon Grid.Column="0"
                                           Glyph="&#xE716;"
@@ -460,6 +462,15 @@
                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                Visibility="{x:Bind HasNoPlayers(Players.Count), Mode=OneWay}" />
                                 </StackPanel>
+                                <Button Grid.Column="2"
+                                        x:Uid="ManageBansButton"
+                                        Click="OnManageBansClick"
+                                        VerticalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <SymbolIcon Symbol="BlockContact" />
+                                        <TextBlock x:Uid="ManageBansButtonLabel" />
+                                    </StackPanel>
+                                </Button>
                             </Grid>
 
                             <ListView ItemsSource="{x:Bind Players.Players, Mode=OneWay}"
@@ -545,6 +556,223 @@
                     </Border>
                 </ScrollViewer>
 
+                <!-- Configuration -->
+                <ScrollViewer x:Name="ConfigPanel" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="12">
+                        <TextBlock x:Uid="ConfigStoppedHint"
+                                   TextWrapping="Wrap"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   Visibility="{x:Bind Config.CanModify, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
+
+                        <ProgressBar IsIndeterminate="True"
+                                     Visibility="{x:Bind Config.IsBusy, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+
+                        <StackPanel Spacing="12"
+                                    Visibility="{x:Bind Config.IsInitialLoading, Mode=OneWay, Converter={StaticResource BoolToVis}}">
+                            <Expander IsExpanded="True" IsEnabled="False">
+                                <Expander.Header>
+                                    <StackPanel Spacing="8">
+                                        <Border Height="18" Width="180" HorizontalAlignment="Left" CornerRadius="4"
+                                                Background="{ThemeResource ControlFillColorDefaultBrush}" />
+                                        <Border Height="12" Width="360" HorizontalAlignment="Left" CornerRadius="4"
+                                                Background="{ThemeResource ControlFillColorDefaultBrush}" />
+                                    </StackPanel>
+                                </Expander.Header>
+                                <StackPanel Padding="0,12,0,0" Spacing="10">
+                                    <Grid ColumnSpacing="16" MinHeight="64">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="88" />
+                                            <ColumnDefinition Width="240" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" Spacing="6" VerticalAlignment="Center">
+                                            <Border Height="14" Width="180" HorizontalAlignment="Left" CornerRadius="4"
+                                                    Background="{ThemeResource ControlFillColorDefaultBrush}" />
+                                            <Border Height="11" Width="420" HorizontalAlignment="Left" CornerRadius="4"
+                                                    Background="{ThemeResource ControlFillColorDefaultBrush}" />
+                                            <Border Height="11" Width="140" HorizontalAlignment="Left" CornerRadius="4"
+                                                    Background="{ThemeResource ControlFillColorDefaultBrush}" />
+                                        </StackPanel>
+                                        <Border Grid.Column="1" Height="14" Width="56" HorizontalAlignment="Left" VerticalAlignment="Center" CornerRadius="4"
+                                                Background="{ThemeResource ControlFillColorDefaultBrush}" />
+                                        <Border Grid.Column="2" Height="32" Width="220" HorizontalAlignment="Right" VerticalAlignment="Center" CornerRadius="4"
+                                                Background="{ThemeResource ControlFillColorDefaultBrush}" />
+                                    </Grid>
+                                    <Grid ColumnSpacing="16" MinHeight="64">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="88" />
+                                            <ColumnDefinition Width="240" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" Spacing="6" VerticalAlignment="Center">
+                                            <Border Height="14" Width="220" HorizontalAlignment="Left" CornerRadius="4"
+                                                    Background="{ThemeResource ControlFillColorDefaultBrush}" />
+                                            <Border Height="11" Width="500" HorizontalAlignment="Left" CornerRadius="4"
+                                                    Background="{ThemeResource ControlFillColorDefaultBrush}" />
+                                            <Border Height="11" Width="160" HorizontalAlignment="Left" CornerRadius="4"
+                                                    Background="{ThemeResource ControlFillColorDefaultBrush}" />
+                                        </StackPanel>
+                                        <Border Grid.Column="1" Height="14" Width="52" HorizontalAlignment="Left" VerticalAlignment="Center" CornerRadius="4"
+                                                Background="{ThemeResource ControlFillColorDefaultBrush}" />
+                                        <Border Grid.Column="2" Height="32" Width="220" HorizontalAlignment="Right" VerticalAlignment="Center" CornerRadius="4"
+                                                Background="{ThemeResource ControlFillColorDefaultBrush}" />
+                                    </Grid>
+                                </StackPanel>
+                            </Expander>
+
+                            <Expander IsEnabled="False">
+                                <Expander.Header>
+                                    <Border Height="18" Width="140" HorizontalAlignment="Left" CornerRadius="4"
+                                            Background="{ThemeResource ControlFillColorDefaultBrush}" />
+                                </Expander.Header>
+                            </Expander>
+                        </StackPanel>
+
+                        <Expander IsExpanded="True"
+                                  Visibility="{x:Bind Config.IsInitialLoading, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}">
+                            <Expander.Header>
+                                <StackPanel Spacing="2">
+                                    <TextBlock x:Uid="ConfigPropertiesHeader"
+                                               Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                    <TextBlock x:Uid="ConfigPropertiesHint"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                               TextWrapping="WrapWholeWords" />
+                                </StackPanel>
+                            </Expander.Header>
+                            <StackPanel Padding="0,12,0,0" Spacing="10">
+                                <Button x:Uid="ConfigSavePropertiesButton"
+                                        Style="{StaticResource AccentButtonStyle}"
+                                        Click="OnSavePropertiesClick"
+                                        HorizontalAlignment="Right"
+                                        IsEnabled="{x:Bind Config.CanModify, Mode=OneWay}" />
+
+                                <ItemsControl ItemsSource="{x:Bind Config.Properties, Mode=OneWay}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="models:ConfigEntryItem">
+                                            <Grid Padding="8,10" ColumnSpacing="16" MinHeight="64"
+                                                  BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                                  BorderThickness="0,0,0,1">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="88" />
+                                                    <ColumnDefinition Width="240" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
+                                                    <TextBlock Text="{x:Bind DisplayName}"
+                                                               Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                    <TextBlock Text="{x:Bind Description}"
+                                                               TextWrapping="WrapWholeWords"
+                                                               MaxLines="2"
+                                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                               Visibility="{x:Bind HasDescription, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                                                    <TextBlock Text="{x:Bind Key}"
+                                                               FontFamily="Consolas"
+                                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                </StackPanel>
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{x:Bind TypeText}"
+                                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                           VerticalAlignment="Center" />
+                                                <Grid Grid.Column="2"
+                                                      Width="220"
+                                                      HorizontalAlignment="Right"
+                                                      VerticalAlignment="Center">
+                                                    <ComboBox ItemsSource="{x:Bind Choices}"
+                                                              SelectedItem="{x:Bind Value, Mode=TwoWay}"
+                                                              HorizontalAlignment="Stretch"
+                                                              Visibility="{x:Bind HasChoices, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                                                    <TextBox Text="{x:Bind Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                             HorizontalAlignment="Stretch"
+                                                             Visibility="{x:Bind HasChoices, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
+                                                </Grid>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Expander>
+
+                        <Expander Visibility="{x:Bind Config.IsInitialLoading, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}">
+                            <Expander.Header>
+                                <StackPanel Spacing="2">
+                                    <TextBlock x:Uid="ConfigGameRulesHeader"
+                                               Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                    <TextBlock Text="{x:Bind Config.GameRulesMessage, Mode=OneWay}"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                               TextWrapping="WrapWholeWords" />
+                                </StackPanel>
+                            </Expander.Header>
+                            <StackPanel Padding="0,12,0,0" Spacing="10">
+                                <Button x:Uid="ConfigSaveGameRulesButton"
+                                        Style="{StaticResource AccentButtonStyle}"
+                                        Click="OnSaveGameRulesClick"
+                                        HorizontalAlignment="Right"
+                                        IsEnabled="{x:Bind Config.CanSaveGameRules, Mode=OneWay}" />
+
+                                <ItemsControl ItemsSource="{x:Bind Config.GameRules, Mode=OneWay}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="models:ConfigEntryItem">
+                                            <Grid Padding="8,10" ColumnSpacing="16" MinHeight="64"
+                                                  BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                                  BorderThickness="0,0,0,1">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="88" />
+                                                    <ColumnDefinition Width="240" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
+                                                    <TextBlock Text="{x:Bind DisplayName}"
+                                                               Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                    <TextBlock Text="{x:Bind Description}"
+                                                               TextWrapping="WrapWholeWords"
+                                                               MaxLines="2"
+                                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                               Visibility="{x:Bind HasDescription, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                                                    <TextBlock Text="{x:Bind Key}"
+                                                               FontFamily="Consolas"
+                                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                </StackPanel>
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{x:Bind TypeText}"
+                                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                           VerticalAlignment="Center" />
+                                                <Grid Grid.Column="2"
+                                                      Width="220"
+                                                      HorizontalAlignment="Right"
+                                                      VerticalAlignment="Center">
+                                                    <ComboBox ItemsSource="{x:Bind Choices}"
+                                                              SelectedItem="{x:Bind Value, Mode=TwoWay}"
+                                                              HorizontalAlignment="Stretch"
+                                                              Visibility="{x:Bind HasChoices, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                                                    <TextBox Text="{x:Bind Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                             HorizontalAlignment="Stretch"
+                                                             Visibility="{x:Bind HasChoices, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
+                                                </Grid>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Expander>
+
+                        <TextBlock Text="{x:Bind Config.StatusMessage, Mode=OneWay}"
+                                   TextWrapping="Wrap"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+                </ScrollViewer>
+
                 <!-- Performance -->
                 <ScrollViewer x:Name="PerformancePanel" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
                     <Grid ColumnSpacing="12" RowSpacing="12">
@@ -606,63 +834,63 @@
                 <!-- Plugins / Mods -->
                 <ScrollViewer x:Name="ModsPanel" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
                     <StackPanel Spacing="12">
-                    <Grid ColumnSpacing="12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                            <TextBlock Text="{x:Bind Mods.KindLabel, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" />
-                            <TextBlock x:Uid="ModsStoppedHint" Style="{StaticResource CaptionTextBlockStyle}"
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                <TextBlock Text="{x:Bind Mods.KindLabel, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                <TextBlock x:Uid="ModsStoppedHint" Style="{StaticResource CaptionTextBlockStyle}"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                        Visibility="{x:Bind Mods.CanModify, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
-                        </StackPanel>
-                        <Button x:Uid="ModsUploadButton" Grid.Column="1" Style="{StaticResource AccentButtonStyle}"
+                            </StackPanel>
+                            <Button x:Uid="ModsUploadButton" Grid.Column="1" Style="{StaticResource AccentButtonStyle}"
                                 Click="OnUploadClick" IsEnabled="{x:Bind Mods.CanModify, Mode=OneWay}" />
-                    </Grid>
+                        </Grid>
 
-                    <TextBlock x:Uid="ModsUnsupportedHint" TextWrapping="Wrap"
+                        <TextBlock x:Uid="ModsUnsupportedHint" TextWrapping="Wrap"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                Visibility="{x:Bind Mods.Supported, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
 
-                    <ProgressBar IsIndeterminate="True"
+                        <ProgressBar IsIndeterminate="True"
                                  Visibility="{x:Bind Mods.IsBusy, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
 
-                    <ItemsControl ItemsSource="{x:Bind Mods.Files, Mode=OneWay}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Padding="8" ColumnSpacing="12"
+                        <ItemsControl ItemsSource="{x:Bind Mods.Files, Mode=OneWay}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Padding="8" ColumnSpacing="12"
                                       BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <FontIcon Grid.Column="0" Glyph="&#xE7B8;" FontSize="16" />
-                                    <TextBlock Grid.Column="1" Text="{Binding Name}" VerticalAlignment="Center"
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <FontIcon Grid.Column="0" Glyph="&#xE7B8;" FontSize="16" />
+                                        <TextBlock Grid.Column="1" Text="{Binding Name}" VerticalAlignment="Center"
                                                TextTrimming="CharacterEllipsis" />
-                                    <TextBlock Grid.Column="2" Text="{Binding SizeText}" VerticalAlignment="Center"
+                                        <TextBlock Grid.Column="2" Text="{Binding SizeText}" VerticalAlignment="Center"
                                                Style="{StaticResource CaptionTextBlockStyle}"
                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                    <Button Grid.Column="3" x:Uid="ModsRemoveButton">
-                                        <FontIcon Glyph="&#xE74D;" FontSize="14" />
-                                        <Button.Flyout>
-                                            <Flyout>
-                                                <StackPanel Spacing="8" MaxWidth="240">
-                                                    <TextBlock x:Uid="ModsRemoveConfirmText" TextWrapping="Wrap" />
-                                                    <Button x:Uid="ModsRemoveConfirmButton" HorizontalAlignment="Right"
+                                        <Button Grid.Column="3" x:Uid="ModsRemoveButton">
+                                            <FontIcon Glyph="&#xE74D;" FontSize="14" />
+                                            <Button.Flyout>
+                                                <Flyout>
+                                                    <StackPanel Spacing="8" MaxWidth="240">
+                                                        <TextBlock x:Uid="ModsRemoveConfirmText" TextWrapping="Wrap" />
+                                                        <Button x:Uid="ModsRemoveConfirmButton" HorizontalAlignment="Right"
                                                             Click="OnRemoveModConfirm" Tag="{Binding}" />
-                                                </StackPanel>
-                                            </Flyout>
-                                        </Button.Flyout>
-                                    </Button>
-                                </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                                                    </StackPanel>
+                                                </Flyout>
+                                            </Button.Flyout>
+                                        </Button>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
 
-                    <TextBlock Text="{x:Bind Mods.StatusMessage, Mode=OneWay}" TextWrapping="Wrap"
+                        <TextBlock Text="{x:Bind Mods.StatusMessage, Mode=OneWay}" TextWrapping="Wrap"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                     </StackPanel>
                 </ScrollViewer>

@@ -20,6 +20,7 @@ public sealed class DaemonClient : IAsyncDisposable
     public PlayerService.PlayerServiceClient Players { get; }
     public MetricsService.MetricsServiceClient Metrics { get; }
     public ModService.ModServiceClient Mods { get; }
+    public ConfigService.ConfigServiceClient Config { get; }
 
     public DaemonClient(EngineConnection connection)
         : this(connection.Port, connection.Token)
@@ -42,6 +43,7 @@ public sealed class DaemonClient : IAsyncDisposable
         Players = new PlayerService.PlayerServiceClient(invoker);
         Metrics = new MetricsService.MetricsServiceClient(invoker);
         Mods = new ModService.ModServiceClient(invoker);
+        Config = new ConfigService.ConfigServiceClient(invoker);
     }
 
     public async ValueTask DisposeAsync() => await _channel.ShutdownAsync().ConfigureAwait(false);

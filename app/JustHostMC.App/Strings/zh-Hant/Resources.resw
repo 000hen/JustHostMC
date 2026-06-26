@@ -62,8 +62,8 @@
   <!-- App + shell -->
   <data name="AppTitle" xml:space="preserve"><value>JustHostMC</value></data>
   <data name="MainTitle.Text" xml:space="preserve"><value>JustHostMC - Minecraft 伺服器管理工具</value></data>
-  <data name="RefreshButton.Content" xml:space="preserve"><value>重新整理</value></data>
-  <data name="CreateServerButton.Content" xml:space="preserve"><value>建立伺服器</value></data>
+  <data name="RefreshButton.ToolTipService.ToolTip" xml:space="preserve"><value>重新整理</value></data>
+  <data name="CreateServerButtonLabel.Text" xml:space="preserve"><value>建立伺服器</value></data>
   <data name="NoServersHint.Text" xml:space="preserve"><value>還沒有伺服器。選取「建立伺服器」來新增一個。</value></data>
 
   <!-- First-run on-machine notice -->
@@ -207,6 +207,9 @@
   <data name="ServerSectionPlayers.Text" xml:space="preserve"><value>玩家</value></data>
   <data name="ServerSectionPerformance.Text" xml:space="preserve"><value>效能</value></data>
   <data name="ServerSectionMods.Text" xml:space="preserve"><value>插件 / 模組</value></data>
+  <data name="ServerSectionConfig.Text" xml:space="preserve"><value>設定</value></data>
+  <data name="ServerSectionConfigHint.Text" xml:space="preserve"><value>管理伺服器啟動設定與進階選項</value></data>
+  <data name="ServerEditMenuItem.Text" xml:space="preserve"><value>編輯伺服器</value></data>
   <data name="ServerBackupsMenuItem.Text" xml:space="preserve"><value>備份</value></data>
   <data name="ServerDeleteMenuItem.Text" xml:space="preserve"><value>刪除伺服器</value></data>
   <data name="ServerMoreButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>更多選項</value></data>
@@ -214,6 +217,8 @@
   <data name="ServerMetaVersionLabel.Text" xml:space="preserve"><value>版本</value></data>
   <data name="ServerMetaPortLabel.Text" xml:space="preserve"><value>連接埠</value></data>
   <data name="ServerMetaMemoryLabel.Text" xml:space="preserve"><value>記憶體</value></data>
+  <data name="ServerMetaNameLabel.Text" xml:space="preserve"><value>名稱</value></data>
+  <data name="ServerMetaCustomJavaArgsLabel.Text" xml:space="preserve"><value>自訂 Java 參數</value></data>
   <data name="Server_PortLabel" xml:space="preserve"><value>連接埠 {port}</value></data>
   <data name="Server_PortAutoValue" xml:space="preserve"><value>自動</value></data>
   <data name="Server_MemoryValue" xml:space="preserve"><value>{memory} MB</value></data>
@@ -230,6 +235,82 @@
   <!-- Players -->
   <data name="Players_Header" xml:space="preserve"><value>玩家（{count}）</value></data>
   <data name="PlayersEmptyHint.Text" xml:space="preserve"><value>目前沒有玩家在線上。</value></data>
+  <data name="ManageBansButtonLabel.Text" xml:space="preserve"><value>管理封鎖</value></data>
+  <data name="ManageBansButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>管理封鎖名單</value></data>
+  <!-- Configuration -->
+  <data name="ConfigStoppedHint.Text" xml:space="preserve"><value>請先停止伺服器，再安全地儲存 server.properties、遊戲規則或封鎖名單變更。</value></data>
+  <data name="ConfigPropertiesHeader.Text" xml:space="preserve"><value>server.properties</value></data>
+  <data name="ConfigPropertiesHint.Text" xml:space="preserve"><value>可用屬性與編輯器會依此伺服器的 Minecraft 版本篩選。</value></data>
+  <data name="ConfigSavePropertiesButton.Content" xml:space="preserve"><value>儲存屬性</value></data>
+  <data name="ConfigGameRulesHeader.Text" xml:space="preserve"><value>遊戲規則</value></data>
+  <data name="ConfigSaveGameRulesButton.Content" xml:space="preserve"><value>儲存遊戲規則</value></data>
+  <data name="Config_LoadFailed" xml:space="preserve"><value>無法載入伺服器設定。</value></data>
+  <data name="Config_SaveFailed" xml:space="preserve"><value>無法儲存伺服器設定。</value></data>
+  <data name="Config_Saved" xml:space="preserve"><value>設定已儲存。</value></data>
+  <data name="ConfigType_Boolean" xml:space="preserve"><value>布林值</value></data>
+  <data name="ConfigType_Integer" xml:space="preserve"><value>整數</value></data>
+  <data name="ConfigType_Choice" xml:space="preserve"><value>選項</value></data>
+  <data name="ConfigType_Text" xml:space="preserve"><value>文字</value></data>
+  <data name="ConfigName_server_port" xml:space="preserve"><value>伺服器連接埠</value></data>
+  <data name="ConfigName_query_port" xml:space="preserve"><value>查詢連接埠</value></data>
+  <data name="ConfigName_motd" xml:space="preserve"><value>伺服器訊息</value></data>
+  <data name="ConfigName_difficulty" xml:space="preserve"><value>難度</value></data>
+  <data name="ConfigName_gamemode" xml:space="preserve"><value>遊戲模式</value></data>
+  <data name="ConfigName_max_players" xml:space="preserve"><value>玩家人數上限</value></data>
+  <data name="ConfigName_pvp" xml:space="preserve"><value>玩家對戰</value></data>
+  <data name="ConfigName_online_mode" xml:space="preserve"><value>正版驗證</value></data>
+  <data name="ConfigName_white_list" xml:space="preserve"><value>白名單</value></data>
+  <data name="ConfigName_view_distance" xml:space="preserve"><value>可視距離</value></data>
+  <data name="ConfigName_simulation_distance" xml:space="preserve"><value>模擬距離</value></data>
+  <data name="ConfigName_spawn_protection" xml:space="preserve"><value>重生點保護</value></data>
+  <data name="ConfigName_allow_flight" xml:space="preserve"><value>允許飛行</value></data>
+  <data name="ConfigName_allow_nether" xml:space="preserve"><value>允許地獄</value></data>
+  <data name="ConfigName_enable_command_block" xml:space="preserve"><value>啟用指令方塊</value></data>
+  <data name="ConfigName_enable_rcon" xml:space="preserve"><value>啟用 RCON</value></data>
+  <data name="ConfigName_enforce_whitelist" xml:space="preserve"><value>強制白名單</value></data>
+  <data name="ConfigName_resource_pack" xml:space="preserve"><value>資源包網址</value></data>
+  <data name="ConfigName_level_name" xml:space="preserve"><value>世界資料夾</value></data>
+  <data name="ConfigName_level_seed" xml:space="preserve"><value>世界種子</value></data>
+  <data name="ConfigName_keepInventory" xml:space="preserve"><value>保留物品欄</value></data>
+  <data name="ConfigName_mobGriefing" xml:space="preserve"><value>生物破壞</value></data>
+  <data name="ConfigName_doDaylightCycle" xml:space="preserve"><value>日夜循環</value></data>
+  <data name="ConfigName_doWeatherCycle" xml:space="preserve"><value>天氣循環</value></data>
+  <data name="ConfigName_doMobSpawning" xml:space="preserve"><value>生物生成</value></data>
+  <data name="ConfigName_doMobLoot" xml:space="preserve"><value>生物掉落物</value></data>
+  <data name="ConfigName_doFireTick" xml:space="preserve"><value>火焰蔓延</value></data>
+  <data name="ConfigName_randomTickSpeed" xml:space="preserve"><value>隨機刻速度</value></data>
+  <data name="ConfigName_spawnRadius" xml:space="preserve"><value>重生半徑</value></data>
+  <data name="ConfigName_showDeathMessages" xml:space="preserve"><value>顯示死亡訊息</value></data>
+  <data name="ConfigName_playersSleepingPercentage" xml:space="preserve"><value>睡覺玩家百分比</value></data>
+  <data name="ConfigName_doImmediateRespawn" xml:space="preserve"><value>立即重生</value></data>
+  <!-- Ban list -->
+  <data name="BanListDialog_Title" xml:space="preserve"><value>封鎖名單</value></data>
+  <data name="BanListDialog.CloseButtonText" xml:space="preserve"><value>關閉</value></data>
+  <data name="BanListStoppedNotice.Title" xml:space="preserve"><value>停止伺服器後再編輯</value></data>
+  <data name="BanListStoppedNotice.Message" xml:space="preserve"><value>封鎖名單檔案最適合在伺服器停止時修改；伺服器執行中仍可使用主控台封鎖指令。</value></data>
+  <data name="BanListStoppedNotice_Title" xml:space="preserve"><value>停止伺服器後再編輯</value></data>
+  <data name="BanListStoppedNotice_Message" xml:space="preserve"><value>封鎖名單檔案最適合在伺服器停止時修改；伺服器執行中仍可使用主控台封鎖指令。</value></data>
+  <data name="BanListAddHeader.Text" xml:space="preserve"><value>新增封鎖</value></data>
+  <data name="BanListAddHint.Text" xml:space="preserve"><value>將玩家名稱、UUID 或 IP 位址加入原版封鎖名單檔案。</value></data>
+  <data name="BanListTypeBox.Header" xml:space="preserve"><value>類型</value></data>
+  <data name="BanListTypePlayerItem.Content" xml:space="preserve"><value>玩家</value></data>
+  <data name="BanListTypeIpItem.Content" xml:space="preserve"><value>IP 位址</value></data>
+  <data name="BanListTargetBox.Header" xml:space="preserve"><value>目標</value></data>
+  <data name="BanListTargetBox.PlaceholderText" xml:space="preserve"><value>玩家名稱、UUID 或 IP</value></data>
+  <data name="BanListReasonBox.Header" xml:space="preserve"><value>原因</value></data>
+  <data name="BanListReasonBox.PlaceholderText" xml:space="preserve"><value>選填</value></data>
+  <data name="BanListAddButtonLabel.Text" xml:space="preserve"><value>新增</value></data>
+  <data name="BanListEmptyHint.Text" xml:space="preserve"><value>目前沒有封鎖項目。</value></data>
+  <data name="BanListRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>移除封鎖</value></data>
+  <data name="BanList_TypePlayer" xml:space="preserve"><value>玩家</value></data>
+  <data name="BanList_TypeIp" xml:space="preserve"><value>IP</value></data>
+  <data name="BanList_NoReason" xml:space="preserve"><value>未提供原因</value></data>
+  <data name="BanList_LoadFailed" xml:space="preserve"><value>無法載入封鎖名單。</value></data>
+  <data name="BanList_AddFailed" xml:space="preserve"><value>無法新增封鎖。</value></data>
+  <data name="BanList_RemoveFailed" xml:space="preserve"><value>無法移除封鎖。</value></data>
+  <data name="BanList_TargetRequired" xml:space="preserve"><value>請輸入玩家、UUID 或 IP 位址。</value></data>
+  <data name="BanList_StoppedRequired" xml:space="preserve"><value>請先停止伺服器再編輯封鎖名單檔案。</value></data>
+  <data name="PlayerDataDialog.CloseButtonText" xml:space="preserve"><value>關閉</value></data>
   <!-- Performance metrics -->
   <data name="MetricsCpu.Text" xml:space="preserve"><value>CPU</value></data>
   <data name="MetricsMemory.Text" xml:space="preserve"><value>記憶體</value></data>

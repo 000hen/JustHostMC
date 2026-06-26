@@ -15,6 +15,10 @@
                  inner element .Resources, so a converter in e.g. <Grid.Resources>
                  throws "Cannot find a resource with the given key" at load time. -->
             <conv:BoolToVisibilityConverter x:Key="BoolToVis" />
+            <x:Double x:Key="ContentDialogMinWidth">560</x:Double>
+            <x:Double x:Key="ContentDialogMaxWidth">960</x:Double>
+            <x:Double x:Key="ContentDialogThemeMinWidth">560</x:Double>
+            <x:Double x:Key="ContentDialogThemeMaxWidth">960</x:Double>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

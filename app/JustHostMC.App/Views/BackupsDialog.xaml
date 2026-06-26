@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ContentDialog
+<controls:FluentContentDialog
     x:Class="JustHostMC.App.Views.BackupsDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:JustHostMC.App.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:conv="using:JustHostMC.App.Converters"
     mc:Ignorable="d"
-    x:Uid="BackupsDialog">
+    x:Uid="BackupsDialog"
+    UseWideLayout="True">
 
-    <ScrollViewer MaxHeight="640"
+    <ScrollViewer MaxHeight="700"
                   HorizontalScrollBarVisibility="Disabled"
                   VerticalScrollBarVisibility="Auto">
         <Grid x:Name="BackupsRoot"
               DataContext="{x:Bind ViewModel}"
-              MaxWidth="680"
               HorizontalAlignment="Stretch"
               RowSpacing="16">
             <Grid.RowDefinitions>
@@ -177,4 +178,4 @@
                        Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
         </Grid>
     </ScrollViewer>
-</ContentDialog>
+</controls:FluentContentDialog>

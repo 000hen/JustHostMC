@@ -272,12 +272,19 @@
             <Button x:Uid="RefreshButton"
                     Grid.Column="1"
                     Command="{x:Bind Main.RefreshCommand}"
-                    Height="40" />
-            <Button x:Uid="CreateServerButton"
-                    Grid.Column="2"
+                    Width="40"
+                    Height="40">
+                <FontIcon Glyph="&#xE72C;" FontSize="16" />
+            </Button>
+            <Button Grid.Column="2"
                     Click="OnAddCardClick"
                     Style="{StaticResource AccentButtonStyle}"
-                    Height="40" />
+                    Height="40">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE710;" FontSize="16" />
+                    <TextBlock x:Uid="CreateServerButtonLabel" />
+                </StackPanel>
+            </Button>
         </Grid>
 
         <InfoBar Grid.Row="1"
@@ -361,7 +368,8 @@
         </ScrollViewer>
 
         <Expander Grid.Row="4"
-                  Visibility="{x:Bind Main.IsInstalling, Mode=OneWay, Converter={StaticResource BoolToVis}}"
+                  DataContext="{x:Bind Main.ProgressService}"
+                  Visibility="{Binding HasActiveTracker, Mode=OneWay, Converter={StaticResource BoolToVis}}"
                   HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
                   IsExpanded="True"
                   Background="{ThemeResource LayerFillColorDefaultBrush}"
@@ -370,24 +378,45 @@
                 <Grid ColumnSpacing="12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock x:Uid="InstallProgressHeader" Style="{StaticResource BodyStrongTextBlockStyle}" />
-                    <TextBlock Grid.Column="1" Text="{x:Bind Main.InstallStep, Mode=OneWay}"
+                    <TextBlock x:Uid="InstallProgressHeader" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1" Text="{Binding ActiveIndexText, Mode=OneWay}"
+                               Style="{StaticResource BodyStrongTextBlockStyle}"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               VerticalAlignment="Center"
+                               Visibility="{Binding HasMultipleActive, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                    <TextBlock Grid.Column="2" Text="{Binding CurrentActiveTracker.ServerName, Mode=OneWay}"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                    <Button Grid.Column="3" Padding="8,4" MinWidth="32" MinHeight="32" VerticalAlignment="Center"
+                            Command="{Binding PreviousCommand}"
+                            Visibility="{Binding HasMultipleActive, Mode=OneWay, Converter={StaticResource BoolToVis}}">
+                        <FontIcon Glyph="&#xE76B;" FontSize="12" />
+                    </Button>
+                    <Button Grid.Column="4" Padding="8,4" MinWidth="32" MinHeight="32" VerticalAlignment="Center"
+                            Command="{Binding NextCommand}"
+                            Visibility="{Binding HasMultipleActive, Mode=OneWay, Converter={StaticResource BoolToVis}}">
+                        <FontIcon Glyph="&#xE76C;" FontSize="12" />
+                    </Button>
                 </Grid>
             </Expander.Header>
             <Expander.Content>
                 <StackPanel Spacing="12">
+                    <TextBlock Text="{Binding CurrentActiveTracker.CurrentStep, Mode=OneWay}"
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                     <ProgressBar Minimum="0" Maximum="1"
-                                 Value="{x:Bind Main.InstallFraction, Mode=OneWay}"
-                                 IsIndeterminate="{x:Bind Main.InstallIsIndeterminate, Mode=OneWay}" />
+                                 Value="{Binding CurrentActiveTracker.ProgressFraction, Mode=OneWay}"
+                                 IsIndeterminate="{Binding CurrentActiveTracker.IsIndeterminate, Mode=OneWay}" />
                     <ScrollViewer x:Name="LogScroller" Height="140"
                                   Background="{ThemeResource ControlFillColorDefaultBrush}"
                                   BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
                                   CornerRadius="4" Padding="8">
-                        <ItemsControl ItemsSource="{x:Bind Main.InstallLog, Mode=OneWay}">
+                        <ItemsControl ItemsSource="{Binding CurrentActiveTracker.InstallLog, Mode=OneWay}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding}" FontFamily="Consolas" FontSize="12"
@@ -397,8 +426,8 @@
                         </ItemsControl>
                     </ScrollViewer>
                     <Button x:Uid="InstallDismissButton" HorizontalAlignment="Right"
-                            Command="{x:Bind Main.DismissInstallCommand}"
-                            Visibility="{x:Bind Main.InstallFailed, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                            Command="{Binding CurrentActiveTracker.DismissCommand}"
+                            Visibility="{Binding CurrentActiveTracker.HasFailed, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
                 </StackPanel>
             </Expander.Content>
         </Expander>

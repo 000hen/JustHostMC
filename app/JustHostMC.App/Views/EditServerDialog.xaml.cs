@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using JustHostMC.App.Controls;
 using JustHostMC.App.Models;
 using JustHostMC.App.ViewModels;
 using McManager.Grpc;
@@ -10,7 +11,7 @@ using Microsoft.UI.Xaml.Controls;
 namespace JustHostMC.App.Views;
 
 /// <summary>Edits server fields backed by ServerService.Update.</summary>
-public sealed partial class EditServerDialog : ContentDialog
+public sealed partial class EditServerDialog : FluentContentDialog
 {
     private readonly MainViewModel _viewModel;
     private readonly ServerItem _server;

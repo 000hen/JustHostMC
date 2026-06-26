@@ -180,10 +180,69 @@ message UseDocker {
 
 message PlayerInfo {
   string name = 1;
+  string uuid = 2;
 }
 message PlayerList {
   string server_id = 1;
   repeated PlayerInfo players = 2;
+}
+
+message PlayerLookup {
+  string server_id = 1;
+  string name = 2;
+  string uuid = 3;
+}
+
+message PlayerInventoryItem {
+  int32 slot = 1;
+  string slot_name = 2;
+  string item_id = 3;
+  int32 count = 4;
+  string raw_snbt = 5;
+}
+
+message PlayerData {
+  string server_id = 1;
+  string name = 2;
+  string uuid = 3;
+  string raw_snbt = 4;
+  repeated PlayerInventoryItem inventory = 5;
+  repeated PlayerInventoryItem ender_chest = 6;
+}
+
+enum BanListType {
+  BAN_LIST_TYPE_UNSPECIFIED = 0;
+  PLAYER_BANS = 1;
+  IP_BANS = 2;
+}
+
+message BanEntry {
+  BanListType type = 1;
+  string target = 2;
+  string name = 3;
+  string uuid = 4;
+  string created = 5;
+  string source = 6;
+  string expires = 7;
+  string reason = 8;
+}
+
+message BanList {
+  string server_id = 1;
+  repeated BanEntry entries = 2;
+}
+
+message AddBanRequest {
+  string server_id = 1;
+  BanListType type = 2;
+  string target = 3;
+  string reason = 4;
+}
+
+message RemoveBanRequest {
+  string server_id = 1;
+  BanListType type = 2;
+  string target = 3;
 }
 
 // -- Metrics: per-server resource samples (~1 Hz) ------------------------------
@@ -197,6 +256,53 @@ message ResourceSample {
   int64 net_tx_bytes_per_sec = 6;
   bool network_available = 7; // false on the on-machine backend (Windows per-process net is impractical)
   reserved 8;
+}
+
+// -- Server config: server.properties + world gamerules -----------------------
+
+enum ConfigValueType {
+  CONFIG_VALUE_TYPE_UNSPECIFIED = 0;
+  CONFIG_STRING = 1;
+  CONFIG_INTEGER = 2;
+  CONFIG_BOOLEAN = 3;
+  CONFIG_ENUM = 4;
+}
+
+message ConfigEntry {
+  string key = 1;
+  string value = 2;
+  ConfigValueType type = 3;
+  repeated string choices = 4;
+  string description = 5;
+  bool supported = 6;
+  string since_version = 7;
+}
+
+message ServerProperties {
+  string server_id = 1;
+  repeated ConfigEntry entries = 2;
+}
+
+message GameRules {
+  string server_id = 1;
+  repeated ConfigEntry entries = 2;
+  bool world_exists = 3;
+  string message = 4;
+}
+
+message ConfigUpdate {
+  string key = 1;
+  string value = 2;
+}
+
+message UpdateServerPropertiesRequest {
+  string server_id = 1;
+  repeated ConfigUpdate entries = 2;
+}
+
+message UpdateGameRulesRequest {
+  string server_id = 1;
+  repeated ConfigUpdate entries = 2;
 }
 
 // -- Plugins/Mods: jar files in the server's plugins|mods folder ---------------
@@ -269,6 +375,10 @@ service SettingsService {
 
 service PlayerService {
   rpc Watch(ServerId) returns (stream PlayerList); // streams the online roster on change
+  rpc GetData(PlayerLookup) returns (PlayerData);
+  rpc ListBans(ServerId) returns (BanList);
+  rpc AddBan(AddBanRequest) returns (BanEntry);
+  rpc RemoveBan(RemoveBanRequest) returns (Empty);
 }
 
 service MetricsService {
@@ -279,4 +389,11 @@ service ModService {
   rpc List(ServerId) returns (ModList);
   rpc Upload(stream UploadModRequest) returns (ModFile); // first message = init, then raw chunks
   rpc Remove(RemoveModRequest) returns (Empty);
+}
+
+service ConfigService {
+  rpc GetServerProperties(ServerId) returns (ServerProperties);
+  rpc UpdateServerProperties(UpdateServerPropertiesRequest) returns (ServerProperties);
+  rpc GetGameRules(ServerId) returns (GameRules);
+  rpc UpdateGameRules(UpdateGameRulesRequest) returns (GameRules);
 }

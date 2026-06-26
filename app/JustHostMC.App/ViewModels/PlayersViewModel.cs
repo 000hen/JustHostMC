@@ -64,7 +64,7 @@ public sealed partial class PlayersViewModel : ObservableObject, IAsyncDisposabl
     {
         Players.Clear();
         foreach (var player in list.Players)
-            Players.Add(new PlayerItem(player.Name));
+            Players.Add(new PlayerItem(player.Name, player.Uuid));
         Count = Players.Count;
     }
 

@@ -21,6 +21,7 @@ const logExt = ".log"
 type Policy struct {
 	KeepDays      int   // delete logs older than this many days (0 = no age limit)
 	MaxTotalBytes int64 // cap on total bytes across all logs (0 = no size limit)
+	ForceAll      bool  // immediately purge all log files
 }
 
 // Logger appends lines to a single log file. It is safe for concurrent use.
@@ -102,14 +103,16 @@ func Purge(root string, policy Policy, now time.Time) (removed int, freed int64,
 		if rmErr := os.Remove(f.path); rmErr == nil {
 			removed++
 			freed += f.size
-		} else if err == nil {
-			err = rmErr
 		}
 	}
 
 	// Phase 1: age.
 	kept := files[:0]
-	if policy.KeepDays > 0 {
+	if policy.ForceAll {
+		for _, f := range files {
+			del(f)
+		}
+	} else if policy.KeepDays > 0 {
 		cutoff := now.AddDate(0, 0, -policy.KeepDays)
 		for _, f := range files {
 			if f.mod.Before(cutoff) {

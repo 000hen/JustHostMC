@@ -1,0 +1,282 @@
+﻿syntax = "proto3";
+
+package mcmanager.v1;
+
+option csharp_namespace = "McManager.Grpc";
+option go_package = "github.com/000hen/justhostmc/engine/gen/mcmanager/v1;mcmanagerv1";
+
+// -- Enums --------------------------------------------------------------------
+
+enum ServerType {
+  SERVER_TYPE_UNSPECIFIED = 0;
+  VANILLA = 1;
+  PAPER = 2;
+  SPIGOT = 3;
+  FORGE = 4;
+  NEOFORGE = 5;
+  FABRIC = 6;
+}
+
+enum ServerStatus {
+  SERVER_STATUS_UNSPECIFIED = 0;
+  STOPPED = 1;
+  INSTALLING = 2;
+  STARTING = 3;
+  RUNNING = 4;
+  STOPPING = 5;
+  CRASHED = 6;
+}
+
+// -- Core domain --------------------------------------------------------------
+
+message Server {
+  string id = 1;
+  string name = 2;
+  ServerType type = 3;
+  string mc_version = 4;
+  int32 memory_mb = 5;
+  int32 port = 6;
+  ServerStatus status = 7;
+  int32 sort_order = 8;
+  string custom_java_args = 9;
+}
+
+message CreateServerRequest {
+  string name = 1;
+  ServerType type = 2;
+  string mc_version = 3;
+  int32 memory_mb = 4;
+  int32 port = 5; // 0 = auto-assign
+  string custom_java_args = 6;
+}
+
+message UpdateServerRequest {
+  string id = 1;
+  string name = 2;
+  string mc_version = 3;
+  int32 port = 4; // 0 = auto-assign a free port
+  int32 sort_order = 5;
+  int32 memory_mb = 6;
+  string custom_java_args = 7;
+}
+
+// -- i18n / message strategy --------------------------------------------------
+// Dynamic, display-only messages travel as a localization KEY in the form
+// "namespace.method.type" (e.g. "install.progress.downloading_server"); the
+// frontend resolves the key against its .resw resources and formats with args.
+// Programmatic outcomes (errors, actions) stay strongly typed as enum/struct.
+message LocalizedMessage {
+  string key = 1; // "namespace.method.type"
+  map<string, string> args = 2; // values for placeholders in the localized string
+}
+
+// Errors are returned via gRPC status (see PROMPT 禮4.1), with ErrorDetail packed
+// into the status details. ErrorCode is the programmatic discriminator; the
+// frontend maps it to a localized string. metadata carries context.
+enum ErrorCode {
+  ERROR_CODE_UNSPECIFIED = 0;
+  PORT_IN_USE = 1;
+  VERSION_NOT_FOUND = 2;
+  JRE_DOWNLOAD_FAILED = 3;
+  DOCKER_UNAVAILABLE = 4;
+  INSTALL_FAILED = 5;
+  BACKUP_FAILED = 6; // a backup snapshot or restore operation failed
+  BACKUP_NOT_FOUND = 7; // the requested backup id does not exist
+  SERVER_RUNNING = 8; // operation requires the server to be stopped first
+  MOD_UNSUPPORTED = 9; // this server type has no plugins/mods folder (e.g. Vanilla)
+}
+
+message ErrorDetail {
+  ErrorCode code = 1;
+  map<string, string> metadata = 2;
+}
+
+// Streamed continuously during Create so the frontend can render a live install
+// view: a current-step label, a progress bar, and a scrolling detail/log box.
+message InstallProgress {
+  LocalizedMessage step = 1; // current high-level step (localized by frontend); set when the step changes
+  double fraction = 2; // 0..1 overall progress; < 0 means indeterminate (show a marquee bar)
+  string log_line = 3; // raw stdout/stderr passthrough; append verbatim to detail box; NOT localized
+}
+
+// -- Small request/response wrappers ------------------------------------------
+
+message ServerId {
+  string id = 1;
+}
+message Empty {}
+message ServerList {
+  repeated Server servers = 1;
+}
+
+message VersionQuery {
+  ServerType type = 1;
+}
+message VersionList {
+  repeated string versions = 1;
+}
+
+// -- Console: bidirectional stream --------------------------------------------
+
+message ConsoleInput {
+  string server_id = 1;
+  string command = 2;
+}
+message ConsoleEvent {
+  string server_id = 1;
+  string line = 2;
+  ServerStatus status = 3;
+}
+
+// -- Backups ------------------------------------------------------------------
+
+message Backup {
+  string id = 1;
+  string server_id = 2;
+  int64 size_bytes = 3;
+  string created_at = 4;
+}
+message BackupList {
+  repeated Backup backups = 1;
+}
+message CreateBackupRequest {
+  string server_id = 1;
+  bool safe_online = 2;
+} // safe_online = pause saves, snapshot, resume
+message RestoreBackupRequest {
+  string server_id = 1;
+  string backup_id = 2;
+}
+
+// -- Settings: log retention ---------------------------------------------------
+
+// LogRetention configures how install/console logs are kept (PROMPT 禮15).
+message LogRetention {
+  int32 keep_days = 1; // delete logs older than this many days (0 = no age limit)
+  int64 max_total_bytes = 2; // cap on total log bytes; oldest purged first (0 = no size limit)
+}
+
+// PurgeResult reports what an immediate purge removed.
+message PurgeResult {
+  int32 removed_files = 1;
+  int64 freed_bytes = 2;
+}
+
+// -- Settings: isolation backend (Docker vs on-machine) ------------------------
+
+// BackendInfo describes the isolation backend so the UI can transparently show
+// where servers run and offer the Docker opt-in (PROMPT 禮10.7).
+message BackendInfo {
+  string active_mode = 1; // "on-machine" or "docker" ??the backend in use now
+  bool docker_available = 2; // whether a usable Docker engine was detected
+  string docker_version = 3; // Docker server version when available
+  bool use_docker = 4; // the user's persisted opt-in preference
+}
+message UseDocker {
+  bool enabled = 1;
+} // set the Docker opt-in preference
+
+// -- Players: live roster, parsed from the console stream ----------------------
+
+message PlayerInfo {
+  string name = 1;
+}
+message PlayerList {
+  string server_id = 1;
+  repeated PlayerInfo players = 2;
+}
+
+// -- Metrics: per-server resource samples (~1 Hz) ------------------------------
+
+message ResourceSample {
+  string server_id = 1;
+  double cpu_percent = 2; // normalized 0..100 across all cores
+  int64 memory_bytes = 3; // current working set
+  int64 memory_limit_bytes = 4; // configured cap; 0 = uncapped
+  int64 net_rx_bytes_per_sec = 5; // 0 when network_available = false
+  int64 net_tx_bytes_per_sec = 6;
+  bool network_available = 7; // false on the on-machine backend (Windows per-process net is impractical)
+  double tps = 8; // ticks per second; 0 when unavailable
+}
+
+// -- Plugins/Mods: jar files in the server's plugins|mods folder ---------------
+
+enum ModKind {
+  MOD_KIND_UNSPECIFIED = 0;
+  PLUGIN = 1; // Paper/Spigot -> plugins/
+  MOD = 2; // Forge/NeoForge/Fabric -> mods/
+}
+message ModFile {
+  string name = 1;
+  int64 size_bytes = 2;
+}
+message ModList {
+  string server_id = 1;
+  ModKind kind = 2;
+  repeated ModFile files = 3;
+  bool supported = 4; // false for Vanilla (no plugins/mods folder)
+}
+message UploadModInit {
+  string server_id = 1;
+  string filename = 2;
+} // first Upload message
+message UploadModRequest {
+  oneof payload {
+    UploadModInit init = 1;
+    bytes chunk = 2;
+  }
+}
+message RemoveModRequest {
+  string server_id = 1;
+  string name = 2;
+}
+
+// -- Services -----------------------------------------------------------------
+
+service EngineService {
+  rpc Health(Empty) returns (Empty);
+  rpc ListVersions(VersionQuery) returns (VersionList); // available MC versions per type
+}
+
+service ServerService {
+  rpc List(Empty) returns (ServerList);
+  rpc Create(CreateServerRequest) returns (stream InstallProgress); // last message implies done
+  rpc Update(UpdateServerRequest) returns (Server);
+  rpc Start(ServerId) returns (Empty);
+  rpc Stop(ServerId) returns (Empty);
+  rpc Delete(ServerId) returns (Empty);
+  rpc RemoveAllData(Empty) returns (Empty); // stop everything and wipe all on-disk data (PROMPT 禮8)
+}
+
+service ConsoleService {
+  rpc Attach(stream ConsoleInput) returns (stream ConsoleEvent);
+}
+
+service BackupService {
+  rpc Create(CreateBackupRequest) returns (Backup);
+  rpc List(ServerId) returns (BackupList);
+  rpc Restore(RestoreBackupRequest) returns (Empty);
+  rpc Delete(Backup) returns (Empty);
+}
+
+service SettingsService {
+  rpc GetLogRetention(Empty) returns (LogRetention);
+  rpc SetLogRetention(LogRetention) returns (Empty);
+  rpc PurgeLogs(Empty) returns (PurgeResult); // apply the policy immediately
+  rpc GetBackendInfo(Empty) returns (BackendInfo);
+  rpc SetUseDocker(UseDocker) returns (Empty); // opt in/out; takes effect on next launch
+}
+
+service PlayerService {
+  rpc Watch(ServerId) returns (stream PlayerList); // streams the online roster on change
+}
+
+service MetricsService {
+  rpc Watch(ServerId) returns (stream ResourceSample); // ~1 Hz resource samples while running
+}
+
+service ModService {
+  rpc List(ServerId) returns (ModList);
+  rpc Upload(stream UploadModRequest) returns (ModFile); // first message = init, then raw chunks
+  rpc Remove(RemoveModRequest) returns (Empty);
+}

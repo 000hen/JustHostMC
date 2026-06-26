@@ -1,0 +1,127 @@
+# OS junk
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# Local editor and agent state
+.vs/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+.serena/
+
+# User-specific Visual Studio / MSBuild files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.sln.ide
+
+# Build outputs shared by .NET, WinUI, C++, and Go
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+x86/
+x64/
+artifacts/
+publish/
+out/
+dist/
+*.cache
+*.log
+*.pdb
+*.ipdb
+*.iobj
+*.ilk
+*.exp
+*.lib
+*.obj
+*.tlog
+*.lastbuildstate
+*.unsuccessfulbuild
+*.dmp
+*.mdmp
+*.stackdump
+
+# NuGet / .NET restore output
+/packages/
+.nuget/packages/
+*.nupkg
+*.snupkg
+project.lock.json
+
+# WinUI / MSIX packaging output and local signing material
+**/AppPackages/
+**/BundleArtifacts/
+[Gg]enerated [Ff]iles/
+Package.StoreAssociation.xml
+*.appx
+*.appxbundle
+*.appxupload
+*.appxsym
+*.msix
+*.msixbundle
+*.msixupload
+*.msixsym
+*.cer
+*.pfx
+*.p12
+*.snk
+*.pem
+*.key
+
+# Go build, test, and profiling output
+*.exe
+*.test
+*.out
+*.coverprofile
+coverage.out
+coverage.html
+/engine/bin/
+/engine/dist/
+
+# Protobuf / gRPC generated Go stubs.
+# Regenerate with: cd proto; buf generate
+/engine/gen/
+
+# Project-local build artifacts. Keep /build available for future scripts.
+/build/engine.exe
+/build/tmp-*/
+/build/**/*.tmp
+/build/**/*.db
+/build/**/*.db-shm
+/build/**/*.db-wal
+
+# Test and coverage reports
+TestResults/
+coverage/
+*.trx
+*.coverage
+*.coveragexml
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+appsettings.*.local.json
+secrets.json
+
+# Temporary files and editor backups
+*.tmp
+*.temp
+*.bak
+*.orig
+*.rej
+*.swp
+*.swo
+*~
+*.go.[0-9]*

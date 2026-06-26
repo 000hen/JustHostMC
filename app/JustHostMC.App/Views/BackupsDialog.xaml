@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="JustHostMC.App.Views.BackupsDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:conv="using:JustHostMC.App.Converters"
+    mc:Ignorable="d"
+    x:Uid="BackupsDialog">
+
+    <ScrollViewer MaxHeight="640"
+                  HorizontalScrollBarVisibility="Disabled"
+                  VerticalScrollBarVisibility="Auto">
+        <Grid x:Name="BackupsRoot"
+              DataContext="{x:Bind ViewModel}"
+              MaxWidth="680"
+              HorizontalAlignment="Stretch"
+              RowSpacing="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" RowSpacing="10" ColumnSpacing="8">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Row="0"
+                        Grid.Column="0"
+                        MinWidth="154"
+                        Style="{StaticResource AccentButtonStyle}"
+                        Command="{x:Bind ViewModel.CreateBackupCommand}"
+                        IsEnabled="{x:Bind ViewModel.CanRunActions, Mode=OneWay}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE710;" FontSize="14" />
+                        <TextBlock x:Uid="BackupCreateButtonLabel" />
+                    </StackPanel>
+                </Button>
+
+                <Button Grid.Row="0"
+                        Grid.Column="1"
+                        MinWidth="44"
+                        Click="OnOpenBackupFolderClick"
+                        IsEnabled="{x:Bind ViewModel.CanRunActions, Mode=OneWay}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE8B7;" FontSize="14" />
+                        <TextBlock x:Uid="BackupOpenFolderButtonLabel" />
+                    </StackPanel>
+                </Button>
+
+                <CheckBox Grid.Row="1"
+                          Grid.ColumnSpan="3"
+                          IsChecked="{x:Bind ViewModel.SafeOnline, Mode=TwoWay}"
+                          Visibility="{x:Bind ViewModel.ServerRunning, Converter={StaticResource BoolToVis}}">
+                    <TextBlock x:Uid="BackupSafeOnlineLabel" TextWrapping="WrapWholeWords" />
+                </CheckBox>
+            </Grid>
+            <ProgressBar Grid.Row="1"
+                         IsIndeterminate="True"
+                         Visibility="{x:Bind ViewModel.IsBusy, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+
+            <Border Grid.Row="2"
+                    MinHeight="320"
+                    MaxHeight="420"
+                    CornerRadius="8"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1">
+                <Grid>
+                    <TextBlock x:Uid="BackupsEmptyHint"
+                               Margin="24"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               TextAlignment="Center"
+                               TextWrapping="WrapWholeWords"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               Visibility="{x:Bind ViewModel.Backups.Count, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
+                    <ListView ItemsSource="{x:Bind ViewModel.Backups, Mode=OneWay}"
+                              SelectionMode="None"
+                              Background="Transparent">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Padding="12" ColumnSpacing="12"
+                                      BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                      BorderThickness="0,0,0,1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="4">
+                                        <TextBlock Text="{Binding CreatedText}"
+                                                   Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                   TextTrimming="CharacterEllipsis" />
+                                        <Grid ColumnSpacing="10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0"
+                                                       Text="{Binding SizeText}"
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                            <TextBlock Grid.Column="1"
+                                                       Text="{Binding Id}"
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                        </Grid>
+                                    </StackPanel>
+
+                                    <Button x:Uid="BackupActionsButton"
+                                            Grid.Column="1"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Center"
+                                            MinWidth="92"
+                                            Tag="{Binding}">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <TextBlock x:Uid="BackupActionsButtonLabel" />
+                                            <FontIcon Glyph="&#xE70D;" FontSize="12" />
+                                        </StackPanel>
+                                        <Button.Flyout>
+                                            <MenuFlyout>
+                                                <MenuFlyoutItem x:Uid="BackupExportAction"
+                                                                Click="OnExportBackupClick"
+                                                                Tag="{Binding}">
+                                                    <MenuFlyoutItem.Icon>
+                                                        <FontIcon Glyph="&#xE896;" />
+                                                    </MenuFlyoutItem.Icon>
+                                                </MenuFlyoutItem>
+
+                                                <MenuFlyoutItem x:Uid="BackupRestoreAction"
+                                                                Click="OnRestoreBackupConfirmClick"
+                                                                Tag="{Binding}">
+                                                    <MenuFlyoutItem.Icon>
+                                                        <FontIcon Glyph="&#xE72C;" />
+                                                    </MenuFlyoutItem.Icon>
+                                                </MenuFlyoutItem>
+
+                                                <MenuFlyoutSeparator />
+
+                                                <MenuFlyoutItem x:Uid="BackupDeleteAction"
+                                                                Click="OnDeleteBackupConfirmClick"
+                                                                Tag="{Binding}">
+                                                    <MenuFlyoutItem.Icon>
+                                                        <FontIcon Glyph="&#xE74D;" />
+                                                    </MenuFlyoutItem.Icon>
+                                                </MenuFlyoutItem>
+                                            </MenuFlyout>
+                                        </Button.Flyout>
+                                    </Button>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
+            </Border>
+
+            <TextBlock Grid.Row="3"
+                       Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
+                       TextWrapping="WrapWholeWords"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+        </Grid>
+    </ScrollViewer>
+</ContentDialog>

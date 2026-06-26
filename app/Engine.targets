@@ -1,0 +1,44 @@
+<Project>
+
+  <!--
+    Compiles the Go backend engine so every run / build / test has a current
+    engine.exe to launch. Imported by JustHostMC.App (bundles it next to the app
+    and into the MSIX) and JustHostMC.Core.Tests (integration tests launch it).
+    JustHostMC.Core needs no binary and does not import this file.
+
+    Pass /p:SkipEngineBuild=true to skip the Go compile (e.g. a fast inner-loop
+    rebuild when the engine is unchanged, or CI that builds the engine separately).
+  -->
+
+  <PropertyGroup>
+    <!-- This file lives in /app, so its parent directory is the repo root. -->
+    <RepoRoot>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)..'))</RepoRoot>
+    <EngineSourceDir>$(RepoRoot)engine</EngineSourceDir>
+    <EngineExe>$(RepoRoot)build\engine.exe</EngineExe>
+  </PropertyGroup>
+
+  <Target Name="BuildEngine" BeforeTargets="BeforeBuild"
+          Condition="'$(SkipEngineBuild)' != 'true'">
+
+    <!-- Probe for the Go toolchain; tolerate its absence so a machine with a
+         prebuilt engine can still build the C# side. -->
+    <Exec Command="go version" ContinueOnError="true"
+          StandardOutputImportance="low" StandardErrorImportance="low">
+      <Output TaskParameter="ExitCode" PropertyName="_GoExitCode" />
+    </Exec>
+
+    <Message Condition="'$(_GoExitCode)' == '0'" Importance="high"
+             Text="BuildEngine: go build -&gt; $(EngineExe)" />
+    <Exec Condition="'$(_GoExitCode)' == '0'"
+          WorkingDirectory="$(EngineSourceDir)"
+          Command="go build -buildvcs=false -o &quot;$(EngineExe)&quot; ./cmd/engine" />
+
+    <!-- Go missing: tolerate a prebuilt engine, but fail clearly if there is
+         nothing to launch. -->
+    <Warning Condition="'$(_GoExitCode)' != '0' And Exists('$(EngineExe)')"
+             Text="Go toolchain not found on PATH; using the existing engine at $(EngineExe). Install Go (https://go.dev/dl) to rebuild it on each build." />
+    <Error Condition="'$(_GoExitCode)' != '0' And !Exists('$(EngineExe)')"
+           Text="Cannot produce the engine: Go is not on PATH and no prebuilt engine exists at $(EngineExe). Install Go (https://go.dev/dl), or build it manually: cd engine, then go build -o ../build/engine.exe ./cmd/engine" />
+  </Target>
+
+</Project>

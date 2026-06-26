@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="JustHostMC.App.Views.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <ScrollViewer Padding="24" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel MaxWidth="640" HorizontalAlignment="Left" Spacing="16">
+
+            <TextBlock x:Uid="SettingsTitle" Style="{StaticResource TitleTextBlockStyle}" />
+
+            <TextBlock x:Uid="SettingsRetentionHeader" Style="{StaticResource BodyStrongTextBlockStyle}" />
+            <TextBlock x:Uid="SettingsRetentionHint" TextWrapping="Wrap"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                       Style="{StaticResource CaptionTextBlockStyle}" />
+
+            <NumberBox x:Uid="SettingsKeepDays" Value="{x:Bind ViewModel.KeepDays, Mode=TwoWay}"
+                       Minimum="0" SpinButtonPlacementMode="Inline" />
+            <NumberBox x:Uid="SettingsMaxSize" Value="{x:Bind ViewModel.MaxTotalMb, Mode=TwoWay}"
+                       Minimum="0" SpinButtonPlacementMode="Inline" />
+
+            <Grid ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Button x:Uid="SettingsSaveButton" Grid.Column="0" Style="{StaticResource AccentButtonStyle}"
+                        Command="{x:Bind ViewModel.SaveCommand}" />
+                <Button x:Uid="SettingsPurgeButton" Grid.Column="1"
+                        Command="{x:Bind ViewModel.PurgeNowCommand}" />
+                <ProgressRing Grid.Column="2" HorizontalAlignment="Left" Width="20" Height="20"
+                              IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}"
+                              Visibility="{x:Bind ViewModel.IsBusy, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+            </Grid>
+
+            <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" TextWrapping="Wrap"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+
+            <!-- Server isolation backend (Docker opt-in) -->
+            <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                    CornerRadius="8" Padding="16">
+                <StackPanel Spacing="8">
+                    <TextBlock x:Uid="SettingsBackendHeader" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.ActiveModeText, Mode=OneWay}" TextWrapping="Wrap" />
+                    <TextBlock Text="{x:Bind ViewModel.DockerStatusText, Mode=OneWay}" TextWrapping="Wrap"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               Style="{StaticResource CaptionTextBlockStyle}" />
+                    <ToggleSwitch x:Uid="SettingsUseDocker" IsOn="{x:Bind ViewModel.UseDocker, Mode=TwoWay}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Destructive: remove all data -->
+            <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                    CornerRadius="8" Padding="16">
+                <StackPanel Spacing="8">
+                    <TextBlock x:Uid="SettingsDataHeader" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    <TextBlock x:Uid="SettingsDataHint" TextWrapping="Wrap"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               Style="{StaticResource CaptionTextBlockStyle}" />
+                    <Button x:Uid="SettingsRemoveDataButton" HorizontalAlignment="Left">
+                        <Button.Flyout>
+                            <Flyout>
+                                <StackPanel Spacing="8" MaxWidth="260">
+                                    <TextBlock x:Uid="SettingsRemoveDataConfirmText" TextWrapping="Wrap" />
+                                    <Button x:Uid="SettingsRemoveDataConfirmButton" HorizontalAlignment="Right"
+                                            Command="{x:Bind ViewModel.RemoveAllDataCommand}" />
+                                </StackPanel>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

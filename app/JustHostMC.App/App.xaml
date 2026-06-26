@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Application
+    x:Class="JustHostMC.App.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:conv="using:JustHostMC.App.Converters">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+            </ResourceDictionary.MergedDictionaries>
+            <!-- App-wide converters must live here (or on a XAML file's root element).
+                 x:Bind's {StaticResource} converter lookup only searches the binding
+                 root element's Resources and Application.Resources - it does NOT walk
+                 inner element .Resources, so a converter in e.g. <Grid.Resources>
+                 throws "Cannot find a resource with the given key" at load time. -->
+            <conv:BoolToVisibilityConverter x:Key="BoolToVis" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

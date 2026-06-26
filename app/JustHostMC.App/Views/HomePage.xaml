@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="JustHostMC.App.Views.HomePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:JustHostMC.App.Controls"
+    xmlns:models="using:JustHostMC.App.Models"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <DataTemplate x:Key="ServerCardTemplate">
+            <Border Padding="14"
+                    CornerRadius="8"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1">
+                <Grid RowSpacing="12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button x:Uid="HomeCardRenameButton"
+                                Grid.Column="0"
+                                Click="OnCardRenameClick"
+                                Tag="{Binding}"
+                                Height="32"
+                                Padding="0"
+                                BorderThickness="0"
+                                Background="Transparent"
+                                HorizontalAlignment="Left"
+                                HorizontalContentAlignment="Left"
+                                MaxWidth="210">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <TextBlock Text="{Binding Name}"
+                                           Style="{StaticResource BodyStrongTextBlockStyle}"
+                                           TextTrimming="CharacterEllipsis"
+                                           MaxLines="1"
+                                           MaxWidth="180"
+                                           VerticalAlignment="Center" />
+                                <FontIcon Glyph="&#xE70F;"
+                                          FontSize="12"
+                                          VerticalAlignment="Center"
+                                          Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            </StackPanel>
+                        </Button>
+
+                        <Button x:Uid="HomeCardMoreButton"
+                                Grid.Column="1"
+                                Width="32"
+                                Height="32"
+                                Padding="0"
+                                Tag="{Binding}">
+                            <FontIcon Glyph="&#xE712;" FontSize="14" />
+                            <Button.Flyout>
+                                <MenuFlyout>
+                                    <MenuFlyoutItem x:Uid="HomeCardEditMenuItem"
+                                                    Click="OnCardEditClick"
+                                                    Tag="{Binding}">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xE70F;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem x:Uid="HomeCardOpenMenuItem"
+                                                    Click="OnCardOpenClick"
+                                                    Tag="{Binding}">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xE8A7;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutSeparator />
+                                    <MenuFlyoutItem x:Uid="HomeCardDeleteMenuItem"
+                                                    Click="OnCardDeleteClick"
+                                                    Tag="{Binding}">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xE74D;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                </MenuFlyout>
+                            </Button.Flyout>
+                        </Button>
+                    </Grid>
+
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8">
+                        <controls:StatusDot Status="{Binding Status}" />
+                        <TextBlock Text="{Binding StatusText}" Style="{StaticResource CaptionTextBlockStyle}" />
+                    </StackPanel>
+
+                    <Grid Grid.Row="2" RowSpacing="10" MinHeight="92">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Row="0" Grid.Column="0" Spacing="2">
+                            <TextBlock x:Uid="HomeCardTypeLabel"
+                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <TextBlock Text="{Binding TypeText}" TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="0" Grid.Column="1" Spacing="2">
+                            <TextBlock x:Uid="HomeCardVersionLabel"
+                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <TextBlock Text="{Binding McVersion}" TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+
+                        <Grid Grid.Row="1" Grid.ColumnSpan="2" RowSpacing="4" MinHeight="42"
+                              ToolTipService.ToolTip="{Binding EndpointText}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:Uid="HomeCardEndpointLabel"
+                                       Grid.Row="0"
+                                       Grid.ColumnSpan="2"
+                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <TextBlock Grid.Row="1"
+                                       Grid.Column="0"
+                                       Text="{Binding EndpointText}"
+                                       TextTrimming="CharacterEllipsis"
+                                       TextWrapping="NoWrap"
+                                       MaxLines="1"
+                                       IsTextSelectionEnabled="True"
+                                       VerticalAlignment="Center" />
+                            <Button x:Uid="HomeCardCopyAddressButton"
+                                    Grid.Row="1"
+                                    Grid.Column="1"
+                                    Click="OnCardCopyAddressClick"
+                                    Tag="{Binding}"
+                                    Width="28"
+                                    Height="28"
+                                    Padding="0"
+                                    Margin="8,0,0,0">
+                                <FontIcon Glyph="&#xE8C8;" FontSize="13" />
+                            </Button>
+                        </Grid>
+                    </Grid>
+
+                    <Grid Grid.Row="3" ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button Grid.Column="0"
+                                Click="OnCardStateClick"
+                                Tag="{Binding}"
+                                IsEnabled="{Binding CanToggleState}"
+                                MinWidth="96"
+                                Height="36"
+                                HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                                <FontIcon Glyph="{Binding StateActionGlyph}" FontSize="14" />
+                                <TextBlock Text="{Binding StateActionText}" />
+                            </StackPanel>
+                        </Button>
+
+                        <Button x:Uid="HomeCardMoveUpButton"
+                                Grid.Column="1"
+                                Click="OnCardMoveUpClick"
+                                Tag="{Binding}"
+                                Width="36"
+                                Height="36"
+                                Padding="0">
+                            <FontIcon Glyph="&#xE74A;" FontSize="14" />
+                        </Button>
+
+                        <Button x:Uid="HomeCardMoveDownButton"
+                                Grid.Column="2"
+                                Click="OnCardMoveDownClick"
+                                Tag="{Binding}"
+                                Width="36"
+                                Height="36"
+                                Padding="0">
+                            <FontIcon Glyph="&#xE74B;" FontSize="14" />
+                        </Button>
+
+                        <Button x:Uid="HomeCardEditButton"
+                                Grid.Column="3"
+                                Click="OnCardEditClick"
+                                Tag="{Binding}"
+                                Width="36"
+                                Height="36"
+                                Padding="0">
+                            <FontIcon Glyph="&#xE70F;" FontSize="14" />
+                        </Button>
+                    </Grid>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate x:Key="AddCardTemplate">
+            <Button Click="OnAddCardClick"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    HorizontalContentAlignment="Stretch"
+                    VerticalContentAlignment="Stretch"
+                    Padding="16"
+                    CornerRadius="8"
+                    Background="Transparent"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1">
+                <StackPanel Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <FontIcon Glyph="&#xE710;" FontSize="24" />
+                    <TextBlock x:Uid="HomeAddCard"
+                               HorizontalAlignment="Center"
+                               Style="{StaticResource BodyStrongTextBlockStyle}" />
+                </StackPanel>
+            </Button>
+        </DataTemplate>
+
+        <controls:HomeCardTemplateSelector x:Key="HomeCardSelector"
+            ServerTemplate="{StaticResource ServerCardTemplate}"
+            AddTemplate="{StaticResource AddCardTemplate}" />
+    </Page.Resources>
+
+    <Grid Padding="24" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+                <TextBlock x:Uid="HomeTitle" Style="{StaticResource TitleTextBlockStyle}" />
+                <TextBlock Style="{StaticResource CaptionTextBlockStyle}"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           Text="{x:Bind Main.EngineStatus, Mode=OneWay}" />
+            </StackPanel>
+            <Button x:Uid="RefreshButton"
+                    Grid.Column="1"
+                    Command="{x:Bind Main.RefreshCommand}"
+                    Height="40" />
+            <Button x:Uid="CreateServerButton"
+                    Grid.Column="2"
+                    Click="OnAddCardClick"
+                    Style="{StaticResource AccentButtonStyle}"
+                    Height="40" />
+        </Grid>
+
+        <InfoBar x:Uid="OnMachineNotice"
+                 x:Name="OnMachineInfoBar"
+                 Grid.Row="1"
+                 Severity="Informational"
+                 IsClosable="True"
+                 CloseButtonClick="OnMachineNoticeClosed" />
+
+        <Grid Grid.Row="2" ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Padding="14" CornerRadius="8"
+                    Background="{ThemeResource LayerFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1">
+                <StackPanel Spacing="4">
+                    <TextBlock x:Uid="HomeTotalServersLabel"
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Text="{x:Bind Main.TotalServers, Mode=OneWay}"
+                               Style="{StaticResource SubtitleTextBlockStyle}" />
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="1" Padding="14" CornerRadius="8"
+                    Background="{ThemeResource LayerFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1">
+                <StackPanel Spacing="4">
+                    <TextBlock x:Uid="HomeRunningServersLabel"
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Text="{x:Bind Main.RunningServers, Mode=OneWay}"
+                               Style="{StaticResource SubtitleTextBlockStyle}" />
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="2" Padding="14" CornerRadius="8"
+                    Background="{ThemeResource LayerFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1">
+                <StackPanel Spacing="4">
+                    <TextBlock x:Uid="HomeStoppedServersLabel"
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Text="{x:Bind Main.StoppedServers, Mode=OneWay}"
+                               Style="{StaticResource SubtitleTextBlockStyle}" />
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="3" Padding="14" CornerRadius="8"
+                    Background="{ThemeResource LayerFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1">
+                <StackPanel Spacing="4">
+                    <TextBlock x:Uid="HomeBusyServersLabel"
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Text="{x:Bind Main.BusyServers, Mode=OneWay}"
+                               Style="{StaticResource SubtitleTextBlockStyle}" />
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
+            <ItemsRepeater ItemsSource="{x:Bind Cards}" ItemTemplate="{StaticResource HomeCardSelector}">
+                <ItemsRepeater.Layout>
+                    <UniformGridLayout MinItemWidth="280"
+                                       MinItemHeight="256"
+                                       MinColumnSpacing="12"
+                                       MinRowSpacing="12"
+                                       ItemsStretch="Fill" />
+                </ItemsRepeater.Layout>
+            </ItemsRepeater>
+        </ScrollViewer>
+
+        <Border Grid.Row="4"
+                Visibility="{x:Bind Main.IsInstalling, Mode=OneWay, Converter={StaticResource BoolToVis}}"
+                Background="{ThemeResource LayerFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                CornerRadius="8" Padding="16">
+            <StackPanel Spacing="8">
+                <TextBlock x:Uid="InstallProgressHeader" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                <TextBlock Text="{x:Bind Main.InstallStep, Mode=OneWay}" />
+                <ProgressBar Minimum="0" Maximum="1"
+                             Value="{x:Bind Main.InstallFraction, Mode=OneWay}"
+                             IsIndeterminate="{x:Bind Main.InstallIsIndeterminate, Mode=OneWay}" />
+                <ScrollViewer x:Name="LogScroller" Height="140"
+                              Background="{ThemeResource ControlFillColorDefaultBrush}"
+                              BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                              CornerRadius="4" Padding="8">
+                    <ItemsControl ItemsSource="{x:Bind Main.InstallLog, Mode=OneWay}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" FontFamily="Consolas" FontSize="12"
+                                           TextWrapping="NoWrap" IsTextSelectionEnabled="True" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+                <Button x:Uid="InstallDismissButton" HorizontalAlignment="Right"
+                        Command="{x:Bind Main.DismissInstallCommand}"
+                        Visibility="{x:Bind Main.InstallFailed, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

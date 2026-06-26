@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>JustHostMC.App</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Platforms>x86;x64;ARM64</Platforms>
+    <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+    <UseWinUI>true</UseWinUI>
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <!-- English is the base / default language and fallback (PROMPT §14). -->
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <!-- Default to unpackaged so `dotnet build`/`dotnet test` and F5 dev runs work
+         without a signing cert. Produce the Store MSIX by overriding this at
+         package time (Package.appxmanifest + Assets\ + the bundled engine are all
+         in place): see docs/WACK-checklist.md, e.g.
+         `msbuild /t:Publish /p:Platform=x64 /p:WindowsPackageType=MSIX
+                  /p:GenerateAppxPackageOnBuild=true`. -->
+    <WindowsPackageType Condition="'$(WindowsPackageType)' == ''">None</WindowsPackageType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.1839" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\JustHostMC.Core\JustHostMC.Core.csproj" />
+  </ItemGroup>
+
+  <!-- Localized resources live in Strings/<lang>/Resources.resw and are picked up
+       automatically by the SDK's default PRIResource items (one .resw per
+       language; adding a language needs no code change). -->
+
+  <!-- Build the Go engine and bundle it at <OutDir>\engine\engine.exe so EngineHost
+       (App.xaml.cs) can launch it on startup. Engine.targets runs `go build` before
+       every build; the Content item copies the result into the app output and the
+       MSIX payload. -->
+  <Import Project="..\Engine.targets" />
+  <ItemGroup>
+    <Content Include="..\..\build\engine.exe"
+             Link="engine\engine.exe"
+             CopyToOutputDirectory="PreserveNewest"
+             Visible="false" />
+  </ItemGroup>
+
+</Project>

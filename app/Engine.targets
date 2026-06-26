@@ -17,7 +17,37 @@
     <EngineExe>$(RepoRoot)build\engine.exe</EngineExe>
     <EngineGoBuildArgs Condition="'$(EngineGoBuildArgs)' == ''">-trimpath -buildvcs=false -mod=readonly -ldflags=&quot;-s -w -buildid=&quot;</EngineGoBuildArgs>
     <EngineGoBuildEnvironment Condition="'$(EngineGoBuildEnvironment)' == ''">CGO_ENABLED=0</EngineGoBuildEnvironment>
+    <!-- Protobuf codegen: the sentinel file that proves stubs have been generated. -->
+    <ProtoDir>$(RepoRoot)proto</ProtoDir>
+    <GoStubsSentinel>$(EngineSourceDir)\gen\mcmanager\v1\mcmanager.pb.go</GoStubsSentinel>
   </PropertyGroup>
+
+  <!-- ──────────────────────────────────────────────────────────────────────
+       GenerateGoStubs: runs 'buf generate' in /proto when the generated Go
+       gRPC stubs are missing (e.g. fresh clone). Runs before BuildEngine.
+
+       Skip with:  /p:SkipProtobufGenerate=true
+       ────────────────────────────────────────────────────────────────────── -->
+  <Target Name="GenerateGoStubs" BeforeTargets="BuildEngine"
+          Condition="'$(SkipProtobufGenerate)' != 'true' And !Exists('$(GoStubsSentinel)')">
+
+    <!-- Probe for buf on PATH. -->
+    <Exec Command="buf --version" ContinueOnError="true"
+          StandardOutputImportance="low" StandardErrorImportance="low">
+      <Output TaskParameter="ExitCode" PropertyName="_BufExitCode" />
+    </Exec>
+
+    <Message Condition="'$(_BufExitCode)' == '0'" Importance="high"
+             Text="GenerateGoStubs: Go gRPC stubs missing — running 'buf generate' in $(ProtoDir)" />
+    <Exec Condition="'$(_BufExitCode)' == '0'"
+          WorkingDirectory="$(ProtoDir)"
+          Command="buf generate" />
+
+    <!-- buf not found: warn if stubs could still appear (e.g. build.ps1 ran first),
+         error if they truly don't exist. -->
+    <Warning Condition="'$(_BufExitCode)' != '0'"
+             Text="buf is not on PATH. Go gRPC stubs at $(GoStubsSentinel) are missing. Install buf (https://buf.build/docs/installation) or run .\build.ps1 / .\setup.ps1 to generate them." />
+  </Target>
 
   <Target Name="BuildEngine" BeforeTargets="BeforeBuild"
           Condition="'$(SkipEngineBuild)' != 'true'">

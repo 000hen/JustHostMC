@@ -45,14 +45,49 @@ WinUI 3 (C#)  <-- gRPC (loopback) -->  engine (Go)  <-- IsolationBackend -->  pe
 ## Prerequisites (development)
 
 | Tool | Version | Purpose |
-|------|---------|---------|
-| .NET SDK | 8+ | C# WinUI app |
-| Windows App SDK | 1.x | WinUI 3 runtime |
+|------|---------|---------| 
+| .NET SDK | 9+ | C# WinUI app |
+| Windows App SDK | 2.x | WinUI 3 runtime |
 | Go | 1.22+ | engine |
-| protoc **or** buf | recent | codegen |
+| [buf](https://buf.build/docs/installation) | recent | protobuf codegen |
 | `protoc-gen-go`, `protoc-gen-go-grpc` | recent | Go gRPC stubs (`go install`) |
 
-## Build & run
+## Quick Start
+
+```powershell
+git clone https://github.com/000hen/JustHostMC.git
+cd JustHostMC
+
+# 1. Check & install prerequisites (one-time)
+.\setup.ps1
+
+# 2. Full build: protobuf codegen → Go engine → C# app → tests
+.\build.ps1
+```
+
+That's it. `setup.ps1` validates your toolchain and offers to install missing
+Go-based tools (`buf`, `protoc-gen-go`, `protoc-gen-go-grpc`) via `go install`.
+`build.ps1` runs every step in the right order.
+
+### Build script options
+
+```powershell
+.\build.ps1                         # Debug | x64 (default)
+.\build.ps1 -Configuration Release  # Release build
+.\build.ps1 -Platform ARM64         # target ARM64
+.\build.ps1 -SkipTests              # skip go test + dotnet test
+.\build.ps1 -SkipEngine             # reuse existing build/engine.exe
+.\build.ps1 -SkipProto              # reuse existing engine/gen/ stubs
+```
+
+### Visual Studio (F5)
+
+Opening `JustHostMC.sln` and pressing F5 works even on a fresh clone — the
+MSBuild `Engine.targets` automatically runs `buf generate` when the Go gRPC
+stubs are missing, then compiles the Go engine before the C# build begins.
+
+<details>
+<summary>Manual build steps (without scripts)</summary>
 
 ```powershell
 # 1. Generate Go gRPC stubs (C# stubs are generated at build time via Grpc.Tools).
@@ -71,6 +106,8 @@ cd .. ; dotnet build app/JustHostMC.App/JustHostMC.App.csproj -p:Platform=x64
 # 4. Run the cross-language end-to-end tests (app launches the real engine).
 dotnet test app/JustHostMC.Core.Tests/JustHostMC.Core.Tests.csproj
 ```
+
+</details>
 
 > `JustHostMC.sln` ties the three C# projects together for Visual Studio. Run the
 > app from VS (F5); headless `dotnet run` of a WinUI app needs extra packaging

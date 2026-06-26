@@ -139,8 +139,9 @@ dotnet test app/JustHostMC.Core.Tests/JustHostMC.Core.Tests.csproj
   valid **`.msix`** (86 entries) containing `AppxManifest.xml` (declares only
   `runFullTrust`, languages `en-US`+`zh-Hant`), the bundled **`engine/engine.exe`**,
   the visual assets, and `resources.pri`. Only signing is deferred to submission
-  (needs a cert / Store association). See [docs/WACK-checklist.md](docs/WACK-checklist.md)
-  and [PRIVACY.md](PRIVACY.md). The default `dotnet build` stays unpackaged for dev.
+  (needs a cert / Store association). See [docs/WACK-checklist.md](docs/WACK-checklist.md),
+  the live [privacy policy](https://muisnowdevs.one/privacy), and [LICENSE](LICENSE).
+  The default `dotnet build` stays unpackaged for dev.
 
 ### M7 verification (all green)
 
@@ -156,6 +157,10 @@ dotnet test app/JustHostMC.Core.Tests/JustHostMC.Core.Tests.csproj
   on-machine** — exactly the intended behavior. **Settings → Where servers run**
   shows the active mode + Docker availability and offers the opt-in (effective next
   launch). The live container lifecycle requires Docker Desktop running.
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
 ## Milestones
 

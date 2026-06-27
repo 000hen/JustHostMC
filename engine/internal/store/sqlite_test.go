@@ -15,8 +15,8 @@ func TestSQLiteCRUDAndOrdering(t *testing.T) {
 	}
 	defer s.Close()
 
-	_ = s.Put(&Server{ID: "b", Name: "Bravo", Type: mcmanagerv1.ServerType_PAPER, Status: mcmanagerv1.ServerStatus_STOPPED})
-	_ = s.Put(&Server{ID: "a", Name: "Alpha", Type: mcmanagerv1.ServerType_VANILLA, McVersion: "1.21",
+	_ = s.Put(&Server{ID: "b", Name: "Bravo", ProviderID: "paper", Status: mcmanagerv1.ServerStatus_STOPPED})
+	_ = s.Put(&Server{ID: "a", Name: "Alpha", ProviderID: "vanilla", McVersion: "1.21",
 		MemoryMB: 2048, Port: 25565, Status: mcmanagerv1.ServerStatus_RUNNING, JavaMajor: 21,
 		LaunchArgs: []string{"-jar", "server.jar", "nogui"}})
 
@@ -50,7 +50,7 @@ func TestSQLitePersistsAcrossReopen(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	_ = s1.Put(&Server{ID: "x", Name: "Persisted", Type: mcmanagerv1.ServerType_FORGE,
+	_ = s1.Put(&Server{ID: "x", Name: "Persisted", ProviderID: "forge", ModLayout: "mods",
 		McVersion: "1.20.1", MemoryMB: 4096, Port: 25570, Status: mcmanagerv1.ServerStatus_RUNNING,
 		JavaMajor: 17, LaunchArgs: []string{"-jar", "forge.jar"}})
 	s1.Close()
@@ -66,7 +66,7 @@ func TestSQLitePersistsAcrossReopen(t *testing.T) {
 		t.Fatal("server not found after reopen")
 	}
 	if got.Name != "Persisted" || got.JavaMajor != 17 || got.MemoryMB != 4096 ||
-		got.Type != mcmanagerv1.ServerType_FORGE || len(got.LaunchArgs) != 2 {
+		got.ProviderID != "forge" || len(got.LaunchArgs) != 2 {
 		t.Errorf("reopened server = %+v", got)
 	}
 }

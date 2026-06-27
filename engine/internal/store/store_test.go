@@ -13,8 +13,8 @@ func TestMemoryStoreCRUD(t *testing.T) {
 		t.Fatal("Get on empty store returned ok")
 	}
 
-	_ = m.Put(&Server{ID: "b", Name: "Bravo", Type: mcmanagerv1.ServerType_VANILLA, Status: mcmanagerv1.ServerStatus_STOPPED})
-	_ = m.Put(&Server{ID: "a", Name: "Alpha", Type: mcmanagerv1.ServerType_VANILLA, Status: mcmanagerv1.ServerStatus_STOPPED})
+	_ = m.Put(&Server{ID: "b", Name: "Bravo", ProviderID: "vanilla", Status: mcmanagerv1.ServerStatus_STOPPED})
+	_ = m.Put(&Server{ID: "a", Name: "Alpha", ProviderID: "vanilla", Status: mcmanagerv1.ServerStatus_STOPPED})
 
 	got, ok := m.Get("a")
 	if !ok || got.Name != "Alpha" {
@@ -41,9 +41,9 @@ func TestMemoryStoreCRUD(t *testing.T) {
 }
 
 func TestServerProtoProjection(t *testing.T) {
-	s := &Server{ID: "x", Name: "N", Type: mcmanagerv1.ServerType_PAPER, McVersion: "1.21", MemoryMB: 2048, Port: 25565, Status: mcmanagerv1.ServerStatus_RUNNING}
+	s := &Server{ID: "x", Name: "N", ProviderID: "paper", McVersion: "1.21", MemoryMB: 2048, Port: 25565, Status: mcmanagerv1.ServerStatus_RUNNING}
 	p := s.Proto()
-	if p.Id != "x" || p.MemoryMb != 2048 || p.Port != 25565 || p.Type != mcmanagerv1.ServerType_PAPER || p.Status != mcmanagerv1.ServerStatus_RUNNING {
+	if p.Id != "x" || p.MemoryMb != 2048 || p.Port != 25565 || p.ProviderId != "paper" || p.Status != mcmanagerv1.ServerStatus_RUNNING {
 		t.Errorf("Proto projection wrong: %+v", p)
 	}
 }

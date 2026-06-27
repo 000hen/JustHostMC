@@ -15,7 +15,6 @@ import (
 	"syscall"
 	"time"
 
-	mcmanagerv1 "github.com/000hen/justhostmc/engine/gen/mcmanager/v1"
 	"github.com/000hen/justhostmc/engine/internal/appdata"
 	"github.com/000hen/justhostmc/engine/internal/backup"
 	"github.com/000hen/justhostmc/engine/internal/console"
@@ -23,7 +22,7 @@ import (
 	"github.com/000hen/justhostmc/engine/internal/isolation"
 	"github.com/000hen/justhostmc/engine/internal/jre"
 	"github.com/000hen/justhostmc/engine/internal/logging"
-	"github.com/000hen/justhostmc/engine/internal/provider"
+	"github.com/000hen/justhostmc/engine/internal/scripting"
 	"github.com/000hen/justhostmc/engine/internal/settings"
 	"github.com/000hen/justhostmc/engine/internal/store"
 )
@@ -63,13 +62,17 @@ func main() {
 	defer registry.Close()
 
 	jreMgr := jre.NewManager(paths.JRECache())
-	providers := map[mcmanagerv1.ServerType]provider.Provider{
-		mcmanagerv1.ServerType_VANILLA:  provider.NewVanilla(),
-		mcmanagerv1.ServerType_PAPER:    provider.NewPaper(),
-		mcmanagerv1.ServerType_SPIGOT:   provider.NewSpigot(jreMgr.EnsureJDK),
-		mcmanagerv1.ServerType_FORGE:    provider.NewForge(jreMgr.EnsureJRE),
-		mcmanagerv1.ServerType_NEOFORGE: provider.NewNeoForge(jreMgr.EnsureJRE),
-		mcmanagerv1.ServerType_FABRIC:   provider.NewFabric(),
+	// Server types are now sandboxed Lua provider scripts. Built-ins are embedded
+	// in the binary; user-imported scripts are loaded from the data dir below.
+	host := scripting.NewHost(nil, jreMgr.EnsureJRE, jreMgr.EnsureJDK)
+	grants := scripting.NewGrantStore(filepath.Join(paths.Base, "grants.json"))
+	providers := scripting.NewRegistry(host, grants)
+	if err := scripting.LoadBuiltins(providers); err != nil {
+		log.Fatalf("load builtin providers: %v", err)
+	}
+	providersDir := filepath.Join(paths.Base, "providers")
+	if err := scripting.LoadUserProviders(providers, providersDir); err != nil {
+		log.Printf("load user providers: %v", err)
 	}
 	// Persist every console line to a daily-rotating per-server log file.
 	hub := console.NewHub()
@@ -122,6 +125,7 @@ func main() {
 		MetricsService:  grpcsvc.NewMetricsService(serverService),
 		ModService:      grpcsvc.NewModService(registry, paths),
 		ConfigService:   grpcsvc.NewConfigService(registry, paths),
+		ProviderService: grpcsvc.NewProviderService(providers, grants, providersDir),
 	})
 	log.Printf("engine data dir: %s", paths.Base)
 

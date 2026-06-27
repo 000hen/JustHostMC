@@ -4,7 +4,7 @@ import (
 	"net"
 
 	mcmanagerv1 "github.com/000hen/justhostmc/engine/gen/mcmanager/v1"
-	"github.com/000hen/justhostmc/engine/internal/provider"
+	"github.com/000hen/justhostmc/engine/internal/scripting"
 	"google.golang.org/grpc"
 )
 
@@ -21,7 +21,7 @@ func Listen() (net.Listener, error) {
 // the auth and health tests can build a minimal server.
 type Config struct {
 	Token           string
-	Providers       map[mcmanagerv1.ServerType]provider.Provider
+	Providers       *scripting.Registry
 	ServerService   mcmanagerv1.ServerServiceServer
 	ConsoleService  mcmanagerv1.ConsoleServiceServer
 	BackupService   mcmanagerv1.BackupServiceServer
@@ -30,6 +30,8 @@ type Config struct {
 	MetricsService  mcmanagerv1.MetricsServiceServer
 	ModService      mcmanagerv1.ModServiceServer
 	ConfigService   mcmanagerv1.ConfigServiceServer
+	ProviderService mcmanagerv1.ProviderServiceServer
+	ScriptService   mcmanagerv1.ScriptServiceServer
 }
 
 // NewServer builds a gRPC server with session-token auth interceptors installed
@@ -63,6 +65,12 @@ func NewServer(cfg Config) *grpc.Server {
 	}
 	if cfg.ConfigService != nil {
 		mcmanagerv1.RegisterConfigServiceServer(srv, cfg.ConfigService)
+	}
+	if cfg.ProviderService != nil {
+		mcmanagerv1.RegisterProviderServiceServer(srv, cfg.ProviderService)
+	}
+	if cfg.ScriptService != nil {
+		mcmanagerv1.RegisterScriptServiceServer(srv, cfg.ScriptService)
 	}
 	return srv
 }

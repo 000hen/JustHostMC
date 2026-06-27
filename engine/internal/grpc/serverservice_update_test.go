@@ -17,7 +17,7 @@ import (
 func TestUpdateRenamesAndReordersRunningServer(t *testing.T) {
 	st := store.NewMemory()
 	_ = st.Put(&store.Server{
-		ID: "s1", Name: "Old", Type: mcmanagerv1.ServerType_VANILLA, McVersion: "1.21",
+		ID: "s1", Name: "Old", ProviderID: "vanilla", McVersion: "1.21",
 		MemoryMB: 2048, Port: 25565, Status: mcmanagerv1.ServerStatus_RUNNING,
 		SortOrder: 2, LaunchArgs: []string{"-jar", "server.jar", "nogui"},
 	})
@@ -49,7 +49,7 @@ func TestUpdatePortPreservesServerProperties(t *testing.T) {
 
 	st := store.NewMemory()
 	_ = st.Put(&store.Server{
-		ID: "s1", Name: "One", Type: mcmanagerv1.ServerType_VANILLA, McVersion: "1.21",
+		ID: "s1", Name: "One", ProviderID: "vanilla", McVersion: "1.21",
 		MemoryMB: 2048, Port: oldPort, Status: mcmanagerv1.ServerStatus_STOPPED,
 		LaunchArgs: []string{"-jar", "server.jar", "nogui"},
 	})
@@ -76,7 +76,7 @@ func TestUpdatePortPreservesServerProperties(t *testing.T) {
 func TestUpdateLaunchSettingsPersistsMemoryAndCustomArgs(t *testing.T) {
 	st := store.NewMemory()
 	_ = st.Put(&store.Server{
-		ID: "s1", Name: "One", Type: mcmanagerv1.ServerType_VANILLA, McVersion: "1.21",
+		ID: "s1", Name: "One", ProviderID: "vanilla", McVersion: "1.21",
 		MemoryMB: 2048, Port: 25565, Status: mcmanagerv1.ServerStatus_STOPPED,
 		LaunchArgs: []string{"-jar", "server.jar", "nogui"},
 	})
@@ -105,7 +105,7 @@ func TestUpdateVersionRefreshesLaunchSpec(t *testing.T) {
 	}
 	st := store.NewMemory()
 	_ = st.Put(&store.Server{
-		ID: "s1", Name: "One", Type: mcmanagerv1.ServerType_VANILLA, McVersion: "1.20.1",
+		ID: "s1", Name: "One", ProviderID: "vanilla", McVersion: "1.20.1",
 		MemoryMB: 2048, Port: 25565, Status: mcmanagerv1.ServerStatus_STOPPED,
 		JavaMajor: 17, LaunchArgs: []string{"-jar", "old.jar"},
 	})
@@ -116,7 +116,7 @@ func TestUpdateVersionRefreshesLaunchSpec(t *testing.T) {
 
 	svc := NewServerService(ServerServiceConfig{
 		Store:     st,
-		Providers: map[mcmanagerv1.ServerType]provider.Provider{mcmanagerv1.ServerType_VANILLA: prov},
+		Providers: testRegistry("vanilla", "none", prov),
 		Paths:     paths,
 	})
 	if _, err := svc.Update(context.Background(), &mcmanagerv1.UpdateServerRequest{

@@ -3,6 +3,8 @@ module github.com/000hen/justhostmc/engine
 go 1.26.2
 
 require (
+	github.com/Tnze/go-mc v1.20.2
+	github.com/yuin/gopher-lua v1.1.2
 	golang.org/x/sys v0.46.0
 	google.golang.org/grpc v1.81.1
 	google.golang.org/protobuf v1.36.11
@@ -10,7 +12,6 @@ require (
 )
 
 require (
-	github.com/Tnze/go-mc v1.20.2 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect

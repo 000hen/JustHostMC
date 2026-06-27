@@ -38,7 +38,7 @@ func TestVanillaServerLifecycleEndToEnd(t *testing.T) {
 	}
 
 	// 1. Download the vanilla server jar.
-	spec, err := provider.NewVanilla().Install(ctx, dir, version, func(p provider.Progress) {
+	spec, err := vanillaProvider(t).Install(ctx, dir, version, func(p provider.Progress) {
 		if p.Step != "" {
 			t.Logf("install step: %s (%.0f%%)", p.Step, p.Fraction*100)
 		}

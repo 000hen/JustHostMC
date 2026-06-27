@@ -29,7 +29,7 @@ func TestConfigServiceUpdatesServerPropertiesAndSyncsPort(t *testing.T) {
 
 	st := store.NewMemory()
 	_ = st.Put(&store.Server{
-		ID: "s1", Name: "One", Type: mcmanagerv1.ServerType_VANILLA, McVersion: "1.21",
+		ID: "s1", Name: "One", ProviderID: "vanilla", McVersion: "1.21",
 		MemoryMB: 2048, Port: oldPort, Status: mcmanagerv1.ServerStatus_STOPPED,
 	})
 	svc := NewConfigService(st, paths)
@@ -75,7 +75,7 @@ func TestConfigServiceUpdatesGameRuleInLevelDat(t *testing.T) {
 
 	st := store.NewMemory()
 	_ = st.Put(&store.Server{
-		ID: "s1", Name: "One", Type: mcmanagerv1.ServerType_VANILLA, McVersion: "1.21",
+		ID: "s1", Name: "One", ProviderID: "vanilla", McVersion: "1.21",
 		MemoryMB: 2048, Port: 25565, Status: mcmanagerv1.ServerStatus_STOPPED,
 	})
 	svc := NewConfigService(st, paths)

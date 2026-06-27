@@ -15,7 +15,7 @@ public sealed class ServerItem : ObservableObject
     private readonly ILocalizer _localizer;
     private string _name = "";
     private string _mcVersion = "";
-    private ServerType _type;
+    private string _providerId = "";
     private ServerStatus _status;
     private int _port;
     private int _memoryMb;
@@ -44,12 +44,12 @@ public sealed class ServerItem : ObservableObject
         private set => SetProperty(ref _mcVersion, value);
     }
 
-    public ServerType Type
+    public string ProviderId
     {
-        get => _type;
+        get => _providerId;
         private set
         {
-            if (SetProperty(ref _type, value))
+            if (SetProperty(ref _providerId, value))
                 OnPropertyChanged(nameof(TypeText));
         }
     }
@@ -113,16 +113,19 @@ public sealed class ServerItem : ObservableObject
         _ => "ServerStatus_Unknown",
     });
 
-    public string TypeText => _localizer.Get(Type switch
+    // Built-in ids map to localized names; custom providers fall back to their id.
+    // Phase B resolves friendly names from the provider list.
+    public string TypeText => ProviderId switch
     {
-        ServerType.Vanilla => "ServerType_Vanilla",
-        ServerType.Paper => "ServerType_Paper",
-        ServerType.Spigot => "ServerType_Spigot",
-        ServerType.Forge => "ServerType_Forge",
-        ServerType.Neoforge => "ServerType_NeoForge",
-        ServerType.Fabric => "ServerType_Fabric",
-        _ => "ServerType_Unknown",
-    });
+        "vanilla" => _localizer.Get("ServerType_Vanilla"),
+        "paper" => _localizer.Get("ServerType_Paper"),
+        "spigot" => _localizer.Get("ServerType_Spigot"),
+        "forge" => _localizer.Get("ServerType_Forge"),
+        "neoforge" => _localizer.Get("ServerType_NeoForge"),
+        "fabric" => _localizer.Get("ServerType_Fabric"),
+        "" => _localizer.Get("ServerType_Unknown"),
+        _ => ProviderId,
+    };
 
     public bool CanStart => Status is ServerStatus.Stopped or ServerStatus.Crashed;
     public bool CanStop => Status is ServerStatus.Running or ServerStatus.Starting;
@@ -158,7 +161,7 @@ public sealed class ServerItem : ObservableObject
     {
         Name = proto.Name;
         McVersion = proto.McVersion;
-        Type = proto.Type;
+        ProviderId = proto.ProviderId;
         Status = proto.Status;
         Port = proto.Port;
         MemoryMb = proto.MemoryMb;

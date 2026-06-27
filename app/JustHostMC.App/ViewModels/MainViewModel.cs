@@ -106,13 +106,22 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
-    /// <summary>Fetches available versions for a server type (for the create wizard).</summary>
-    public async Task<string[]> GetVersionsAsync(ServerType type)
+    /// <summary>Fetches available versions for a provider (for the create wizard).</summary>
+    public async Task<string[]> GetVersionsAsync(string providerId)
     {
         var daemon = await App.Current.DaemonReady;
         var list = await daemon.Engine.ListVersionsAsync(
-            new VersionQuery { Type = type }, deadline: DateTime.UtcNow.AddSeconds(30));
+            new VersionQuery { ProviderId = providerId }, deadline: DateTime.UtcNow.AddSeconds(30));
         return list.Versions.ToArray();
+    }
+
+    /// <summary>Fetches the installed provider scripts (built-in + user-imported).</summary>
+    public async Task<IReadOnlyList<ProviderInfo>> GetProvidersAsync()
+    {
+        var daemon = await App.Current.DaemonReady;
+        var list = await daemon.Providers.ListAsync(
+            new Empty(), deadline: DateTime.UtcNow.AddSeconds(30));
+        return list.Providers;
     }
 
     /// <summary>

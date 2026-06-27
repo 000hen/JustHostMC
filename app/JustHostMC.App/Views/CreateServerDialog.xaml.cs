@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using JustHostMC.App.Controls;
 using JustHostMC.App.Services;
@@ -16,29 +17,37 @@ public sealed partial class CreateServerDialog : FluentContentDialog
     private bool _isLoadingVersions;
     private bool _versionLoadFailed;
 
-    private sealed record TypeChoice(ServerType Type, string Display);
+    private sealed record TypeChoice(string Id, string Display);
 
     public CreateServerDialog(MainViewModel viewModel)
     {
         _viewModel = viewModel;
         InitializeComponent();
 
-        var loc = new LocalizationService();
-        TypeBox.ItemsSource = new List<TypeChoice>
-        {
-            new(ServerType.Vanilla, loc.Get("ServerType_Vanilla")),
-            new(ServerType.Paper, loc.Get("ServerType_Paper")),
-            new(ServerType.Spigot, loc.Get("ServerType_Spigot")),
-            new(ServerType.Forge, loc.Get("ServerType_Forge")),
-            new(ServerType.Neoforge, loc.Get("ServerType_NeoForge")),
-            new(ServerType.Fabric, loc.Get("ServerType_Fabric")),
-        };
-
-        // Disable the primary button until a version is successfully loaded.
+        // Disable the primary button until providers + a version are loaded.
         IsPrimaryButtonEnabled = false;
 
-        // Selecting the first type triggers OnTypeChanged, which loads versions.
-        TypeBox.SelectedIndex = 0;
+        // Load the installed providers; selecting the first triggers a version load.
+        _ = LoadProvidersAsync();
+    }
+
+    private async Task LoadProvidersAsync()
+    {
+        try
+        {
+            var providers = await _viewModel.GetProvidersAsync();
+            TypeBox.ItemsSource = providers
+                .Select(p => new TypeChoice(p.Id, string.IsNullOrEmpty(p.Name) ? p.Id : p.Name))
+                .ToList();
+            if (TypeBox.Items.Count > 0)
+                TypeBox.SelectedIndex = 0; // triggers OnTypeChanged -> version load
+        }
+        catch
+        {
+            _versionLoadFailed = true;
+            VersionErrorBar.IsOpen = true;
+            UpdatePrimaryButtonState();
+        }
     }
 
     private async void OnTypeChanged(object sender, SelectionChangedEventArgs e)
@@ -62,7 +71,7 @@ public sealed partial class CreateServerDialog : FluentContentDialog
 
         try
         {
-            var versions = await _viewModel.GetVersionsAsync(choice.Type);
+            var versions = await _viewModel.GetVersionsAsync(choice.Id);
             VersionBox.ItemsSource = versions;
             if (versions.Length > 0)
                 VersionBox.SelectedIndex = 0;
@@ -105,7 +114,7 @@ public sealed partial class CreateServerDialog : FluentContentDialog
         return new CreateServerRequest
         {
             Name = name,
-            Type = choice.Type,
+            ProviderId = choice.Id,
             McVersion = version,
             MemoryMb = double.IsNaN(MemoryBox.Value) ? 2048 : (int)MemoryBox.Value,
             Port = double.IsNaN(PortBox.Value) ? 0 : (int)PortBox.Value,

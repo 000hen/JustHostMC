@@ -83,7 +83,7 @@ build.ps1       Full build pipeline script
 |------|---------|---------|
 | .NET SDK | 9+ | C# WinUI app |
 | Windows App SDK | 2.x | WinUI 3 runtime |
-| Go | 1.22+ | Engine |
+| Go | 1.26+ | Engine |
 | [buf](https://buf.build/docs/installation) | latest | Protobuf codegen |
 | `protoc-gen-go`, `protoc-gen-go-grpc` | latest | Go gRPC stubs (`go install`) |
 
@@ -153,7 +153,7 @@ dotnet test app/JustHostMC.Core.Tests/JustHostMC.Core.Tests.csproj
 | Layer | Technology |
 |-------|------------|
 | Frontend | C# / WinUI 3 / Windows App SDK / CommunityToolkit.Mvvm |
-| Backend | Go 1.22+ |
+| Backend | Go 1.26+ |
 | IPC | gRPC (Protocol Buffers) |
 | Codegen | buf |
 | Database | SQLite ([modernc.org/sqlite](https://pkg.go.dev/modernc.org/sqlite), CGo-free) |

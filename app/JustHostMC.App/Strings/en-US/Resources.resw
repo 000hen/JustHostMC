@@ -241,10 +241,14 @@
   <data name="ManageBansButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Manage bans</value></data>
   <!-- Configuration -->
   <data name="ConfigStoppedHint.Text" xml:space="preserve"><value>Stop the server to save server.properties, gamerules, or ban-list file changes safely.</value></data>
-  <data name="ConfigPropertiesHeader.Text" xml:space="preserve"><value>server.properties</value></data>
-  <data name="ConfigPropertiesHint.Text" xml:space="preserve"><value>Available properties and editors are filtered for this server's Minecraft version.</value></data>
+  <data name="ConfigPropertiesSection.Title" xml:space="preserve"><value>server.properties</value></data>
+  <data name="ConfigPropertiesSection.Description" xml:space="preserve"><value>Available properties and editors are filtered for this server's Minecraft version.</value></data>
   <data name="ConfigSavePropertiesButton.Content" xml:space="preserve"><value>Save properties</value></data>
-  <data name="ConfigGameRulesHeader.Text" xml:space="preserve"><value>Gamerules</value></data>
+  <data name="ConfigGameRulesSection.Title" xml:space="preserve"><value>Gamerules</value></data>
+  <data name="ConfigGameRulesSection.Description" xml:space="preserve"><value>Control world behavior, spawning, damage, inventory, and other gameplay rules.</value></data>
+  <data name="ConfigModifiedText.Text" xml:space="preserve"><value>Configuration modified.</value></data>
+  <data name="ConfigDiscardButtonLabel.Text" xml:space="preserve"><value>Discard</value></data>
+  <data name="ConfigSaveModifiedButtonLabel.Text" xml:space="preserve"><value>Save changes</value></data>
   <data name="ConfigSaveGameRulesButton.Content" xml:space="preserve"><value>Save gamerules</value></data>
   <data name="Config_LoadFailed" xml:space="preserve"><value>Could not load server configuration.</value></data>
   <data name="Config_SaveFailed" xml:space="preserve"><value>Could not save server configuration.</value></data>

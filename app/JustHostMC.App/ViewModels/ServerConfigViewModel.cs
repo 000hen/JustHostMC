@@ -1,5 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Grpc.Core;
@@ -37,7 +39,10 @@ public sealed partial class ServerConfigViewModel : ObservableObject
         private set
         {
             if (SetProperty(ref _canModify, value))
+            {
                 OnPropertyChanged(nameof(CanSaveGameRules));
+                OnPropertyChanged(nameof(CanSaveModifiedConfiguration));
+            }
         }
     }
 
@@ -48,11 +53,20 @@ public sealed partial class ServerConfigViewModel : ObservableObject
         private set
         {
             if (SetProperty(ref _gameRulesWorldExists, value))
+            {
                 OnPropertyChanged(nameof(CanSaveGameRules));
+                OnPropertyChanged(nameof(CanSaveModifiedConfiguration));
+            }
         }
     }
 
     public bool CanSaveGameRules => CanModify && GameRulesWorldExists;
+    public bool PropertiesModified => Properties.Any(item => item.IsModified);
+    public bool GameRulesModified => GameRules.Any(item => item.IsModified);
+    public bool HasModifiedConfiguration => PropertiesModified || GameRulesModified;
+    public bool CanDiscardChanges => !IsBusy && HasModifiedConfiguration;
+    public bool CanSaveModifiedConfiguration => !IsBusy && CanModify &&
+        (PropertiesModified || (GameRulesWorldExists && GameRulesModified));
 
     private bool _isBusy;
     public bool IsBusy
@@ -61,7 +75,11 @@ public sealed partial class ServerConfigViewModel : ObservableObject
         private set
         {
             if (SetProperty(ref _isBusy, value))
+            {
                 OnPropertyChanged(nameof(IsInitialLoading));
+                OnPropertyChanged(nameof(CanDiscardChanges));
+                OnPropertyChanged(nameof(CanSaveModifiedConfiguration));
+            }
         }
     }
 
@@ -78,8 +96,14 @@ public sealed partial class ServerConfigViewModel : ObservableObject
     public string GameRulesMessage
     {
         get => _gameRulesMessage;
-        private set => SetProperty(ref _gameRulesMessage, value);
+        private set
+        {
+            if (SetProperty(ref _gameRulesMessage, value))
+                OnPropertyChanged(nameof(HasGameRulesMessage));
+        }
     }
+
+    public bool HasGameRulesMessage => !string.IsNullOrWhiteSpace(GameRulesMessage);
 
     public void SetServerStopped(bool stopped)
     {
@@ -226,13 +250,55 @@ public sealed partial class ServerConfigViewModel : ObservableObject
         }
     }
 
-    private static void Replace(ObservableCollection<ConfigEntryItem> target,
+    public async Task SaveModifiedAsync()
+    {
+        var saveProperties = PropertiesModified;
+        var saveGameRules = GameRulesModified && CanSaveGameRules;
+
+        if (saveProperties)
+            await SavePropertiesAsync();
+        if (saveGameRules)
+            await SaveGameRulesAsync();
+    }
+
+    public void DiscardChanges()
+    {
+        foreach (var item in Properties.Where(item => item.IsModified))
+            item.DiscardChanges();
+        foreach (var item in GameRules.Where(item => item.IsModified))
+            item.DiscardChanges();
+        StatusMessage = "";
+    }
+
+    private void Replace(ObservableCollection<ConfigEntryItem> target,
         Google.Protobuf.Collections.RepeatedField<ConfigEntry> entries,
         ILocalizer localizer)
     {
+        foreach (var item in target)
+            item.PropertyChanged -= OnEntryPropertyChanged;
         target.Clear();
         foreach (var entry in entries)
-            target.Add(new ConfigEntryItem(entry, localizer));
+        {
+            var item = new ConfigEntryItem(entry, localizer);
+            item.PropertyChanged += OnEntryPropertyChanged;
+            target.Add(item);
+        }
+        NotifyModifiedStateChanged();
+    }
+
+    private void OnEntryPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(ConfigEntryItem.IsModified))
+            NotifyModifiedStateChanged();
+    }
+
+    private void NotifyModifiedStateChanged()
+    {
+        OnPropertyChanged(nameof(PropertiesModified));
+        OnPropertyChanged(nameof(GameRulesModified));
+        OnPropertyChanged(nameof(HasModifiedConfiguration));
+        OnPropertyChanged(nameof(CanDiscardChanges));
+        OnPropertyChanged(nameof(CanSaveModifiedConfiguration));
     }
 
     private void RunOnUI(Action action)

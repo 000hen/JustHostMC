@@ -239,10 +239,14 @@
   <data name="ManageBansButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>管理封鎖名單</value></data>
   <!-- Configuration -->
   <data name="ConfigStoppedHint.Text" xml:space="preserve"><value>請先停止伺服器，再安全地儲存 server.properties、遊戲規則或封鎖名單變更。</value></data>
-  <data name="ConfigPropertiesHeader.Text" xml:space="preserve"><value>server.properties</value></data>
-  <data name="ConfigPropertiesHint.Text" xml:space="preserve"><value>可用屬性與編輯器會依此伺服器的 Minecraft 版本篩選。</value></data>
+  <data name="ConfigPropertiesSection.Title" xml:space="preserve"><value>server.properties</value></data>
+  <data name="ConfigPropertiesSection.Description" xml:space="preserve"><value>可用屬性與編輯器會依此伺服器的 Minecraft 版本篩選。</value></data>
   <data name="ConfigSavePropertiesButton.Content" xml:space="preserve"><value>儲存屬性</value></data>
-  <data name="ConfigGameRulesHeader.Text" xml:space="preserve"><value>遊戲規則</value></data>
+  <data name="ConfigGameRulesSection.Title" xml:space="preserve"><value>遊戲規則</value></data>
+  <data name="ConfigGameRulesSection.Description" xml:space="preserve"><value>控制世界行為、生物生成、傷害、物品欄及其他遊戲規則。</value></data>
+  <data name="ConfigModifiedText.Text" xml:space="preserve"><value>設定已修改。</value></data>
+  <data name="ConfigDiscardButtonLabel.Text" xml:space="preserve"><value>放棄</value></data>
+  <data name="ConfigSaveModifiedButtonLabel.Text" xml:space="preserve"><value>儲存變更</value></data>
   <data name="ConfigSaveGameRulesButton.Content" xml:space="preserve"><value>儲存遊戲規則</value></data>
   <data name="Config_LoadFailed" xml:space="preserve"><value>無法載入伺服器設定。</value></data>
   <data name="Config_SaveFailed" xml:space="preserve"><value>無法儲存伺服器設定。</value></data>

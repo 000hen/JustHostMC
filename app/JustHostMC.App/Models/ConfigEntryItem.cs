@@ -9,11 +9,14 @@ namespace JustHostMC.App.Models;
 /// <summary>Editable server.properties or gamerule row with type metadata.</summary>
 public sealed partial class ConfigEntryItem : ObservableObject
 {
+    private readonly string _originalValue;
+
     public ConfigEntryItem(ConfigEntry entry, ILocalizer localizer)
     {
         Key = entry.Key;
         DisplayName = ResolveDisplayName(localizer, entry.Key);
         _value = entry.Value;
+        _originalValue = entry.Value;
         Type = entry.Type;
         TypeText = ResolveTypeText(localizer, entry.Type);
         Supported = entry.Supported;
@@ -37,8 +40,16 @@ public sealed partial class ConfigEntryItem : ObservableObject
     public string Value
     {
         get => _value;
-        set => SetProperty(ref _value, value);
+        set
+        {
+            if (SetProperty(ref _value, value))
+                OnPropertyChanged(nameof(IsModified));
+        }
     }
+
+    public bool IsModified => !string.Equals(Value, _originalValue, System.StringComparison.Ordinal);
+
+    public void DiscardChanges() => Value = _originalValue;
 
     public bool HasChoices => Choices.Count > 0;
 

@@ -49,10 +49,9 @@ public class FluentContentDialog : ContentDialog
         var dialogWidth = Math.Min(targetWidth, availableWidth);
         var minWidth = Math.Min(targetMinWidth, dialogWidth);
 
-        Width = dialogWidth;
-        MinWidth = minWidth;
-        MaxWidth = dialogWidth;
-
+        // Size the dialog's template rather than the ContentDialog host itself.
+        // The host must remain stretched to the XamlRoot so WinUI can center and
+        // reposition the dialog when the window is resized.
         Resources["ContentDialogMinWidth"] = minWidth;
         Resources["ContentDialogMaxWidth"] = dialogWidth;
         Resources["ContentDialogThemeMinWidth"] = minWidth;

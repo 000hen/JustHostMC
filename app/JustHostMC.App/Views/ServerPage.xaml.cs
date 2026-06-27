@@ -246,9 +246,9 @@ public sealed partial class ServerPage : Page {
         await dialog.ShowAsync();
     }
 
-    private async void OnSavePropertiesClick(object sender, RoutedEventArgs e) => await Config.SavePropertiesAsync();
+    private async void OnSaveModifiedConfigClick(object sender, RoutedEventArgs e) => await Config.SaveModifiedAsync();
 
-    private async void OnSaveGameRulesClick(object sender, RoutedEventArgs e) => await Config.SaveGameRulesAsync();
+    private void OnDiscardConfigChangesClick(object sender, RoutedEventArgs e) => Config.DiscardChanges();
 
     private void SendPlayerCommand(object sender, string format) {
         var player = GetPlayer(sender)?.Name ?? GetPlayerName(sender);

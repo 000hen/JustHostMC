@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="JustHostMC.App.Controls.ConfigEntryEditor"
+    x:Name="Root"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    HorizontalAlignment="Stretch">
+
+    <Grid Padding="8,10"
+          ColumnSpacing="16"
+          MinHeight="64"
+          BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+          BorderThickness="0,0,0,1">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="88" />
+            <ColumnDefinition Width="240" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
+            <TextBlock Text="{Binding Entry.DisplayName, ElementName=Root}"
+                       Style="{StaticResource BodyStrongTextBlockStyle}"
+                       TextTrimming="CharacterEllipsis" />
+            <TextBlock Text="{Binding Entry.Description, ElementName=Root}"
+                       TextWrapping="WrapWholeWords"
+                       MaxLines="2"
+                       Style="{StaticResource CaptionTextBlockStyle}"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                       Visibility="{Binding Entry.HasDescription, ElementName=Root, Converter={StaticResource BoolToVis}}" />
+            <TextBlock Text="{Binding Entry.Key, ElementName=Root}"
+                       FontFamily="Consolas"
+                       Style="{StaticResource CaptionTextBlockStyle}"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                       TextTrimming="CharacterEllipsis" />
+        </StackPanel>
+
+        <TextBlock Grid.Column="1"
+                   Text="{Binding Entry.TypeText, ElementName=Root}"
+                   Style="{StaticResource CaptionTextBlockStyle}"
+                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                   VerticalAlignment="Center" />
+
+        <Grid Grid.Column="2"
+              Width="220"
+              HorizontalAlignment="Right"
+              VerticalAlignment="Center">
+            <ComboBox ItemsSource="{Binding Entry.Choices, ElementName=Root}"
+                      SelectedItem="{Binding Entry.Value, ElementName=Root, Mode=TwoWay}"
+                      HorizontalAlignment="Stretch"
+                      Visibility="{Binding Entry.HasChoices, ElementName=Root, Converter={StaticResource BoolToVis}}" />
+            <TextBox Text="{Binding Entry.Value, ElementName=Root, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     HorizontalAlignment="Stretch"
+                     Visibility="{Binding Entry.HasChoices, ElementName=Root, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
+        </Grid>
+    </Grid>
+</UserControl>

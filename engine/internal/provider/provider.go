@@ -21,6 +21,12 @@ type LaunchSpec struct {
 	Args      []string // JVM/program args, e.g. ["-jar", "server.jar", "nogui"]
 }
 
+// JavaResolver resolves (downloading if needed) a java.exe for a Java major
+// version, reporting progress. jre.Manager.EnsureJRE satisfies this; injecting it
+// keeps the provider package decoupled from the jre package. The scripting host
+// uses it to back jhmc.run_jar / jhmc.resolve_java.
+type JavaResolver func(ctx context.Context, major int, progress func(Progress)) (string, error)
+
 // Provider downloads and prepares one server type.
 type Provider interface {
 	// Versions lists the installable Minecraft versions for this type.

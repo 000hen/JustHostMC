@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,10 +15,14 @@ namespace JustHostMC.App.Views;
 public sealed partial class CreateServerDialog : FluentContentDialog
 {
     private readonly MainViewModel _viewModel;
+    private readonly ILocalizer _localizer = new LocalizationService();
     private bool _isLoadingVersions;
     private bool _versionLoadFailed;
 
-    private sealed record TypeChoice(string Id, string Display);
+    private sealed record TypeChoice(ProviderInfo Provider, string Display)
+    {
+        public string Id => Provider.Id;
+    }
 
     public CreateServerDialog(MainViewModel viewModel)
     {
@@ -37,7 +42,7 @@ public sealed partial class CreateServerDialog : FluentContentDialog
         {
             var providers = await _viewModel.GetProvidersAsync();
             TypeBox.ItemsSource = providers
-                .Select(p => new TypeChoice(p.Id, string.IsNullOrEmpty(p.Name) ? p.Id : p.Name))
+                .Select(p => new TypeChoice(p, string.IsNullOrEmpty(p.Name) ? p.Id : p.Name))
                 .ToList();
             if (TypeBox.Items.Count > 0)
                 TypeBox.SelectedIndex = 0; // triggers OnTypeChanged -> version load
@@ -51,7 +56,53 @@ public sealed partial class CreateServerDialog : FluentContentDialog
     }
 
     private async void OnTypeChanged(object sender, SelectionChangedEventArgs e)
-        => await LoadVersionsAsync();
+    {
+        UpdateProviderDetails();
+        await LoadVersionsAsync();
+    }
+
+    /// <summary>Shows the selected provider's name, description, author and website.</summary>
+    private void UpdateProviderDetails()
+    {
+        if (TypeBox.SelectedItem is not TypeChoice choice)
+        {
+            ProviderDetailsPanel.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        var provider = choice.Provider;
+        ProviderDetailsPanel.Visibility = Visibility.Visible;
+        ProviderNameText.Text = choice.Display;
+
+        var description = provider.Description?.Trim() ?? string.Empty;
+        ProviderDescriptionText.Text = description;
+        ProviderDescriptionText.Visibility = description.Length > 0
+            ? Visibility.Visible : Visibility.Collapsed;
+
+        var author = provider.Author?.Trim() ?? string.Empty;
+        if (author.Length > 0)
+        {
+            ProviderAuthorText.Text = _localizer.Get("CreateServer_ProviderAuthor", ("author", author));
+            ProviderAuthorText.Visibility = Visibility.Visible;
+        }
+        else
+        {
+            ProviderAuthorText.Visibility = Visibility.Collapsed;
+        }
+
+        var website = provider.Website?.Trim() ?? string.Empty;
+        if (website.Length > 0 && Uri.TryCreate(website, UriKind.Absolute, out var uri)
+            && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
+        {
+            ProviderWebsiteLink.NavigateUri = uri;
+            ProviderWebsiteLink.Visibility = Visibility.Visible;
+        }
+        else
+        {
+            ProviderWebsiteLink.NavigateUri = null;
+            ProviderWebsiteLink.Visibility = Visibility.Collapsed;
+        }
+    }
 
     private void OnVersionSelectionChanged(object sender, SelectionChangedEventArgs e)
         => UpdatePrimaryButtonState();

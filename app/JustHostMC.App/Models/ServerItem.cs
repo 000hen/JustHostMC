@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using CommunityToolkit.Mvvm.ComponentModel;
 using JustHostMC.App.Services;
 using McManager.Grpc;
+using Microsoft.UI.Dispatching;
 
 namespace JustHostMC.App.Models;
 
@@ -13,6 +14,8 @@ public sealed class ServerItem : ObservableObject
     private static readonly Lazy<string?> ConnectHost = new(FindConnectHost);
 
     private readonly ILocalizer _localizer;
+    private readonly ProviderCatalog? _providers;
+    private readonly DispatcherQueue? _dispatcher;
     private string _name = "";
     private string _mcVersion = "";
     private string _providerId = "";
@@ -22,11 +25,34 @@ public sealed class ServerItem : ObservableObject
     private int _sortOrder;
     private string _customJavaArgs = "";
 
-    public ServerItem(Server proto, ILocalizer localizer)
+    public ServerItem(Server proto, ILocalizer localizer,
+        ProviderCatalog? providers = null, DispatcherQueue? dispatcher = null)
     {
         _localizer = localizer;
+        _providers = providers;
+        _dispatcher = dispatcher;
         Id = proto.Id;
         Apply(proto);
+
+        // The provider name + capabilities arrive asynchronously; refresh the
+        // friendly type label (on the UI thread) once the catalog loads. If it
+        // already loaded, TypeText resolves synchronously and no refresh is needed.
+        if (_providers is not null && !_providers.IsLoaded)
+            _providers.Loaded += OnProvidersLoaded;
+    }
+
+    private void OnProvidersLoaded()
+    {
+        // The catalog populates once; after that TypeText resolves synchronously,
+        // so drop the subscription to avoid keeping deleted ServerItems alive.
+        if (_providers is not null)
+            _providers.Loaded -= OnProvidersLoaded;
+
+        void Refresh() => OnPropertyChanged(nameof(TypeText));
+        if (_dispatcher is not null)
+            _dispatcher.TryEnqueue(Refresh);
+        else
+            Refresh();
     }
 
     public string Id { get; }
@@ -113,19 +139,27 @@ public sealed class ServerItem : ObservableObject
         _ => "ServerStatus_Unknown",
     });
 
-    // Built-in ids map to localized names; custom providers fall back to their id.
-    // Phase B resolves friendly names from the provider list.
-    public string TypeText => ProviderId switch
+    // Prefer the live provider list's friendly name; fall back to the built-in
+    // id→localized-name map, then to the raw id.
+    public string TypeText
     {
-        "vanilla" => _localizer.Get("ServerType_Vanilla"),
-        "paper" => _localizer.Get("ServerType_Paper"),
-        "spigot" => _localizer.Get("ServerType_Spigot"),
-        "forge" => _localizer.Get("ServerType_Forge"),
-        "neoforge" => _localizer.Get("ServerType_NeoForge"),
-        "fabric" => _localizer.Get("ServerType_Fabric"),
-        "" => _localizer.Get("ServerType_Unknown"),
-        _ => ProviderId,
-    };
+        get
+        {
+            if (_providers?.NameFor(ProviderId) is { Length: > 0 } name)
+                return name;
+            return ProviderId switch
+            {
+                "vanilla" => _localizer.Get("ServerType_Vanilla"),
+                "paper" => _localizer.Get("ServerType_Paper"),
+                "spigot" => _localizer.Get("ServerType_Spigot"),
+                "forge" => _localizer.Get("ServerType_Forge"),
+                "neoforge" => _localizer.Get("ServerType_NeoForge"),
+                "fabric" => _localizer.Get("ServerType_Fabric"),
+                "" => _localizer.Get("ServerType_Unknown"),
+                _ => ProviderId,
+            };
+        }
+    }
 
     public bool CanStart => Status is ServerStatus.Stopped or ServerStatus.Crashed;
     public bool CanStop => Status is ServerStatus.Running or ServerStatus.Starting;

@@ -456,5 +456,7 @@
   <data name="InstallReadyInfoBar.Message" xml:space="preserve"><value>Installation completed successfully.</value></data>
   <data name="InfoBarStartServerButton.Content" xml:space="preserve"><value>Start server</value></data>
   <data name="install_ready_to_run" xml:space="preserve"><value>Ready to run.</value></data>
+  <data name="CreateServer_ProviderAuthor" xml:space="preserve"><value>by {author}</value></data>
+  <data name="CreateServerProviderWebsite.Content" xml:space="preserve"><value>Visit website</value></data>
 </root>
 

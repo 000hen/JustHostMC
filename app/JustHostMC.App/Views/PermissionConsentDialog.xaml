@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<controls:FluentContentDialog
+    x:Class="JustHostMC.App.Views.PermissionConsentDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:JustHostMC.App.Controls"
+    xmlns:views="using:JustHostMC.App.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    x:Uid="PermissionConsentDialog">
+
+    <ScrollViewer MaxHeight="560"
+                  HorizontalScrollBarVisibility="Disabled"
+                  VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="12">
+            <TextBlock x:Uid="PermissionConsentIntro"
+                       TextWrapping="WrapWholeWords"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+
+            <TextBlock x:Uid="PermissionConsentNone"
+                       TextWrapping="WrapWholeWords"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                       Visibility="{x:Bind Rows.Count, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
+
+            <ItemsControl ItemsSource="{x:Bind Rows}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="views:ConsentRow">
+                        <Border Padding="12"
+                                Margin="0,0,0,8"
+                                CornerRadius="8"
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1">
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Spacing="4" VerticalAlignment="Center">
+                                    <TextBlock Text="{x:Bind Label}"
+                                               Style="{StaticResource BodyStrongTextBlockStyle}"
+                                               TextWrapping="WrapWholeWords" />
+                                    <TextBlock Text="{x:Bind Reason}"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                               TextWrapping="WrapWholeWords" />
+                                </StackPanel>
+                                <ToggleSwitch Grid.Column="1"
+                                              VerticalAlignment="Center"
+                                              IsOn="{x:Bind Allowed, Mode=TwoWay}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </ScrollViewer>
+</controls:FluentContentDialog>

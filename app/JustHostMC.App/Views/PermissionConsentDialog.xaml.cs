@@ -42,21 +42,18 @@ public sealed partial class PermissionConsentDialog : FluentContentDialog
     public PermissionConsentDialog(
         string scriptName, IEnumerable<Permission> permissions, ILocalizer localizer)
     {
-        InitializeComponent();
-        Title = localizer.Get("PermissionConsentDialog_Title", ("name", scriptName));
-
+        // Populate before InitializeComponent so the OneTime x:Bind to Rows.Count
+        // (used to toggle the "no permissions" hint) sees the final count.
         foreach (var p in permissions)
         {
             // Default-allow each requested permission; the user can deny individually.
             Rows.Add(new ConsentRow(p, localizer, allowed: true));
         }
 
-        // No permissions requested => nothing to weigh; hide the empty list hint logic
-        // is handled in XAML via the count converter.
+        InitializeComponent();
+        // Override the x:Uid-provided title with one that includes the script name.
+        Title = localizer.Get("PermissionConsentTitleNamed", ("name", scriptName));
     }
-
-    /// <summary>True when there are no permissions to review.</summary>
-    public bool HasNoPermissions => Rows.Count == 0;
 
     /// <summary>The permission kinds the user chose to allow.</summary>
     public IReadOnlyList<PermissionKind> Granted =>

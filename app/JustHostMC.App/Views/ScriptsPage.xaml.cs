@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using JustHostMC.App.Models;
 using JustHostMC.App.Services;
@@ -43,7 +44,7 @@ public sealed partial class ScriptsPage : Page
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            ViewModel.StatusMessage = _localizer.Get("Scripts_ReadFailed");
+            ViewModel.SetStatus(_localizer.Get("Scripts_ReadFailed"));
             return;
         }
 
@@ -61,7 +62,7 @@ public sealed partial class ScriptsPage : Page
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             {
-                ViewModel.StatusMessage = _localizer.Get("Scripts_ReadFailed");
+                ViewModel.SetStatus(_localizer.Get("Scripts_ReadFailed"));
                 return;
             }
         }
@@ -86,7 +87,7 @@ public sealed partial class ScriptsPage : Page
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            ViewModel.StatusMessage = _localizer.Get("Scripts_ReadFailed");
+            ViewModel.SetStatus(_localizer.Get("Scripts_ReadFailed"));
             return;
         }
 
@@ -129,7 +130,10 @@ public sealed partial class ScriptsPage : Page
 
     private async void OnScriptToggled(object sender, RoutedEventArgs e)
     {
-        if (sender is ToggleSwitch { Tag: ScriptItem item } toggle)
+        // ToggleSwitch raises Toggled when its IsOn binding is first applied during
+        // template realization, so ignore events that match the known state to avoid
+        // a load-time storm of (and a possible refresh loop from) redundant RPCs.
+        if (sender is ToggleSwitch { Tag: ScriptItem item } toggle && toggle.IsOn != item.Enabled)
             await ViewModel.SetScriptEnabledAsync(item, toggle.IsOn);
     }
 

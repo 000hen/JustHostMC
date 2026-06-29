@@ -28,8 +28,10 @@ public sealed class ScriptItem
     public string Version { get; }
     public string Description { get; }
 
-    /// <summary>Initial enabled state from the engine; the toggle drives SetEnabled.</summary>
-    public bool Enabled { get; }
+    /// <summary>Last-known enabled state from the engine; the toggle drives SetEnabled.
+    /// Updated after a successful toggle so the page handler can ignore no-op events
+    /// (the ToggleSwitch raises Toggled when its IsOn binding is first applied).</summary>
+    public bool Enabled { get; set; }
 
     public IReadOnlyList<Permission> Permissions { get; }
     public IReadOnlyList<PermissionKind> Granted { get; }

@@ -55,6 +55,10 @@ public sealed class ScriptsViewModel : ObservableObject, IAsyncDisposable
         private set => SetProperty(ref _statusMessage, value);
     }
 
+    /// <summary>Sets a localized status message (used by the page for picker/IO errors).
+    /// Marshals to the UI thread.</summary>
+    public void SetStatus(string message) => RunOnUI(() => StatusMessage = message);
+
     /// <summary>Loads providers + scripts once, then starts the log stream.</summary>
     public async Task EnsureLoadedAsync()
     {
@@ -174,6 +178,9 @@ public sealed class ScriptsViewModel : ObservableObject, IAsyncDisposable
         {
             var daemon = await App.Current.DaemonReady;
             await daemon.Scripts.SetEnabledAsync(new SetScriptEnabledRequest { Id = item.Id, Enabled = enabled });
+            // Record the new known state so the page handler treats later identical
+            // Toggled events as no-ops.
+            item.Enabled = enabled;
         }
         catch (RpcException ex)
         {

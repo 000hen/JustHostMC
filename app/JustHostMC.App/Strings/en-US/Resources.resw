@@ -456,5 +456,46 @@
   <data name="InstallReadyInfoBar.Message" xml:space="preserve"><value>Installation completed successfully.</value></data>
   <data name="InfoBarStartServerButton.Content" xml:space="preserve"><value>Start server</value></data>
   <data name="install_ready_to_run" xml:space="preserve"><value>Ready to run.</value></data>
+  <data name="NavScripts.Content" xml:space="preserve"><value>Scripts</value></data>
+  <data name="ScriptsPageTitle.Text" xml:space="preserve"><value>Scripts</value></data>
+  <data name="ScriptsPageSubtitle.Text" xml:space="preserve"><value>Import your own Lua provider and automation scripts, review the permissions they request, and manage what is installed.</value></data>
+  <data name="ScriptsProvidersHeader.Text" xml:space="preserve"><value>Providers</value></data>
+  <data name="ScriptsImportProviderButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Import provider script</value></data>
+  <data name="ScriptsImportProviderButtonLabel.Text" xml:space="preserve"><value>Import provider</value></data>
+  <data name="ScriptsProvidersEmpty.Text" xml:space="preserve"><value>No providers installed yet.</value></data>
+  <data name="ScriptsAutomationHeader.Text" xml:space="preserve"><value>Automation scripts</value></data>
+  <data name="ScriptsImportScriptButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Import automation script</value></data>
+  <data name="ScriptsImportScriptButtonLabel.Text" xml:space="preserve"><value>Import script</value></data>
+  <data name="ScriptsAutomationEmpty.Text" xml:space="preserve"><value>No automation scripts installed yet.</value></data>
+  <data name="ScriptsBuiltinBadge.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Built in</value></data>
+  <data name="ScriptsBuiltinBadgeLabel.Text" xml:space="preserve"><value>Built in</value></data>
+  <data name="ScriptsEnabledToggle.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Enable or disable this script</value></data>
+  <data name="ScriptsRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Remove</value></data>
+  <data name="ScriptsLogHeader.Text" xml:space="preserve"><value>Automation log</value></data>
+  <data name="ScriptsLogEmpty.Text" xml:space="preserve"><value>No automation output yet.</value></data>
+  <data name="PermissionConsentDialog.Title" xml:space="preserve"><value>Review permissions</value></data>
+  <data name="PermissionConsentDialog.PrimaryButtonText" xml:space="preserve"><value>Allow selected</value></data>
+  <data name="PermissionConsentDialog.CloseButtonText" xml:space="preserve"><value>Cancel</value></data>
+  <data name="PermissionConsentIntro.Text" xml:space="preserve"><value>This script requests the following permissions. Allow only what you trust it to do.</value></data>
+  <data name="PermissionConsentNone.Text" xml:space="preserve"><value>This script does not request any permissions.</value></data>
+  <data name="Permission_Network" xml:space="preserve"><value>Network access</value></data>
+  <data name="Permission_Install" xml:space="preserve"><value>Install files</value></data>
+  <data name="Permission_FsServer" xml:space="preserve"><value>Access the server folder</value></data>
+  <data name="Permission_ConsoleRead" xml:space="preserve"><value>Read the server console</value></data>
+  <data name="Permission_ConsoleWrite" xml:space="preserve"><value>Write to the server console</value></data>
+  <data name="Permission_ServerControl" xml:space="preserve"><value>Start and stop servers</value></data>
+  <data name="Permission_Schedule" xml:space="preserve"><value>Run on a schedule</value></data>
+  <data name="Permission_Unknown" xml:space="preserve"><value>Unknown permission</value></data>
+  <data name="Scripts_ReadFailed" xml:space="preserve"><value>Could not read the selected file.</value></data>
+  <data name="Scripts_ImportInvalid" xml:space="preserve"><value>The script could not be imported because it is invalid.</value></data>
+  <data name="Scripts_AlreadyExists" xml:space="preserve"><value>A script with that id is already installed.</value></data>
+  <data name="Scripts_BuiltinProtected" xml:space="preserve"><value>Built-in scripts cannot be modified.</value></data>
+  <data name="Scripts_NotAvailable" xml:space="preserve"><value>The automation engine is not available yet.</value></data>
+  <data name="Scripts_OperationFailed" xml:space="preserve"><value>The operation failed. Please try again.</value></data>
+  <data name="Scripts_RemoveConfirmTitle" xml:space="preserve"><value>Remove script</value></data>
+  <data name="Scripts_RemoveConfirmBody" xml:space="preserve"><value>Remove “{name}”? This cannot be undone.</value></data>
+  <data name="Scripts_RemoveConfirmPrimary" xml:space="preserve"><value>Remove</value></data>
+  <data name="Scripts_RemoveConfirmCancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="PermissionConsentTitleNamed" xml:space="preserve"><value>Review permissions — {name}</value></data>
 </root>
 

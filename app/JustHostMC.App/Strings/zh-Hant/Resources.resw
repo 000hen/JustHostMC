@@ -423,4 +423,47 @@
   <data name="InstallReadyInfoBar.Message" xml:space="preserve"><value>安裝已順利完成。</value></data>
   <data name="InfoBarStartServerButton.Content" xml:space="preserve"><value>啟動伺服器</value></data>
   <data name="install_ready_to_run" xml:space="preserve"><value>已準備就緒。</value></data>
+  <data name="NavScripts.Content" xml:space="preserve"><value>腳本</value></data>
+  <data name="ScriptsPageTitle.Text" xml:space="preserve"><value>腳本</value></data>
+  <data name="ScriptsPageSubtitle.Text" xml:space="preserve"><value>匯入您自己的 Lua 提供者與自動化腳本，檢視它們要求的權限，並管理已安裝的項目。</value></data>
+  <data name="ScriptsProvidersHeader.Text" xml:space="preserve"><value>提供者</value></data>
+  <data name="ScriptsImportProviderButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>匯入提供者腳本</value></data>
+  <data name="ScriptsImportProviderButtonLabel.Text" xml:space="preserve"><value>匯入提供者</value></data>
+  <data name="ScriptsProvidersEmpty.Text" xml:space="preserve"><value>尚未安裝任何提供者。</value></data>
+  <data name="ScriptsAutomationHeader.Text" xml:space="preserve"><value>自動化腳本</value></data>
+  <data name="ScriptsImportScriptButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>匯入自動化腳本</value></data>
+  <data name="ScriptsImportScriptButtonLabel.Text" xml:space="preserve"><value>匯入腳本</value></data>
+  <data name="ScriptsAutomationEmpty.Text" xml:space="preserve"><value>尚未安裝任何自動化腳本。</value></data>
+  <data name="ScriptsBuiltinBadge.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>內建</value></data>
+  <data name="ScriptsBuiltinBadgeLabel.Text" xml:space="preserve"><value>內建</value></data>
+  <data name="ScriptsEnabledToggle.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>啟用或停用此腳本</value></data>
+  <data name="ScriptsRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>移除</value></data>
+  <data name="ScriptsLogHeader.Text" xml:space="preserve"><value>自動化日誌</value></data>
+  <data name="ScriptsLogEmpty.Text" xml:space="preserve"><value>尚無自動化輸出。</value></data>
+  <data name="PermissionConsentDialog.Title" xml:space="preserve"><value>檢視權限</value></data>
+  <data name="PermissionConsentDialog.PrimaryButtonText" xml:space="preserve"><value>允許所選</value></data>
+  <data name="PermissionConsentDialog.CloseButtonText" xml:space="preserve"><value>取消</value></data>
+  <data name="PermissionConsentIntro.Text" xml:space="preserve"><value>此腳本要求以下權限。請僅允許您信任的項目。</value></data>
+  <data name="PermissionConsentNone.Text" xml:space="preserve"><value>此腳本未要求任何權限。</value></data>
+  <data name="Permission_Network" xml:space="preserve"><value>網路存取</value></data>
+  <data name="Permission_Install" xml:space="preserve"><value>安裝檔案</value></data>
+  <data name="Permission_FsServer" xml:space="preserve"><value>存取伺服器資料夾</value></data>
+  <data name="Permission_ConsoleRead" xml:space="preserve"><value>讀取伺服器主控台</value></data>
+  <data name="Permission_ConsoleWrite" xml:space="preserve"><value>寫入伺服器主控台</value></data>
+  <data name="Permission_ServerControl" xml:space="preserve"><value>啟動與停止伺服器</value></data>
+  <data name="Permission_Schedule" xml:space="preserve"><value>依排程執行</value></data>
+  <data name="Permission_Unknown" xml:space="preserve"><value>未知權限</value></data>
+  <data name="Scripts_ReadFailed" xml:space="preserve"><value>無法讀取所選的檔案。</value></data>
+  <data name="Scripts_ImportInvalid" xml:space="preserve"><value>腳本無效，無法匯入。</value></data>
+  <data name="Scripts_AlreadyExists" xml:space="preserve"><value>已安裝相同識別碼的腳本。</value></data>
+  <data name="Scripts_BuiltinProtected" xml:space="preserve"><value>內建腳本無法修改。</value></data>
+  <data name="Scripts_NotAvailable" xml:space="preserve"><value>自動化引擎尚未可用。</value></data>
+  <data name="Scripts_OperationFailed" xml:space="preserve"><value>操作失敗，請再試一次。</value></data>
+  <data name="Scripts_RemoveConfirmTitle" xml:space="preserve"><value>移除腳本</value></data>
+  <data name="Scripts_RemoveConfirmBody" xml:space="preserve"><value>要移除「{name}」嗎？此操作無法復原。</value></data>
+  <data name="Scripts_RemoveConfirmPrimary" xml:space="preserve"><value>移除</value></data>
+  <data name="Scripts_RemoveConfirmCancel" xml:space="preserve"><value>取消</value></data>
+  <data name="PermissionConsentTitleNamed" xml:space="preserve"><value>檢視權限 — {name}</value></data>
+  <data name="CreateServer_ProviderAuthor" xml:space="preserve"><value>作者：{author}</value></data>
+  <data name="CreateServerProviderWebsite.Content" xml:space="preserve"><value>造訪網站</value></data>
 </root>

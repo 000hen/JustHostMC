@@ -15,7 +15,8 @@ import (
 type Server struct {
 	ID             string
 	Name           string
-	Type           mcmanagerv1.ServerType
+	ProviderID     string
+	ModLayout      string // "plugins" | "mods" | "none"; captured from the provider at create
 	McVersion      string
 	MemoryMB       int
 	Port           int
@@ -31,7 +32,7 @@ func (s *Server) Proto() *mcmanagerv1.Server {
 	return &mcmanagerv1.Server{
 		Id:             s.ID,
 		Name:           s.Name,
-		Type:           s.Type,
+		ProviderId:     s.ProviderID,
 		McVersion:      s.McVersion,
 		MemoryMb:       int32(s.MemoryMB),
 		Port:           int32(s.Port),

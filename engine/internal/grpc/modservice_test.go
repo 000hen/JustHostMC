@@ -48,20 +48,20 @@ func TestSafeJarName(t *testing.T) {
 
 func TestModLayout(t *testing.T) {
 	tests := []struct {
-		typ       mcmanagerv1.ServerType
+		layout    string
 		subdir    string
 		kind      mcmanagerv1.ModKind
 		supported bool
 	}{
-		{mcmanagerv1.ServerType_PAPER, "plugins", mcmanagerv1.ModKind_PLUGIN, true},
-		{mcmanagerv1.ServerType_FORGE, "mods", mcmanagerv1.ModKind_MOD, true},
-		{mcmanagerv1.ServerType_VANILLA, "", mcmanagerv1.ModKind_MOD_KIND_UNSPECIFIED, false},
+		{"plugins", "plugins", mcmanagerv1.ModKind_PLUGIN, true},
+		{"mods", "mods", mcmanagerv1.ModKind_MOD, true},
+		{"none", "", mcmanagerv1.ModKind_MOD_KIND_UNSPECIFIED, false},
 	}
 	for _, tt := range tests {
-		subdir, kind, ok := modLayout(tt.typ)
+		subdir, kind, ok := modLayout(tt.layout)
 		if subdir != tt.subdir || kind != tt.kind || ok != tt.supported {
-			t.Errorf("modLayout(%v) = (%q, %v, %v), want (%q, %v, %v)",
-				tt.typ, subdir, kind, ok, tt.subdir, tt.kind, tt.supported)
+			t.Errorf("modLayout(%q) = (%q, %v, %v), want (%q, %v, %v)",
+				tt.layout, subdir, kind, ok, tt.subdir, tt.kind, tt.supported)
 		}
 	}
 }
@@ -69,7 +69,7 @@ func TestModLayout(t *testing.T) {
 func TestModServiceList(t *testing.T) {
 	st := store.NewMemory()
 	paths := appdata.Paths{Base: t.TempDir()}
-	_ = st.Put(&store.Server{ID: "s1", Type: mcmanagerv1.ServerType_PAPER, Status: mcmanagerv1.ServerStatus_STOPPED})
+	_ = st.Put(&store.Server{ID: "s1", ProviderID: "paper", ModLayout: "plugins", Status: mcmanagerv1.ServerStatus_STOPPED})
 
 	pluginsDir := filepath.Join(paths.ServerDir("s1"), "plugins")
 	if err := os.MkdirAll(pluginsDir, 0o755); err != nil {
@@ -100,7 +100,7 @@ func TestModServiceList(t *testing.T) {
 
 func TestModServiceListUnsupported(t *testing.T) {
 	st := store.NewMemory()
-	_ = st.Put(&store.Server{ID: "v1", Type: mcmanagerv1.ServerType_VANILLA, Status: mcmanagerv1.ServerStatus_STOPPED})
+	_ = st.Put(&store.Server{ID: "v1", ProviderID: "vanilla", ModLayout: "none", Status: mcmanagerv1.ServerStatus_STOPPED})
 	svc := NewModService(st, appdata.Paths{Base: t.TempDir()})
 
 	list, err := svc.List(context.Background(), &mcmanagerv1.ServerId{Id: "v1"})
@@ -114,7 +114,7 @@ func TestModServiceListUnsupported(t *testing.T) {
 
 func TestModServiceRemoveRejectsRunning(t *testing.T) {
 	st := store.NewMemory()
-	_ = st.Put(&store.Server{ID: "s1", Type: mcmanagerv1.ServerType_PAPER, Status: mcmanagerv1.ServerStatus_RUNNING})
+	_ = st.Put(&store.Server{ID: "s1", ProviderID: "paper", ModLayout: "plugins", Status: mcmanagerv1.ServerStatus_RUNNING})
 	svc := NewModService(st, appdata.Paths{Base: t.TempDir()})
 
 	_, err := svc.Remove(context.Background(), &mcmanagerv1.RemoveModRequest{ServerId: "s1", Name: "x.jar"})

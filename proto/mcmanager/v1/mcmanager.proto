@@ -7,6 +7,10 @@ option go_package = "github.com/000hen/justhostmc/engine/gen/mcmanager/v1;mcmana
 
 // -- Enums --------------------------------------------------------------------
 
+// DEPRECATED: server types are now Lua provider scripts keyed by a string
+// provider_id (see ProviderInfo). This enum is retained only to document the
+// legacy integer values that the SQLite store migrates out of
+// (1=vanilla, 2=paper, 3=spigot, 4=forge, 5=neoforge, 6=fabric).
 enum ServerType {
   SERVER_TYPE_UNSPECIFIED = 0;
   VANILLA = 1;
@@ -32,7 +36,7 @@ enum ServerStatus {
 message Server {
   string id = 1;
   string name = 2;
-  ServerType type = 3;
+  string provider_id = 3; // id of the Lua provider script (e.g. "vanilla")
   string mc_version = 4;
   int32 memory_mb = 5;
   int32 port = 6;
@@ -43,7 +47,7 @@ message Server {
 
 message CreateServerRequest {
   string name = 1;
-  ServerType type = 2;
+  string provider_id = 2; // id of the Lua provider script
   string mc_version = 3;
   int32 memory_mb = 4;
   int32 port = 5; // 0 = auto-assign
@@ -110,10 +114,102 @@ message ServerList {
 }
 
 message VersionQuery {
-  ServerType type = 1;
+  string provider_id = 1;
 }
 message VersionList {
   repeated string versions = 1;
+}
+
+// -- Providers & scripting (Lua) ----------------------------------------------
+
+// PermissionKind enumerates the capabilities a provider or automation script may
+// request. The user grants or denies each before the script is usable, and the
+// engine enforces the grant server-side (the UI consent is advisory).
+enum PermissionKind {
+  PERMISSION_KIND_UNSPECIFIED = 0;
+  PERMISSION_NETWORK = 1;        // download over http(s)
+  PERMISSION_INSTALL = 2;        // run jars / external processes during install
+  PERMISSION_FS_SERVER = 3;      // read/write inside the server directory
+  PERMISSION_CONSOLE_READ = 4;   // read the live console/log stream
+  PERMISSION_CONSOLE_WRITE = 5;  // send commands to the console
+  PERMISSION_SERVER_CONTROL = 6; // start/stop/restart the server
+  PERMISSION_SCHEDULE = 7;       // run actions on a timer
+}
+
+message Permission {
+  PermissionKind kind = 1;
+  string reason = 2; // script-declared reason, shown in the consent dialog
+}
+
+// ProviderCapabilities lets services/UI drop server-type-specific logic; e.g.
+// which mod folder a provider uses, if any.
+message ProviderCapabilities {
+  string mod_layout = 1; // "plugins" | "mods" | "none"
+}
+
+// ProviderInfo describes an installed provider script (built-in or user-imported).
+message ProviderInfo {
+  string id = 1;          // stable provider id, e.g. "vanilla"
+  string name = 2;
+  string website = 3;
+  string description = 4;
+  string version = 5;     // author-declared script version
+  string author = 6;
+  bool builtin = 7;       // shipped embedded vs user-imported
+  repeated Permission permissions = 8;  // declared/requested permissions
+  repeated PermissionKind granted = 9;  // currently-granted subset
+  ProviderCapabilities capabilities = 10;
+}
+
+message ProviderList {
+  repeated ProviderInfo providers = 1;
+}
+
+message ImportProviderRequest {
+  string lua_source = 1;  // the script text
+  bytes jar = 2;          // optional user-supplied jar bundled with the script
+  string jar_filename = 3;
+}
+
+message ProviderRef {
+  string id = 1;
+}
+
+// SetPermissionsRequest sets the granted subset for a provider or script id.
+message SetPermissionsRequest {
+  string id = 1;
+  repeated PermissionKind granted = 2;
+}
+
+// ScriptInfo describes an installed automation/control script.
+message ScriptInfo {
+  string id = 1;
+  string name = 2;
+  string website = 3;
+  string description = 4;
+  string version = 5;
+  string author = 6;
+  bool enabled = 7;
+  repeated Permission permissions = 8;
+  repeated PermissionKind granted = 9;
+}
+
+message ScriptList {
+  repeated ScriptInfo scripts = 1;
+}
+
+message ImportScriptRequest {
+  string lua_source = 1;
+}
+
+message SetScriptEnabledRequest {
+  string id = 1;
+  bool enabled = 2;
+}
+
+message ScriptLogLine {
+  string script_id = 1;
+  string line = 2;
 }
 
 // -- Console: bidirectional stream --------------------------------------------
@@ -396,4 +492,24 @@ service ConfigService {
   rpc UpdateServerProperties(UpdateServerPropertiesRequest) returns (ServerProperties);
   rpc GetGameRules(ServerId) returns (GameRules);
   rpc UpdateGameRules(UpdateGameRulesRequest) returns (GameRules);
+}
+
+// ProviderService manages the Lua provider scripts that define how server types
+// are downloaded/installed (built-in + user-imported) and their permissions.
+service ProviderService {
+  rpc List(Empty) returns (ProviderList);
+  rpc Import(ImportProviderRequest) returns (ProviderInfo); // import a user .lua (+ optional jar)
+  rpc Remove(ProviderRef) returns (Empty);
+  rpc SetPermissions(SetPermissionsRequest) returns (ProviderInfo);
+}
+
+// ScriptService manages automation/control scripts that drive running servers
+// (read logs, send commands, start/stop) on events or a schedule.
+service ScriptService {
+  rpc List(Empty) returns (ScriptList);
+  rpc Import(ImportScriptRequest) returns (ScriptInfo);
+  rpc SetEnabled(SetScriptEnabledRequest) returns (ScriptInfo);
+  rpc SetPermissions(SetPermissionsRequest) returns (ScriptInfo);
+  rpc Remove(ProviderRef) returns (Empty);
+  rpc StreamLog(Empty) returns (stream ScriptLogLine); // engine-wide automation log
 }

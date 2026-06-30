@@ -14,7 +14,23 @@ import (
 	"github.com/000hen/justhostmc/engine/internal/isolation"
 	"github.com/000hen/justhostmc/engine/internal/jre"
 	"github.com/000hen/justhostmc/engine/internal/provider"
+	"github.com/000hen/justhostmc/engine/internal/scripting"
 )
+
+// paperProvider returns the built-in paper Lua provider for integration tests
+// (the Go provider.NewPaper() was replaced by the embedded script).
+func paperProvider(t *testing.T) provider.Provider {
+	t.Helper()
+	reg := scripting.NewRegistry(scripting.NewHost(nil, nil, nil), nil)
+	if err := scripting.LoadBuiltins(reg); err != nil {
+		t.Fatalf("load builtin providers: %v", err)
+	}
+	e, ok := reg.Get("paper")
+	if !ok {
+		t.Fatal("paper provider not registered")
+	}
+	return e.Provider
+}
 
 func TestPaperServerLifecycleEndToEnd(t *testing.T) {
 	if os.Getenv("JHMC_INTEGRATION") != "1" {
@@ -34,7 +50,7 @@ func TestPaperServerLifecycleEndToEnd(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	spec, err := provider.NewPaper().Install(ctx, dir, version, func(p provider.Progress) {
+	spec, err := paperProvider(t).Install(ctx, dir, version, func(p provider.Progress) {
 		if p.Step != "" {
 			t.Logf("install step: %s", p.Step)
 		}

@@ -16,6 +16,7 @@ import (
 	"github.com/000hen/justhostmc/engine/internal/jre"
 	"github.com/000hen/justhostmc/engine/internal/logging"
 	"github.com/000hen/justhostmc/engine/internal/provider"
+	"github.com/000hen/justhostmc/engine/internal/scripting"
 	"github.com/000hen/justhostmc/engine/internal/store"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -25,7 +26,7 @@ import (
 // ServerServiceConfig wires the ServerService to its collaborators.
 type ServerServiceConfig struct {
 	Store     store.Store
-	Providers map[mcmanagerv1.ServerType]provider.Provider
+	Providers *scripting.Registry
 	JRE       *jre.Manager
 	Backend   isolation.IsolationBackend
 	Paths     appdata.Paths
@@ -114,10 +115,10 @@ func (s *ServerService) Instance(id string) (isolation.Instance, bool) {
 func (s *ServerService) Create(req *mcmanagerv1.CreateServerRequest, stream grpc.ServerStreamingServer[mcmanagerv1.InstallProgress]) error {
 	ctx := stream.Context()
 
-	prov, ok := s.cfg.Providers[req.Type]
+	entry, ok := s.cfg.Providers.Get(req.ProviderId)
 	if !ok {
 		return errorStatus(codes.Unimplemented, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED,
-			fmt.Sprintf("server type %s not supported yet", req.Type), nil)
+			fmt.Sprintf("provider %q not installed", req.ProviderId), nil)
 	}
 
 	id := genID()
@@ -132,8 +133,9 @@ func (s *ServerService) Create(req *mcmanagerv1.CreateServerRequest, stream grpc
 
 	port := resolvePort(int(req.Port))
 	rec := &store.Server{
-		ID: id, Name: req.Name, Type: req.Type, McVersion: req.McVersion,
-		MemoryMB: int(req.MemoryMb), Port: port, Status: mcmanagerv1.ServerStatus_INSTALLING,
+		ID: id, Name: req.Name, ProviderID: req.ProviderId, ModLayout: entry.Meta.ModLayout,
+		McVersion: req.McVersion,
+		MemoryMB:  int(req.MemoryMb), Port: port, Status: mcmanagerv1.ServerStatus_INSTALLING,
 		SortOrder: s.nextSortOrder(),
 	}
 	_ = s.cfg.Store.Put(rec)
@@ -148,7 +150,7 @@ func (s *ServerService) Create(req *mcmanagerv1.CreateServerRequest, stream grpc
 		base(p)
 	}
 
-	spec, err := prov.Install(ctx, dir, req.McVersion, send)
+	spec, err := entry.Provider.Install(ctx, dir, req.McVersion, send)
 	if err != nil {
 		// Surface the error in the live log so the user can see what went wrong.
 		send(provider.Progress{LogLine: "[error] " + err.Error()})
@@ -232,12 +234,12 @@ func (s *ServerService) Update(ctx context.Context, req *mcmanagerv1.UpdateServe
 		}
 	}
 	if versionChanged {
-		prov, ok := s.cfg.Providers[rec.Type]
+		entry, ok := s.cfg.Providers.Get(rec.ProviderID)
 		if !ok {
 			return nil, errorStatus(codes.Unimplemented, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED,
-				fmt.Sprintf("server type %s not supported yet", rec.Type), nil)
+				fmt.Sprintf("provider %q not installed", rec.ProviderID), nil)
 		}
-		spec, err := prov.Install(ctx, dir, version, nil)
+		spec, err := entry.Provider.Install(ctx, dir, version, nil)
 		if err != nil {
 			return nil, mapInstallError(err)
 		}

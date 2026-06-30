@@ -17,7 +17,6 @@ import (
 	grpcsvc "github.com/000hen/justhostmc/engine/internal/grpc"
 	"github.com/000hen/justhostmc/engine/internal/isolation"
 	"github.com/000hen/justhostmc/engine/internal/jre"
-	"github.com/000hen/justhostmc/engine/internal/provider"
 	"github.com/000hen/justhostmc/engine/internal/store"
 )
 
@@ -43,7 +42,7 @@ func TestSafeOnlineBackupEndToEnd(t *testing.T) {
 	}
 
 	// 1. Install the server + JRE and boot it.
-	spec, err := provider.NewVanilla().Install(ctx, dir, version, nil)
+	spec, err := vanillaProvider(t).Install(ctx, dir, version, nil)
 	if err != nil {
 		t.Fatalf("Install: %v", err)
 	}

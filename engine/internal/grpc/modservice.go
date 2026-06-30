@@ -34,13 +34,14 @@ func NewModService(st store.Store, paths appdata.Paths) *ModService {
 	return &ModService{store: st, paths: paths}
 }
 
-// modLayout maps a server type to its jar folder and ModKind. ok is false for
-// types without a plugins/mods folder (e.g. Vanilla).
-func modLayout(t mcmanagerv1.ServerType) (subdir string, kind mcmanagerv1.ModKind, ok bool) {
-	switch t {
-	case mcmanagerv1.ServerType_PAPER, mcmanagerv1.ServerType_SPIGOT:
+// modLayout maps a provider's declared mod layout (captured on the server record
+// at create time) to its jar folder and ModKind. ok is false for providers with
+// no plugins/mods folder (e.g. Vanilla, mod_layout "none").
+func modLayout(layout string) (subdir string, kind mcmanagerv1.ModKind, ok bool) {
+	switch layout {
+	case "plugins":
 		return "plugins", mcmanagerv1.ModKind_PLUGIN, true
-	case mcmanagerv1.ServerType_FORGE, mcmanagerv1.ServerType_NEOFORGE, mcmanagerv1.ServerType_FABRIC:
+	case "mods":
 		return "mods", mcmanagerv1.ModKind_MOD, true
 	default:
 		return "", mcmanagerv1.ModKind_MOD_KIND_UNSPECIFIED, false
@@ -53,7 +54,7 @@ func (s *ModService) List(_ context.Context, req *mcmanagerv1.ServerId) (*mcmana
 	if !ok {
 		return nil, status.Error(codes.NotFound, "server not found")
 	}
-	subdir, kind, ok := modLayout(rec.Type)
+	subdir, kind, ok := modLayout(rec.ModLayout)
 	if !ok {
 		return &mcmanagerv1.ModList{ServerId: req.Id, Supported: false}, nil
 	}
@@ -172,7 +173,7 @@ func (s *ModService) writableDir(serverID string) (string, error) {
 	if !ok {
 		return "", status.Error(codes.NotFound, "server not found")
 	}
-	subdir, _, ok := modLayout(rec.Type)
+	subdir, _, ok := modLayout(rec.ModLayout)
 	if !ok {
 		return "", errorStatus(codes.FailedPrecondition, mcmanagerv1.ErrorCode_MOD_UNSUPPORTED,
 			"this server type has no plugins/mods folder", nil)

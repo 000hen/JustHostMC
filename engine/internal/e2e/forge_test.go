@@ -14,7 +14,25 @@ import (
 	"github.com/000hen/justhostmc/engine/internal/isolation"
 	"github.com/000hen/justhostmc/engine/internal/jre"
 	"github.com/000hen/justhostmc/engine/internal/provider"
+	"github.com/000hen/justhostmc/engine/internal/scripting"
 )
+
+// forgeProvider returns the built-in forge Lua provider for integration tests
+// (the Go provider.NewForge() was replaced by the embedded script). Forge runs
+// the installer jar, so the host is given a real JRE resolver.
+func forgeProvider(t *testing.T, jreMgr *jre.Manager) provider.Provider {
+	t.Helper()
+	host := scripting.NewHost(nil, jreMgr.EnsureJRE, jreMgr.EnsureJRE)
+	reg := scripting.NewRegistry(host, nil)
+	if err := scripting.LoadBuiltins(reg); err != nil {
+		t.Fatalf("load builtin providers: %v", err)
+	}
+	e, ok := reg.Get("forge")
+	if !ok {
+		t.Fatal("forge provider not registered")
+	}
+	return e.Provider
+}
 
 func TestForgeServerLifecycleEndToEnd(t *testing.T) {
 	if os.Getenv("JHMC_INTEGRATION") != "1" {
@@ -35,7 +53,7 @@ func TestForgeServerLifecycleEndToEnd(t *testing.T) {
 	}
 
 	jreMgr := jre.NewManager(paths.JRECache())
-	forge := provider.NewForge(jreMgr.EnsureJRE)
+	forge := forgeProvider(t, jreMgr)
 
 	// Install runs the Forge installer's --installServer, streaming its output.
 	spec, err := forge.Install(ctx, dir, version, func(p provider.Progress) {

@@ -68,7 +68,7 @@ public sealed partial class EditServerDialog : FluentContentDialog
 
         try
         {
-            var versions = (await _viewModel.GetVersionsAsync(_server.Type)).ToList();
+            var versions = (await _viewModel.GetVersionsAsync(_server.ProviderId)).ToList();
             if (!versions.Contains(_server.McVersion))
                 versions.Insert(0, _server.McVersion);
             VersionBox.ItemsSource = versions;

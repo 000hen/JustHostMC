@@ -96,10 +96,10 @@ dotnet test  app/JustHostMC.Core.Tests/JustHostMC.Core.Tests.csproj --filter "Fu
 
 ### The contract drives everything
 
-`proto/mcmanager/v1/mcmanager.proto` defines all messages and **9 services**
+`proto/mcmanager/v1/mcmanager.proto` defines all messages and **11 services**
 (`EngineService`, `ServerService`, `ConsoleService`, `BackupService`,
 `SettingsService`, `PlayerService`, `MetricsService`, `ModService`,
-`ConfigService`). Adding or changing an RPC is a proto edit first, then regen on
+`ConfigService`, `ProviderService`, `ScriptService`). Adding or changing an RPC is a proto edit first, then regen on
 both sides, then implement the Go `*Service` and call it from a C# ViewModel.
 `csharp_namespace = McManager.Grpc`; Go import path
 `github.com/000hen/justhostmc/engine`.
@@ -130,12 +130,24 @@ both sides, then implement the Go `*Service` and call it from a C# ViewModel.
 - `internal/grpc/` — gRPC service implementations (one file per service) plus
   `auth.go` (interceptors), `server.go` (server/listener), `errors.go` (error
   mapping). Services depend on the interfaces below, not concrete types.
-- `internal/provider/` — one adapter per server type implementing the `Provider`
-  interface (`Versions` + `Install` → `LaunchSpec{JavaMajor, Args}`): vanilla,
-  paper, spigot, forge, neoforge, fabric. Shared `installer.go` runner;
-  `javamajor.go` maps an MC version to the required Java major; sentinel errors in
-  `errors.go` (`ErrVersionNotFound`, `ErrChecksumMismatch`). **This is the
-  extension point for a new server type.**
+- `internal/provider/` — the `Provider` interface (`Versions` + `Install` →
+  `LaunchSpec{JavaMajor, Args}`) plus shared helpers: `javamajor.go` maps an MC
+  version to the required Java major; sentinel errors in `errors.go`
+  (`ErrVersionNotFound`, `ErrChecksumMismatch`). **Concrete server types are no
+  longer Go adapters here — they are Lua scripts (see below).**
+- `internal/scripting/` — the Lua subsystem that *is* the providers (and will host
+  automation). `host.go` runs sandboxed gopher-lua (`base/table/string/math` only;
+  no `os`/`io`/`require`; fs confined to the server dir) and exposes the
+  permission-gated `jhmc.*` host API (`hostfuncs.go`). `Registry` (`registry.go`)
+  holds installed providers and resolves effective grants; `GrantStore`
+  (`grants.go`) persists per-script permission decisions to `grants.json`;
+  `LuaProvider` adapts a script to `provider.Provider`. Built-in provider scripts
+  live in `engine/internal/scripting/builtin/*.lua` (vanilla, paper, spigot,
+  fabric), loaded by `LoadBuiltins`; user-imported ones load from the data dir via
+  `LoadUserProviders`. `ProviderService` (and the proto-defined `ScriptService` for
+  automation) are wired in `internal/grpc/`. **Adding a server type is now "drop a
+  `.lua` in `builtin/` or import one at runtime" — not a Go provider.** See
+  [`docs/scripting.md`](docs/scripting.md) for the script-authoring guide.
 - `internal/isolation/` — `IsolationBackend` interface with two impls:
   `jobobject_windows.go` (default; Windows Job Objects = memory cap +
   kill-on-close) and `docker.go` (opt-in, never auto-installed). `SelectMode`

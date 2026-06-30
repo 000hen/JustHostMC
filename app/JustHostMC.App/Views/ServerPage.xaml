@@ -349,7 +349,7 @@
                 <SelectorBarItem x:Uid="ServerSectionPlayers" Tag="players" />
                 <SelectorBarItem x:Uid="ServerSectionConfig" Tag="config" />
                 <SelectorBarItem x:Uid="ServerSectionPerformance" Tag="performance" />
-                <SelectorBarItem x:Uid="ServerSectionMods" Tag="mods" />
+                <SelectorBarItem x:Uid="ServerSectionMods" x:Name="ModsSectionItem" Tag="mods" />
             </SelectorBar>
 
             <Grid Grid.Row="1">

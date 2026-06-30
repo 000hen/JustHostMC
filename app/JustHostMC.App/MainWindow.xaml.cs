@@ -210,6 +210,10 @@ public sealed partial class MainWindow : Window {
                     break;
                 ContentFrame.Navigate(typeof(ServerPage), new ServerPageArgs(server, Shell));
                 break;
+            case "scripts":
+                if (ContentFrame.Content is not ScriptsPage)
+                    ContentFrame.Navigate(typeof(ScriptsPage));
+                break;
             case "settings":
                 if (ContentFrame.Content is not SettingsPage)
                     ContentFrame.Navigate(typeof(SettingsPage));

@@ -20,7 +20,7 @@ func TestStartUpgradesStaleJavaMajorForCurrentMinecraft(t *testing.T) {
 
 	st := store.NewMemory()
 	_ = st.Put(&store.Server{
-		ID: "s1", Name: "s1", Type: mcmanagerv1.ServerType_FABRIC, McVersion: "26.2",
+		ID: "s1", Name: "s1", ProviderID: "fabric", McVersion: "26.2",
 		MemoryMB: 1024, Port: 25565, Status: mcmanagerv1.ServerStatus_STOPPED,
 		JavaMajor: 21, LaunchArgs: []string{"-jar", "server.jar", "nogui"},
 	})

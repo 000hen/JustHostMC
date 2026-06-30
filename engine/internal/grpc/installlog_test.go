@@ -76,13 +76,13 @@ func TestCreatePersistsInstallLogOnFailure(t *testing.T) {
 	}
 	svc := NewServerService(ServerServiceConfig{
 		Store:     store.NewMemory(),
-		Providers: map[mcmanagerv1.ServerType]provider.Provider{mcmanagerv1.ServerType_VANILLA: prov},
+		Providers: testRegistry("vanilla", "none", prov),
 		Paths:     paths,
 		Backend:   &fakeBackend{},
 	})
 
 	err := svc.Create(
-		&mcmanagerv1.CreateServerRequest{Name: "x", Type: mcmanagerv1.ServerType_VANILLA, McVersion: "1.20.1"},
+		&mcmanagerv1.CreateServerRequest{Name: "x", ProviderId: "vanilla", McVersion: "1.20.1"},
 		&fakeInstallStream{},
 	)
 	if err == nil {

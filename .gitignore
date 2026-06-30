@@ -125,3 +125,5 @@ secrets.json
 *.swo
 *~
 *.go.[0-9]*
+
+.claude/

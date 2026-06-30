@@ -33,6 +33,9 @@ public partial class MainViewModel : ObservableObject
     public ObservableCollection<string> InstallLog { get; } = new();
     public ServerProgressService ProgressService { get; }
 
+    /// <summary>Cached provider list, shared with ServerItems for friendly names + capabilities.</summary>
+    public ProviderCatalog ProviderCatalog { get; }
+
     public int TotalServers => Servers.Count;
     public int RunningServers => Servers.Count(s => s.Status == ServerStatus.Running);
     public int StoppedServers => Servers.Count(s => s.Status is ServerStatus.Stopped or ServerStatus.Crashed);
@@ -85,6 +88,7 @@ public partial class MainViewModel : ObservableObject
         _localizer = localizer;
         _dispatcher = dispatcher;
         ProgressService = new ServerProgressService(_dispatcher);
+        ProviderCatalog = new ProviderCatalog(FetchProvidersAsync);
         _engineStatus = _localizer.Get("EngineStatus_Connecting");
     }
 
@@ -97,6 +101,10 @@ public partial class MainViewModel : ObservableObject
             var daemon = await App.Current.DaemonReady;
             await daemon.Engine.HealthAsync(new Empty(), deadline: DateTime.UtcNow.AddSeconds(10));
             RunOnUI(() => EngineStatus = _localizer.Get("EngineStatus_Connected"));
+            // Warm the provider catalog so server-type names + capabilities resolve
+            // (non-fatal: ServerItem falls back to its id-based name until loaded).
+            _ = GetProvidersAsync().ContinueWith(
+                static t => _ = t.Exception, TaskContinuationOptions.OnlyOnFaulted);
             await RefreshAsync();
             StartAutoRefresh();
         }
@@ -106,13 +114,24 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
-    /// <summary>Fetches available versions for a server type (for the create wizard).</summary>
-    public async Task<string[]> GetVersionsAsync(ServerType type)
+    /// <summary>Fetches available versions for a provider (for the create wizard).</summary>
+    public async Task<string[]> GetVersionsAsync(string providerId)
     {
         var daemon = await App.Current.DaemonReady;
         var list = await daemon.Engine.ListVersionsAsync(
-            new VersionQuery { Type = type }, deadline: DateTime.UtcNow.AddSeconds(30));
+            new VersionQuery { ProviderId = providerId }, deadline: DateTime.UtcNow.AddSeconds(30));
         return list.Versions.ToArray();
+    }
+
+    /// <summary>Fetches the installed provider scripts (built-in + user-imported), cached.</summary>
+    public Task<IReadOnlyList<ProviderInfo>> GetProvidersAsync() => ProviderCatalog.GetAllAsync();
+
+    private async Task<IReadOnlyList<ProviderInfo>> FetchProvidersAsync()
+    {
+        var daemon = await App.Current.DaemonReady;
+        var list = await daemon.Providers.ListAsync(
+            new Empty(), deadline: DateTime.UtcNow.AddSeconds(30));
+        return list.Providers;
     }
 
     /// <summary>
@@ -426,7 +445,7 @@ public partial class MainViewModel : ObservableObject
             }
             else
             {
-                var newItem = new ServerItem(proto, _localizer) { ProgressTracker = tracker };
+                var newItem = new ServerItem(proto, _localizer, ProviderCatalog, _dispatcher) { ProgressTracker = tracker };
                 if (TryGetPendingUpdate(proto.Id, out var pending))
                     newItem.ApplyLocal(pending);
                 Servers.Add(newItem);

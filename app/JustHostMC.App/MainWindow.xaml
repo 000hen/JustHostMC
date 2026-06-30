@@ -21,7 +21,7 @@
             x:Name="SimpleTitleBar"
             Title="JustHostMC">
             <TitleBar.IconSource>
-                <ImageIconSource ImageSource="/Assets/StoreLogo.png"/>
+                <ImageIconSource ImageSource="ms-appx:///Assets/StoreLogo.png"/>
             </TitleBar.IconSource>
         </TitleBar>
         

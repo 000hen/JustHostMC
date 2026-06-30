@@ -1,8 +1,14 @@
 # MSIX Packaging
 
-JustHostMC uses the packaged MSIX app model. The app project sets
-`WindowsPackageType` to `MSIX`, and `Package.appxmanifest` supplies its package
-identity, visual assets, supported languages, and `runFullTrust` capability.
+JustHostMC ships as an MSIX package for the Microsoft Store, but the app project
+defaults `WindowsPackageType` to `None` so that `dotnet build`/`test` and F5 run as
+a fast, unsigned, **unpackaged** app. It switches to `MSIX` automatically whenever a
+package is actually produced — any build that sets `GenerateAppxPackageOnBuild=true`
+or `PublishAppxPackage=true`, which the Visual Studio **Create App Packages** wizard
+and `/t:Publish` both do. (Forcing `MSIX` on while a package is built — or leaving it
+`None` while one is — is a hard MSBuild error, which is why these two have to track
+each other.) `Package.appxmanifest` supplies the package identity, visual assets,
+supported languages, and `runFullTrust` capability.
 
 ## Visual Studio
 
@@ -38,15 +44,40 @@ Package output is written below `app/JustHostMC.App/AppPackages`. An unsigned
 package cannot be installed normally; use it for manifest and packaging
 validation only.
 
-For an installable or Store package, configure a certificate whose subject
-matches the manifest's `Identity Publisher`, or use Visual Studio's
-**Package and Publish** workflow. Never commit private signing keys or their
-passwords.
+### Store upload package (`.msixupload`)
+
+The Microsoft Store accepts a `.msixupload` bundle. From Visual Studio, use
+**Project > Package and Publish > Create App Packages…**, pick the sideloading or
+Microsoft Store option, choose the architectures to bundle, and the wizard writes
+`JustHostMC.App_<version>_<arch>_bundle.msixupload` under `AppPackages`. The
+equivalent command line (what the wizard runs) is:
+
+```powershell
+msbuild app/JustHostMC.App/JustHostMC.App.csproj /restore /t:Build `
+  /p:Configuration=Release /p:Platform=x64 `
+  /p:AppxBundle=Always /p:AppxBundlePlatforms="x64|arm64" `
+  /p:UapAppxPackageBuildMode=StoreUpload `
+  /p:GenerateAppxPackageOnBuild=true
+```
+
+The `.msixupload` is intentionally **unsigned**: the Store re-signs it on
+submission, so no certificate is needed to produce or upload it. Do not turn on
+`GenerateTemporaryStoreCertificate` while signing is disabled — on a bundle build it
+makes the SDK's disposable-certificate cleanup fail (`MSB4044`, empty
+`CertificateThumbprint`).
+
+### Signed sideload package
+
+To produce a `.msix`/`.msixbundle` that installs locally, sign it with a certificate
+whose subject matches the manifest's `Identity Publisher` (pass
+`-p:AppxPackageSigningEnabled=true -p:PackageCertificateKeyFile=… -p:PackageCertificateThumbprint=…`,
+or use the `winapp` flow). Never commit private signing keys or their passwords.
 
 ## Troubleshooting
 
-- If the manifest designer is unavailable, reload the project and confirm that
-  `WindowsPackageType` still evaluates to `MSIX`.
+- The manifest designer only loads when `WindowsPackageType` evaluates to `MSIX`.
+  The project defaults to `None` (unpackaged dev), so the designer is normally
+  unavailable — edit `Package.appxmanifest` with **Open With > XML (Text) Editor**.
 - If F5 reports that a packaged launch profile is missing, confirm that
   `Properties/launchSettings.json` exists and contains a profile whose
   `commandName` is `MsixPackage`, then reload the project.

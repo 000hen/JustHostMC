@@ -8,6 +8,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Platforms>x86;x64;ARM64</Platforms>
     <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+    <PublishProfile>win-$(Platform).pubxml</PublishProfile>
     <UseWinUI>true</UseWinUI>
     <EnableMsixTooling>true</EnableMsixTooling>
     <Nullable>enable</Nullable>
@@ -15,19 +16,41 @@
     <LangVersion>latest</LangVersion>
     <!-- English is the base / default language and fallback (PROMPT §14). -->
     <DefaultLanguage>en-US</DefaultLanguage>
-    <!-- Default to unpackaged so `dotnet build`/`dotnet test` and F5 dev runs work
-         without a signing cert. Produce the Store MSIX by overriding this at
-         package time (Package.appxmanifest + Assets\ + the bundled engine are all
-         in place): see docs/WACK-checklist.md, e.g.
-         `msbuild /t:Publish /p:Platform=x64 /p:WindowsPackageType=MSIX
-                  /p:GenerateAppxPackageOnBuild=true`. -->
+    <!-- Default to an UNPACKAGED app so `dotnet build`/`test` and F5 run unsigned,
+         without MSIX deployment (see CLAUDE.md). The Store/MSIX path overrides this
+         at pack time with /p:WindowsPackageType=MSIX. -->
     <WindowsPackageType Condition="'$(WindowsPackageType)' == ''">None</WindowsPackageType>
+  </PropertyGroup>
+
+  <!-- Unpackaged builds bundle the Windows App SDK runtime next to the app
+       (self-contained), so F5 / `dotnet run` need no machine-wide WinAppSDK runtime
+       install. MSIX builds stay framework-dependent (the runtime is a package
+       dependency the deployment resolves). A RuntimeIdentifier is required for a
+       self-contained build; map it from the (always-explicit) WinUI platform. -->
+  <PropertyGroup Condition="'$(WindowsPackageType)' != 'MSIX'">
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' And '$(Platform)' == 'x64'">win-x64</RuntimeIdentifier>
+    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' And '$(Platform)' == 'x86'">win-x86</RuntimeIdentifier>
+    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' And '$(Platform)' == 'ARM64'">win-arm64</RuntimeIdentifier>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.2.0" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.1839" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Manifest Include="$(ApplicationManifest)" />
+  </ItemGroup>
+
+  <!--
+    Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
+    Tools extension to be activated for this project even if the Windows App SDK Nuget
+    package has not yet been restored.
+  -->
+  <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+    <ProjectCapability Include="Msix" />
   </ItemGroup>
 
   <ItemGroup>
@@ -44,10 +67,34 @@
        MSIX payload. -->
   <Import Project="..\Engine.targets" />
   <ItemGroup>
-    <Content Include="..\..\build\engine.exe"
-             Link="engine\engine.exe"
-             CopyToOutputDirectory="PreserveNewest"
-             Visible="false" />
+    <Content Include="..\..\build\engine.exe" Link="engine\engine.exe" CopyToOutputDirectory="PreserveNewest" Visible="false" />
   </ItemGroup>
+
+  <!--
+    Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution
+    Explorer "Package and Publish" context menu entry to be enabled for this project even if
+    the Windows App SDK Nuget package has not yet been restored.
+  -->
+  <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+    <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
+  </PropertyGroup>
+
+  <!-- Publish / MSIX packaging properties (used by the Store/MSIX path; inert for
+       unpackaged Debug). A temporary store certificate is generated so sideload/MSIX
+       builds work unsigned. Trimming is intentionally NOT enabled: the gRPC/protobuf
+       + MVVM stack relies on reflection and trims unsafely. -->
+  <PropertyGroup>
+    <PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
+    <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
+    <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
+    <AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
+    <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+    <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+    <GenerateTestArtifacts>True</GenerateTestArtifacts>
+    <AppxBundle>Auto</AppxBundle>
+    <AppxBundlePlatforms>x86|x64|arm64</AppxBundlePlatforms>
+    <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+    <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
+  </PropertyGroup>
 
 </Project>

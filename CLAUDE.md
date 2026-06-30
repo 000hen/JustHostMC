@@ -24,10 +24,9 @@ WinUI 3 (C#)  ──gRPC over 127.0.0.1──▶  engine (Go)  ──IsolationBa
 | `app/` | C# WinUI 3 frontend: `JustHostMC.Core` (lib), `JustHostMC.Core.Tests` (xUnit), `JustHostMC.App` (UI) |
 | `build/` | Output dir for the bundled `engine.exe` (gitignored) |
 
-The active solution is `JustHostMC.sln`. **The repo root also still contains a
-legacy C++/WinRT scaffold** (`JustHostMC.vcxproj`, `JustHostMC/`, root `Assets/`)
-from before the C#/WinUI rewrite — it is not part of the product; do not edit it
-when working on app features.
+The active solution is `JustHostMC.sln`. The product is C#/WinUI 3 + Go only — the
+legacy C++/WinRT scaffold that used to sit in the repo root (`JustHostMC.vcxproj`,
+`JustHostMC/`, root `Assets/`) has been removed.
 
 ## Commands
 

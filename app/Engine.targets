@@ -52,6 +52,18 @@
   <Target Name="BuildEngine" BeforeTargets="BeforeBuild"
           Condition="'$(SkipEngineBuild)' != 'true'">
 
+    <!-- Cross-compile the engine to the WinUI app's platform so the bundled
+         engine.exe is the right architecture (and the JRE it downloads at runtime,
+         keyed off runtime.GOARCH, matches it). With no WinUI platform set (e.g. the
+         AnyCPU test project) GOARCH is left unset and Go builds for the host. -->
+    <PropertyGroup>
+      <EngineGoArch Condition="'$(EngineGoArch)' == '' And '$(Platform)' == 'x64'">amd64</EngineGoArch>
+      <EngineGoArch Condition="'$(EngineGoArch)' == '' And '$(Platform)' == 'x86'">386</EngineGoArch>
+      <EngineGoArch Condition="'$(EngineGoArch)' == '' And '$(Platform)' == 'ARM64'">arm64</EngineGoArch>
+      <_EngineBuildEnv>$(EngineGoBuildEnvironment);GOOS=windows</_EngineBuildEnv>
+      <_EngineBuildEnv Condition="'$(EngineGoArch)' != ''">$(_EngineBuildEnv);GOARCH=$(EngineGoArch)</_EngineBuildEnv>
+    </PropertyGroup>
+
     <!-- Probe for the Go toolchain; tolerate its absence so a machine with a
          prebuilt engine can still build the C# side. -->
     <Exec Command="go version" ContinueOnError="true"
@@ -60,10 +72,10 @@
     </Exec>
 
     <Message Condition="'$(_GoExitCode)' == '0'" Importance="high"
-             Text="BuildEngine: $(EngineGoBuildEnvironment) go build $(EngineGoBuildArgs) -&gt; $(EngineExe)" />
+             Text="BuildEngine: $(_EngineBuildEnv) go build $(EngineGoBuildArgs) -&gt; $(EngineExe)" />
     <Exec Condition="'$(_GoExitCode)' == '0'"
           WorkingDirectory="$(EngineSourceDir)"
-          EnvironmentVariables="$(EngineGoBuildEnvironment)"
+          EnvironmentVariables="$(_EngineBuildEnv)"
           Command="go build $(EngineGoBuildArgs) -o &quot;$(EngineExe)&quot; ./cmd/engine" />
 
     <!-- Go missing: tolerate a prebuilt engine, but fail clearly if there is

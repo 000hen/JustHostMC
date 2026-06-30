@@ -122,8 +122,13 @@ automatically runs `buf generate` when Go gRPC stubs are missing, then compiles
 the Go engine before the C# build begins — no manual steps needed on a fresh
 clone.
 
-> **Tip**: headless `dotnet run` of a WinUI app requires extra MSIX packaging
-> configuration. Use Visual Studio or `dotnet build` + run the output directly.
+The app uses the packaged MSIX model by default. Double-click
+`Package.appxmanifest` in Solution Explorer to open Visual Studio's manifest
+designer. See [MSIX packaging](docs/packaging.md) for command-line packaging,
+signing, and troubleshooting guidance.
+
+> **Tip**: `dotnet run` does not deploy a packaged WinUI app. Use Visual Studio
+> F5, or build and install an MSIX package as described in the packaging guide.
 
 <details>
 <summary>Manual build steps (without scripts)</summary>

@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 
@@ -170,9 +171,40 @@ type adoptiumAsset struct {
 	} `json:"binary"`
 }
 
+// adoptiumArchitectures lists the Adoptium `architecture` query values to try, in
+// preference order, for the running engine's architecture. Java server processes
+// run on the same machine as the engine, so the JRE must match its architecture.
+// On Windows/arm64 a native aarch64 build isn't published for every Java major, so
+// we fall back to x64 — Windows on ARM runs it under emulation.
+func adoptiumArchitectures() []string {
+	switch runtime.GOARCH {
+	case "arm64":
+		return []string{"aarch64", "x64"}
+	case "386":
+		return []string{"x86"}
+	default: // amd64
+		return []string{"x64"}
+	}
+}
+
 func (m *Manager) resolveAsset(ctx context.Context, major int, imageType string) (link, checksum string, err error) {
-	url := fmt.Sprintf("%s/v3/assets/latest/%d/hotspot?architecture=x64&image_type=%s&os=windows&vendor=eclipse",
-		m.apiBase, major, imageType)
+	for _, arch := range adoptiumArchitectures() {
+		link, checksum, err = m.resolveAssetForArch(ctx, major, imageType, arch)
+		if err == nil {
+			return link, checksum, nil
+		}
+		// Only fall through to the next architecture when this one simply has no
+		// build; surface transport/decode failures immediately.
+		if !errors.Is(err, ErrJREUnavailable) {
+			return "", "", err
+		}
+	}
+	return "", "", err
+}
+
+func (m *Manager) resolveAssetForArch(ctx context.Context, major int, imageType, arch string) (link, checksum string, err error) {
+	url := fmt.Sprintf("%s/v3/assets/latest/%d/hotspot?architecture=%s&image_type=%s&os=windows&vendor=eclipse",
+		m.apiBase, major, arch, imageType)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return "", "", err
@@ -183,14 +215,14 @@ func (m *Manager) resolveAsset(ctx context.Context, major int, imageType string)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		return "", "", fmt.Errorf("adoptium assets (java %d): unexpected status %s", major, resp.Status)
+		return "", "", fmt.Errorf("adoptium assets (java %d, %s): unexpected status %s", major, arch, resp.Status)
 	}
 	var assets []adoptiumAsset
 	if err := json.NewDecoder(resp.Body).Decode(&assets); err != nil {
 		return "", "", err
 	}
 	if len(assets) == 0 || assets[0].Binary.Package.Link == "" {
-		return "", "", fmt.Errorf("java %d: %w", major, ErrJREUnavailable)
+		return "", "", fmt.Errorf("java %d (%s): %w", major, arch, ErrJREUnavailable)
 	}
 	return assets[0].Binary.Package.Link, assets[0].Binary.Package.Checksum, nil
 }

@@ -19,9 +19,39 @@
             <TextBox x:Uid="CreateServerName" x:Name="NameBox" />
 
             <!-- Server Type -->
-            <ComboBox x:Uid="CreateServerType" x:Name="TypeBox"
-                      HorizontalAlignment="Stretch" DisplayMemberPath="Display"
-                      SelectionChanged="OnTypeChanged" />
+            <StackPanel Spacing="8">
+                <ComboBox x:Uid="CreateServerType" x:Name="TypeBox"
+                          HorizontalAlignment="Stretch" DisplayMemberPath="Display"
+                          SelectionChanged="OnTypeChanged" />
+
+                <!-- Selected provider details (name/description/author/website). -->
+                <Border x:Name="ProviderDetailsPanel"
+                        Visibility="Collapsed"
+                        CornerRadius="8"
+                        Padding="12"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1">
+                    <StackPanel Spacing="4">
+                        <TextBlock x:Name="ProviderNameText"
+                                   Style="{StaticResource BodyStrongTextBlockStyle}"
+                                   TextWrapping="Wrap" />
+                        <TextBlock x:Name="ProviderDescriptionText"
+                                   TextWrapping="Wrap"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Visibility="Collapsed" />
+                        <TextBlock x:Name="ProviderAuthorText"
+                                   TextWrapping="Wrap"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Visibility="Collapsed" />
+                        <HyperlinkButton x:Name="ProviderWebsiteLink"
+                                         x:Uid="CreateServerProviderWebsite"
+                                         Padding="0"
+                                         Visibility="Collapsed" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
 
             <!-- Minecraft Version -->
             <StackPanel Spacing="8">

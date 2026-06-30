@@ -33,7 +33,17 @@ func goToLua(L *lua.LState, v any) lua.LValue {
 
 // luaToGo converts a Lua value into a Go value suitable for json.Marshal. A
 // table with consecutive integer keys 1..n becomes a slice; otherwise a map.
-func luaToGo(v lua.LValue) any {
+// maxLuaDepth bounds luaToGo recursion so a cyclic or pathologically deep Lua
+// table (e.g. one a script passes to json_encode) cannot overflow the Go stack,
+// which would crash the whole engine — a Go stack overflow is not recoverable.
+const maxLuaDepth = 64
+
+func luaToGo(v lua.LValue) any { return luaToGoDepth(v, 0) }
+
+func luaToGoDepth(v lua.LValue, depth int) any {
+	if depth > maxLuaDepth {
+		return nil
+	}
 	switch x := v.(type) {
 	case lua.LBool:
 		return bool(x)
@@ -46,14 +56,14 @@ func luaToGo(v lua.LValue) any {
 		if n > 0 {
 			arr := make([]any, 0, n)
 			for i := 1; i <= n; i++ {
-				arr = append(arr, luaToGo(x.RawGetInt(i)))
+				arr = append(arr, luaToGoDepth(x.RawGetInt(i), depth+1))
 			}
 			return arr
 		}
 		m := map[string]any{}
 		x.ForEach(func(k, val lua.LValue) {
 			if ks, ok := k.(lua.LString); ok {
-				m[string(ks)] = luaToGo(val)
+				m[string(ks)] = luaToGoDepth(val, depth+1)
 			}
 		})
 		return m

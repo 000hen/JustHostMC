@@ -497,5 +497,7 @@
   <data name="Scripts_RemoveConfirmPrimary" xml:space="preserve"><value>Remove</value></data>
   <data name="Scripts_RemoveConfirmCancel" xml:space="preserve"><value>Cancel</value></data>
   <data name="PermissionConsentTitleNamed" xml:space="preserve"><value>Review permissions — {name}</value></data>
+  <data name="CreateServer_ProviderAuthor" xml:space="preserve"><value>by {author}</value></data>
+  <data name="CreateServerProviderWebsite.Content" xml:space="preserve"><value>Visit website</value></data>
 </root>
 

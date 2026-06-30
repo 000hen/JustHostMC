@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	mcmanagerv1 "github.com/000hen/justhostmc/engine/gen/mcmanager/v1"
@@ -54,15 +55,20 @@ func (s *ProviderService) Import(_ context.Context, req *mcmanagerv1.ImportProvi
 		return nil, errorStatus(codes.Internal, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, err.Error(), nil)
 	}
 	if len(req.Jar) > 0 && req.JarFilename != "" {
-		if err := os.WriteFile(filepath.Join(pdir, filepath.Base(req.JarFilename)), req.Jar, 0o644); err != nil {
+		jarName := filepath.Base(req.JarFilename)
+		if !strings.HasSuffix(strings.ToLower(jarName), ".jar") {
+			return nil, errorStatus(codes.InvalidArgument, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, "bundled jar filename must end in .jar", nil)
+		}
+		if err := os.WriteFile(filepath.Join(pdir, jarName), req.Jar, 0o644); err != nil {
 			return nil, errorStatus(codes.Internal, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, err.Error(), nil)
 		}
 	}
 	// Re-register from the persisted dir so the script gains its asset dir.
-	if e2, err := s.registry.AddProviderDir(pdir, false); err == nil {
-		e = e2
+	e2, err := s.registry.AddProviderDir(pdir, false)
+	if err != nil {
+		return nil, errorStatus(codes.Internal, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, err.Error(), nil)
 	}
-	return s.info(e), nil
+	return s.info(e2), nil
 }
 
 func (s *ProviderService) Remove(_ context.Context, ref *mcmanagerv1.ProviderRef) (*mcmanagerv1.Empty, error) {
@@ -87,7 +93,19 @@ func (s *ProviderService) SetPermissions(_ context.Context, req *mcmanagerv1.Set
 		return nil, errorStatus(codes.NotFound, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, "provider not found", nil)
 	}
 	if s.grants != nil {
-		if err := s.grants.Set(req.Id, req.Granted); err != nil {
+		// Clamp the request to what the script actually declared, so a provider
+		// can never be granted a capability the user was never shown a reason for.
+		declared := make(map[mcmanagerv1.PermissionKind]bool, len(e.Meta.Permissions))
+		for _, p := range e.Meta.Permissions {
+			declared[p.Kind] = true
+		}
+		allowed := make([]mcmanagerv1.PermissionKind, 0, len(req.Granted))
+		for _, k := range req.Granted {
+			if declared[k] {
+				allowed = append(allowed, k)
+			}
+		}
+		if err := s.grants.Set(req.Id, allowed); err != nil {
 			return nil, errorStatus(codes.Internal, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, err.Error(), nil)
 		}
 	}
@@ -105,6 +123,7 @@ func (s *ProviderService) info(e *scripting.Entry) *mcmanagerv1.ProviderInfo {
 	for k := range s.registry.EffectiveGrants(e.Meta.ID) {
 		granted = append(granted, k)
 	}
+	slices.Sort(granted)
 	return &mcmanagerv1.ProviderInfo{
 		Id:           e.Meta.ID,
 		Name:         e.Meta.Name,

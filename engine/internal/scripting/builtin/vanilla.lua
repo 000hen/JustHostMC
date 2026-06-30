@@ -24,7 +24,7 @@ local DEFAULT_JAVA = 8 -- pre-1.17 versions omit javaVersion and run on Java 8
 function versions()
   local m = jhmc.http_json(MANIFEST)
   local out = {}
-  for _, e in ipairs(m.versions) do
+  for _, e in ipairs(m.versions or {}) do
     out[#out + 1] = e.id
   end
   return out
@@ -42,7 +42,7 @@ end
 function install(ctx)
   ctx.step("install.progress.resolving_version", -1)
   local m = jhmc.http_json(MANIFEST)
-  local entry = find_version(m.versions, ctx.version)
+  local entry = find_version(m.versions or {}, ctx.version)
   if not entry then
     error("version not found: " .. ctx.version)
   end

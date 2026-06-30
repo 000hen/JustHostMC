@@ -464,4 +464,6 @@
   <data name="Scripts_RemoveConfirmPrimary" xml:space="preserve"><value>移除</value></data>
   <data name="Scripts_RemoveConfirmCancel" xml:space="preserve"><value>取消</value></data>
   <data name="PermissionConsentTitleNamed" xml:space="preserve"><value>檢視權限 — {name}</value></data>
+  <data name="CreateServer_ProviderAuthor" xml:space="preserve"><value>作者：{author}</value></data>
+  <data name="CreateServerProviderWebsite.Content" xml:space="preserve"><value>造訪網站</value></data>
 </root>

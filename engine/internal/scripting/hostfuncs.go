@@ -108,6 +108,7 @@ func (inv *invocation) fetch(url string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	req.Header.Set("User-Agent", scriptUserAgent)
 	resp, err := inv.host.client.Do(req)
 	if err != nil {
 		return "", err
@@ -322,6 +323,7 @@ func (inv *invocation) streamCmd(cmd *exec.Cmd) error {
 // -- misc ---------------------------------------------------------------------
 
 func (inv *invocation) sha256File(L *lua.LState) int {
+	inv.requireFS(L)
 	f, err := os.Open(inv.resolvePath(L, L.CheckString(1)))
 	if err != nil {
 		inv.fail(L, err)

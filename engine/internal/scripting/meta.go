@@ -58,6 +58,9 @@ func parseMeta(L *lua.LState) (Meta, error) {
 	if m.ID == "" {
 		return Meta{}, fmt.Errorf("script meta.id is required")
 	}
+	if !validProviderID(m.ID) {
+		return Meta{}, fmt.Errorf("script meta.id %q must contain only letters, digits, '-' or '_'", m.ID)
+	}
 	if m.ModLayout == "" {
 		m.ModLayout = "none"
 	}
@@ -87,6 +90,19 @@ func parseMeta(L *lua.LState) (Meta, error) {
 	}
 
 	return m, nil
+}
+
+// validProviderID reports whether id is a safe path component (letters, digits,
+// '-', '_'), so it can be used directly as a directory name by Import/Remove.
+func validProviderID(id string) bool {
+	for _, r := range id {
+		switch {
+		case r >= 'a' && r <= 'z', r >= 'A' && r <= 'Z', r >= '0' && r <= '9', r == '-', r == '_':
+		default:
+			return false
+		}
+	}
+	return id != ""
 }
 
 // strField reads a string field from a Lua table, returning "" if absent.

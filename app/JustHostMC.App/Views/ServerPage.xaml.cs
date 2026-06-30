@@ -56,6 +56,13 @@ public sealed partial class ServerPage : Page {
         Mods.SetServerStopped(IsStopped(Server.Status));
         Config.SetServerStopped(IsStopped(Server.Status));
 
+        // Hide the Mods/Plugins section for providers whose mod_layout is "none".
+        // The catalog may load after navigation, so refresh when it becomes ready.
+        _main.ProviderCatalog.Loaded += OnProviderCatalogLoaded;
+        ApplyModsCapability();
+        // Eagerly load the catalog so capability resolves even if this is the first page.
+        _ = RunSilentlyAsync(_main.GetProvidersAsync());
+
         // Attach live streams immediately, then warm heavier tab data after the
         // page has had a chance to render.
         _ = RunSilentlyAsync(cache.AttachAsync());
@@ -70,6 +77,21 @@ public sealed partial class ServerPage : Page {
         // Unsubscribe UI handlers; VMs stay alive in the cache.
         Server.PropertyChanged -= OnServerPropertyChanged;
         Console.Lines.CollectionChanged -= OnConsoleLinesChanged;
+        _main.ProviderCatalog.Loaded -= OnProviderCatalogLoaded;
+    }
+
+    private void OnProviderCatalogLoaded() => DispatcherQueue.TryEnqueue(ApplyModsCapability);
+
+    /// <summary>Shows/hides the Mods section based on the provider's mod_layout capability.</summary>
+    private void ApplyModsCapability() {
+        // Default to supported until the catalog resolves this provider (null layout).
+        var supportsMods = _main.ProviderCatalog.ModLayoutFor(Server.ProviderId) != "none";
+        ModsSectionItem.Visibility = Show(supportsMods);
+
+        // If the active section just got hidden, fall back to the console.
+        if (!supportsMods && SectionBar.SelectedItem == ModsSectionItem) {
+            SectionBar.SelectedItem = SectionBar.Items.Count > 0 ? SectionBar.Items[0] : null;
+        }
     }
 
     private void OnServerPropertyChanged(object? sender, PropertyChangedEventArgs e) {

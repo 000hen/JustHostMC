@@ -65,6 +65,12 @@ func (r *Registry) add(source string, builtin bool, assetDir string) (*Entry, er
 		return nil, err
 	}
 	id := lp.meta.ID
+	// A user (non-builtin) script must never replace a trusted built-in provider.
+	if !builtin {
+		if existing, ok := r.Get(id); ok && existing.Builtin {
+			return nil, fmt.Errorf("%w: %q", ErrProviderIDConflict, id)
+		}
+	}
 	lp.grantsFn = func() GrantSet { return r.effectiveGrants(id, builtin, lp.meta) }
 	e := &Entry{Meta: lp.meta, Provider: lp, Builtin: builtin}
 	r.put(id, e)

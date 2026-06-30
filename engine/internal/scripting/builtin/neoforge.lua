@@ -65,9 +65,9 @@ local function parse_mc(mc)
   local parts = num_parts(mc)
   if #parts < 2 then return nil end
   local major = tonumber(parts[1])
-  local minor = tonumber(parts[2]:match("^%d+"))
+  local minor = tonumber(parts[2]:match("^%d+") or "")
   if not major or not minor then return nil end
-  local patch = tonumber((parts[3] or ""):match("^%d+")) or 0
+  local patch = tonumber((parts[3] or ""):match("^%d+") or "") or 0
   return major, minor, patch
 end
 
@@ -87,7 +87,7 @@ end
 -- dot-separated segment in both schemes), so picking the highest works for both.
 local function neo_patch(v)
   local parts = num_parts(v)
-  return tonumber(parts[#parts]:match("^%d+")) or 0
+  return tonumber(parts[#parts]:match("^%d+") or "") or 0
 end
 
 -- less_desc orders MC versions newest-first by numeric (major, minor, patch),

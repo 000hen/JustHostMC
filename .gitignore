@@ -127,3 +127,6 @@ secrets.json
 *.go.[0-9]*
 
 .claude/
+
+# RTK (Rust Token Killer) local cache
+.rtk/

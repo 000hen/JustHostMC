@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	mcmanagerv1 "github.com/000hen/justhostmc/engine/gen/mcmanager/v1"
@@ -84,7 +85,19 @@ func (s *ScriptService) SetPermissions(_ context.Context, req *mcmanagerv1.SetPe
 		return nil, errorStatus(codes.NotFound, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, "script not found", nil)
 	}
 	if s.grants != nil {
-		if err := s.grants.Set(req.Id, req.Granted); err != nil {
+		// Clamp the request to what the script declared, so it can never be
+		// granted a capability the user was never shown a reason for.
+		declared := make(map[mcmanagerv1.PermissionKind]bool, len(a.Meta().Permissions))
+		for _, p := range a.Meta().Permissions {
+			declared[p.Kind] = true
+		}
+		allowed := make([]mcmanagerv1.PermissionKind, 0, len(req.Granted))
+		for _, k := range req.Granted {
+			if declared[k] {
+				allowed = append(allowed, k)
+			}
+		}
+		if err := s.grants.Set(req.Id, allowed); err != nil {
 			return nil, errorStatus(codes.Internal, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, err.Error(), nil)
 		}
 	}
@@ -158,6 +171,7 @@ func (s *ScriptService) info(a *scripting.Automation) *mcmanagerv1.ScriptInfo {
 	for k := range s.mgr.EffectiveGrants(meta.ID) {
 		granted = append(granted, k)
 	}
+	slices.Sort(granted)
 	return &mcmanagerv1.ScriptInfo{
 		Id:          meta.ID,
 		Name:        meta.Name,

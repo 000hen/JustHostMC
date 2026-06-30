@@ -45,7 +45,7 @@ end
 function versions()
   local m = jhmc.http_json(API .. "/projects/paper")
   local out = {}
-  for _, list in pairs(m.versions) do
+  for _, list in pairs(m.versions or {}) do
     for _, id in ipairs(list) do
       out[#out + 1] = id
     end

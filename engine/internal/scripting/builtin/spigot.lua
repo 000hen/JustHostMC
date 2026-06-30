@@ -28,7 +28,7 @@ local MANIFEST = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.jso
 function versions()
   local m = jhmc.http_json(MANIFEST)
   local out = {}
-  for _, e in ipairs(m.versions) do
+  for _, e in ipairs(m.versions or {}) do
     if e.type == "release" then
       out[#out + 1] = e.id
     end

@@ -12,4 +12,6 @@ var (
 	ErrPathEscape = errors.New("path escapes the server directory")
 	// ErrScriptInvalid means a script is missing required metadata or functions.
 	ErrScriptInvalid = errors.New("invalid script")
+	// ErrProviderIDConflict means a user provider's id collides with a built-in.
+	ErrProviderIDConflict = errors.New("provider id conflicts with a built-in provider")
 )

@@ -11,6 +11,10 @@ import (
 	lua "github.com/yuin/gopher-lua"
 )
 
+// scriptUserAgent identifies JustHostMC to upstream APIs for script HTTP calls.
+// (Mirrors the unexported provider.userAgent.)
+const scriptUserAgent = "JustHostMC (+https://github.com/000hen/justhostmc)"
+
 // Host runs sandboxed Lua scripts. It carries the shared dependencies the host
 // API needs (an HTTP client and a Java resolver); per-call state lives in an
 // invocation. A Host is safe for concurrent use: every call gets a fresh LState.

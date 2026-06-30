@@ -423,4 +423,6 @@
   <data name="InstallReadyInfoBar.Message" xml:space="preserve"><value>安裝已順利完成。</value></data>
   <data name="InfoBarStartServerButton.Content" xml:space="preserve"><value>啟動伺服器</value></data>
   <data name="install_ready_to_run" xml:space="preserve"><value>已準備就緒。</value></data>
+  <data name="CreateServer_ProviderAuthor" xml:space="preserve"><value>作者：{author}</value></data>
+  <data name="CreateServerProviderWebsite.Content" xml:space="preserve"><value>造訪網站</value></data>
 </root>

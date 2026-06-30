@@ -114,6 +114,22 @@ func main() {
 	// Apply the retention policy at startup, then periodically.
 	go runLogJanitor(settingsStore, paths.LogsRoot(), sink.CloseAll)
 
+	// Automation scripts drive running servers via the console hub and the
+	// server service. They are sandboxed and permission-gated like providers.
+	scriptGrants := scripting.NewGrantStore(filepath.Join(paths.Base, "script-grants.json"))
+	scriptsEnabled := scripting.NewEnabledStore(filepath.Join(paths.Base, "scripts-enabled.json"))
+	automation := scripting.NewManager(host, scriptGrants, hub, serverService, scripting.NewLogBuffer(0))
+	scriptsDir := paths.ScriptsRoot()
+	if err := scripting.LoadUserScripts(automation, scriptsDir); err != nil {
+		log.Printf("load automation scripts: %v", err)
+	}
+	for _, id := range scriptsEnabled.EnabledIDs() {
+		if err := automation.Enable(id); err != nil {
+			log.Printf("enable automation %q: %v", id, err)
+		}
+	}
+	defer automation.Shutdown()
+
 	srv := grpcsvc.NewServer(grpcsvc.Config{
 		Token:           token,
 		Providers:       providers,
@@ -126,6 +142,7 @@ func main() {
 		ModService:      grpcsvc.NewModService(registry, paths),
 		ConfigService:   grpcsvc.NewConfigService(registry, paths),
 		ProviderService: grpcsvc.NewProviderService(providers, grants, providersDir),
+		ScriptService:   grpcsvc.NewScriptService(automation, scriptGrants, scriptsEnabled, scriptsDir),
 	})
 	log.Printf("engine data dir: %s", paths.Base)
 

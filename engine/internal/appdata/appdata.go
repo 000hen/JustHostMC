@@ -31,8 +31,9 @@ func Default() Paths {
 	return Paths{Base: filepath.Join(os.TempDir(), "JustHostMC")}
 }
 
-func (p Paths) ServersRoot() string      { return filepath.Join(p.Base, "servers") }
+func (p Paths) ServersRoot() string        { return filepath.Join(p.Base, "servers") }
 func (p Paths) ServerDir(id string) string { return filepath.Join(p.ServersRoot(), id) }
-func (p Paths) JRECache() string         { return filepath.Join(p.Base, "jre") }
-func (p Paths) LogsRoot() string         { return filepath.Join(p.Base, "logs") }
-func (p Paths) BackupsRoot() string      { return filepath.Join(p.Base, "backups") }
+func (p Paths) JRECache() string           { return filepath.Join(p.Base, "jre") }
+func (p Paths) LogsRoot() string           { return filepath.Join(p.Base, "logs") }
+func (p Paths) BackupsRoot() string        { return filepath.Join(p.Base, "backups") }
+func (p Paths) ScriptsRoot() string        { return filepath.Join(p.Base, "scripts") }

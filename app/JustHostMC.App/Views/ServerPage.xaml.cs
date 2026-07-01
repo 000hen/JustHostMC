@@ -259,7 +259,9 @@ public sealed partial class ServerPage : Page {
         if (GetPlayer(sender) is not { } player)
             return;
 
-        var dialog = new PlayerDataDialog(Server.Id, player) { XamlRoot = XamlRoot };
+        var view = new PlayerDataDialog(Server.Id, player);
+        var dialog = new PlayerDialogBase(view.ActionName, player, view) { XamlRoot = XamlRoot };
+        view.OnHeaderUpdated = dialog.UpdateHeader;
         await dialog.ShowAsync();
     }
 
@@ -267,7 +269,9 @@ public sealed partial class ServerPage : Page {
         if (GetPlayer(sender) is not { } player)
             return;
 
-        var dialog = new PlayerInventoryDialog(Server.Id, player) { XamlRoot = XamlRoot };
+        var view = new PlayerInventoryDialog(Server.Id, player);
+        var dialog = new PlayerDialogBase(view.ActionName, player, view) { XamlRoot = XamlRoot };
+        view.OnHeaderUpdated = dialog.UpdateHeader;
         await dialog.ShowAsync();
     }
 

@@ -59,6 +59,11 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
 
+  <!-- Package manifest (ms-resource: references) -->
+  <data name="AppDisplayName" xml:space="preserve"><value>JustHostMC</value></data>
+  <data name="AppDescription" xml:space="preserve"><value>JustHostMC — Minecraft Server Manager</value></data>
+  <data name="AppPublisherDisplayName" xml:space="preserve"><value>Muisnow Devs</value></data>
+
   <!-- App + shell -->
   <data name="AppTitle" xml:space="preserve"><value>JustHostMC</value></data>
   <data name="MainTitle.Text" xml:space="preserve"><value>JustHostMC ??Minecraft Server Manager</value></data>
@@ -316,9 +321,12 @@
   <data name="BanList_RemoveFailed" xml:space="preserve"><value>Could not remove ban.</value></data>
   <data name="BanList_TargetRequired" xml:space="preserve"><value>Enter a player, UUID, or IP address.</value></data>
   <data name="BanList_StoppedRequired" xml:space="preserve"><value>Stop the server to edit ban-list files.</value></data>
-  <data name="PlayerDataDialog.CloseButtonText" xml:space="preserve"><value>Close</value></data>
+  <data name="PlayerDialogBase.CloseButtonText" xml:space="preserve"><value>Close</value></data>
+  <data name="PlayerDataDialog.ActionName" xml:space="preserve"><value>Raw data</value></data>
+  <data name="PlayerInventoryDialog.ActionName" xml:space="preserve"><value>Inventory</value></data>
+  <data name="PlayerDialogBase_TitleFormat" xml:space="preserve"><value>{0} for {1}</value></data>
   <data name="PlayerRawDataBox.Header" xml:space="preserve"><value>Raw player NBT</value></data>
-  <data name="PlayerInventoryDialog.CloseButtonText" xml:space="preserve"><value>Close</value></data>
+
   <data name="PlayerInventoryEquipmentHeader.Text" xml:space="preserve"><value>Equipment</value></data>
   <data name="PlayerInventoryMainHeader.Text" xml:space="preserve"><value>Inventory</value></data>
   <data name="PlayerInventoryHotbarHeader.Text" xml:space="preserve"><value>Hotbar</value></data>

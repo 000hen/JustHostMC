@@ -1,6 +1,7 @@
 package grpcsvc
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -169,7 +170,8 @@ func (s *PlayerService) GetData(ctx context.Context, req *mcmanagerv1.PlayerLook
 		Name:       name,
 		Uuid:       uuid,
 		RawSnbt:    raw.String(),
-		Inventory:  convertInventory(data.Inventory, false, assets),
+		RawNbt:     encodeRawNBT(raw),
+		Inventory:  convertPlayerInventory(data, assets),
 		EnderChest: convertInventory(data.EnderItems, true, assets),
 	}, nil
 }
@@ -387,8 +389,9 @@ func (s *PlayerService) RemoveBan(_ context.Context, req *mcmanagerv1.RemoveBanR
 }
 
 type playerNBT struct {
-	Inventory  []nbt.RawMessage `nbt:"Inventory"`
-	EnderItems []nbt.RawMessage `nbt:"EnderItems"`
+	Inventory  []nbt.RawMessage          `nbt:"Inventory"`
+	EnderItems []nbt.RawMessage          `nbt:"EnderItems"`
+	Equipment  map[string]nbt.RawMessage `nbt:"equipment"`
 }
 
 type inventoryNBT struct {
@@ -406,37 +409,99 @@ func convertInventory(items []nbt.RawMessage, ender bool, assets *itemAssetResol
 			continue
 		}
 		slot := canonicalInventorySlot(int32(item.Slot), ender)
-		count := item.Count
-		if count == 0 {
-			count = int32(item.LegacyCount)
+		if converted := convertInventoryItem(raw, item, slot, ender, assets); converted != nil {
+			out = append(out, converted)
 		}
-		converted := &mcmanagerv1.PlayerInventoryItem{
-			Slot:     slot,
-			SlotName: slotName(slot, ender),
-			ItemId:   item.ID,
-			Count:    count,
-			RawSnbt:  raw.String(),
-			Details:  extractItemDetails(raw),
-		}
-		if assets != nil {
-			asset := assets.Resolve(item.ID)
-			converted.ModelJson = asset.ModelJSON
-			refs := make([]string, 0, len(asset.Textures))
-			for ref := range asset.Textures {
-				refs = append(refs, ref)
-			}
-			sort.Strings(refs)
-			for _, ref := range refs {
-				converted.Textures = append(converted.Textures, &mcmanagerv1.PlayerItemTexture{
-					Id:  ref,
-					Png: asset.Textures[ref],
-				})
-			}
-		}
-		out = append(out, converted)
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].Slot < out[j].Slot })
 	return out
+}
+
+func convertPlayerInventory(data playerNBT, assets *itemAssetResolver) []*mcmanagerv1.PlayerInventoryItem {
+	items := convertInventory(data.Inventory, false, assets)
+	bySlot := make(map[int32]*mcmanagerv1.PlayerInventoryItem, len(items)+5)
+	for _, item := range items {
+		bySlot[item.Slot] = item
+	}
+	// Player armor and offhand moved to this compound in Java 1.21.5. Modern
+	// equipment is authoritative when a legacy Inventory slot is also present.
+	for _, equipment := range []struct {
+		name string
+		slot int32
+	}{
+		{"feet", 100},
+		{"legs", 101},
+		{"chest", 102},
+		{"head", 103},
+		{"offhand", -106},
+	} {
+		raw, ok := data.Equipment[equipment.name]
+		if !ok {
+			continue
+		}
+		var item inventoryNBT
+		if err := raw.Unmarshal(&item); err != nil {
+			continue
+		}
+		if converted := convertInventoryItem(raw, item, equipment.slot, false, assets); converted != nil {
+			bySlot[equipment.slot] = converted
+		}
+	}
+	items = items[:0]
+	for _, item := range bySlot {
+		items = append(items, item)
+	}
+	sort.Slice(items, func(i, j int) bool { return items[i].Slot < items[j].Slot })
+	return items
+}
+
+func convertInventoryItem(
+	raw nbt.RawMessage,
+	item inventoryNBT,
+	slot int32,
+	ender bool,
+	assets *itemAssetResolver,
+) *mcmanagerv1.PlayerInventoryItem {
+	if strings.TrimSpace(item.ID) == "" {
+		return nil
+	}
+	count := item.Count
+	if count == 0 {
+		count = int32(item.LegacyCount)
+	}
+	converted := &mcmanagerv1.PlayerInventoryItem{
+		Slot:     slot,
+		SlotName: slotName(slot, ender),
+		ItemId:   item.ID,
+		Count:    count,
+		RawSnbt:  raw.String(),
+		RawNbt:   encodeRawNBT(raw),
+		Details:  extractItemDetails(raw),
+	}
+	if assets != nil {
+		asset := assets.Resolve(item.ID)
+		converted.ModelJson = asset.ModelJSON
+		refs := make([]string, 0, len(asset.Textures))
+		for ref := range asset.Textures {
+			refs = append(refs, ref)
+		}
+		sort.Strings(refs)
+		for _, ref := range refs {
+			converted.Textures = append(converted.Textures, &mcmanagerv1.PlayerItemTexture{
+				Id:  ref,
+				Png: asset.Textures[ref],
+			})
+		}
+	}
+	return converted
+}
+
+func encodeRawNBT(raw nbt.RawMessage) []byte {
+	var buffer bytes.Buffer
+	if err := nbt.NewEncoder(&buffer).Encode(raw, ""); err != nil {
+		return nil
+	}
+	return buffer.Bytes()
 }
 
 func canonicalInventorySlot(slot int32, ender bool) int32 {

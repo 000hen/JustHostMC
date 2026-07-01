@@ -11,32 +11,34 @@ using Microsoft.UI.Xaml.Media;
 namespace JustHostMC.App.Views;
 
 /// <summary>Shows player and Ender Chest contents in Minecraft-style slot grids.</summary>
-public sealed partial class PlayerInventoryDialog : FluentContentDialog
+public sealed partial class PlayerInventoryDialog : UserControl
 {
     private readonly string _serverId;
     private readonly PlayerItem _player;
+    public Action<string, string>? OnHeaderUpdated { get; set; }
+    public string ActionName { get; set; } = "Inventory";
 
     public ObservableCollection<PlayerInventoryItemView> MainSlots { get; } = new();
     public ObservableCollection<PlayerInventoryItemView> HotbarSlots { get; } = new();
     public ObservableCollection<PlayerInventoryItemView> EquipmentSlots { get; } = new();
     public ObservableCollection<PlayerInventoryItemView> EnderSlots { get; } = new();
+    public IReadOnlyList<int> LoadingEquipmentSlots { get; } = Enumerable.Range(0, 5).ToArray();
+    public IReadOnlyList<int> LoadingInventorySlots { get; } = Enumerable.Range(0, 36).ToArray();
+    public IReadOnlyList<int> LoadingEnderSlots { get; } = Enumerable.Range(0, 27).ToArray();
 
     public PlayerInventoryDialog(string serverId, PlayerItem player)
     {
         _serverId = serverId;
         _player = player;
         InitializeComponent();
-        Title = $"Inventory — {player.Name}";
-        HeaderText.Text = player.Name;
-        UuidText.Text = string.IsNullOrWhiteSpace(player.Uuid)
-            ? "UUID unknown until the server writes usercache.json."
-            : player.Uuid;
-        Opened += async (_, _) => await LoadAsync();
+        Loaded += async (_, _) => await LoadAsync();
     }
 
     private async Task LoadAsync()
     {
         BusyBar.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
+        LoadingSkeleton.Visibility = Visibility.Visible;
+        InventoryContent.Visibility = Visibility.Collapsed;
         StatusText.Text = "";
         try
         {
@@ -48,8 +50,7 @@ public sealed partial class PlayerInventoryDialog : FluentContentDialog
                 Uuid = _player.Uuid,
             });
 
-            HeaderText.Text = data.Name.Length > 0 ? data.Name : _player.Name;
-            UuidText.Text = data.Uuid;
+            OnHeaderUpdated?.Invoke(data.Name.Length > 0 ? data.Name : _player.Name, data.Uuid);
 
             var inventory = await Task.WhenAll(data.Inventory.Select(PlayerInventoryItemView.CreateAsync));
             var ender = await Task.WhenAll(data.EnderChest.Select(PlayerInventoryItemView.CreateAsync));
@@ -70,6 +71,8 @@ public sealed partial class PlayerInventoryDialog : FluentContentDialog
         finally
         {
             BusyBar.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
+            LoadingSkeleton.Visibility = Visibility.Collapsed;
+            InventoryContent.Visibility = Visibility.Visible;
         }
     }
 
@@ -121,7 +124,7 @@ public sealed partial class PlayerInventoryDialog : FluentContentDialog
         });
         heading.Children.Add(new TextBlock
         {
-            Text = $"{item.ItemId}  ×{item.Count}",
+            Text = item.ItemId,
             FontFamily = new FontFamily("Consolas"),
             FontSize = 12,
             Foreground = (Brush)Application.Current.Resources["TextFillColorSecondaryBrush"],
@@ -135,41 +138,38 @@ public sealed partial class PlayerInventoryDialog : FluentContentDialog
             Width = 400,
         };
         content.Children.Add(header);
-        content.Children.Add(new TextBlock
-        {
-            Text = "NBT details",
-            Style = (Style)Application.Current.Resources["BodyStrongTextBlockStyle"],
-        });
-        content.Children.Add(CreateDetailRow("Slot", $"{item.SlotName} ({item.Slot})"));
-        content.Children.Add(CreateDetailRow("Item ID", item.ItemId));
-        content.Children.Add(CreateDetailRow("Count", item.Count.ToString()));
-        foreach (var detail in item.Details)
-            content.Children.Add(CreateDetailRow(detail.Label, detail.Value, detail.Label == "Lore"));
+        foreach (var section in item.Nbt.Sections)
+            content.Children.Add(CreateDetailSection(section));
 
-        if (item.Details.Count == 0)
+        if (item.Nbt.Sections.Count == 0)
         {
             content.Children.Add(new TextBlock
             {
-                Text = "No additional item NBT tags.",
+                Text = item.Nbt.ParseError is null
+                    ? "This item has no custom NBT metadata."
+                    : $"NBT could not be parsed: {item.Nbt.ParseError}",
                 FontStyle = Windows.UI.Text.FontStyle.Italic,
                 Foreground = (Brush)Application.Current.Resources["TextFillColorSecondaryBrush"],
+                TextWrapping = TextWrapping.Wrap,
             });
         }
 
         var rawBox = new TextBox
         {
-            Text = SnbtFormatter.Format(item.RawSnbt),
+            Text = item.Nbt.FormattedJson,
             IsReadOnly = true,
             AcceptsReturn = true,
             TextWrapping = TextWrapping.Wrap,
             FontFamily = new FontFamily("Consolas"),
             FontSize = 11,
             MaxHeight = 260,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
         };
         content.Children.Add(new Expander
         {
-            Header = "Raw item NBT",
+            Header = "Raw NBT",
             Content = rawBox,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
             HorizontalContentAlignment = HorizontalAlignment.Stretch,
         });
 
@@ -179,31 +179,63 @@ public sealed partial class PlayerInventoryDialog : FluentContentDialog
             {
                 Content = content,
                 MaxHeight = 540,
+                HorizontalContentAlignment = HorizontalAlignment.Stretch,
                 VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
             },
         };
         flyout.ShowAt(button);
     }
 
-    private static UIElement CreateDetailRow(string label, string value, bool italic = false)
+    private static UIElement CreateDetailSection(NbtDetailSection section)
     {
+        var panel = new StackPanel { Spacing = 7 };
+        panel.Children.Add(new TextBlock
+        {
+            Text = section.Title,
+            Style = (Style)Application.Current.Resources["BodyStrongTextBlockStyle"],
+        });
+        foreach (var entry in section.Entries)
+            panel.Children.Add(CreateDetailRow(entry));
+        return panel;
+    }
+
+    private static UIElement CreateDetailRow(NbtDetailEntry entry)
+    {
+        if (string.IsNullOrWhiteSpace(entry.Label))
+            return CreateValueText(entry, new Thickness(8, 0, 0, 0));
+
         var row = new Grid { ColumnSpacing = 12 };
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(120) });
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         row.Children.Add(new TextBlock
         {
-            Text = label,
+            Text = entry.Label,
             FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
             TextWrapping = TextWrapping.Wrap,
+            Foreground = (Brush)Application.Current.Resources["TextFillColorSecondaryBrush"],
         });
-        var valueText = new TextBlock
-        {
-            Text = value,
-            TextWrapping = TextWrapping.Wrap,
-            FontStyle = italic ? Windows.UI.Text.FontStyle.Italic : Windows.UI.Text.FontStyle.Normal,
-        };
+        var valueText = CreateValueText(entry, new Thickness(0));
         Grid.SetColumn(valueText, 1);
         row.Children.Add(valueText);
         return row;
+    }
+
+    private static TextBlock CreateValueText(NbtDetailEntry entry, Thickness margin)
+    {
+        var text = new TextBlock
+        {
+            Text = entry.Value,
+            TextWrapping = TextWrapping.Wrap,
+            Margin = margin,
+            FontStyle = entry.Kind == NbtDetailKind.Lore
+                ? Windows.UI.Text.FontStyle.Italic
+                : Windows.UI.Text.FontStyle.Normal,
+            FontWeight = entry.Kind is NbtDetailKind.Enchantment or NbtDetailKind.Effect
+                ? Microsoft.UI.Text.FontWeights.SemiBold
+                : Microsoft.UI.Text.FontWeights.Normal,
+        };
+        if (entry.Kind is NbtDetailKind.Code or NbtDetailKind.Numeric)
+            text.FontFamily = new FontFamily("Consolas");
+        return text;
     }
 }

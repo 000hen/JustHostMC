@@ -59,6 +59,11 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
 
+  <!-- Package manifest (ms-resource: references) -->
+  <data name="AppDisplayName" xml:space="preserve"><value>JustHostMC</value></data>
+  <data name="AppDescription" xml:space="preserve"><value>JustHostMC — Minecraft 伺服器管理工具</value></data>
+  <data name="AppPublisherDisplayName" xml:space="preserve"><value>Muisnow Devs</value></data>
+
   <!-- App + shell -->
   <data name="AppTitle" xml:space="preserve"><value>JustHostMC</value></data>
   <data name="MainTitle.Text" xml:space="preserve"><value>JustHostMC - Minecraft 伺服器管理工具</value></data>
@@ -314,9 +319,11 @@
   <data name="BanList_RemoveFailed" xml:space="preserve"><value>無法移除封鎖。</value></data>
   <data name="BanList_TargetRequired" xml:space="preserve"><value>請輸入玩家、UUID 或 IP 位址。</value></data>
   <data name="BanList_StoppedRequired" xml:space="preserve"><value>請先停止伺服器再編輯封鎖名單檔案。</value></data>
-  <data name="PlayerDataDialog.CloseButtonText" xml:space="preserve"><value>關閉</value></data>
+  <data name="PlayerDialogBase.CloseButtonText" xml:space="preserve"><value>關閉</value></data>
   <data name="PlayerRawDataBox.Header" xml:space="preserve"><value>原始玩家 NBT</value></data>
-  <data name="PlayerInventoryDialog.CloseButtonText" xml:space="preserve"><value>關閉</value></data>
+  <data name="PlayerDataDialog.ActionName" xml:space="preserve"><value>原始資料</value></data>
+  <data name="PlayerInventoryDialog.ActionName" xml:space="preserve"><value>物品欄</value></data>
+  <data name="PlayerDialogBase_TitleFormat" xml:space="preserve"><value>{1} 的{0}</value></data>
   <data name="PlayerInventoryEquipmentHeader.Text" xml:space="preserve"><value>裝備</value></data>
   <data name="PlayerInventoryMainHeader.Text" xml:space="preserve"><value>物品欄</value></data>
   <data name="PlayerInventoryHotbarHeader.Text" xml:space="preserve"><value>快捷列</value></data>

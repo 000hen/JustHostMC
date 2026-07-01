@@ -39,9 +39,11 @@ internal static class MinecraftItemIconRenderer
                 textures[message.Id] = decoded;
         }
 
-        var pixels = model.Elements is { Count: > 0 }
-            ? RenderBlockModel(model, textures)
-            : RenderGeneratedItem(model, textures);
+        var pixels = model.Special == "chest"
+            ? RenderSpecialChest(model, textures)
+            : model.Elements is { Count: > 0 }
+                ? RenderBlockModel(model, textures)
+                : RenderGeneratedItem(model, textures);
         if (pixels is null)
             return null;
 
@@ -270,6 +272,58 @@ internal static class MinecraftItemIconRenderer
         return point + V(transform.TranslationAt(0), transform.TranslationAt(1), transform.TranslationAt(2));
     }
 
+    private static byte[]? RenderSpecialChest(ModelAsset source, IReadOnlyDictionary<string, TextureData> textures)
+    {
+        if (!source.Textures.ContainsKey("special"))
+            return null;
+        var model = new ModelAsset
+        {
+            Gui = source.Gui,
+            Textures = source.Textures,
+            Elements =
+            [
+                ChestBox(
+                    [1, 1, 1], [15, 11, 15],
+                    north: [10.5, 8.25, 14, 10.75], south: [3.5, 8.25, 7, 10.75],
+                    west: [0, 8.25, 3.5, 10.75], east: [7, 8.25, 10.5, 10.75],
+                    up: [3.5, 4.75, 7, 8.25], down: [7, 4.75, 10.5, 8.25]),
+                ChestBox(
+                    [1, 11, 1], [15, 16, 15],
+                    north: [10.5, 3.5, 14, 4.75], south: [3.5, 3.5, 7, 4.75],
+                    west: [0, 3.5, 3.5, 4.75], east: [7, 3.5, 10.5, 4.75],
+                    up: [3.5, 0, 7, 3.5], down: [7, 0, 10.5, 3.5]),
+                new ModelElement
+                {
+                    From = [7, 8, 15],
+                    To = [9, 12, 16],
+                    Faces = new Dictionary<string, ModelFace>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["south"] = new() { Texture = "#special", Uv = [0, 0, 0.5, 1] },
+                    },
+                },
+            ],
+        };
+        return RenderBlockModel(model, textures);
+    }
+
+    private static ModelElement ChestBox(
+        double[] from, double[] to,
+        double[] north, double[] south, double[] west, double[] east, double[] up, double[] down)
+        => new()
+        {
+            From = from,
+            To = to,
+            Faces = new Dictionary<string, ModelFace>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["north"] = new() { Texture = "#special", Uv = north },
+                ["south"] = new() { Texture = "#special", Uv = south },
+                ["west"] = new() { Texture = "#special", Uv = west },
+                ["east"] = new() { Texture = "#special", Uv = east },
+                ["up"] = new() { Texture = "#special", Uv = up },
+                ["down"] = new() { Texture = "#special", Uv = down },
+            },
+        };
+
     private static Vec3 ApplyGuiRotation(Vec3 vector, ModelTransform transform)
     {
         vector = RotateAxis(vector, "z", transform.RotationAt(2));
@@ -339,6 +393,7 @@ internal static class MinecraftItemIconRenderer
         public Dictionary<string, string> Textures { get; set; } = new(StringComparer.OrdinalIgnoreCase);
         public List<ModelElement>? Elements { get; set; }
         public ModelTransform Gui { get; set; } = new();
+        public string Special { get; set; } = "";
     }
 
     private sealed class ModelElement

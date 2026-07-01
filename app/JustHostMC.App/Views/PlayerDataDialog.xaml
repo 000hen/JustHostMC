@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<controls:FluentContentDialog
+<UserControl
     x:Class="JustHostMC.App.Views.PlayerDataDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:JustHostMC.App.Controls"
-    x:Uid="PlayerDataDialog"
-    DefaultButton="Close"
-    UseWideLayout="True">
+    xmlns:views="using:JustHostMC.App.Views"
+    x:Uid="PlayerDataDialog">
 
     <Grid MinWidth="640"
           MaxHeight="720"
@@ -19,13 +18,7 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Spacing="2">
-            <TextBlock x:Name="HeaderText"
-                       Style="{StaticResource BodyStrongTextBlockStyle}" />
-            <TextBlock x:Name="UuidText"
-                       Style="{StaticResource CaptionTextBlockStyle}"
-                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-        </StackPanel>
+
 
         <ProgressBar x:Name="BusyBar" Grid.Row="1" IsIndeterminate="True" />
 
@@ -45,4 +38,4 @@
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                  ScrollViewer.VerticalScrollBarVisibility="Auto" />
     </Grid>
-</controls:FluentContentDialog>
+</UserControl>

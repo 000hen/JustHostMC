@@ -15,6 +15,7 @@ public sealed class PlayerInventoryItemView
         DisplayName = "";
         RawSnbt = "";
         Details = Array.Empty<PlayerItemDetail>();
+        Nbt = MinecraftItemNbtParser.Parse("");
     }
 
     private PlayerInventoryItemView(PlayerInventoryItem item)
@@ -25,6 +26,7 @@ public sealed class PlayerInventoryItemView
         Count = item.Count;
         RawSnbt = item.RawSnbt;
         Details = item.Details.ToList();
+        Nbt = MinecraftItemNbtParser.Parse(item.RawNbt.ToByteArray(), item.RawSnbt);
         var name = item.ItemId.Contains(':') ? item.ItemId[(item.ItemId.IndexOf(':') + 1)..] : item.ItemId;
         DisplayName = string.Join(' ', name.Split('_').Select(WordCase));
     }
@@ -36,7 +38,8 @@ public sealed class PlayerInventoryItemView
     public int Count { get; }
     public string RawSnbt { get; }
     public IReadOnlyList<PlayerItemDetail> Details { get; }
-    public string StyledName => Details.FirstOrDefault(detail => detail.Label == "Custom name")?.Value ?? DisplayName;
+    internal MinecraftItemNbtPresentation Nbt { get; }
+    public string StyledName => Nbt.DisplayName ?? DisplayName;
     public ImageSource? Icon { get; private set; }
     public bool HasItem => ItemId.Length > 0;
     public bool HasIcon => Icon is not null;

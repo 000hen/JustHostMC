@@ -98,6 +98,27 @@ func TestItemAssetResolverPreservesBlockGeometry(t *testing.T) {
 	}
 }
 
+func TestItemIconResolverReadsSpecialEnderChest(t *testing.T) {
+	serverDir := t.TempDir()
+	t.Setenv("APPDATA", t.TempDir())
+	want := []byte("ender-chest-texture")
+	writeAssetArchive(t, filepath.Join(serverDir, "resourcepacks", "pack.zip"), map[string][]byte{
+		"assets/minecraft/items/ender_chest.json":          []byte(`{"model":{"type":"minecraft:special","base":"minecraft:item/ender_chest","model":{"type":"minecraft:chest","texture":"minecraft:ender"}}}`),
+		"assets/minecraft/models/item/ender_chest.json":    []byte(`{"parent":"minecraft:item/template_chest"}`),
+		"assets/minecraft/models/item/template_chest.json": []byte(`{"display":{"gui":{"rotation":[30,45,0],"scale":[0.625,0.625,0.625]}}}`),
+		"assets/minecraft/textures/entity/chest/ender.png": want,
+	})
+
+	asset := newItemAssetResolver(serverDir, "").Resolve("minecraft:ender_chest")
+	if string(asset.Textures["minecraft:entity/chest/ender"]) != string(want) {
+		t.Fatal("special Ender Chest texture was not resolved")
+	}
+	var model resolvedModel
+	if err := json.Unmarshal([]byte(asset.ModelJSON), &model); err != nil || model.Special != "chest" {
+		t.Fatalf("special model = %+v, %v", model, err)
+	}
+}
+
 func writeAssetArchive(t *testing.T, path string, entries map[string][]byte) {
 	t.Helper()
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {

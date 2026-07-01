@@ -298,6 +298,7 @@ message PlayerInventoryItem {
   string model_json = 6; // flattened local item/block model; rendered by WinUI
   repeated PlayerItemTexture textures = 7;
   repeated PlayerItemDetail details = 8; // parsed display/lore/enchant/durability metadata
+  bytes raw_nbt = 9; // original named binary NBT; preferred over lossy SNBT text
 }
 
 message PlayerItemTexture {
@@ -317,6 +318,7 @@ message PlayerData {
   string raw_snbt = 4;
   repeated PlayerInventoryItem inventory = 5;
   repeated PlayerInventoryItem ender_chest = 6;
+  bytes raw_nbt = 7; // original named binary NBT for reliable client-side parsing
 }
 
 enum BanListType {

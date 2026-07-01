@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Package
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
   xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
@@ -13,8 +13,8 @@
     Version="1.0.0.0" />
 
   <Properties>
-    <DisplayName>JustHostMC</DisplayName>
-    <PublisherDisplayName>Muisnow Devs</PublisherDisplayName>
+    <DisplayName>ms-resource:AppDisplayName</DisplayName>
+    <PublisherDisplayName>ms-resource:AppPublisherDisplayName</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
@@ -24,8 +24,7 @@
 
   <!-- en-US listed first => default/fallback language; zh-Hant is an alternate. -->
   <Resources>
-    <Resource Language="en-US" />
-    <Resource Language="zh-Hant" />
+    <Resource Language="x-generate" />
   </Resources>
 
   <Applications>
@@ -34,8 +33,8 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="JustHostMC"
-        Description="JustHostMC — Minecraft Server Manager"
+        DisplayName="ms-resource:AppDisplayName"
+        Description="ms-resource:AppDescription"
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png">

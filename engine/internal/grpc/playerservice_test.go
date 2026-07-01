@@ -99,7 +99,7 @@ func TestGetDataFlushesUnsavedOnlinePlayer(t *testing.T) {
 				{Slot: 0, ID: "minecraft:stone", Count: 1},
 			}})
 		case strings.HasPrefix(command, "data get entity Alice"):
-			instance.output <- `[12:00:00] [Server thread/INFO]: Alice has the following entity data: {Inventory:[{Slot:0B,id:"minecraft:stone",count:3},{Slot:-106B,id:"minecraft:shield",count:1,components:{"minecraft:custom_name":'{"text":"Guard"}'}}],EnderItems:[]}`
+			instance.output <- `[12:00:00] [Server thread/INFO]: Alice has the following entity data: {Inventory:[{Slot:0B,id:"minecraft:stone",count:3}],equipment:{offhand:{id:"minecraft:shield",count:1,components:{"minecraft:custom_name":'{"text":"Guard"}'}}},EnderItems:[]}`
 			return nil
 		default:
 			t.Fatalf("unexpected command %q", command)
@@ -121,7 +121,8 @@ func TestGetDataFlushesUnsavedOnlinePlayer(t *testing.T) {
 	if data.Uuid != testPlayerUUID {
 		t.Fatalf("UUID = %q, want %q", data.Uuid, testPlayerUUID)
 	}
-	if len(data.Inventory) != 2 || data.Inventory[1].Slot != -106 || data.Inventory[1].Details[0].Value != "Guard" {
+	offhand := data.Inventory[0]
+	if len(data.Inventory) != 2 || offhand.Slot != -106 || offhand.Details[0].Value != "Guard" || len(offhand.RawNbt) == 0 || len(data.RawNbt) == 0 {
 		t.Fatalf("inventory = %+v, want live hotbar plus parsed offhand", data.Inventory)
 	}
 }
@@ -149,6 +150,19 @@ func TestConvertInventoryNormalizesOffhandSlots(t *testing.T) {
 		if len(items) != 1 || items[0].Slot != -106 || items[0].SlotName != "Offhand" {
 			t.Fatalf("slot %s converted to %+v", slot, items)
 		}
+	}
+}
+
+func TestConvertPlayerInventoryReadsModernEquipment(t *testing.T) {
+	data := playerNBT{
+		Equipment: map[string]nbt.RawMessage{
+			"head":    rawNBT(t, `{id:"minecraft:diamond_helmet",count:1}`),
+			"offhand": rawNBT(t, `{id:"minecraft:shield",count:1}`),
+		},
+	}
+	items := convertPlayerInventory(data, nil)
+	if len(items) != 2 || items[0].Slot != -106 || items[0].ItemId != "minecraft:shield" || items[1].Slot != 103 {
+		t.Fatalf("modern equipment converted to %+v", items)
 	}
 }
 

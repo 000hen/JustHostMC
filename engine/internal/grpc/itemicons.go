@@ -56,6 +56,7 @@ type resolvedModel struct {
 	Textures map[string]string `json:"textures"`
 	Elements []modelElement    `json:"elements,omitempty"`
 	GUI      modelTransform    `json:"gui"`
+	Special  string            `json:"special,omitempty"`
 }
 
 // itemAssetResolver reads models and texture bytes from local client assets,
@@ -104,13 +105,25 @@ func (r *itemAssetResolver) Resolve(itemID string) itemAsset {
 	}
 
 	modelRef := ""
+	var model resolvedModel
+	found := false
 	if definition := r.readJSON("assets/" + namespace + "/items/" + itemPath + ".json"); definition != nil {
+		if base, kind, texture, special := specialItemModel(definition); special {
+			if model, found = r.loadModel(base, 0); found && kind == "minecraft:chest" {
+				if textureNamespace, texturePath, ok := splitAssetID(texture, "minecraft"); ok {
+					model.Special = "chest"
+					model.Textures["special"] = textureNamespace + ":entity/chest/" + texturePath
+				}
+			}
+		}
 		modelRef = findStringField(definition, "model")
 	}
-	if modelRef == "" {
-		modelRef = namespace + ":item/" + itemPath
+	if !found {
+		if modelRef == "" {
+			modelRef = namespace + ":item/" + itemPath
+		}
+		model, found = r.loadModel(modelRef, 0)
 	}
-	model, found := r.loadModel(modelRef, 0)
 	if !found {
 		model = resolvedModel{Textures: make(map[string]string)}
 		for _, direct := range []string{namespace + ":item/" + itemPath, namespace + ":block/" + itemPath} {
@@ -136,6 +149,22 @@ func (r *itemAssetResolver) Resolve(itemID string) itemAsset {
 	}
 	r.cache[itemID] = asset
 	return asset
+}
+
+func specialItemModel(definition any) (base, kind, texture string, ok bool) {
+	root, ok := definition.(map[string]any)
+	if !ok {
+		return "", "", "", false
+	}
+	model, ok := root["model"].(map[string]any)
+	if !ok || model["type"] != "minecraft:special" {
+		return "", "", "", false
+	}
+	base, _ = model["base"].(string)
+	special, _ := model["model"].(map[string]any)
+	kind, _ = special["type"].(string)
+	texture, _ = special["texture"].(string)
+	return base, kind, texture, base != "" && kind != "" && texture != ""
 }
 
 func (r *itemAssetResolver) loadModel(modelRef string, depth int) (resolvedModel, bool) {

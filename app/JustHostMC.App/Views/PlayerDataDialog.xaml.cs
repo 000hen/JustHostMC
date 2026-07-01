@@ -8,22 +8,19 @@ using Microsoft.UI.Xaml.Controls;
 namespace JustHostMC.App.Views;
 
 /// <summary>Shows one player's raw NBT in a dedicated, readable dialog.</summary>
-public sealed partial class PlayerDataDialog : FluentContentDialog
+public sealed partial class PlayerDataDialog : UserControl
 {
     private readonly string _serverId;
     private readonly PlayerItem _player;
+    public Action<string, string>? OnHeaderUpdated { get; set; }
+    public string ActionName { get; set; } = "Raw data";
 
     public PlayerDataDialog(string serverId, PlayerItem player)
     {
         _serverId = serverId;
         _player = player;
         InitializeComponent();
-        Title = $"Raw player data — {player.Name}";
-        HeaderText.Text = player.Name;
-        UuidText.Text = string.IsNullOrWhiteSpace(player.Uuid)
-            ? "UUID unknown until the server writes usercache.json."
-            : player.Uuid;
-        Opened += async (_, _) => await LoadAsync();
+        Loaded += async (_, _) => await LoadAsync();
     }
 
     private async Task LoadAsync()
@@ -40,9 +37,9 @@ public sealed partial class PlayerDataDialog : FluentContentDialog
                 Uuid = _player.Uuid,
             });
 
-            HeaderText.Text = data.Name.Length > 0 ? data.Name : _player.Name;
-            UuidText.Text = data.Uuid;
-            RawBox.Text = SnbtFormatter.Format(data.RawSnbt);
+            OnHeaderUpdated?.Invoke(data.Name.Length > 0 ? data.Name : _player.Name, data.Uuid);
+
+            RawBox.Text = MinecraftItemNbtParser.FormatAsJson(data.RawNbt.ToByteArray(), data.RawSnbt);
         }
         catch (RpcException ex)
         {

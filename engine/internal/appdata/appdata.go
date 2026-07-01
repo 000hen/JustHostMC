@@ -34,6 +34,7 @@ func Default() Paths {
 func (p Paths) ServersRoot() string        { return filepath.Join(p.Base, "servers") }
 func (p Paths) ServerDir(id string) string { return filepath.Join(p.ServersRoot(), id) }
 func (p Paths) JRECache() string           { return filepath.Join(p.Base, "jre") }
+func (p Paths) ClientAssetsCache() string  { return filepath.Join(p.Base, "client-assets") }
 func (p Paths) LogsRoot() string           { return filepath.Join(p.Base, "logs") }
 func (p Paths) BackupsRoot() string        { return filepath.Join(p.Base, "backups") }
 func (p Paths) ScriptsRoot() string        { return filepath.Join(p.Base, "scripts") }

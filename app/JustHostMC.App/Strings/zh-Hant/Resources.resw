@@ -315,6 +315,12 @@
   <data name="BanList_TargetRequired" xml:space="preserve"><value>請輸入玩家、UUID 或 IP 位址。</value></data>
   <data name="BanList_StoppedRequired" xml:space="preserve"><value>請先停止伺服器再編輯封鎖名單檔案。</value></data>
   <data name="PlayerDataDialog.CloseButtonText" xml:space="preserve"><value>關閉</value></data>
+  <data name="PlayerRawDataBox.Header" xml:space="preserve"><value>原始玩家 NBT</value></data>
+  <data name="PlayerInventoryDialog.CloseButtonText" xml:space="preserve"><value>關閉</value></data>
+  <data name="PlayerInventoryEquipmentHeader.Text" xml:space="preserve"><value>裝備</value></data>
+  <data name="PlayerInventoryMainHeader.Text" xml:space="preserve"><value>物品欄</value></data>
+  <data name="PlayerInventoryHotbarHeader.Text" xml:space="preserve"><value>快捷列</value></data>
+  <data name="PlayerInventoryEnderHeader.Text" xml:space="preserve"><value>終界箱</value></data>
   <!-- Performance metrics -->
   <data name="MetricsCpu.Text" xml:space="preserve"><value>CPU</value></data>
   <data name="MetricsMemory.Text" xml:space="preserve"><value>記憶體</value></data>

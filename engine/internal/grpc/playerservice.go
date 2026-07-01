@@ -105,44 +105,118 @@ func (s *PlayerService) GetData(ctx context.Context, req *mcmanagerv1.PlayerLook
 		return nil, status.Error(codes.NotFound, "player UUID is not known yet")
 	}
 
-	path, found, err := locatePlayerData(serverDir, uuid)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "locate player data: %v", err)
-	}
-	// A newly joined player's file may not exist until the first server save. Ask
-	// a running server to flush its state, then briefly wait for the file to land.
-	if !found && rec.Status == mcmanagerv1.ServerStatus_RUNNING {
+	var raw nbt.RawMessage
+	var data playerNBT
+	liveDataLoaded := false
+	// A save file can still lag behind an online player's entity state (notably
+	// the offhand and item components). Query the live entity after flushing and
+	// use the file only as the offline/fallback source.
+	if rec.Status == mcmanagerv1.ServerStatus_RUNNING {
+		_, live, cancel := s.hub.Subscribe(req.ServerId)
 		if err := s.hub.Send(req.ServerId, "save-all flush"); err == nil {
+			waitForFlush(ctx, live, 5*time.Second)
+		}
+		if validPlayerCommandName(name) {
+			if err := s.hub.Send(req.ServerId, "data get entity "+name); err == nil {
+				if liveRaw, ok := waitForEntityData(ctx, live, name, 2*time.Second); ok {
+					if err := liveRaw.Unmarshal(&data); err == nil {
+						raw = liveRaw
+						liveDataLoaded = true
+					}
+				}
+			}
+		}
+		cancel()
+	}
+
+	if !liveDataLoaded {
+		path, found, err := locatePlayerData(serverDir, uuid)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "locate player data: %v", err)
+		}
+		// Some server implementations report save completion just before the atomic
+		// file rename becomes visible. Briefly poll only when the file is still absent.
+		if !found && rec.Status == mcmanagerv1.ServerStatus_RUNNING {
 			path, found, err = waitForPlayerData(ctx, serverDir, uuid, 3*time.Second)
 			if err != nil {
 				return nil, err
 			}
 		}
-	}
-	if !found {
-		return nil, status.Error(codes.NotFound, "player data not found")
-	}
-
-	var raw nbt.RawMessage
-	if _, err := readNBTFile(path, &raw); err != nil {
-		if os.IsNotExist(err) {
+		if !found {
 			return nil, status.Error(codes.NotFound, "player data not found")
 		}
-		return nil, status.Errorf(codes.Internal, "read player data: %v", err)
-	}
 
-	var data playerNBT
-	if _, err := readNBTFile(path, &data); err != nil {
-		return nil, status.Errorf(codes.Internal, "decode player data: %v", err)
+		if _, err := readNBTFile(path, &raw); err != nil {
+			if os.IsNotExist(err) {
+				return nil, status.Error(codes.NotFound, "player data not found")
+			}
+			return nil, status.Errorf(codes.Internal, "read player data: %v", err)
+		}
+		if _, err := readNBTFile(path, &data); err != nil {
+			return nil, status.Errorf(codes.Internal, "decode player data: %v", err)
+		}
 	}
+	// Item models are client resources and are not present in a dedicated server
+	// jar. Cache the exact matching official client archive once; server-local
+	// resource packs and mod jars are indexed afterward and retain precedence.
+	clientArchive := localMinecraftClient(rec.McVersion)
+	if clientArchive == "" {
+		clientArchive, _ = ensureMinecraftClient(ctx, s.paths, rec.McVersion)
+	}
+	assets := newItemAssetResolver(serverDir, rec.McVersion, clientArchive)
 	return &mcmanagerv1.PlayerData{
 		ServerId:   req.ServerId,
 		Name:       name,
 		Uuid:       uuid,
 		RawSnbt:    raw.String(),
-		Inventory:  convertInventory(data.Inventory, false),
-		EnderChest: convertInventory(data.EnderItems, true),
+		Inventory:  convertInventory(data.Inventory, false, assets),
+		EnderChest: convertInventory(data.EnderItems, true, assets),
 	}, nil
+}
+
+func validPlayerCommandName(name string) bool {
+	if len(name) < 1 || len(name) > 16 {
+		return false
+	}
+	for _, character := range name {
+		if (character < 'a' || character > 'z') &&
+			(character < 'A' || character > 'Z') &&
+			(character < '0' || character > '9') && character != '_' {
+			return false
+		}
+	}
+	return true
+}
+
+func waitForEntityData(ctx context.Context, live <-chan string, name string, timeout time.Duration) (nbt.RawMessage, bool) {
+	timer := time.NewTimer(timeout)
+	defer timer.Stop()
+	marker := name + " has the following entity data: "
+	for {
+		select {
+		case <-ctx.Done():
+			return nbt.RawMessage{}, false
+		case <-timer.C:
+			return nbt.RawMessage{}, false
+		case line, ok := <-live:
+			if !ok {
+				return nbt.RawMessage{}, false
+			}
+			index := strings.Index(line, marker)
+			if index < 0 {
+				continue
+			}
+			snbt := strings.TrimSpace(line[index+len(marker):])
+			encoded, err := nbt.Marshal(nbt.StringifiedMessage(snbt))
+			if err != nil {
+				continue
+			}
+			var raw nbt.RawMessage
+			if err := nbt.Unmarshal(encoded, &raw); err == nil {
+				return raw, true
+			}
+		}
+	}
 }
 
 // locatePlayerData honors server.properties' level-name and also discovers an
@@ -324,28 +398,57 @@ type inventoryNBT struct {
 	LegacyCount int8   `nbt:"Count"`
 }
 
-func convertInventory(items []nbt.RawMessage, ender bool) []*mcmanagerv1.PlayerInventoryItem {
+func convertInventory(items []nbt.RawMessage, ender bool, assets *itemAssetResolver) []*mcmanagerv1.PlayerInventoryItem {
 	out := make([]*mcmanagerv1.PlayerInventoryItem, 0, len(items))
 	for _, raw := range items {
 		var item inventoryNBT
 		if err := raw.Unmarshal(&item); err != nil {
 			continue
 		}
-		slot := int32(item.Slot)
+		slot := canonicalInventorySlot(int32(item.Slot), ender)
 		count := item.Count
 		if count == 0 {
 			count = int32(item.LegacyCount)
 		}
-		out = append(out, &mcmanagerv1.PlayerInventoryItem{
+		converted := &mcmanagerv1.PlayerInventoryItem{
 			Slot:     slot,
 			SlotName: slotName(slot, ender),
 			ItemId:   item.ID,
 			Count:    count,
 			RawSnbt:  raw.String(),
-		})
+			Details:  extractItemDetails(raw),
+		}
+		if assets != nil {
+			asset := assets.Resolve(item.ID)
+			converted.ModelJson = asset.ModelJSON
+			refs := make([]string, 0, len(asset.Textures))
+			for ref := range asset.Textures {
+				refs = append(refs, ref)
+			}
+			sort.Strings(refs)
+			for _, ref := range refs {
+				converted.Textures = append(converted.Textures, &mcmanagerv1.PlayerItemTexture{
+					Id:  ref,
+					Png: asset.Textures[ref],
+				})
+			}
+		}
+		out = append(out, converted)
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].Slot < out[j].Slot })
 	return out
+}
+
+func canonicalInventorySlot(slot int32, ender bool) int32 {
+	if !ender {
+		// Vanilla player NBT uses signed byte -106 (the byte value 150), while
+		// inventory APIs and some server implementations serialize logical slot
+		// 40. Normalize every representation before it reaches WinUI.
+		if slot == -106 || slot == 40 || slot == 150 {
+			return -106
+		}
+	}
+	return slot
 }
 
 func slotName(slot int32, ender bool) string {

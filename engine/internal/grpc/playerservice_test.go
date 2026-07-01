@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	mcmanagerv1 "github.com/000hen/justhostmc/engine/gen/mcmanager/v1"
@@ -14,6 +15,16 @@ import (
 )
 
 const testPlayerUUID = "12345678-1234-1234-1234-123456789abc"
+
+type testModernInventoryItem struct {
+	Slot  int8   `nbt:"Slot"`
+	ID    string `nbt:"id"`
+	Count int32  `nbt:"count"`
+}
+
+type testModernPlayerNBT struct {
+	Inventory []testModernInventoryItem `nbt:"Inventory"`
+}
 
 func TestLocatePlayerDataUsesConfiguredLevelName(t *testing.T) {
 	serverDir := t.TempDir()
@@ -80,11 +91,20 @@ func TestGetDataFlushesUnsavedOnlinePlayer(t *testing.T) {
 	}
 
 	playerPath := filepath.Join(paths.ServerDir("s1"), "world", "players", "data", testPlayerUUID+".dat")
-	instance := newPlayerDataTestInstance(func(command string) error {
-		if command != "save-all flush" {
-			t.Fatalf("command = %q, want save-all flush", command)
+	var instance *playerDataTestInstance
+	instance = newPlayerDataTestInstance(func(command string) error {
+		switch {
+		case command == "save-all flush":
+			return writeNBTFile(playerPath, "", testModernPlayerNBT{Inventory: []testModernInventoryItem{
+				{Slot: 0, ID: "minecraft:stone", Count: 1},
+			}})
+		case strings.HasPrefix(command, "data get entity Alice"):
+			instance.output <- `[12:00:00] [Server thread/INFO]: Alice has the following entity data: {Inventory:[{Slot:0B,id:"minecraft:stone",count:3},{Slot:-106B,id:"minecraft:shield",count:1,components:{"minecraft:custom_name":'{"text":"Guard"}'}}],EnderItems:[]}`
+			return nil
+		default:
+			t.Fatalf("unexpected command %q", command)
+			return nil
 		}
-		return writeNBTFile(playerPath, "", playerNBT{})
 	})
 	hub := console.NewHub()
 	hub.Register("s1", instance)
@@ -101,6 +121,9 @@ func TestGetDataFlushesUnsavedOnlinePlayer(t *testing.T) {
 	if data.Uuid != testPlayerUUID {
 		t.Fatalf("UUID = %q, want %q", data.Uuid, testPlayerUUID)
 	}
+	if len(data.Inventory) != 2 || data.Inventory[1].Slot != -106 || data.Inventory[1].Details[0].Value != "Guard" {
+		t.Fatalf("inventory = %+v, want live hotbar plus parsed offhand", data.Inventory)
+	}
 }
 
 func TestConvertInventorySupportsLegacyAndModernCounts(t *testing.T) {
@@ -109,12 +132,23 @@ func TestConvertInventorySupportsLegacyAndModernCounts(t *testing.T) {
 		rawNBT(t, `{Slot:1B,id:"minecraft:wooden_axe",count:1}`),
 	}
 
-	got := convertInventory(items, false)
+	got := convertInventory(items, false, nil)
 	if len(got) != 2 {
 		t.Fatalf("converted item count = %d, want 2", len(got))
 	}
 	if got[0].Count != 2 || got[1].Count != 1 {
 		t.Fatalf("converted counts = %d, %d; want 2, 1", got[0].Count, got[1].Count)
+	}
+}
+
+func TestConvertInventoryNormalizesOffhandSlots(t *testing.T) {
+	for _, slot := range []string{"-106B", "40B"} {
+		items := convertInventory([]nbt.RawMessage{
+			rawNBT(t, `{Slot:`+slot+`,id:"minecraft:shield",count:1}`),
+		}, false, nil)
+		if len(items) != 1 || items[0].Slot != -106 || items[0].SlotName != "Offhand" {
+			t.Fatalf("slot %s converted to %+v", slot, items)
+		}
 	}
 }
 
@@ -157,15 +191,23 @@ type playerDataTestInstance struct {
 
 func newPlayerDataTestInstance(onWrite func(string) error) *playerDataTestInstance {
 	return &playerDataTestInstance{
-		output:  make(chan string),
+		output:  make(chan string, 1),
 		done:    make(chan struct{}),
 		onWrite: onWrite,
 	}
 }
 
-func (i *playerDataTestInstance) ID() string                   { return "s1" }
-func (i *playerDataTestInstance) WriteStdin(line string) error { return i.onWrite(line) }
-func (i *playerDataTestInstance) Output() <-chan string        { return i.output }
-func (i *playerDataTestInstance) Done() <-chan struct{}        { return i.done }
-func (i *playerDataTestInstance) Running() bool                { return true }
-func (i *playerDataTestInstance) ExitErr() error               { return nil }
+func (i *playerDataTestInstance) ID() string { return "s1" }
+func (i *playerDataTestInstance) WriteStdin(line string) error {
+	if err := i.onWrite(line); err != nil {
+		return err
+	}
+	if line == "save-all flush" {
+		i.output <- "[12:00:00] [Server thread/INFO]: Saved the game"
+	}
+	return nil
+}
+func (i *playerDataTestInstance) Output() <-chan string { return i.output }
+func (i *playerDataTestInstance) Done() <-chan struct{} { return i.done }
+func (i *playerDataTestInstance) Running() bool         { return true }
+func (i *playerDataTestInstance) ExitErr() error        { return nil }

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<controls:FluentContentDialog
+    x:Class="JustHostMC.App.Views.PlayerInventoryDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:JustHostMC.App.Controls"
+    xmlns:models="using:JustHostMC.App.Models"
+    x:Uid="PlayerInventoryDialog"
+    DefaultButton="Close"
+    UseWideLayout="True">
+
+    <controls:FluentContentDialog.Resources>
+        <DataTemplate x:Key="InventorySlotTemplate" x:DataType="models:PlayerInventoryItemView">
+            <Button Width="52"
+                    Height="52"
+                    Margin="2"
+                    Padding="0"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Tag="{x:Bind}"
+                    Click="OnInventorySlotClick"
+                    ToolTipService.ToolTip="{x:Bind Tooltip}">
+                <Border Width="52"
+                    Height="52"
+                    CornerRadius="2"
+                    Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                    BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
+                    BorderThickness="2">
+                <Grid Margin="3">
+                    <Image Source="{x:Bind Icon}"
+                           Width="38"
+                           Height="38"
+                           Stretch="Uniform"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center" />
+                    <FontIcon Glyph="&#xE7B8;"
+                              FontSize="22"
+                              Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"
+                              Visibility="{x:Bind ShowFallbackIcon, Converter={StaticResource BoolToVis}}" />
+                    <Border HorizontalAlignment="Right"
+                            VerticalAlignment="Bottom"
+                            Padding="3,0"
+                            CornerRadius="3"
+                            Background="#B0000000"
+                            Visibility="{x:Bind ShowCount, Converter={StaticResource BoolToVis}}">
+                        <TextBlock Text="{x:Bind CountText}"
+                                   FontFamily="Consolas"
+                                   FontSize="12"
+                                   FontWeight="SemiBold"
+                                   Foreground="White" />
+                    </Border>
+                </Grid>
+                </Border>
+            </Button>
+        </DataTemplate>
+    </controls:FluentContentDialog.Resources>
+
+    <Grid MinWidth="620"
+          MaxHeight="760"
+          HorizontalAlignment="Center"
+          RowSpacing="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Spacing="2">
+            <TextBlock x:Name="HeaderText"
+                       HorizontalAlignment="Center"
+                       TextAlignment="Center"
+                       Style="{StaticResource BodyStrongTextBlockStyle}" />
+            <TextBlock x:Name="UuidText"
+                       HorizontalAlignment="Center"
+                       TextAlignment="Center"
+                       Style="{StaticResource CaptionTextBlockStyle}"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+        </StackPanel>
+
+        <ProgressBar x:Name="BusyBar" Grid.Row="1" IsIndeterminate="True" />
+
+        <TextBlock x:Name="StatusText"
+                   Grid.Row="2"
+                   TextWrapping="Wrap"
+                   Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+
+        <ScrollViewer Grid.Row="3"
+                      HorizontalContentAlignment="Center"
+                      VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="16" HorizontalAlignment="Center">
+                <Grid ColumnSpacing="16" HorizontalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Spacing="6">
+                        <TextBlock x:Uid="PlayerInventoryEquipmentHeader"
+                                   HorizontalAlignment="Center"
+                                   TextAlignment="Center"
+                                   Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        <ItemsRepeater ItemsSource="{x:Bind EquipmentSlots}"
+                                       ItemTemplate="{StaticResource InventorySlotTemplate}">
+                            <ItemsRepeater.Layout>
+                                <StackLayout Orientation="Vertical" Spacing="0" />
+                            </ItemsRepeater.Layout>
+                        </ItemsRepeater>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Spacing="8">
+                        <TextBlock x:Uid="PlayerInventoryMainHeader"
+                                   HorizontalAlignment="Center"
+                                   TextAlignment="Center"
+                                   Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        <ItemsRepeater ItemsSource="{x:Bind MainSlots}"
+                                       ItemTemplate="{StaticResource InventorySlotTemplate}">
+                            <ItemsRepeater.Layout>
+                                <UniformGridLayout Orientation="Horizontal"
+                                                   MaximumRowsOrColumns="9"
+                                                   MinItemWidth="56"
+                                                   MinItemHeight="56" />
+                            </ItemsRepeater.Layout>
+                        </ItemsRepeater>
+
+                        <TextBlock x:Uid="PlayerInventoryHotbarHeader"
+                                   Margin="0,4,0,0"
+                                   HorizontalAlignment="Center"
+                                   TextAlignment="Center"
+                                   Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        <ItemsRepeater ItemsSource="{x:Bind HotbarSlots}"
+                                       ItemTemplate="{StaticResource InventorySlotTemplate}">
+                            <ItemsRepeater.Layout>
+                                <UniformGridLayout Orientation="Horizontal"
+                                                   MaximumRowsOrColumns="9"
+                                                   MinItemWidth="56"
+                                                   MinItemHeight="56" />
+                            </ItemsRepeater.Layout>
+                        </ItemsRepeater>
+                    </StackPanel>
+                </Grid>
+
+                <StackPanel Spacing="8" HorizontalAlignment="Center">
+                    <TextBlock x:Uid="PlayerInventoryEnderHeader"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    <ItemsRepeater ItemsSource="{x:Bind EnderSlots}"
+                                   ItemTemplate="{StaticResource InventorySlotTemplate}">
+                        <ItemsRepeater.Layout>
+                            <UniformGridLayout Orientation="Horizontal"
+                                               MaximumRowsOrColumns="9"
+                                               MinItemWidth="56"
+                                               MinItemHeight="56" />
+                        </ItemsRepeater.Layout>
+                    </ItemsRepeater>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</controls:FluentContentDialog>

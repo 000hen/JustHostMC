@@ -432,6 +432,7 @@ func (s *ServerService) RemoveAllData(ctx context.Context, _ *mcmanagerv1.Empty)
 		s.cfg.Paths.BackupsRoot(),
 		s.cfg.Paths.LogsRoot(),
 		s.cfg.Paths.JRECache(),
+		s.cfg.Paths.ClientAssetsCache(),
 	} {
 		if err := os.RemoveAll(dir); err != nil {
 			return nil, status.Errorf(codes.Internal, "remove %s: %v", dir, err)

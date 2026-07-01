@@ -253,13 +253,21 @@ public sealed partial class ServerPage : Page {
     private void OnPlayerKickClick(object sender, RoutedEventArgs e) => SendPlayerCommand(sender, "kick {0}");
     private void OnPlayerBanClick(object sender, RoutedEventArgs e) => SendPlayerCommand(sender, "ban {0}");
     private async void OnPlayerRawClick(object sender, RoutedEventArgs e) => await ShowPlayerDataDialogAsync(sender);
-    private async void OnPlayerInventoryClick(object sender, RoutedEventArgs e) => await ShowPlayerDataDialogAsync(sender);
+    private async void OnPlayerInventoryClick(object sender, RoutedEventArgs e) => await ShowPlayerInventoryDialogAsync(sender);
 
     private async Task ShowPlayerDataDialogAsync(object sender) {
         if (GetPlayer(sender) is not { } player)
             return;
 
         var dialog = new PlayerDataDialog(Server.Id, player) { XamlRoot = XamlRoot };
+        await dialog.ShowAsync();
+    }
+
+    private async Task ShowPlayerInventoryDialogAsync(object sender) {
+        if (GetPlayer(sender) is not { } player)
+            return;
+
+        var dialog = new PlayerInventoryDialog(Server.Id, player) { XamlRoot = XamlRoot };
         await dialog.ShowAsync();
     }
 

@@ -1,32 +1,28 @@
-using System.Collections.ObjectModel;
 using Grpc.Core;
 using JustHostMC.App.Controls;
 using JustHostMC.App.Models;
+using JustHostMC.App.Services;
 using McManager.Grpc;
 using Microsoft.UI.Xaml.Controls;
 
 namespace JustHostMC.App.Views;
 
-/// <summary>Shows structured inventory plus raw SNBT for one playerdata file.</summary>
+/// <summary>Shows one player's raw NBT in a dedicated, readable dialog.</summary>
 public sealed partial class PlayerDataDialog : FluentContentDialog
 {
     private readonly string _serverId;
     private readonly PlayerItem _player;
-
-    public ObservableCollection<PlayerInventoryItemView> Inventory { get; } = new();
-    public ObservableCollection<PlayerInventoryItemView> EnderChest { get; } = new();
-
-    public string InventoryHeader => $"Inventory ({Inventory.Count})";
-    public string EnderHeader => $"Ender chest ({EnderChest.Count})";
 
     public PlayerDataDialog(string serverId, PlayerItem player)
     {
         _serverId = serverId;
         _player = player;
         InitializeComponent();
-        Title = player.Name;
+        Title = $"Raw player data — {player.Name}";
         HeaderText.Text = player.Name;
-        UuidText.Text = string.IsNullOrWhiteSpace(player.Uuid) ? "UUID unknown until the server writes usercache.json." : player.Uuid;
+        UuidText.Text = string.IsNullOrWhiteSpace(player.Uuid)
+            ? "UUID unknown until the server writes usercache.json."
+            : player.Uuid;
         Opened += async (_, _) => await LoadAsync();
     }
 
@@ -44,17 +40,9 @@ public sealed partial class PlayerDataDialog : FluentContentDialog
                 Uuid = _player.Uuid,
             });
 
-            Inventory.Clear();
-            foreach (var item in data.Inventory)
-                Inventory.Add(new PlayerInventoryItemView(item));
-            EnderChest.Clear();
-            foreach (var item in data.EnderChest)
-                EnderChest.Add(new PlayerInventoryItemView(item));
-
             HeaderText.Text = data.Name.Length > 0 ? data.Name : _player.Name;
             UuidText.Text = data.Uuid;
-            RawBox.Text = data.RawSnbt;
-            Bindings.Update();
+            RawBox.Text = SnbtFormatter.Format(data.RawSnbt);
         }
         catch (RpcException ex)
         {
@@ -67,4 +55,5 @@ public sealed partial class PlayerDataDialog : FluentContentDialog
             BusyBar.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
         }
     }
+
 }

@@ -392,12 +392,12 @@
                     <TextBlock Grid.Column="2" Text="{Binding CurrentActiveTracker.ServerName, Mode=OneWay}"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
-                    <Button Grid.Column="3" Padding="8,4" MinWidth="32" MinHeight="32" VerticalAlignment="Center"
+                    <Button x:Uid="InstallProgressPreviousButton" Grid.Column="3" Padding="8,4" MinWidth="32" MinHeight="32" VerticalAlignment="Center"
                             Command="{Binding PreviousCommand}"
                             Visibility="{Binding HasMultipleActive, Mode=OneWay, Converter={StaticResource BoolToVis}}">
                         <FontIcon Glyph="&#xE76B;" FontSize="12" />
                     </Button>
-                    <Button Grid.Column="4" Padding="8,4" MinWidth="32" MinHeight="32" VerticalAlignment="Center"
+                    <Button x:Uid="InstallProgressNextButton" Grid.Column="4" Padding="8,4" MinWidth="32" MinHeight="32" VerticalAlignment="Center"
                             Command="{Binding NextCommand}"
                             Visibility="{Binding HasMultipleActive, Mode=OneWay, Converter={StaticResource BoolToVis}}">
                         <FontIcon Glyph="&#xE76C;" FontSize="12" />

@@ -513,5 +513,15 @@
   <data name="PermissionConsentTitleNamed" xml:space="preserve"><value>Review permissions — {name}</value></data>
   <data name="CreateServer_ProviderAuthor" xml:space="preserve"><value>by {author}</value></data>
   <data name="CreateServerProviderWebsite.Content" xml:space="preserve"><value>Visit website</value></data>
+  <data name="InstallProgressPreviousButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Previous</value></data>
+  <data name="InstallProgressPreviousButton.ToolTipService.ToolTip" xml:space="preserve"><value>Previous</value></data>
+  <data name="InstallProgressNextButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Next</value></data>
+  <data name="InstallProgressNextButton.ToolTipService.ToolTip" xml:space="preserve"><value>Next</value></data>
+  <data name="HomeCardCopyAddressButton.ToolTipService.ToolTip" xml:space="preserve"><value>Copy address</value></data>
+  <data name="HomeCardRenameButton.ToolTipService.ToolTip" xml:space="preserve"><value>Rename server</value></data>
+  <data name="HomeCardMoreButton.ToolTipService.ToolTip" xml:space="preserve"><value>Server actions</value></data>
+  <data name="HomeCardMoveUpButton.ToolTipService.ToolTip" xml:space="preserve"><value>Move server up</value></data>
+  <data name="HomeCardMoveDownButton.ToolTipService.ToolTip" xml:space="preserve"><value>Move server down</value></data>
+  <data name="HomeCardEditButton.ToolTipService.ToolTip" xml:space="preserve"><value>Edit server</value></data>
 </root>
 

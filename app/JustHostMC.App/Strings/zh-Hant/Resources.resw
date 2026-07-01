@@ -479,4 +479,33 @@
   <data name="PermissionConsentTitleNamed" xml:space="preserve"><value>檢視權限 — {name}</value></data>
   <data name="CreateServer_ProviderAuthor" xml:space="preserve"><value>作者：{author}</value></data>
   <data name="CreateServerProviderWebsite.Content" xml:space="preserve"><value>造訪網站</value></data>
+  <data name="HomeTotalServersLabel.Text" xml:space="preserve"><value>總伺服器</value></data>
+  <data name="HomeRunningServersLabel.Text" xml:space="preserve"><value>執行中</value></data>
+  <data name="HomeStoppedServersLabel.Text" xml:space="preserve"><value>就緒</value></data>
+  <data name="HomeBusyServersLabel.Text" xml:space="preserve"><value>變更狀態中</value></data>
+  <data name="HomeCardTypeLabel.Text" xml:space="preserve"><value>類型</value></data>
+  <data name="HomeCardVersionLabel.Text" xml:space="preserve"><value>版本</value></data>
+  <data name="HomeCardEndpointLabel.Text" xml:space="preserve"><value>位址</value></data>
+  <data name="HomeCardCopyAddressButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>複製位址</value></data>
+  <data name="HomeCardCopyAddressButton.ToolTipService.ToolTip" xml:space="preserve"><value>複製位址</value></data>
+  <data name="HomeCardRenameButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>重新命名伺服器</value></data>
+  <data name="HomeCardRenameButton.ToolTipService.ToolTip" xml:space="preserve"><value>重新命名伺服器</value></data>
+  <data name="HomeCardMoreButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>伺服器動作</value></data>
+  <data name="HomeCardMoreButton.ToolTipService.ToolTip" xml:space="preserve"><value>伺服器動作</value></data>
+  <data name="HomeCardMoveUpButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>上移伺服器</value></data>
+  <data name="HomeCardMoveUpButton.ToolTipService.ToolTip" xml:space="preserve"><value>上移伺服器</value></data>
+  <data name="HomeCardMoveDownButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>下移伺服器</value></data>
+  <data name="HomeCardMoveDownButton.ToolTipService.ToolTip" xml:space="preserve"><value>下移伺服器</value></data>
+  <data name="HomeCardEditButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>編輯伺服器</value></data>
+  <data name="HomeCardEditButton.ToolTipService.ToolTip" xml:space="preserve"><value>編輯伺服器</value></data>
+  <data name="HomeCardEditMenuItem.Text" xml:space="preserve"><value>編輯伺服器</value></data>
+  <data name="HomeCardOpenMenuItem.Text" xml:space="preserve"><value>開啟伺服器</value></data>
+  <data name="HomeCardDeleteMenuItem.Text" xml:space="preserve"><value>刪除伺服器</value></data>
+  <data name="ServerTitleRenameButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>重新命名伺服器</value></data>
+  <data name="RenameServerDialog_Title" xml:space="preserve"><value>重新命名伺服器</value></data>
+  <data name="EditServerName_Header" xml:space="preserve"><value>名稱</value></data>
+  <data name="InstallProgressPreviousButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>上一步</value></data>
+  <data name="InstallProgressPreviousButton.ToolTipService.ToolTip" xml:space="preserve"><value>上一步</value></data>
+  <data name="InstallProgressNextButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>下一步</value></data>
+  <data name="InstallProgressNextButton.ToolTipService.ToolTip" xml:space="preserve"><value>下一步</value></data>
 </root>

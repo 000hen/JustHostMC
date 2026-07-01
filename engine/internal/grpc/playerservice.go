@@ -87,23 +87,42 @@ func (s *PlayerService) sendRoster(stream grpc.ServerStreamingServer[mcmanagerv1
 	return stream.Send(list)
 }
 
-func (s *PlayerService) GetData(_ context.Context, req *mcmanagerv1.PlayerLookup) (*mcmanagerv1.PlayerData, error) {
+func (s *PlayerService) GetData(ctx context.Context, req *mcmanagerv1.PlayerLookup) (*mcmanagerv1.PlayerData, error) {
 	if req.ServerId == "" {
 		return nil, status.Error(codes.InvalidArgument, "server_id required")
 	}
-	if _, ok := s.store.Get(req.ServerId); !ok {
+	rec, ok := s.store.Get(req.ServerId)
+	if !ok {
 		return nil, status.Error(codes.NotFound, "server not found")
 	}
+	serverDir := s.paths.ServerDir(req.ServerId)
 	name := strings.TrimSpace(req.Name)
 	uuid := normalizeUUID(req.Uuid)
 	if uuid == "" && name != "" {
-		uuid = readUserCache(s.paths.ServerDir(req.ServerId)).uuidForName(name)
+		uuid = readUserCache(serverDir).uuidForName(name)
 	}
 	if uuid == "" {
 		return nil, status.Error(codes.NotFound, "player UUID is not known yet")
 	}
 
-	path := filepath.Join(s.paths.ServerDir(req.ServerId), "world", "playerdata", uuid+".dat")
+	path, found, err := locatePlayerData(serverDir, uuid)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "locate player data: %v", err)
+	}
+	// A newly joined player's file may not exist until the first server save. Ask
+	// a running server to flush its state, then briefly wait for the file to land.
+	if !found && rec.Status == mcmanagerv1.ServerStatus_RUNNING {
+		if err := s.hub.Send(req.ServerId, "save-all flush"); err == nil {
+			path, found, err = waitForPlayerData(ctx, serverDir, uuid, 3*time.Second)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	if !found {
+		return nil, status.Error(codes.NotFound, "player data not found")
+	}
+
 	var raw nbt.RawMessage
 	if _, err := readNBTFile(path, &raw); err != nil {
 		if os.IsNotExist(err) {
@@ -124,6 +143,98 @@ func (s *PlayerService) GetData(_ context.Context, req *mcmanagerv1.PlayerLookup
 		Inventory:  convertInventory(data.Inventory, false),
 		EnderChest: convertInventory(data.EnderItems, true),
 	}, nil
+}
+
+// locatePlayerData honors server.properties' level-name and also discovers an
+// existing world folder. Discovery keeps older/custom instances working when
+// their properties file is absent or no longer reflects the folder on disk.
+func locatePlayerData(serverDir, uuid string) (string, bool, error) {
+	fileName := uuid + ".dat"
+	levelName := "world"
+	props, err := readPropertiesFile(filepath.Join(serverDir, "server.properties"))
+	if err != nil {
+		return "", false, err
+	}
+	if configured := strings.TrimSpace(props["level-name"]); configured != "" {
+		levelName = configured
+	}
+
+	worldDir := filepath.Join(serverDir, filepath.FromSlash(levelName))
+	expected := filepath.Join(worldDir, "playerdata", fileName)
+	if insideDir(serverDir, worldDir) {
+		for _, candidate := range playerDataCandidates(worldDir, fileName) {
+			if found, err := regularFileExists(candidate); err != nil || found {
+				return candidate, found, err
+			}
+		}
+	}
+
+	entries, err := os.ReadDir(serverDir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return expected, false, nil
+		}
+		return "", false, err
+	}
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+		candidateWorld := filepath.Join(serverDir, entry.Name())
+		if candidateWorld == worldDir {
+			continue
+		}
+		for _, candidate := range playerDataCandidates(candidateWorld, fileName) {
+			if found, err := regularFileExists(candidate); err != nil || found {
+				return candidate, found, err
+			}
+		}
+	}
+	return expected, false, nil
+}
+
+func playerDataCandidates(worldDir, fileName string) []string {
+	return []string{
+		filepath.Join(worldDir, "playerdata", fileName),      // Minecraft through 1.21.x
+		filepath.Join(worldDir, "players", "data", fileName), // Minecraft 26.1+
+	}
+}
+
+func waitForPlayerData(ctx context.Context, serverDir, uuid string, timeout time.Duration) (string, bool, error) {
+	ticker := time.NewTicker(100 * time.Millisecond)
+	defer ticker.Stop()
+	timer := time.NewTimer(timeout)
+	defer timer.Stop()
+
+	for {
+		path, found, err := locatePlayerData(serverDir, uuid)
+		if err != nil || found {
+			return path, found, err
+		}
+		select {
+		case <-ctx.Done():
+			return "", false, status.FromContextError(ctx.Err()).Err()
+		case <-timer.C:
+			return path, false, nil
+		case <-ticker.C:
+		}
+	}
+}
+
+func regularFileExists(path string) (bool, error) {
+	info, err := os.Stat(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return false, nil
+		}
+		return false, err
+	}
+	return info.Mode().IsRegular(), nil
+}
+
+func insideDir(root, path string) bool {
+	rel, err := filepath.Rel(root, path)
+	return err == nil && rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator))
 }
 
 func (s *PlayerService) ListBans(_ context.Context, req *mcmanagerv1.ServerId) (*mcmanagerv1.BanList, error) {
@@ -207,9 +318,10 @@ type playerNBT struct {
 }
 
 type inventoryNBT struct {
-	Slot  int8   `nbt:"Slot"`
-	ID    string `nbt:"id"`
-	Count int8   `nbt:"Count"`
+	Slot        int8   `nbt:"Slot"`
+	ID          string `nbt:"id"`
+	Count       int32  `nbt:"count"`
+	LegacyCount int8   `nbt:"Count"`
 }
 
 func convertInventory(items []nbt.RawMessage, ender bool) []*mcmanagerv1.PlayerInventoryItem {
@@ -220,11 +332,15 @@ func convertInventory(items []nbt.RawMessage, ender bool) []*mcmanagerv1.PlayerI
 			continue
 		}
 		slot := int32(item.Slot)
+		count := item.Count
+		if count == 0 {
+			count = int32(item.LegacyCount)
+		}
 		out = append(out, &mcmanagerv1.PlayerInventoryItem{
 			Slot:     slot,
 			SlotName: slotName(slot, ender),
 			ItemId:   item.ID,
-			Count:    int32(item.Count),
+			Count:    count,
 			RawSnbt:  raw.String(),
 		})
 	}

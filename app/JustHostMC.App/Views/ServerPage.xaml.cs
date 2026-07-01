@@ -248,10 +248,10 @@ public sealed partial class ServerPage : Page {
         });
     }
 
-    private void OnPlayerOpClick(object sender, RoutedEventArgs e) => SendPlayerCommand(sender, "op \"{0}\"");
-    private void OnPlayerDeopClick(object sender, RoutedEventArgs e) => SendPlayerCommand(sender, "deop \"{0}\"");
-    private void OnPlayerKickClick(object sender, RoutedEventArgs e) => SendPlayerCommand(sender, "kick \"{0}\"");
-    private void OnPlayerBanClick(object sender, RoutedEventArgs e) => SendPlayerCommand(sender, "ban \"{0}\"");
+    private void OnPlayerOpClick(object sender, RoutedEventArgs e) => SendPlayerCommand(sender, "op {0}");
+    private void OnPlayerDeopClick(object sender, RoutedEventArgs e) => SendPlayerCommand(sender, "deop {0}");
+    private void OnPlayerKickClick(object sender, RoutedEventArgs e) => SendPlayerCommand(sender, "kick {0}");
+    private void OnPlayerBanClick(object sender, RoutedEventArgs e) => SendPlayerCommand(sender, "ban {0}");
     private async void OnPlayerRawClick(object sender, RoutedEventArgs e) => await ShowPlayerDataDialogAsync(sender);
     private async void OnPlayerInventoryClick(object sender, RoutedEventArgs e) => await ShowPlayerDataDialogAsync(sender);
 
@@ -277,7 +277,7 @@ public sealed partial class ServerPage : Page {
         if (string.IsNullOrWhiteSpace(player))
             return;
 
-        Console.CommandText = string.Format(format, player.Replace("\"", "\\\""));
+        Console.CommandText = string.Format(format, player);
         if (Console.SendCommand.CanExecute(null))
             Console.SendCommand.Execute(null);
     }

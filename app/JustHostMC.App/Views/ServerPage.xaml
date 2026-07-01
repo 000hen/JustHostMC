@@ -505,7 +505,7 @@
                                                        TextTrimming="CharacterEllipsis" />
                                             <Button x:Uid="PlayerActionsButton"
                                                     Grid.Column="2"
-                                                    Tag="{Binding}"
+                                                    Tag="{x:Bind}"
                                                     MinWidth="88"
                                                     Padding="10,6">
                                                 <StackPanel Orientation="Horizontal" Spacing="6">
@@ -514,33 +514,33 @@
                                                 </StackPanel>
                                                 <Button.Flyout>
                                                     <MenuFlyout>
-                                                        <MenuFlyoutItem x:Uid="PlayerOpMenuItem" Tag="{Binding}" Click="OnPlayerOpClick">
+                                                        <MenuFlyoutItem x:Uid="PlayerOpMenuItem" Tag="{x:Bind}" Click="OnPlayerOpClick">
                                                             <MenuFlyoutItem.Icon>
                                                                 <SymbolIcon Symbol="Permissions" />
                                                             </MenuFlyoutItem.Icon>
                                                         </MenuFlyoutItem>
-                                                        <MenuFlyoutItem x:Uid="PlayerDeopMenuItem" Tag="{Binding}" Click="OnPlayerDeopClick">
+                                                        <MenuFlyoutItem x:Uid="PlayerDeopMenuItem" Tag="{x:Bind}" Click="OnPlayerDeopClick">
                                                             <MenuFlyoutItem.Icon>
                                                                 <SymbolIcon Symbol="Permissions" />
                                                             </MenuFlyoutItem.Icon>
                                                         </MenuFlyoutItem>
-                                                        <MenuFlyoutItem x:Uid="PlayerKickMenuItem" Tag="{Binding}" Click="OnPlayerKickClick">
+                                                        <MenuFlyoutItem x:Uid="PlayerKickMenuItem" Tag="{x:Bind}" Click="OnPlayerKickClick">
                                                             <MenuFlyoutItem.Icon>
                                                                 <SymbolIcon Symbol="Cancel" />
                                                             </MenuFlyoutItem.Icon>
                                                         </MenuFlyoutItem>
-                                                        <MenuFlyoutItem x:Uid="PlayerBanMenuItem" Tag="{Binding}" Click="OnPlayerBanClick">
+                                                        <MenuFlyoutItem x:Uid="PlayerBanMenuItem" Tag="{x:Bind}" Click="OnPlayerBanClick">
                                                             <MenuFlyoutItem.Icon>
                                                                 <SymbolIcon Symbol="BlockContact" />
                                                             </MenuFlyoutItem.Icon>
                                                         </MenuFlyoutItem>
                                                         <MenuFlyoutSeparator />
-                                                        <MenuFlyoutItem x:Uid="PlayerRawMenuItem" Tag="{Binding}" Click="OnPlayerRawClick">
+                                                        <MenuFlyoutItem x:Uid="PlayerRawMenuItem" Tag="{x:Bind}" Click="OnPlayerRawClick">
                                                             <MenuFlyoutItem.Icon>
                                                                 <SymbolIcon Symbol="View" />
                                                             </MenuFlyoutItem.Icon>
                                                         </MenuFlyoutItem>
-                                                        <MenuFlyoutItem x:Uid="PlayerInventoryMenuItem" Tag="{Binding}" Click="OnPlayerInventoryClick">
+                                                        <MenuFlyoutItem x:Uid="PlayerInventoryMenuItem" Tag="{x:Bind}" Click="OnPlayerInventoryClick">
                                                             <MenuFlyoutItem.Icon>
                                                                 <SymbolIcon Symbol="List" />
                                                             </MenuFlyoutItem.Icon>

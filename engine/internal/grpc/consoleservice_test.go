@@ -2,15 +2,16 @@ package grpcsvc
 
 import (
 	"context"
+	"net"
 	"sync"
 	"testing"
 	"time"
 
+	winio "github.com/Microsoft/go-winio"
 	mcmanagerv1 "github.com/000hen/justhostmc/engine/gen/mcmanager/v1"
 	"github.com/000hen/justhostmc/engine/internal/console"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/metadata"
 )
 
 type fakeInstance struct {
@@ -61,20 +62,27 @@ func (f *fakeInstance) wrote(line string) bool {
 }
 
 func TestConsoleServiceStreamsOutputAndForwardsCommands(t *testing.T) {
-	const token = "tok"
 	hub := console.NewHub()
 	fake := &fakeInstance{out: make(chan string, 16), done: make(chan struct{})}
 	hub.Register("s1", fake)
 
-	lis, err := Listen()
+	pipeName := "test-jhmc-console-" + randomSuffix()
+	lis, err := ListenPipe(pipeName)
 	if err != nil {
 		t.Fatal(err)
 	}
-	srv := NewServer(Config{Token: token, ConsoleService: NewConsoleService(hub)})
+	srv := NewServer(Config{ConsoleService: NewConsoleService(hub)})
 	go func() { _ = srv.Serve(lis) }()
 	t.Cleanup(srv.Stop)
 
-	conn, err := grpc.NewClient(lis.Addr().String(), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	pipePath := `\\.\pipe\` + pipeName
+	conn, err := grpc.NewClient(
+		"passthrough:///pipe",
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithContextDialer(func(ctx context.Context, _ string) (net.Conn, error) {
+			return winio.DialPipeContext(ctx, pipePath)
+		}),
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -85,8 +93,7 @@ func TestConsoleServiceStreamsOutputAndForwardsCommands(t *testing.T) {
 	fake.out <- "hello from server"
 	waitForRing(t, hub, "s1")
 
-	ctx := metadata.AppendToOutgoingContext(context.Background(), tokenMetadataKey, token)
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	stream, err := client.Attach(ctx)

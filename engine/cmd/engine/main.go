@@ -1,6 +1,6 @@
 // Command engine is the JustHostMC backend daemon. The WinUI app launches it as
-// a child process, reads the loopback port it prints, and talks to it over an
-// authenticated gRPC channel. It is not meant to be run directly by users.
+// a child process and communicates over a Windows Named Pipe. It is not meant to
+// be run directly by users.
 package main
 
 import (
@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"net"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -28,28 +27,26 @@ import (
 )
 
 const (
-	// tokenEnvVar carries the per-launch session token supplied by the app.
-	tokenEnvVar = "MCMANAGER_TOKEN"
-	// portLinePrefix tags the stdout line that reports the chosen port. The app
-	// scans stdout for this prefix to learn where to connect.
-	portLinePrefix = "MCMANAGER_PORT="
+	// pipeEnvVar carries the named-pipe name supplied by the app.
+	pipeEnvVar = "MCMANAGER_PIPE"
+	// readyLine is printed to stdout once the engine is listening.
+	readyLine = "MCMANAGER_READY"
 )
 
 func main() {
-	// Logs go to stderr so they never collide with the port handshake on stdout.
+	// Logs go to stderr so they never collide with the ready handshake on stdout.
 	log.SetOutput(os.Stderr)
 	log.SetFlags(log.LstdFlags | log.Lmicroseconds)
 
-	token := os.Getenv(tokenEnvVar)
-	if token == "" {
-		log.Fatalf("%s is required: the app supplies a per-launch session token", tokenEnvVar)
+	pipeName := os.Getenv(pipeEnvVar)
+	if pipeName == "" {
+		log.Fatalf("%s is required: the app supplies a named-pipe name", pipeEnvVar)
 	}
 
-	lis, err := grpcsvc.Listen()
+	lis, err := grpcsvc.ListenPipe(pipeName)
 	if err != nil {
-		log.Fatalf("listen: %v", err)
+		log.Fatalf("listen pipe: %v", err)
 	}
-	port := lis.Addr().(*net.TCPAddr).Port
 
 	paths := appdata.Default()
 	if err := os.MkdirAll(paths.Base, 0o755); err != nil {
@@ -131,7 +128,6 @@ func main() {
 	defer automation.Shutdown()
 
 	srv := grpcsvc.NewServer(grpcsvc.Config{
-		Token:           token,
 		Providers:       providers,
 		ServerService:   serverService,
 		ConsoleService:  grpcsvc.NewConsoleService(hub),
@@ -146,10 +142,10 @@ func main() {
 	})
 	log.Printf("engine data dir: %s", paths.Base)
 
-	// Report the port to the parent on stdout's first line, then flush.
-	fmt.Printf("%s%d\n", portLinePrefix, port)
+	// Signal readiness to the parent process.
+	fmt.Println(readyLine)
 	_ = os.Stdout.Sync()
-	log.Printf("engine listening on 127.0.0.1:%d", port)
+	log.Printf("engine listening on pipe: %s", pipeName)
 
 	go waitForShutdown(srv)
 

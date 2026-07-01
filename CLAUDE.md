@@ -10,11 +10,11 @@ pre-installed Java/Docker/WSL — the backend downloads runtime dependencies (JR
 server jars) on demand and caches them.
 
 It is a **polyglot monorepo with one contract**: a C#/WinUI 3 frontend talks to a
-Go backend daemon over gRPC on loopback. The `.proto` is the single source of
-truth that both sides generate from.
+Go backend daemon over gRPC on a Windows Named Pipe. The `.proto` is the single
+source of truth that both sides generate from.
 
 ```
-WinUI 3 (C#)  ──gRPC over 127.0.0.1──▶  engine (Go)  ──IsolationBackend──▶  per-server java processes
+WinUI 3 (C#)  ──gRPC over Named Pipe──▶  engine (Go)  ──IsolationBackend──▶  per-server java processes
 ```
 
 | Dir | Role |
@@ -105,13 +105,13 @@ both sides, then implement the Go `*Service` and call it from a C# ViewModel.
 
 ### IPC & security model
 
-- The engine binds **127.0.0.1 with an OS-assigned random port** (`grpc.Listen`),
-  so it is never reachable off-machine. HTTP/2 cleartext (no TLS).
-- The app launches `engine.exe` as a child process, passing a **per-launch 32-byte
-  random session token** via env var `MCMANAGER_TOKEN`. The engine validates it on
-  every call via auth interceptors; the C# `TokenInterceptor` attaches it as gRPC
-  metadata header `x-mcmanager-token`.
-- **Port handshake**: the engine prints `MCMANAGER_PORT=<n>` as the first stdout
+- The engine serves gRPC over a **Windows Named Pipe** (`\\.\pipe\JustHostMC-<guid>`).
+  Named pipes are inherently local-only and use the OS security model for access
+  control — no TCP port is opened and no session token is needed.
+- The app launches `engine.exe` as a child process, generating a unique pipe name
+  (`JustHostMC-<guid>`) and passing it via env var `MCMANAGER_PIPE`. The engine
+  creates the named pipe listener using `go-winio` and serves gRPC on it.
+- **Ready handshake**: the engine prints `MCMANAGER_READY` as the first stdout
   line; everything else (logs) goes to **stderr** — never write engine logs to
   stdout, it corrupts the handshake.
 - **Lifecycle**: closing the engine's stdin trips its watchdog → graceful
@@ -127,7 +127,7 @@ both sides, then implement the Go `*Service` and call it from a C# ViewModel.
   map, opens the SQLite store, creates the console hub + log sink, selects the
   isolation backend, registers all services, runs startup reconcile + log janitor).
 - `internal/grpc/` — gRPC service implementations (one file per service) plus
-  `auth.go` (interceptors), `server.go` (server/listener), `errors.go` (error
+  `server.go` (named pipe listener + server builder), `errors.go` (error
   mapping). Services depend on the interfaces below, not concrete types.
 - `internal/provider/` — the `Provider` interface (`Versions` + `Install` →
   `LaunchSpec{JavaMajor, Args}`) plus shared helpers: `javamajor.go` maps an MC
@@ -162,9 +162,10 @@ both sides, then implement the Go `*Service` and call it from a C# ViewModel.
 ### App (C#/WinUI 3) layout
 
 - **`JustHostMC.Core`** (plain `net9.0`, no UI → fully unit/integration-testable):
-  `EngineHost` (child-process lifecycle + port handshake), `EngineConnection`
-  (record: port + token), `TokenInterceptor`, and `DaemonClient` — the facade that
-  owns the `GrpcChannel` and exposes the typed per-service clients.
+  `EngineHost` (child-process lifecycle + named pipe handshake), `EngineConnection`
+  (record: pipe name), and `DaemonClient` — the facade that owns the `GrpcChannel`
+  (backed by a `NamedPipeClientStream` via `SocketsHttpHandler.ConnectCallback`)
+  and exposes the typed per-service clients.
 - **`JustHostMC.App`** (`net9.0-windows10.0.19041.0`, WinUI 3, MVVM via
   CommunityToolkit.Mvvm): `App.xaml.cs` owns the engine lifecycle and exposes
   `App.Current.DaemonReady` (a `Task<DaemonClient>`). ViewModels get the client

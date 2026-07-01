@@ -3,24 +3,21 @@ package grpcsvc
 import (
 	"net"
 
+	winio "github.com/Microsoft/go-winio"
 	mcmanagerv1 "github.com/000hen/justhostmc/engine/gen/mcmanager/v1"
 	"github.com/000hen/justhostmc/engine/internal/scripting"
 	"google.golang.org/grpc"
 )
 
-// loopbackAddr binds only the loopback interface with an OS-assigned port, so
-// the engine is never reachable from off-machine.
-const loopbackAddr = "127.0.0.1:0"
-
-// Listen opens a TCP listener on the loopback interface with a random port.
-func Listen() (net.Listener, error) {
-	return net.Listen("tcp", loopbackAddr)
+// ListenPipe opens a Windows Named Pipe listener with the given short name.
+// The full pipe path is \\.\pipe\<name>.
+func ListenPipe(name string) (net.Listener, error) {
+	return winio.ListenPipe(`\\.\pipe\`+name, nil)
 }
 
-// Config configures the gRPC server. Providers and ServerService are optional so
-// the auth and health tests can build a minimal server.
+// Config configures the gRPC server. Providers and service fields are optional
+// so tests can build a minimal server.
 type Config struct {
-	Token           string
 	Providers       *scripting.Registry
 	ServerService   mcmanagerv1.ServerServiceServer
 	ConsoleService  mcmanagerv1.ConsoleServiceServer
@@ -34,13 +31,11 @@ type Config struct {
 	ScriptService   mcmanagerv1.ScriptServiceServer
 }
 
-// NewServer builds a gRPC server with session-token auth interceptors installed
-// and the given services registered.
+// NewServer builds a gRPC server with the given services registered.
+// No auth interceptors are installed — the named pipe transport provides
+// machine-local access control.
 func NewServer(cfg Config) *grpc.Server {
-	srv := grpc.NewServer(
-		grpc.ChainUnaryInterceptor(NewUnaryAuthInterceptor(cfg.Token)),
-		grpc.ChainStreamInterceptor(NewStreamAuthInterceptor(cfg.Token)),
-	)
+	srv := grpc.NewServer()
 	mcmanagerv1.RegisterEngineServiceServer(srv, &EngineService{Providers: cfg.Providers})
 	if cfg.ServerService != nil {
 		mcmanagerv1.RegisterServerServiceServer(srv, cfg.ServerService)
@@ -76,6 +71,6 @@ func NewServer(cfg Config) *grpc.Server {
 }
 
 // New builds a gRPC server exposing only EngineService (used by tests).
-func New(token string) *grpc.Server {
-	return NewServer(Config{Token: token})
+func New() *grpc.Server {
+	return NewServer(Config{})
 }

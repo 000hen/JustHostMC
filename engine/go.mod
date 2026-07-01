@@ -3,6 +3,7 @@ module github.com/000hen/justhostmc/engine
 go 1.26.2
 
 require (
+	github.com/Microsoft/go-winio v0.6.2
 	github.com/Tnze/go-mc v1.20.2
 	github.com/yuin/gopher-lua v1.1.2
 	golang.org/x/sys v0.46.0

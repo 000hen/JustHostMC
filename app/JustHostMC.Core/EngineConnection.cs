@@ -1,7 +1,7 @@
 namespace JustHostMC.Core;
 
 /// <summary>
-/// Connection details for a running engine process: the loopback port it is
-/// listening on and the per-launch session token required on every gRPC call.
+/// Connection details for a running engine process: the named pipe it is
+/// listening on.
 /// </summary>
-public sealed record EngineConnection(int Port, string Token);
+public sealed record EngineConnection(string PipeName);

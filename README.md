@@ -51,14 +51,14 @@ Java, Docker, or WSL required. The app downloads runtime dependencies
 ## Architecture
 
 ```
-WinUI 3 (C#)  <-- gRPC (loopback) -->  engine (Go)  <-- IsolationBackend -->  per-server processes
+WinUI 3 (C#)  <-- gRPC (Named Pipe) -->  engine (Go)  <-- IsolationBackend -->  per-server processes
 ```
 
 | Layer | Role |
 |-------|------|
 | **Frontend** | C# / WinUI 3 (Windows App SDK), MVVM via `CommunityToolkit.Mvvm` |
 | **Backend** | Go daemon (`engine/`) that provisions and supervises servers |
-| **IPC** | gRPC over `127.0.0.1`; random port + per-launch session token for auth |
+| **IPC** | gRPC over Windows Named Pipe (`\\.\pipe\JustHostMC-<guid>`); OS-level access control |
 | **Contract** | `.proto` files under `proto/` are the single source of truth |
 
 > OpenJDK and other runtime dependencies are **not** committed; the engine
@@ -159,7 +159,7 @@ dotnet test app/JustHostMC.Core.Tests/JustHostMC.Core.Tests.csproj
 |-------|------------|
 | Frontend | C# / WinUI 3 / Windows App SDK / CommunityToolkit.Mvvm |
 | Backend | Go 1.26+ |
-| IPC | gRPC (Protocol Buffers) |
+| IPC | gRPC over Windows Named Pipe |
 | Codegen | buf |
 | Database | SQLite ([modernc.org/sqlite](https://pkg.go.dev/modernc.org/sqlite), CGo-free) |
 | Process isolation | Windows Job Objects (`golang.org/x/sys/windows`) |

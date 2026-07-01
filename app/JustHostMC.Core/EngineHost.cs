@@ -1,17 +1,16 @@
 using System.Diagnostics;
-using System.Security.Cryptography;
 
 namespace JustHostMC.Core;
 
 /// <summary>
-/// Launches the engine as a child process, performs the port handshake, and owns
-/// its lifecycle. Closing the engine's stdin (on dispose) signals it to shut down
-/// gracefully; a force-kill of the whole tree is the timeout fallback.
+/// Launches the engine as a child process, waits for its readiness signal, and
+/// owns its lifecycle. Closing the engine's stdin (on dispose) signals it to
+/// shut down gracefully; a force-kill of the whole tree is the timeout fallback.
 /// </summary>
 public sealed class EngineHost : IAsyncDisposable
 {
-    private const string PortLinePrefix = "MCMANAGER_PORT=";
-    private const string TokenEnvVar = "MCMANAGER_TOKEN";
+    private const string ReadyLine = "MCMANAGER_READY";
+    private const string PipeEnvVar = "MCMANAGER_PIPE";
     private const string DataDirEnvVar = "MCMANAGER_DATA_DIR";
 
     private readonly EngineHostOptions _options;
@@ -24,8 +23,8 @@ public sealed class EngineHost : IAsyncDisposable
     public EngineConnection? Connection { get; private set; }
 
     /// <summary>
-    /// Starts the engine, generates a random session token, and waits for the
-    /// engine to report its loopback port on stdout.
+    /// Starts the engine, passes a generated pipe name via environment variable,
+    /// and waits for the engine to signal readiness on stdout.
     /// </summary>
     public async Task<EngineConnection> StartAsync(CancellationToken cancellationToken = default)
     {
@@ -34,7 +33,7 @@ public sealed class EngineHost : IAsyncDisposable
         if (!File.Exists(_options.EnginePath))
             throw new FileNotFoundException("Engine executable not found.", _options.EnginePath);
 
-        var token = GenerateToken();
+        var pipeName = $"JustHostMC-{Guid.NewGuid():N}";
         var startInfo = new ProcessStartInfo
         {
             FileName = _options.EnginePath,
@@ -44,7 +43,7 @@ public sealed class EngineHost : IAsyncDisposable
             RedirectStandardOutput = true,
             RedirectStandardError = true,
         };
-        startInfo.Environment[TokenEnvVar] = token;
+        startInfo.Environment[PipeEnvVar] = pipeName;
         if (!string.IsNullOrEmpty(_options.DataDir))
             startInfo.Environment[DataDirEnvVar] = _options.DataDir;
 
@@ -55,8 +54,8 @@ public sealed class EngineHost : IAsyncDisposable
 
         PumpDiagnostics(process);
 
-        var port = await ReadPortAsync(process, cancellationToken).ConfigureAwait(false);
-        Connection = new EngineConnection(port, token);
+        await WaitForReadyAsync(process, cancellationToken).ConfigureAwait(false);
+        Connection = new EngineConnection(pipeName);
         return Connection;
     }
 
@@ -80,7 +79,7 @@ public sealed class EngineHost : IAsyncDisposable
         });
     }
 
-    private async Task<int> ReadPortAsync(Process process, CancellationToken cancellationToken)
+    private async Task WaitForReadyAsync(Process process, CancellationToken cancellationToken)
     {
         using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         timeoutCts.CancelAfter(_options.StartupTimeout);
@@ -91,25 +90,16 @@ public sealed class EngineHost : IAsyncDisposable
             {
                 var line = await process.StandardOutput.ReadLineAsync(timeoutCts.Token).ConfigureAwait(false);
                 if (line is null)
-                    throw new InvalidOperationException("Engine exited before reporting a port.");
+                    throw new InvalidOperationException("Engine exited before signaling readiness.");
 
-                if (line.StartsWith(PortLinePrefix, StringComparison.Ordinal)
-                    && int.TryParse(line.AsSpan(PortLinePrefix.Length), out var port))
-                    return port;
-                // Ignore any unrelated stdout lines before the handshake line.
+                if (line.Equals(ReadyLine, StringComparison.Ordinal))
+                    return;
             }
         }
         catch (OperationCanceledException) when (timeoutCts.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
         {
-            throw new TimeoutException($"Engine did not report a port within {_options.StartupTimeout}.");
+            throw new TimeoutException($"Engine did not signal readiness within {_options.StartupTimeout}.");
         }
-    }
-
-    private static string GenerateToken()
-    {
-        Span<byte> bytes = stackalloc byte[32];
-        RandomNumberGenerator.Fill(bytes);
-        return Convert.ToBase64String(bytes);
     }
 
     public async ValueTask DisposeAsync()

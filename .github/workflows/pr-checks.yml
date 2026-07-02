@@ -1,0 +1,82 @@
+name: Pull request checks
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-checks-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Build and test
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      DOTNET_NOLOGO: "true"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: engine/go.mod
+          cache-dependency-path: engine/go.sum
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Set up Buf
+        uses: bufbuild/buf-setup-action@v1
+
+      - name: Install protobuf generators
+        shell: pwsh
+        run: |
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.6.2
+
+      - name: Generate protobuf code
+        shell: pwsh
+        working-directory: proto
+        run: buf generate
+
+      - name: Vet Go code
+        working-directory: engine
+        run: go vet ./...
+
+      - name: Test Go engine
+        working-directory: engine
+        run: go test ./... -count=1
+
+      - name: Build Go engine for .NET integration tests
+        shell: pwsh
+        working-directory: engine
+        run: |
+          New-Item -ItemType Directory -Force ../build | Out-Null
+          go build -trimpath -buildvcs=false -mod=readonly -ldflags="-s -w -buildid=" -o ../build/engine.exe ./cmd/engine
+
+      - name: Test .NET core
+        run: >-
+          dotnet test app/JustHostMC.Core.Tests/JustHostMC.Core.Tests.csproj
+          --configuration Release
+          -p:SkipEngineBuild=true
+
+      - name: Build Windows app
+        run: >-
+          dotnet build app/JustHostMC.App/JustHostMC.App.csproj
+          --configuration Release
+          -p:Platform=x64
+          -p:SkipEngineBuild=true

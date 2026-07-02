@@ -1,0 +1,69 @@
+name: 錯誤回報（正體中文）
+description: 回報可重現的 JustHostMC 問題
+title: "[錯誤]: "
+labels:
+  - "bug / 錯誤回報"
+body:
+  - type: markdown
+    attributes:
+      value: 感謝您協助改善 JustHostMC。請勿附上伺服器憑證、權杖或其他機密資訊。
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 發生了什麼問題？
+      description: 請描述問題，以及您原本預期會發生的結果。
+      placeholder: 請說明實際結果與預期結果。
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 重現步驟
+      description: 請提供能穩定觸發問題的最精簡步驟。
+      placeholder: |
+        1. 開啟……
+        2. 選擇……
+        3. 發現……
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: JustHostMC 版本或 commit
+      placeholder: 例如 1.2.0 或 abc1234
+    validations:
+      required: true
+
+  - type: input
+    id: windows
+    attributes:
+      label: Windows 版本
+      placeholder: 例如 Windows 11 24H2
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 相關日誌或螢幕截圖
+      description: 請貼上日誌或拖曳螢幕截圖至此，並先移除私人資料。
+
+  - type: textarea
+    id: context
+    attributes:
+      label: 其他資訊
+      description: 請提供伺服器類型、Minecraft 版本、隔離後端，或其他可能相關的資訊。
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: 送出前確認
+      options:
+        - label: 我已搜尋現有 issue，確認沒有相同的問題。
+          required: true
+        - label: 我已移除憑證、權杖及其他敏感資料。
+          required: true
+

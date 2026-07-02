@@ -283,7 +283,7 @@ public sealed partial class ServerPage : Page {
 
         var view = new PlayerDataDialog(Server.Id, player);
         var content = new PlayerDialogBase(player, view);
-        var dialog = CreatePlayerDialog(view.ActionName, player, content);
+        var dialog = CreatePlayerDialog(_localizer.Get("PlayerDataDialog_ActionName"), player, content);
         view.OnHeaderUpdated = content.UpdateHeader;
         await dialog.ShowAsync();
     }
@@ -294,7 +294,7 @@ public sealed partial class ServerPage : Page {
 
         var view = new PlayerInventoryDialog(Server.Id, player);
         var content = new PlayerDialogBase(player, view);
-        var dialog = CreatePlayerDialog(view.ActionName, player, content);
+        var dialog = CreatePlayerDialog(_localizer.Get("PlayerInventoryDialog_ActionName"), player, content);
         view.OnHeaderUpdated = content.UpdateHeader;
         await dialog.ShowAsync();
     }

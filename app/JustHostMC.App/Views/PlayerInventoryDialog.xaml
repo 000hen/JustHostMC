@@ -6,7 +6,7 @@
     xmlns:controls="using:JustHostMC.App.Controls"
     xmlns:models="using:JustHostMC.App.Models"
     xmlns:views="using:JustHostMC.App.Views"
-    x:Uid="PlayerInventoryDialog">
+    >
 
     <UserControl.Resources>
         <DataTemplate x:Key="InventorySlotTemplate" x:DataType="models:PlayerInventoryItemView">

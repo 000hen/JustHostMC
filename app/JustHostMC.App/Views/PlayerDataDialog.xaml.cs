@@ -13,7 +13,6 @@ public sealed partial class PlayerDataDialog : UserControl
     private readonly string _serverId;
     private readonly PlayerItem _player;
     public Action<string, string>? OnHeaderUpdated { get; set; }
-    public string ActionName { get; set; } = "Raw data";
 
     public PlayerDataDialog(string serverId, PlayerItem player)
     {

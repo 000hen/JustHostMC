@@ -322,8 +322,8 @@
   <data name="BanList_TargetRequired" xml:space="preserve"><value>Enter a player, UUID, or IP address.</value></data>
   <data name="BanList_StoppedRequired" xml:space="preserve"><value>Stop the server to edit ban-list files.</value></data>
 <data name="PlayerDialogBase_CloseButtonText" xml:space="preserve"><value>Close</value></data>
-  <data name="PlayerDataDialog.ActionName" xml:space="preserve"><value>Raw data</value></data>
-  <data name="PlayerInventoryDialog.ActionName" xml:space="preserve"><value>Inventory</value></data>
+  <data name="PlayerDataDialog_ActionName" xml:space="preserve"><value>Raw data</value></data>
+  <data name="PlayerInventoryDialog_ActionName" xml:space="preserve"><value>Inventory</value></data>
   <data name="PlayerDialogBase_TitleFormat" xml:space="preserve"><value>{0} for {1}</value></data>
   <data name="PlayerRawDataBox.Header" xml:space="preserve"><value>Raw player NBT</value></data>
 

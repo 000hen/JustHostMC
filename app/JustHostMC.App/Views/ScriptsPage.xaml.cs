@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
@@ -18,33 +20,28 @@ namespace JustHostMC.App.Views;
 
 /// <summary>Lets the user import their own Lua provider/automation scripts (with a
 /// permission-consent step), and manage installed providers + automation scripts.</summary>
-public sealed partial class ScriptsPage : Page
-{
+public sealed partial class ScriptsPage : Page {
     private readonly ILocalizer _localizer = new LocalizationService();
+    private ScriptLogsWindow? _logsWindow;
 
     public ScriptsViewModel ViewModel { get; }
 
-    public ScriptsPage()
-    {
+    public ScriptsPage() {
         NavigationCacheMode = NavigationCacheMode.Required;
         ViewModel = new ScriptsViewModel(DispatcherQueue, _localizer);
         InitializeComponent();
         Loaded += async (_, _) => await ViewModel.EnsureLoadedAsync();
     }
 
-    private async void OnImportProviderClick(object sender, RoutedEventArgs e)
-    {
+    private async void OnImportProviderClick(object sender, RoutedEventArgs e) {
         var lua = await PickLuaFileAsync();
         if (lua is null)
             return;
 
         string source;
-        try
-        {
+        try {
             source = await FileIO.ReadTextAsync(lua);
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        {
+        } catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) {
             ViewModel.SetStatus(_localizer.Get("Scripts_ReadFailed"));
             return;
         }
@@ -53,16 +50,12 @@ public sealed partial class ScriptsPage : Page
         var jarFile = await PickJarFileAsync();
         byte[]? jarBytes = null;
         string? jarName = null;
-        if (jarFile is not null)
-        {
-            try
-            {
+        if (jarFile is not null) {
+            try {
                 var buffer = await FileIO.ReadBufferAsync(jarFile);
                 jarBytes = buffer.ToArray();
                 jarName = jarFile.Name;
-            }
-            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-            {
+            } catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) {
                 ViewModel.SetStatus(_localizer.Get("Scripts_ReadFailed"));
                 return;
             }
@@ -75,19 +68,15 @@ public sealed partial class ScriptsPage : Page
         await ViewModel.ImportProviderAsync(source, jarBytes, jarName, granted);
     }
 
-    private async void OnImportScriptClick(object sender, RoutedEventArgs e)
-    {
+    private async void OnImportScriptClick(object sender, RoutedEventArgs e) {
         var lua = await PickLuaFileAsync();
         if (lua is null)
             return;
 
         string source;
-        try
-        {
+        try {
             source = await FileIO.ReadTextAsync(lua);
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        {
+        } catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) {
             ViewModel.SetStatus(_localizer.Get("Scripts_ReadFailed"));
             return;
         }
@@ -99,14 +88,54 @@ public sealed partial class ScriptsPage : Page
         await ViewModel.ImportScriptAsync(source, granted);
     }
 
+    private void OnShowProvidersFolderClick(object sender, RoutedEventArgs e) =>
+        ShowInFolder("providers");
+
+    private void OnShowAutomationFolderClick(object sender, RoutedEventArgs e) =>
+        ShowInFolder("scripts");
+
+    private void OnShowAllLogsClick(object sender, RoutedEventArgs e) {
+        if (_logsWindow is null) {
+            var window = new ScriptLogsWindow(ViewModel.LogEntries);
+            window.Closed += (_, _) => {
+                if (ReferenceEquals(_logsWindow, window))
+                    _logsWindow = null;
+            };
+            _logsWindow = window;
+        }
+
+        _logsWindow.Activate();
+    }
+
+    private void ShowInFolder(string folderName) {
+        try {
+            var folder = Path.Combine(ResolveDataRoot(), folderName);
+            Directory.CreateDirectory(folder);
+            Process.Start(new ProcessStartInfo {
+                FileName = folder,
+                UseShellExecute = true,
+            });
+        } catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or Win32Exception) {
+            ViewModel.SetStatus(_localizer.Get("Scripts_OpenFolderFailed"));
+        }
+    }
+
+    private static string ResolveDataRoot() {
+        try {
+            return ApplicationData.Current.LocalFolder.Path;
+        } catch {
+            return Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "JustHostMC");
+        }
+    }
+
     /// <summary>Shows the consent dialog for the declared permissions parsed from
     /// the script. Returns the granted set, or null if the user cancelled.</summary>
-    private async Task<IReadOnlyList<PermissionKind>?> RequestConsentAsync(string scriptName, string luaSource)
-    {
+    private async Task<IReadOnlyList<PermissionKind>?> RequestConsentAsync(string scriptName, string luaSource) {
         var permissions = LuaPermissions.Parse(luaSource);
         var content = new PermissionConsentDialog(permissions, _localizer);
-        var dialog = new ContentDialog
-        {
+        var dialog = new ContentDialog {
             XamlRoot = XamlRoot,
             Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
             Title = _localizer.Get("PermissionConsentTitleNamed", ("name", scriptName)),
@@ -122,35 +151,30 @@ public sealed partial class ScriptsPage : Page
         return content.Granted;
     }
 
-    private async void OnRemoveProviderClick(object sender, RoutedEventArgs e)
-    {
-        if (sender is not FrameworkElement { Tag: ProviderItem item })
+    private async void OnRemoveProviderClick(object sender, RoutedEventArgs e) {
+        if (sender is not ScriptEntryCard { Item: ProviderItem item })
             return;
         if (await ConfirmRemoveAsync(item.Name))
             await ViewModel.RemoveProviderAsync(item);
     }
 
-    private async void OnRemoveScriptClick(object sender, RoutedEventArgs e)
-    {
-        if (sender is not FrameworkElement { Tag: ScriptItem item })
+    private async void OnRemoveScriptClick(object sender, RoutedEventArgs e) {
+        if (sender is not ScriptEntryCard { Item: ScriptItem item })
             return;
         if (await ConfirmRemoveAsync(item.Name))
             await ViewModel.RemoveScriptAsync(item);
     }
 
-    private async void OnScriptToggled(object sender, RoutedEventArgs e)
-    {
+    private async void OnScriptToggled(object sender, RoutedEventArgs e) {
         // ToggleSwitch raises Toggled when its IsOn binding is first applied during
         // template realization, so ignore events that match the known state to avoid
         // a load-time storm of (and a possible refresh loop from) redundant RPCs.
-        if (sender is ToggleSwitch { Tag: ScriptItem item } toggle && toggle.IsOn != item.Enabled)
-            await ViewModel.SetScriptEnabledAsync(item, toggle.IsOn);
+        if (sender is ScriptEntryCard { Item: ScriptItem item } card && card.ScriptEnabled != item.Enabled)
+            await ViewModel.SetScriptEnabledAsync(item, card.ScriptEnabled);
     }
 
-    private async Task<bool> ConfirmRemoveAsync(string name)
-    {
-        var dialog = new ContentDialog
-        {
+    private async Task<bool> ConfirmRemoveAsync(string name) {
+        var dialog = new ContentDialog {
             XamlRoot = XamlRoot,
             Title = _localizer.Get("Scripts_RemoveConfirmTitle"),
             Content = _localizer.Get("Scripts_RemoveConfirmBody", ("name", name)),
@@ -161,24 +185,21 @@ public sealed partial class ScriptsPage : Page
         return await dialog.ShowAsync() == ContentDialogResult.Primary;
     }
 
-    private static async Task<StorageFile?> PickLuaFileAsync()
-    {
+    private static async Task<StorageFile?> PickLuaFileAsync() {
         var picker = new FileOpenPicker();
         picker.FileTypeFilter.Add(".lua");
         InitializeWithOwner(picker);
         return await picker.PickSingleFileAsync();
     }
 
-    private static async Task<StorageFile?> PickJarFileAsync()
-    {
+    private static async Task<StorageFile?> PickJarFileAsync() {
         var picker = new FileOpenPicker();
         picker.FileTypeFilter.Add(".jar");
         InitializeWithOwner(picker);
         return await picker.PickSingleFileAsync();
     }
 
-    private static void InitializeWithOwner(object picker)
-    {
+    private static void InitializeWithOwner(object picker) {
         // The app is unpackaged by default; FileOpenPicker needs the owner HWND.
         var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.Current.MainWindow);
         WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);

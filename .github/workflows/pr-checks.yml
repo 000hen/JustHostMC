@@ -40,7 +40,9 @@ jobs:
           dotnet-version: 9.0.x
 
       - name: Set up Buf
-        uses: bufbuild/buf-setup-action@v1
+        uses: bufbuild/buf-action@v1
+        with:
+          setup_only: true
 
       - name: Install protobuf generators
         shell: pwsh

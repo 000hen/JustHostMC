@@ -94,9 +94,12 @@ local function prefix_for(mc)
   return major .. "." .. minor .. "." .. patch .. "."
 end
 
--- neo_patch returns the build component of a NeoForge version. It is the third
--- segment for legacy coordinates and the fourth for current coordinates; a
--- qualifier may itself contain dots, so the final segment is not reliable.
+-- neo_patch returns the build component of a dot-encoded NEOFORGE_MAVEN
+-- coordinate: the third segment in the pre-2026 A.B.<build> format and the
+-- fourth in the current A.B.C.<build>[-qualifier] format. It is not used for
+-- LEGACY_MAVEN coordinates such as "1.20.1-47.1.106"; those are compared by
+-- resolve_legacy_version after the dash. A qualifier may itself contain dots,
+-- so the final segment is not reliable here.
 local function neo_patch(v)
   local parts = num_parts(v)
   local build_index = #parts >= 4 and 4 or 3

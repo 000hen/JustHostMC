@@ -2,10 +2,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
-using JustHostMC.App.Controls;
 using JustHostMC.App.Models;
 using JustHostMC.App.Services;
 using McManager.Grpc;
+using Microsoft.UI.Xaml.Controls;
 
 namespace JustHostMC.App.Views;
 
@@ -35,12 +35,11 @@ public sealed class ConsentRow : ObservableObject
 
 /// <summary>Consent dialog: shows each requested permission with its reason and an
 /// allow/deny toggle. On primary, <see cref="Granted"/> holds the allowed kinds.</summary>
-public sealed partial class PermissionConsentDialog : FluentContentDialog
+public sealed partial class PermissionConsentDialog : UserControl
 {
     public ObservableCollection<ConsentRow> Rows { get; } = new();
 
-    public PermissionConsentDialog(
-        string scriptName, IEnumerable<Permission> permissions, ILocalizer localizer)
+    public PermissionConsentDialog(IEnumerable<Permission> permissions, ILocalizer localizer)
     {
         // Populate before InitializeComponent so the OneTime x:Bind to Rows.Count
         // (used to toggle the "no permissions" hint) sees the final count.
@@ -51,8 +50,6 @@ public sealed partial class PermissionConsentDialog : FluentContentDialog
         }
 
         InitializeComponent();
-        // Override the x:Uid-provided title with one that includes the script name.
-        Title = localizer.Get("PermissionConsentTitleNamed", ("name", scriptName));
     }
 
     /// <summary>The permission kinds the user chose to allow.</summary>

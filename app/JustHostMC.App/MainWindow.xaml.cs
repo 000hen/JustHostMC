@@ -8,7 +8,6 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Data;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Runtime.InteropServices;
 using Windows.Graphics;
@@ -165,7 +164,9 @@ public sealed partial class MainWindow : Window {
             insertIndex++;
         }
 
-        if (selectedItem != null && Nav.SelectedItem != selectedItem && (Nav.MenuItems.Contains(selectedItem) || Nav.FooterMenuItems.Contains(selectedItem))) {
+        if (selectedItem != null
+            && !Equals(Nav.SelectedItem, selectedItem)
+            && (Nav.MenuItems.Contains(selectedItem) || Nav.FooterMenuItems.Contains(selectedItem))) {
             Nav.SelectedItem = selectedItem;
         }
 
@@ -232,10 +233,24 @@ public sealed partial class MainWindow : Window {
     }
 
     private async System.Threading.Tasks.Task ShowCreateServerDialogAsync() {
-        var dialog = new CreateServerDialog(Shell.Main) { XamlRoot = Content.XamlRoot };
+        var localizer = new LocalizationService();
+        var content = new CreateServerDialog(Shell.Main);
+        var dialog = new ContentDialog {
+            XamlRoot = Content.XamlRoot,
+            Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
+            Title = localizer.Get("CreateServerDialog_Title"),
+            Content = content,
+            PrimaryButtonText = localizer.Get("CreateServerDialog_PrimaryButtonText"),
+            CloseButtonText = localizer.Get("CreateServerDialog_CloseButtonText"),
+            DefaultButton = ContentDialogButton.Primary,
+            IsPrimaryButtonEnabled = content.CanSubmit,
+        };
+        content.CanSubmitChanged += (_, _) => dialog.IsPrimaryButtonEnabled = content.CanSubmit;
+        ContentDialogSizing.Apply(dialog);
+
         if (await dialog.ShowAsync() != ContentDialogResult.Primary)
             return;
-        if (dialog.BuildRequest() is { } request)
+        if (content.BuildRequest() is { } request)
             await Shell.Main.InstallServerAsync(request);
     }
 }

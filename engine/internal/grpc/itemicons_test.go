@@ -2,7 +2,6 @@ package grpcsvc
 
 import (
 	"archive/zip"
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
@@ -19,7 +18,7 @@ func TestItemIconResolverReadsModModelTexture(t *testing.T) {
 	})
 
 	asset := newItemAssetResolver(serverDir, "").Resolve("example:wand")
-	got := asset.Textures["example:item/tools/wand"]
+	got := asset.Files["assets/example/textures/item/tools/wand.png"]
 	if string(got) != string(want) {
 		t.Fatalf("icon = %q, want %q", got, want)
 	}
@@ -36,7 +35,7 @@ func TestItemIconResolverReadsModernItemDefinition(t *testing.T) {
 	})
 
 	asset := newItemAssetResolver(serverDir, "").Resolve("example:hammer")
-	got := asset.Textures["example:item/hammer_head"]
+	got := asset.Files["assets/example/textures/item/hammer_head.png"]
 	if string(got) != string(want) {
 		t.Fatalf("icon = %q, want %q", got, want)
 	}
@@ -54,7 +53,7 @@ func TestItemIconResolverUsesLocalMinecraftClient(t *testing.T) {
 	})
 
 	asset := newItemAssetResolver(serverDir, "1.21.7").Resolve("minecraft:wooden_axe")
-	got := asset.Textures["minecraft:item/wooden_axe"]
+	got := asset.Files["assets/minecraft/textures/item/wooden_axe.png"]
 	if string(got) != string(want) {
 		t.Fatalf("icon = %q, want %q", got, want)
 	}
@@ -83,18 +82,12 @@ func TestItemAssetResolverPreservesBlockGeometry(t *testing.T) {
 	})
 
 	asset := newItemAssetResolver(serverDir, "").Resolve("minecraft:spruce_fence_gate")
-	if string(asset.Textures["minecraft:block/spruce_planks"]) != string(texture) {
+	if string(asset.Files["assets/minecraft/textures/block/spruce_planks.png"]) != string(texture) {
 		t.Fatal("resolved asset did not include the fence-gate texture")
 	}
-	var model resolvedModel
-	if err := json.Unmarshal([]byte(asset.ModelJSON), &model); err != nil {
-		t.Fatal(err)
-	}
-	if len(model.Elements) != 1 {
-		t.Fatalf("flattened element count = %d, want 1", len(model.Elements))
-	}
-	if model.GUI.Rotation != [3]float64{30, 45, 0} {
-		t.Fatalf("GUI rotation = %v, want [30 45 0]", model.GUI.Rotation)
+	if len(asset.Files["assets/minecraft/models/block/spruce_fence_gate.json"]) == 0 ||
+		len(asset.Files["assets/minecraft/models/block/template_fence_gate.json"]) == 0 {
+		t.Fatal("raw child and parent models were not both returned")
 	}
 }
 
@@ -110,12 +103,26 @@ func TestItemIconResolverReadsSpecialEnderChest(t *testing.T) {
 	})
 
 	asset := newItemAssetResolver(serverDir, "").Resolve("minecraft:ender_chest")
-	if string(asset.Textures["minecraft:entity/chest/ender"]) != string(want) {
+	if string(asset.Files["assets/minecraft/textures/entity/chest/ender.png"]) != string(want) {
 		t.Fatal("special Ender Chest texture was not resolved")
 	}
-	var model resolvedModel
-	if err := json.Unmarshal([]byte(asset.ModelJSON), &model); err != nil || model.Special != "chest" {
-		t.Fatalf("special model = %+v, %v", model, err)
+	if len(asset.Files["assets/minecraft/items/ender_chest.json"]) == 0 ||
+		len(asset.Files["assets/minecraft/models/item/ender_chest.json"]) == 0 ||
+		len(asset.Files["assets/minecraft/models/item/template_chest.json"]) == 0 {
+		t.Fatal("special declaration and raw model chain were not returned")
+	}
+}
+
+func TestItemAssetResolverDoesNotInventTextureOnlyModels(t *testing.T) {
+	serverDir := t.TempDir()
+	t.Setenv("APPDATA", t.TempDir())
+	writeAssetArchive(t, filepath.Join(serverDir, "resourcepacks", "pack.zip"), map[string][]byte{
+		"assets/minecraft/textures/item/vine.png": []byte("texture-without-a-model"),
+	})
+
+	asset := newItemAssetResolver(serverDir, "").Resolve("minecraft:vine")
+	if len(asset.Files) != 0 {
+		t.Fatalf("resolver synthesized an undeclared model from %d raw file(s)", len(asset.Files))
 	}
 }
 

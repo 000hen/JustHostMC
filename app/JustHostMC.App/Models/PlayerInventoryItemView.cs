@@ -57,7 +57,7 @@ public sealed class PlayerInventoryItemView
         var view = new PlayerInventoryItemView(item);
         try
         {
-            view.Icon = await MinecraftItemIconRenderer.RenderAsync(item.ModelJson, item.Textures);
+            view.Icon = await MinecraftItemIconRenderer.RenderAsync(item.ItemId, item.RenderAssets);
         }
         catch
         {

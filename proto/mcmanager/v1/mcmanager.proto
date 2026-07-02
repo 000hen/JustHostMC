@@ -296,15 +296,16 @@ message PlayerInventoryItem {
   string item_id = 3;
   int32 count = 4;
   string raw_snbt = 5;
-  string model_json = 6; // flattened local item/block model; rendered by WinUI
-  repeated PlayerItemTexture textures = 7;
+  reserved 6, 7;
+  reserved "model_json", "textures";
   repeated PlayerItemDetail details = 8; // parsed display/lore/enchant/durability metadata
   bytes raw_nbt = 9; // original named binary NBT; preferred over lossy SNBT text
+  repeated PlayerItemAsset render_assets = 10; // raw item/model JSON and PNG resources; interpreted by WinUI
 }
 
-message PlayerItemTexture {
-  string id = 1;
-  bytes png = 2;
+message PlayerItemAsset {
+  string path = 1; // normalized assets/<namespace>/(items|models|textures)/... path
+  bytes data = 2;
 }
 
 message PlayerItemDetail {

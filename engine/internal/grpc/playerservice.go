@@ -480,16 +480,15 @@ func convertInventoryItem(
 	}
 	if assets != nil {
 		asset := assets.Resolve(item.ID)
-		converted.ModelJson = asset.ModelJSON
-		refs := make([]string, 0, len(asset.Textures))
-		for ref := range asset.Textures {
-			refs = append(refs, ref)
+		paths := make([]string, 0, len(asset.Files))
+		for path := range asset.Files {
+			paths = append(paths, path)
 		}
-		sort.Strings(refs)
-		for _, ref := range refs {
-			converted.Textures = append(converted.Textures, &mcmanagerv1.PlayerItemTexture{
-				Id:  ref,
-				Png: asset.Textures[ref],
+		sort.Strings(paths)
+		for _, path := range paths {
+			converted.RenderAssets = append(converted.RenderAssets, &mcmanagerv1.PlayerItemAsset{
+				Path: path,
+				Data: asset.Files[path],
 			})
 		}
 	}

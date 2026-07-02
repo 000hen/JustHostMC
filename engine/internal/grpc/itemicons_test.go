@@ -113,6 +113,25 @@ func TestItemIconResolverReadsSpecialEnderChest(t *testing.T) {
 	}
 }
 
+func TestItemIconResolverIncludesDeclaredSpecialModelTextures(t *testing.T) {
+	serverDir := t.TempDir()
+	t.Setenv("APPDATA", t.TempDir())
+	want := []byte("shield-texture")
+	writeAssetArchive(t, filepath.Join(serverDir, "resourcepacks", "pack.zip"), map[string][]byte{
+		"assets/minecraft/items/shield.json":                         []byte(`{"model":{"type":"minecraft:special","base":"minecraft:item/shield","model":{"type":"minecraft:shield"}}}`),
+		"assets/minecraft/models/item/shield.json":                   []byte(`{"parent":"builtin/entity","display":{"gui":{"rotation":[15,-25,-5],"translation":[2,3,0],"scale":[0.65,0.65,0.65]}}}`),
+		"assets/minecraft/textures/entity/shield_base_nopattern.png": want,
+	})
+
+	asset := newItemAssetResolver(serverDir, "").Resolve("minecraft:shield")
+	if string(asset.Files["assets/minecraft/textures/entity/shield_base_nopattern.png"]) != string(want) {
+		t.Fatal("texture implied by the declared special model type was not returned")
+	}
+	if len(asset.Files["assets/minecraft/models/item/shield.json"]) == 0 {
+		t.Fatal("shield base model was not returned")
+	}
+}
+
 func TestItemAssetResolverDoesNotInventTextureOnlyModels(t *testing.T) {
 	serverDir := t.TempDir()
 	t.Setenv("APPDATA", t.TempDir())

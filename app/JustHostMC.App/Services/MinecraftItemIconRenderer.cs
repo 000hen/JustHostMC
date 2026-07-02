@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using McManager.Grpc;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
@@ -36,11 +37,11 @@ internal static class MinecraftItemIconRenderer
             if (model is null)
                 continue;
             if (part.Special is not null)
-                AddSpecialModel(quads, model, part.Special, part.Tints, assets);
+                AddSpecialModel(quads, model, part.Special, part.Tints, part.Transformations, assets);
             else if (model.Generated)
-                AddGeneratedModel(quads, model, part.Tints, assets);
+                AddGeneratedModel(quads, model, part.Tints, part.Transformations, assets);
             else
-                AddBlockModel(quads, model, part.Tints, assets);
+                AddBlockModel(quads, model, part.Tints, part.Transformations, assets);
         }
         if (quads.Count == 0)
             return null;
@@ -68,7 +69,7 @@ internal static class MinecraftItemIconRenderer
                 return [];
             }
         }
-        return [new ItemPart($"{itemNamespace}:item/{itemPath}", [], null)];
+        return [new ItemPart($"{itemNamespace}:item/{itemPath}", [], null, [])];
     }
 
     private static List<ItemPart> ResolveItemNode(JsonNode? node, string defaultNamespace)
@@ -76,48 +77,78 @@ internal static class MinecraftItemIconRenderer
         if (node is null)
             return [];
         if (node is JsonValue value && value.TryGetValue<string>(out var directModel))
-            return [new ItemPart(Qualify(directModel, "minecraft"), [], null)];
+            return [new ItemPart(Qualify(directModel, "minecraft"), [], null, [])];
         if (node is not JsonObject model)
             return [];
 
         var type = model["type"]?.GetValue<string>() ?? "minecraft:model";
+        List<ItemPart> result;
         switch (type)
         {
             case "minecraft:model":
-            {
-                var modelRef = model["model"]?.GetValue<string>();
-                return string.IsNullOrWhiteSpace(modelRef)
-                    ? []
-                    : [new ItemPart(Qualify(modelRef, "minecraft"), ReadTints(model["tints"]), null)];
-            }
+                {
+                    var modelRef = model["model"]?.GetValue<string>();
+                    result = string.IsNullOrWhiteSpace(modelRef)
+                        ? []
+                        : [new ItemPart(Qualify(modelRef, "minecraft"), ReadTints(model["tints"]), null, [])];
+                    break;
+                }
             case "minecraft:special":
-            {
-                var baseModel = model["base"]?.GetValue<string>();
-                return string.IsNullOrWhiteSpace(baseModel)
-                    ? []
-                    : [new ItemPart(Qualify(baseModel, "minecraft"), ReadTints(model["tints"]), model["model"] as JsonObject)];
-            }
+                {
+                    var baseModel = model["base"]?.GetValue<string>();
+                    result = string.IsNullOrWhiteSpace(baseModel)
+                        ? []
+                        : [new ItemPart(Qualify(baseModel, "minecraft"), ReadTints(model["tints"]), model["model"] as JsonObject, [])];
+                    break;
+                }
             case "minecraft:composite":
-            {
-                var result = new List<ItemPart>();
-                if (model["models"] is JsonArray children)
-                    foreach (var child in children)
-                        result.AddRange(ResolveItemNode(child, defaultNamespace));
-                return result;
-            }
+                {
+                    result = [];
+                    if (model["models"] is JsonArray children)
+                        foreach (var child in children)
+                            result.AddRange(ResolveItemNode(child, defaultNamespace));
+                    break;
+                }
             case "minecraft:condition":
-                return ResolveItemNode(model["on_false"] ?? model["on_true"], defaultNamespace);
+                result = ResolveItemNode(model["on_false"] ?? model["on_true"], defaultNamespace);
+                break;
             case "minecraft:range_dispatch":
-                return ResolveItemNode(model["fallback"] ?? FirstNestedModel(model), defaultNamespace);
+                result = ResolveItemNode(model["fallback"] ?? FirstNestedModel(model), defaultNamespace);
+                break;
             case "minecraft:select":
-                return ResolveItemNode(SelectGuiModel(model) ?? model["fallback"] ?? FirstNestedModel(model), defaultNamespace);
+                result = ResolveItemNode(SelectGuiModel(model) ?? model["fallback"] ?? FirstNestedModel(model), defaultNamespace);
+                break;
             case "minecraft:empty":
-                return [];
+                result = [];
+                break;
             default:
                 // Unknown extension types may still wrap a normal model. Following
                 // their declared fallback is safer than item-name special cases.
-                return ResolveItemNode(model["fallback"] ?? model["model"], defaultNamespace);
+                result = ResolveItemNode(model["fallback"] ?? model["model"], defaultNamespace);
+                break;
         }
+        return WithTransformation(result, model["transformation"]);
+    }
+
+    private static List<ItemPart> WithTransformation(List<ItemPart> parts, JsonNode? node)
+    {
+        if (node is not JsonObject)
+            return parts;
+        ItemTransformation? transformation;
+        try
+        {
+            transformation = node.Deserialize<ItemTransformation>(JsonOptions);
+        }
+        catch (JsonException)
+        {
+            return parts;
+        }
+        if (transformation is null)
+            return parts;
+        return parts.Select(part => part with
+        {
+            Transformations = [.. part.Transformations, transformation],
+        }).ToList();
     }
 
     private static JsonNode? FirstNestedModel(JsonObject model)
@@ -203,8 +234,8 @@ internal static class MinecraftItemIconRenderer
             return null;
         try
         {
-            if (id == "minecraft:builtin/generated")
-                return new ResolvedModel { Generated = true };
+            if (id is "minecraft:builtin/generated" or "minecraft:builtin/entity")
+                return new ResolvedModel { Generated = id == "minecraft:builtin/generated" };
             if (!assets.Models.TryGetValue(id, out var json))
                 return null;
 
@@ -245,7 +276,12 @@ internal static class MinecraftItemIconRenderer
         }
     }
 
-    private static void AddGeneratedModel(List<RenderQuad> quads, ResolvedModel model, IReadOnlyList<Pixel?> tints, AssetSet assets)
+    private static void AddGeneratedModel(
+        List<RenderQuad> quads,
+        ResolvedModel model,
+        IReadOnlyList<Pixel?> tints,
+        IReadOnlyList<ItemTransformation> transformations,
+        AssetSet assets)
     {
         var transform = model.GuiTransform;
         for (var layer = 0; ; layer++)
@@ -263,12 +299,17 @@ internal static class MinecraftItemIconRenderer
             var vertices = new RenderVertex[4];
             var uvs = new[] { new Vec2(0, 0), new Vec2(16, 0), new Vec2(16, 16), new Vec2(0, 16) };
             for (var index = 0; index < 4; index++)
-                vertices[index] = new RenderVertex(ApplyGuiTransform(points[index], transform), uvs[index].X, uvs[index].Y);
+                vertices[index] = new RenderVertex(ApplyGuiTransform(points[index], transform, transformations), uvs[index].X, uvs[index].Y);
             quads.Add(new RenderQuad(vertices, texture, 1, Tint(tints, layer)));
         }
     }
 
-    private static void AddBlockModel(List<RenderQuad> quads, ResolvedModel model, IReadOnlyList<Pixel?> tints, AssetSet assets)
+    private static void AddBlockModel(
+        List<RenderQuad> quads,
+        ResolvedModel model,
+        IReadOnlyList<Pixel?> tints,
+        IReadOnlyList<ItemTransformation> transformations,
+        AssetSet assets)
     {
         var transform = model.GuiTransform;
         foreach (var element in model.Elements)
@@ -283,6 +324,7 @@ internal static class MinecraftItemIconRenderer
                 var normal = FaceNormal(faceName);
                 if (element.Rotation is not null)
                     normal = RotateAxis(normal, element.Rotation.Axis, element.Rotation.Angle);
+                normal = ApplyItemNormal(normal, transformations);
                 normal = ApplyGuiRotation(normal, transform);
                 if (normal.Z <= Epsilon)
                     continue;
@@ -301,7 +343,7 @@ internal static class MinecraftItemIconRenderer
                 for (var index = 0; index < 4; index++)
                 {
                     var point = element.Rotation is null ? points[index] : RotateElement(points[index], element.Rotation);
-                    vertices[index] = new RenderVertex(ApplyGuiTransform(point, transform), uvPoints[index].X, uvPoints[index].Y);
+                    vertices[index] = new RenderVertex(ApplyGuiTransform(point, transform, transformations), uvPoints[index].X, uvPoints[index].Y);
                 }
                 var brightness = !element.Shade || string.Equals(model.GuiLight, "front", StringComparison.OrdinalIgnoreCase)
                     ? 1
@@ -316,9 +358,15 @@ internal static class MinecraftItemIconRenderer
         ResolvedModel baseModel,
         JsonObject special,
         IReadOnlyList<Pixel?> tints,
+        IReadOnlyList<ItemTransformation> transformations,
         AssetSet assets)
     {
         var type = special["type"]?.GetValue<string>();
+        if (type == "minecraft:shield")
+        {
+            AddShieldModel(quads, baseModel, tints, transformations, assets);
+            return;
+        }
         if (type != "minecraft:chest")
             return;
         var textureRef = special["texture"]?.GetValue<string>();
@@ -349,8 +397,59 @@ internal static class MinecraftItemIconRenderer
                 },
             },
         ];
-        AddBlockModel(quads, model, tints, assets);
+        AddBlockModel(quads, model, tints, transformations, assets);
     }
+
+    private static void AddShieldModel(
+        List<RenderQuad> quads,
+        ResolvedModel baseModel,
+        IReadOnlyList<Pixel?> tints,
+        IReadOnlyList<ItemTransformation> transformations,
+        AssetSet assets)
+    {
+        var textureId = assets.FindTextureId(
+            "minecraft:entity/shield/shield_base_nopattern",
+            "minecraft:entity/shield_base_nopattern");
+        if (textureId is null)
+            return;
+
+        var model = baseModel.Clone();
+        model.Textures["special"] = textureId;
+        // Minecraft's declared shield special model uses the built-in 64x64
+        // plate/handle mesh with a built-in [1, -1, -1] transform. Bake that
+        // transform here so the handle remains behind the plate regardless of
+        // whether the generated item definition repeats the default matrix.
+        // Coordinates are translated into model space and UV pixels into the
+        // model format's 0..16 texture coordinate space.
+        model.Elements =
+        [
+            Box([-6, -11, 1], [6, 11, 2],
+                Quarter([14, 1, 26, 23]), Quarter([1, 1, 13, 23]),
+                Quarter([0, 1, 1, 23]), Quarter([13, 1, 14, 23]),
+                Quarter([13, 0, 25, 1]), Quarter([1, 0, 13, 1])),
+            Box([-1, -3, -5], [1, 3, 1],
+                Quarter([40, 6, 42, 12]), Quarter([32, 6, 34, 12]),
+                Quarter([26, 6, 32, 12]), Quarter([34, 6, 40, 12]),
+                Quarter([34, 0, 36, 6]), Quarter([32, 0, 34, 6])),
+        ];
+        AddBlockModel(quads, model, tints, WithoutShieldDefaultFlip(transformations), assets);
+    }
+
+    private static IReadOnlyList<ItemTransformation> WithoutShieldDefaultFlip(
+        IReadOnlyList<ItemTransformation> transformations)
+    {
+        var removed = false;
+        return transformations.Where(transform =>
+        {
+            if (removed || !transform.IsShieldDefaultFlip())
+                return true;
+            removed = true;
+            return false;
+        }).ToList();
+    }
+
+    private static double[] Quarter(double[] pixels)
+        => pixels.Select(value => value / 4).ToArray();
 
     private static ModelElement Box(
         double[] from, double[] to,
@@ -399,36 +498,36 @@ internal static class MinecraftItemIconRenderer
             return;
 
         for (var y = minY; y <= maxY; y++)
-        for (var x = minX; x <= maxX; x++)
-        {
-            var px = x + 0.5;
-            var py = y + 0.5;
-            var w1 = ((b.Point.Y - c.Point.Y) * (px - c.Point.X) + (c.Point.X - b.Point.X) * (py - c.Point.Y)) / denominator;
-            var w2 = ((c.Point.Y - a.Point.Y) * (px - c.Point.X) + (a.Point.X - c.Point.X) * (py - c.Point.Y)) / denominator;
-            var w3 = 1 - w1 - w2;
-            if (w1 < -0.001 || w2 < -0.001 || w3 < -0.001)
-                continue;
-            var z = w1 * a.Point.Z + w2 * b.Point.Z + w3 * c.Point.Z;
-            var pixelIndex = y * Size + x;
-            if (z < depth[pixelIndex])
-                continue;
-            var u = w1 * a.U + w2 * b.U + w3 * c.U;
-            var v = w1 * a.V + w2 * b.V + w3 * c.V;
-            var color = quad.Texture.Pixel(
-                Math.Clamp((int)(u / 16 * quad.Texture.FrameSize), 0, quad.Texture.FrameSize - 1),
-                Math.Clamp((int)(v / 16 * quad.Texture.FrameSize), 0, quad.Texture.FrameSize - 1));
-            if (color.A == 0)
-                continue;
-            if (quad.Tint is Pixel tint)
+            for (var x = minX; x <= maxX; x++)
+            {
+                var px = x + 0.5;
+                var py = y + 0.5;
+                var w1 = ((b.Point.Y - c.Point.Y) * (px - c.Point.X) + (c.Point.X - b.Point.X) * (py - c.Point.Y)) / denominator;
+                var w2 = ((c.Point.Y - a.Point.Y) * (px - c.Point.X) + (a.Point.X - c.Point.X) * (py - c.Point.Y)) / denominator;
+                var w3 = 1 - w1 - w2;
+                if (w1 < -0.001 || w2 < -0.001 || w3 < -0.001)
+                    continue;
+                var z = w1 * a.Point.Z + w2 * b.Point.Z + w3 * c.Point.Z;
+                var pixelIndex = y * Size + x;
+                if (z < depth[pixelIndex])
+                    continue;
+                var u = w1 * a.U + w2 * b.U + w3 * c.U;
+                var v = w1 * a.V + w2 * b.V + w3 * c.V;
+                var color = quad.Texture.Pixel(
+                    Math.Clamp((int)(u / 16 * quad.Texture.FrameSize), 0, quad.Texture.FrameSize - 1),
+                    Math.Clamp((int)(v / 16 * quad.Texture.FrameSize), 0, quad.Texture.FrameSize - 1));
+                if (color.A == 0)
+                    continue;
+                if (quad.Tint is Pixel tint)
+                    color = new Pixel(
+                        (byte)(color.R * tint.R / 255), (byte)(color.G * tint.G / 255),
+                        (byte)(color.B * tint.B / 255), color.A);
                 color = new Pixel(
-                    (byte)(color.R * tint.R / 255), (byte)(color.G * tint.G / 255),
-                    (byte)(color.B * tint.B / 255), color.A);
-            color = new Pixel(
-                (byte)(color.R * quad.Brightness), (byte)(color.G * quad.Brightness),
-                (byte)(color.B * quad.Brightness), color.A);
-            Blend(output, pixelIndex * 4, color);
-            depth[pixelIndex] = z;
-        }
+                    (byte)(color.R * quad.Brightness), (byte)(color.G * quad.Brightness),
+                    (byte)(color.B * quad.Brightness), color.A);
+                Blend(output, pixelIndex * 4, color);
+                depth[pixelIndex] = z;
+            }
     }
 
     private static Vec3[]? FacePoints(double[] from, double[] to, string face) => face switch
@@ -468,15 +567,60 @@ internal static class MinecraftItemIconRenderer
         return rotated + origin;
     }
 
-    private static Vec3 ApplyGuiTransform(Vec3 point, ModelTransform transform)
+    private static Vec3 ApplyGuiTransform(
+        Vec3 point,
+        ModelTransform transform,
+        IReadOnlyList<ItemTransformation> transformations)
     {
         point -= V(8, 8, 8);
+        foreach (var itemTransform in transformations)
+            point = ApplyItemTransform(point, itemTransform);
         point = V(point.X * transform.ScaleAt(0), point.Y * transform.ScaleAt(1), point.Z * transform.ScaleAt(2));
         point = RotateAxis(point, "z", transform.RotationAt(2));
         point = RotateAxis(point, "y", transform.RotationAt(1));
         point = RotateAxis(point, "x", transform.RotationAt(0));
         return point + V(transform.TranslationAt(0), transform.TranslationAt(1), transform.TranslationAt(2));
     }
+
+    private static Vec3 ApplyItemTransform(Vec3 point, ItemTransformation transform)
+    {
+        point = RotateQuaternion(point, transform.RightRotation);
+        point = V(point.X * transform.ScaleAt(0), point.Y * transform.ScaleAt(1), point.Z * transform.ScaleAt(2));
+        point = RotateQuaternion(point, transform.LeftRotation);
+        return point + V(transform.TranslationAt(0), transform.TranslationAt(1), transform.TranslationAt(2));
+    }
+
+    private static Vec3 ApplyItemNormal(Vec3 normal, IReadOnlyList<ItemTransformation> transformations)
+    {
+        foreach (var transform in transformations)
+        {
+            normal = RotateQuaternion(normal, transform.RightRotation);
+            normal = V(
+                NormalScale(normal.X, transform.ScaleAt(0)),
+                NormalScale(normal.Y, transform.ScaleAt(1)),
+                NormalScale(normal.Z, transform.ScaleAt(2)));
+            normal = RotateQuaternion(normal, transform.LeftRotation);
+        }
+        return normal;
+    }
+
+    private static double NormalScale(double value, double scale)
+        => Math.Abs(scale) <= Epsilon ? 0 : value / scale;
+
+    private static Vec3 RotateQuaternion(Vec3 point, double[]? quaternion)
+    {
+        if (quaternion is not { Length: 4 })
+            return point;
+        var axis = V(quaternion[0], quaternion[1], quaternion[2]);
+        var twiceCross = Cross(axis, point) * 2;
+        return point + twiceCross * quaternion[3] + Cross(axis, twiceCross);
+    }
+
+    private static Vec3 Cross(Vec3 left, Vec3 right)
+        => V(
+            left.Y * right.Z - left.Z * right.Y,
+            left.Z * right.X - left.X * right.Z,
+            left.X * right.Y - left.Y * right.X);
 
     private static Vec3 ApplyGuiRotation(Vec3 vector, ModelTransform transform)
     {
@@ -512,9 +656,13 @@ internal static class MinecraftItemIconRenderer
 
     private static Vec3 FaceNormal(string face) => face switch
     {
-        "north" => V(0, 0, -1), "south" => V(0, 0, 1),
-        "west" => V(-1, 0, 0), "east" => V(1, 0, 0),
-        "up" => V(0, 1, 0), "down" => V(0, -1, 0), _ => V(0, 0, 0),
+        "north" => V(0, 0, -1),
+        "south" => V(0, 0, 1),
+        "west" => V(-1, 0, 0),
+        "east" => V(1, 0, 0),
+        "up" => V(0, 1, 0),
+        "down" => V(0, -1, 0),
+        _ => V(0, 0, 0),
     };
 
     private static double NormalBrightness(Vec3 normal)
@@ -584,6 +732,15 @@ internal static class MinecraftItemIconRenderer
         public TextureData? Texture(string id)
             => Textures.GetValueOrDefault(id.Contains(':') ? id : $"minecraft:{id}");
 
+        public string? FindTextureId(params string[] preferredIds)
+        {
+            foreach (var id in preferredIds)
+                if (Textures.ContainsKey(id))
+                    return id;
+            var fileName = preferredIds.Last().Split('/').Last();
+            return Textures.Keys.FirstOrDefault(id => id.EndsWith('/' + fileName, StringComparison.OrdinalIgnoreCase));
+        }
+
         private static bool TryPathId(string path, string kind, string suffix, out string id)
         {
             id = "";
@@ -625,7 +782,9 @@ internal static class MinecraftItemIconRenderer
     private sealed class ModelDocument
     {
         public string Parent { get; set; } = "";
+        [JsonPropertyName("ambientocclusion")]
         public bool? AmbientOcclusion { get; set; }
+        [JsonPropertyName("gui_light")]
         public string? GuiLight { get; set; }
         public Dictionary<string, string> Textures { get; set; } = new(StringComparer.OrdinalIgnoreCase);
         public List<ModelElement>? Elements { get; set; }
@@ -688,6 +847,36 @@ internal static class MinecraftItemIconRenderer
         public double ScaleAt(int index) => Scale is { Length: > 2 } ? Math.Min(Scale[index], 4) : 1;
     }
 
+    private sealed class ItemTransformation
+    {
+        [JsonPropertyName("left_rotation")]
+        public double[]? LeftRotation { get; set; }
+        [JsonPropertyName("right_rotation")]
+        public double[]? RightRotation { get; set; }
+        public double[]? Scale { get; set; }
+        public double[]? Translation { get; set; }
+        public double ScaleAt(int index) => Scale is { Length: > 2 } ? Scale[index] : 1;
+        public double TranslationAt(int index) => Translation is { Length: > 2 } ? Translation[index] : 0;
+
+        public bool IsShieldDefaultFlip()
+            => Math.Abs(ScaleAt(0) - 1) <= Epsilon
+                && Math.Abs(ScaleAt(1) + 1) <= Epsilon
+                && Math.Abs(ScaleAt(2) + 1) <= Epsilon
+                && IsIdentityRotation(LeftRotation)
+                && IsIdentityRotation(RightRotation)
+                && Math.Abs(TranslationAt(0)) <= Epsilon
+                && Math.Abs(TranslationAt(1)) <= Epsilon
+                && Math.Abs(TranslationAt(2)) <= Epsilon;
+
+        private static bool IsIdentityRotation(double[]? value)
+            => value is null
+                || (value.Length == 4
+                    && Math.Abs(value[0]) <= Epsilon
+                    && Math.Abs(value[1]) <= Epsilon
+                    && Math.Abs(value[2]) <= Epsilon
+                    && Math.Abs(Math.Abs(value[3]) - 1) <= Epsilon);
+    }
+
     private sealed class TextureData(int width, int height, byte[] pixels)
     {
         public int FrameSize { get; } = Math.Min(width, height);
@@ -704,8 +893,13 @@ internal static class MinecraftItemIconRenderer
     {
         public static Vec3 operator +(Vec3 left, Vec3 right) => V(left.X + right.X, left.Y + right.Y, left.Z + right.Z);
         public static Vec3 operator -(Vec3 left, Vec3 right) => V(left.X - right.X, left.Y - right.Y, left.Z - right.Z);
+        public static Vec3 operator *(Vec3 value, double scalar) => V(value.X * scalar, value.Y * scalar, value.Z * scalar);
     }
     private readonly record struct RenderVertex(Vec3 Point, double U, double V);
     private sealed record RenderQuad(RenderVertex[] Vertices, TextureData Texture, double Brightness, Pixel? Tint);
-    private sealed record ItemPart(string Model, List<Pixel?> Tints, JsonObject? Special);
+    private sealed record ItemPart(
+        string Model,
+        List<Pixel?> Tints,
+        JsonObject? Special,
+        List<ItemTransformation> Transformations);
 }

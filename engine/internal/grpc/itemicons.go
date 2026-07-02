@@ -133,6 +133,8 @@ func (r *itemAssetResolver) collectJSONDependencies(
 				r.collectModel(typed, "minecraft", files, visitedModels)
 			case "texture":
 				r.collectTexture(typed, "minecraft", files)
+			case "type":
+				r.collectNamedTextures(typed, files)
 			}
 		}
 	}
@@ -146,6 +148,29 @@ func (r *itemAssetResolver) collectJSONDependencies(
 				if ref, ok := value.(string); ok && !strings.HasPrefix(ref, "#") {
 					r.collectTexture(ref, "minecraft", files)
 				}
+			}
+		}
+	}
+}
+
+// Built-in special model types declare their resource name but not every
+// texture path used by Minecraft's entity renderer. Locate matching raw
+// textures by the declared resource name without interpreting the model type.
+func (r *itemAssetResolver) collectNamedTextures(ref string, files map[string][]byte) {
+	namespace, name, ok := splitAssetID(ref, "minecraft")
+	if !ok || strings.Contains(name, "/") {
+		return
+	}
+	prefix := normalizeAssetPath("assets/" + namespace + "/textures/")
+	directoryPart := "/" + strings.ToLower(name) + "/"
+	filePrefix := "/" + strings.ToLower(name) + "_"
+	for path := range r.assets {
+		if !strings.HasPrefix(path, prefix) || !strings.HasSuffix(path, ".png") {
+			continue
+		}
+		if strings.Contains(path, directoryPart) || strings.Contains(path, filePrefix) {
+			if data := r.readAsset(path); len(data) > 0 {
+				files[path] = data
 			}
 		}
 	}

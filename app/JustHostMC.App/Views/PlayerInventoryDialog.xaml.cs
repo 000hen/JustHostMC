@@ -16,7 +16,6 @@ public sealed partial class PlayerInventoryDialog : UserControl
     private readonly string _serverId;
     private readonly PlayerItem _player;
     public Action<string, string>? OnHeaderUpdated { get; set; }
-    public string ActionName { get; set; } = "Inventory";
 
     public ObservableCollection<PlayerInventoryItemView> MainSlots { get; } = new();
     public ObservableCollection<PlayerInventoryItemView> HotbarSlots { get; } = new();

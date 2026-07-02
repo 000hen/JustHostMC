@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:JustHostMC.App.Controls"
     xmlns:views="using:JustHostMC.App.Views"
-    x:Uid="PlayerDataDialog">
+    >
 
     <Grid MinWidth="640"
           MaxHeight="720"

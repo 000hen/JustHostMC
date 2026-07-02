@@ -321,8 +321,8 @@
   <data name="BanList_StoppedRequired" xml:space="preserve"><value>請先停止伺服器再編輯封鎖名單檔案。</value></data>
   <data name="PlayerDialogBase_CloseButtonText" xml:space="preserve"><value>關閉</value></data>
   <data name="PlayerRawDataBox.Header" xml:space="preserve"><value>原始玩家 NBT</value></data>
-  <data name="PlayerDataDialog.ActionName" xml:space="preserve"><value>原始資料</value></data>
-  <data name="PlayerInventoryDialog.ActionName" xml:space="preserve"><value>物品欄</value></data>
+  <data name="PlayerDataDialog_ActionName" xml:space="preserve"><value>原始資料</value></data>
+  <data name="PlayerInventoryDialog_ActionName" xml:space="preserve"><value>物品欄</value></data>
   <data name="PlayerDialogBase_TitleFormat" xml:space="preserve"><value>{1} 的{0}</value></data>
   <data name="PlayerInventoryEquipmentHeader.Text" xml:space="preserve"><value>裝備</value></data>
   <data name="PlayerInventoryMainHeader.Text" xml:space="preserve"><value>物品欄</value></data>

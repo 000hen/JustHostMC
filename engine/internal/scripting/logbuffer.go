@@ -1,12 +1,16 @@
 package scripting
 
-import "sync"
+import (
+	"sync"
+	"time"
+)
 
 // LogLine is one captured line of automation output, tagged with the script that
 // produced it.
 type LogLine struct {
-	ScriptID string
-	Line     string
+	ScriptID  string
+	Line      string
+	Timestamp time.Time
 }
 
 const (
@@ -35,7 +39,7 @@ func NewLogBuffer(size int) *LogBuffer {
 
 // Append records a line for a script and fans it out to live subscribers.
 func (b *LogBuffer) Append(scriptID, line string) {
-	ll := LogLine{ScriptID: scriptID, Line: line}
+	ll := LogLine{ScriptID: scriptID, Line: line, Timestamp: time.Now().UTC()}
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	b.ring = append(b.ring, ll)

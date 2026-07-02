@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
+	"time"
 
 	mcmanagerv1 "github.com/000hen/justhostmc/engine/gen/mcmanager/v1"
 	"github.com/000hen/justhostmc/engine/internal/scripting"
@@ -134,7 +135,7 @@ func (s *ScriptService) StreamLog(_ *mcmanagerv1.Empty, stream mcmanagerv1.Scrip
 	history, live, cancel := s.mgr.Logs().Subscribe()
 	defer cancel()
 	for _, ll := range history {
-		if err := stream.Send(&mcmanagerv1.ScriptLogLine{ScriptId: ll.ScriptID, Line: ll.Line}); err != nil {
+		if err := stream.Send(scriptLogProto(ll)); err != nil {
 			return err
 		}
 	}
@@ -147,10 +148,18 @@ func (s *ScriptService) StreamLog(_ *mcmanagerv1.Empty, stream mcmanagerv1.Scrip
 			if !ok {
 				return nil
 			}
-			if err := stream.Send(&mcmanagerv1.ScriptLogLine{ScriptId: ll.ScriptID, Line: ll.Line}); err != nil {
+			if err := stream.Send(scriptLogProto(ll)); err != nil {
 				return err
 			}
 		}
+	}
+}
+
+func scriptLogProto(line scripting.LogLine) *mcmanagerv1.ScriptLogLine {
+	return &mcmanagerv1.ScriptLogLine{
+		ScriptId:  line.ScriptID,
+		Line:      line.Line,
+		Timestamp: line.Timestamp.Format(time.RFC3339Nano),
 	}
 }
 

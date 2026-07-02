@@ -440,19 +440,31 @@
   <data name="ScriptsPageTitle.Text" xml:space="preserve"><value>腳本</value></data>
   <data name="ScriptsPageSubtitle.Text" xml:space="preserve"><value>匯入您自己的 Lua 提供者與自動化腳本，檢視它們要求的權限，並管理已安裝的項目。</value></data>
   <data name="ScriptsProvidersHeader.Text" xml:space="preserve"><value>提供者</value></data>
-  <data name="ScriptsImportProviderButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>匯入提供者腳本</value></data>
-  <data name="ScriptsImportProviderButtonLabel.Text" xml:space="preserve"><value>匯入提供者</value></data>
+  <data name="ScriptSectionShowInFolderButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>在資料夾中顯示腳本</value></data>
+  <data name="ScriptSectionShowInFolderButtonLabel.Text" xml:space="preserve"><value>在資料夾中顯示</value></data>
+  <data name="ScriptSectionAddScriptsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>新增腳本</value></data>
+  <data name="ScriptSectionAddScriptsButtonLabel.Text" xml:space="preserve"><value>新增腳本</value></data>
   <data name="ScriptsProvidersEmpty.Text" xml:space="preserve"><value>尚未安裝任何提供者。</value></data>
   <data name="ScriptsAutomationHeader.Text" xml:space="preserve"><value>自動化腳本</value></data>
-  <data name="ScriptsImportScriptButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>匯入自動化腳本</value></data>
-  <data name="ScriptsImportScriptButtonLabel.Text" xml:space="preserve"><value>匯入腳本</value></data>
   <data name="ScriptsAutomationEmpty.Text" xml:space="preserve"><value>尚未安裝任何自動化腳本。</value></data>
   <data name="ScriptsBuiltinBadge.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>內建</value></data>
   <data name="ScriptsBuiltinBadgeLabel.Text" xml:space="preserve"><value>內建</value></data>
   <data name="ScriptsEnabledToggle.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>啟用或停用此腳本</value></data>
   <data name="ScriptsRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>移除</value></data>
-  <data name="ScriptsLogHeader.Text" xml:space="preserve"><value>自動化日誌</value></data>
-  <data name="ScriptsLogEmpty.Text" xml:space="preserve"><value>尚無自動化輸出。</value></data>
+  <data name="ScriptsAllLogsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>在新視窗中開啟所有自動化日誌</value></data>
+  <data name="ScriptsAllLogsButtonLabel.Text" xml:space="preserve"><value>所有日誌</value></data>
+  <data name="ScriptsScriptLogsHeader.Text" xml:space="preserve"><value>日誌</value></data>
+  <data name="ScriptsScriptLogsEmpty.Text" xml:space="preserve"><value>此腳本尚無輸出。</value></data>
+  <data name="ScriptLogsWindow_Title" xml:space="preserve"><value>所有自動化日誌</value></data>
+  <data name="ScriptLogsWindowEmpty.Text" xml:space="preserve"><value>尚無自動化輸出。</value></data>
+  <data name="ScriptLogsWindowNoSelection.Text" xml:space="preserve"><value>選取日誌項目以檢視詳細資料。</value></data>
+  <data name="ScriptLogsWindowScriptDetailsHeader.Text" xml:space="preserve"><value>腳本</value></data>
+  <data name="ScriptLogsWindowScriptNameLabel.Text" xml:space="preserve"><value>名稱</value></data>
+  <data name="ScriptLogsWindowScriptIdLabel.Text" xml:space="preserve"><value>識別碼</value></data>
+  <data name="ScriptLogsWindowDetailHeader.Text" xml:space="preserve"><value>日誌詳細資料</value></data>
+  <data name="Scripts_SystemLogName" xml:space="preserve"><value>系統</value></data>
+  <data name="Scripts_LogEntryFallbackTitle" xml:space="preserve"><value>日誌項目</value></data>
+  <data name="Scripts_OpenFolderFailed" xml:space="preserve"><value>無法開啟腳本資料夾。</value></data>
   <data name="PermissionConsentDialog.Title" xml:space="preserve"><value>檢視權限</value></data>
   <data name="PermissionConsentDialog.PrimaryButtonText" xml:space="preserve"><value>允許所選</value></data>
   <data name="PermissionConsentDialog.CloseButtonText" xml:space="preserve"><value>取消</value></data>

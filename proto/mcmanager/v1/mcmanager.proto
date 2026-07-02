@@ -210,6 +210,7 @@ message SetScriptEnabledRequest {
 message ScriptLogLine {
   string script_id = 1;
   string line = 2;
+  string timestamp = 3; // RFC3339 UTC
 }
 
 // -- Console: bidirectional stream --------------------------------------------

@@ -14,6 +14,8 @@ internal static class MinecraftItemIconRenderer
 {
     private const int Size = 64;
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
+    // Default foliage tint applied to faces with a tintindex (leaves, grass, ferns, etc.).
+    private static readonly Pixel DefaultFoliageTint = new(72, 181, 24, 255);
 
     public static async Task<ImageSource?> RenderAsync(string modelJson, IEnumerable<PlayerItemTexture> textureMessages)
     {
@@ -97,13 +99,23 @@ internal static class MinecraftItemIconRenderer
             if (!textures.TryGetValue(reference, out var texture))
                 continue;
             found = true;
+            bool applyTint = model.LayerTints?.Contains(layer) == true;
             for (var y = 4; y < Size - 4; y++)
             {
                 for (var x = 4; x < Size - 4; x++)
                 {
                     var sourceX = (x - 4) * texture.FrameSize / (Size - 8);
                     var sourceY = (y - 4) * texture.FrameSize / (Size - 8);
-                    Blend(output, (y * Size + x) * 4, texture.Pixel(sourceX, sourceY));
+                    var pixel = texture.Pixel(sourceX, sourceY);
+                    if (applyTint && pixel.A > 0)
+                    {
+                        pixel = new Pixel(
+                            (byte)(pixel.R * DefaultFoliageTint.R / 255),
+                            (byte)(pixel.G * DefaultFoliageTint.G / 255),
+                            (byte)(pixel.B * DefaultFoliageTint.B / 255),
+                            pixel.A);
+                    }
+                    Blend(output, (y * Size + x) * 4, pixel);
                 }
             }
         }
@@ -153,7 +165,7 @@ internal static class MinecraftItemIconRenderer
                     point = ApplyGuiTransform(point, model.Gui);
                     vertices[index] = new RenderVertex(point, uvPoints[index].X, uvPoints[index].Y);
                 }
-                quads.Add(new RenderQuad(vertices, texture, NormalBrightness(normal)));
+                quads.Add(new RenderQuad(vertices, texture, NormalBrightness(normal), face.TintIndex));
             }
         }
         return quads.Count == 0 ? null : Rasterize(quads);
@@ -178,15 +190,15 @@ internal static class MinecraftItemIconRenderer
                     center - vertex.Point.Y * pixelsPerModelUnit,
                     vertex.Point.Z),
             }).ToArray();
-            RasterizeTriangle(output, depth, vertices[0], vertices[1], vertices[2], quad.Texture, quad.Brightness);
-            RasterizeTriangle(output, depth, vertices[0], vertices[2], vertices[3], quad.Texture, quad.Brightness);
+            RasterizeTriangle(output, depth, vertices[0], vertices[1], vertices[2], quad.Texture, quad.Brightness, quad.TintIndex);
+            RasterizeTriangle(output, depth, vertices[0], vertices[2], vertices[3], quad.Texture, quad.Brightness, quad.TintIndex);
         }
         return output;
     }
 
     private static void RasterizeTriangle(
         byte[] output, double[] depth, RenderVertex a, RenderVertex b, RenderVertex c,
-        TextureData texture, double brightness)
+        TextureData texture, double brightness, int tintIndex)
     {
         var minX = Math.Max(0, (int)Math.Floor(Math.Min(a.Point.X, Math.Min(b.Point.X, c.Point.X))));
         var maxX = Math.Min(Size - 1, (int)Math.Ceiling(Math.Max(a.Point.X, Math.Max(b.Point.X, c.Point.X))));
@@ -221,6 +233,12 @@ internal static class MinecraftItemIconRenderer
                     Math.Clamp((int)(v / 16 * texture.FrameSize), 0, texture.FrameSize - 1));
                 if (color.A == 0)
                     continue;
+                if (tintIndex >= 0)
+                    color = new Pixel(
+                        (byte)(color.R * DefaultFoliageTint.R / 255),
+                        (byte)(color.G * DefaultFoliageTint.G / 255),
+                        (byte)(color.B * DefaultFoliageTint.B / 255),
+                        color.A);
                 var target = pixelIndex * 4;
                 output[target] = (byte)(color.B * brightness);
                 output[target + 1] = (byte)(color.G * brightness);
@@ -394,6 +412,7 @@ internal static class MinecraftItemIconRenderer
         public List<ModelElement>? Elements { get; set; }
         public ModelTransform Gui { get; set; } = new();
         public string Special { get; set; } = "";
+        public List<int>? LayerTints { get; set; }
     }
 
     private sealed class ModelElement
@@ -416,6 +435,7 @@ internal static class MinecraftItemIconRenderer
         public double[] Uv { get; set; } = [0, 0, 0, 0];
         public string Texture { get; set; } = "";
         public int Rotation { get; set; }
+        public int TintIndex { get; set; } = -1;
     }
 
     private sealed class ModelTransform
@@ -445,5 +465,5 @@ internal static class MinecraftItemIconRenderer
         public static Vec3 operator -(Vec3 left, Vec3 right) => V(left.X - right.X, left.Y - right.Y, left.Z - right.Z);
     }
     private readonly record struct RenderVertex(Vec3 Point, double U, double V);
-    private sealed record RenderQuad(RenderVertex[] Vertices, TextureData Texture, double Brightness);
+    private sealed record RenderQuad(RenderVertex[] Vertices, TextureData Texture, double Brightness, int TintIndex);
 }

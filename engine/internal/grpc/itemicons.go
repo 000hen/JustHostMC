@@ -41,9 +41,10 @@ type modelRotation struct {
 }
 
 type modelFace struct {
-	UV       [4]float64 `json:"uv"`
-	Texture  string     `json:"texture"`
-	Rotation int        `json:"rotation,omitempty"`
+	UV        [4]float64 `json:"uv"`
+	Texture   string     `json:"texture"`
+	Rotation  int        `json:"rotation,omitempty"`
+	TintIndex *int       `json:"tintindex,omitempty"`
 }
 
 type modelTransform struct {
@@ -53,10 +54,11 @@ type modelTransform struct {
 }
 
 type resolvedModel struct {
-	Textures map[string]string `json:"textures"`
-	Elements []modelElement    `json:"elements,omitempty"`
-	GUI      modelTransform    `json:"gui"`
-	Special  string            `json:"special,omitempty"`
+	Textures   map[string]string `json:"textures"`
+	Elements   []modelElement    `json:"elements,omitempty"`
+	GUI        modelTransform    `json:"gui"`
+	Special    string            `json:"special,omitempty"`
+	LayerTints []int             `json:"layerTints,omitempty"`
 }
 
 // itemAssetResolver reads models and texture bytes from local client assets,
@@ -136,6 +138,13 @@ func (r *itemAssetResolver) Resolve(itemID string) itemAsset {
 	}
 	if !found {
 		return itemAsset{}
+	}
+
+	if len(model.Elements) == 0 {
+		switch itemPath {
+		case "vine", "fern", "large_fern", "short_grass", "tall_grass", "grass", "lily_pad", "sugar_cane":
+			model.LayerTints = []int{0}
+		}
 	}
 
 	asset := itemAsset{Textures: make(map[string][]byte)}

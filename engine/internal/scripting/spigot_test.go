@@ -2,11 +2,14 @@ package scripting
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	mcmanagerv1 "github.com/000hen/justhostmc/engine/gen/mcmanager/v1"
+	"github.com/000hen/justhostmc/engine/internal/provider"
 )
 
 // TestBuiltinSpigotMeta loads the embedded spigot script and checks its declared
@@ -51,43 +54,38 @@ func spigotManifestStub(t *testing.T) *httptest.Server {
 			{"id":"26w25a","type":"snapshot"},
 			{"id":"1.21.1","type":"release"},
 			{"id":"24w01a","type":"snapshot"},
-			{"id":"1.20.4","type":"release"}
+			{"id":"1.20.4","type":"release"},
+			{"id":"1.7.10","type":"release"}
 		]}`))
+	})
+	mux.HandleFunc("/versions/", func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write([]byte(`<html><body>
+			<a href="26.2.json">26.2.json</a>
+			<a href="1.21.1.json">1.21.1.json</a>
+			<a href="1.20.4-pre1.json">1.20.4-pre1.json</a>
+			<a href="4440.json">4440.json</a>
+		</body></html>`))
 	})
 	srv := httptest.NewServer(mux)
 	t.Cleanup(srv.Close)
 	return srv
 }
 
-// spigotScript is the embedded spigot.lua with its manifest URL pointed at the
-// test stub, so versions() can be exercised offline. install() runs BuildTools
-// (compiles from source) so it is intentionally not covered by a unit test.
+// spigotScript is the embedded script with its two version sources pointed at
+// the test stub so its production parsing logic can be exercised offline.
 func spigotScript(url string) string {
-	return `
-meta = {
-  id = "spigot", name = "Spigot", mod_layout = "plugins",
-  permissions = {
-    { kind = "network", reason = "test" },
-    { kind = "install", reason = "test" },
-  },
+	src, err := builtinFS.ReadFile("builtin/spigot.lua")
+	if err != nil {
+		panic(err)
+	}
+	script := strings.ReplaceAll(string(src),
+		"https://piston-meta.mojang.com/mc/game/version_manifest_v2.json", url+"/manifest")
+	return strings.ReplaceAll(script, "https://hub.spigotmc.org/versions/", url+"/versions/")
 }
 
-local MANIFEST = "` + url + `/manifest"
-
-function versions()
-  local m = jhmc.http_json(MANIFEST)
-  local out = {}
-  for _, e in ipairs(m.versions) do
-    if e.type == "release" then out[#out + 1] = e.id end
-  end
-  return out
-end
-`
-}
-
-// TestSpigotVersionsReleasesOnly verifies versions() returns only release
-// versions, newest first (Mojang's order), mirroring the deleted Go provider.
-func TestSpigotVersionsReleasesOnly(t *testing.T) {
+// TestSpigotVersionsSupportedReleasesOnly verifies that Mojang releases without
+// a corresponding Spigot descriptor (such as 1.7.10) are not advertised.
+func TestSpigotVersionsSupportedReleasesOnly(t *testing.T) {
 	srv := spigotManifestStub(t)
 	r := NewRegistry(NewHost(nil, nil, nil), nil)
 	e, err := r.AddSource(spigotScript(srv.URL), true) // builtin → network auto-granted
@@ -99,7 +97,7 @@ func TestSpigotVersionsReleasesOnly(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Versions: %v", err)
 	}
-	want := []string{"26.2", "1.21.1", "1.20.4"}
+	want := []string{"26.2", "1.21.1"}
 	if len(vers) != len(want) {
 		t.Fatalf("Versions = %v, want %v", vers, want)
 	}
@@ -107,5 +105,19 @@ func TestSpigotVersionsReleasesOnly(t *testing.T) {
 		if vers[i] != want[i] {
 			t.Fatalf("Versions[%d] = %q, want %q", i, vers[i], want[i])
 		}
+	}
+}
+
+func TestSpigotInstallRejectsUnsupportedVersion(t *testing.T) {
+	srv := spigotManifestStub(t)
+	r := NewRegistry(NewHost(nil, nil, nil), nil)
+	e, err := r.AddSource(spigotScript(srv.URL), true)
+	if err != nil {
+		t.Fatalf("AddSource: %v", err)
+	}
+
+	_, err = e.Provider.Install(context.Background(), t.TempDir(), "1.7.10", nil)
+	if !errors.Is(err, provider.ErrVersionNotFound) {
+		t.Fatalf("Install err = %v, want ErrVersionNotFound", err)
 	}
 }

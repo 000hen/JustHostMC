@@ -1,7 +1,8 @@
 -- NeoForge: installed via its installer's --installServer step. NeoForge version
 -- strings encode the Minecraft version:
 --   * legacy 3-part "A.B.<build>" -> MC "1.A.B" (B==0 -> "1.A", e.g. 21.0.x -> 1.21)
---   * current 4-part "A.B.C.<build>" -> MC "A.B.C" (C==0 -> "A.B", e.g. 26.2.0.x -> 26.2)
+--   * current "A.B.C.<build>[-qualifier]" -> MC "A.B.C"
+--     (C==0 -> "A.B", e.g. 26.2.0.x -> 26.2)
 -- The current 4-part scheme is the MC-2026 versioning; preserve it exactly.
 
 meta = {
@@ -19,13 +20,16 @@ meta = {
   },
 }
 
-local MAVEN = "https://maven.neoforged.net/releases/net/neoforged/neoforge"
+local NEOFORGE_MAVEN = "https://maven.neoforged.net/releases/net/neoforged/neoforge"
+-- NeoForge's 1.20.1 releases predate the neoforge artifact and remain published
+-- under net.neoforged:forge. Both feeds are needed for the complete version list.
+local LEGACY_MAVEN = "https://maven.neoforged.net/releases/net/neoforged/forge"
 
 -- fetch_versions reads every NeoForge version from maven-metadata.xml. There is
 -- no XML host API, so we extract <version>...</version> entries with a pattern;
 -- maven lists them oldest-first, which we preserve.
-local function fetch_versions()
-  local xml = jhmc.http_get(MAVEN .. "/maven-metadata.xml")
+local function fetch_versions(maven)
+  local xml = jhmc.http_get(maven .. "/maven-metadata.xml")
   local out = {}
   for v in xml:gmatch("<version>(.-)</version>") do
     out[#out + 1] = v
@@ -33,7 +37,7 @@ local function fetch_versions()
   return out
 end
 
--- split_dots returns the numeric dot-separated parts of v (nil if any non-numeric).
+-- num_parts returns the dot-separated parts of v.
 local function num_parts(v)
   local parts = {}
   for p in v:gmatch("[^.]+") do
@@ -50,13 +54,20 @@ local function mc_for(v)
     if not a or not b then return nil end
     if b == 0 then return "1." .. a end
     return "1." .. a .. "." .. b
-  elseif #parts == 4 then -- current A.B.C.<build> -> MC A.B.C
+  elseif #parts >= 4 then -- current A.B.C.<build>[-qualifier] -> MC A.B.C
     local a, b, c = tonumber(parts[1]), tonumber(parts[2]), tonumber(parts[3])
-    if not a or not b or not c then return nil end
+    local build = parts[4]:match("^%d+")
+    if not a or not b or not c or not build then return nil end
     if c == 0 then return a .. "." .. b end
     return a .. "." .. b .. "." .. c
   end
   return nil
+end
+
+-- legacy_mc_for extracts the Minecraft version from a legacy NeoForge
+-- coordinate such as "1.20.1-47.1.106".
+local function legacy_mc_for(v)
+  return v:match("^(%d+%.%d+%.%d+)%-")
 end
 
 -- parse_mc splits an MC version into major/minor/patch (mirrors parseMC; ignores
@@ -83,11 +94,27 @@ local function prefix_for(mc)
   return major .. "." .. minor .. "." .. patch .. "."
 end
 
--- neo_patch returns the trailing build number of a NeoForge version (the last
--- dot-separated segment in both schemes), so picking the highest works for both.
+-- neo_patch returns the build component of a NeoForge version. It is the third
+-- segment for legacy coordinates and the fourth for current coordinates; a
+-- qualifier may itself contain dots, so the final segment is not reliable.
 local function neo_patch(v)
   local parts = num_parts(v)
-  return tonumber(parts[#parts]:match("^%d+") or "") or 0
+  local build_index = #parts >= 4 and 4 or 3
+  return tonumber(parts[build_index]:match("^%d+") or "") or 0
+end
+
+-- build_greater compares dot-separated numeric build identifiers. Legacy
+-- coordinates currently use 47.1.x, but comparing every component avoids
+-- assuming that the major/minor build line will never change.
+local function build_greater(a, b)
+  local ap, bp = num_parts(a), num_parts(b)
+  local count = math.max(#ap, #bp)
+  for i = 1, count do
+    local av = tonumber((ap[i] or ""):match("^%d+") or "") or -1
+    local bv = tonumber((bp[i] or ""):match("^%d+") or "") or -1
+    if av ~= bv then return av > bv end
+  end
+  return a > b
 end
 
 -- less_desc orders MC versions newest-first by numeric (major, minor, patch),
@@ -108,8 +135,15 @@ end
 function versions()
   local seen = {}
   local out = {}
-  for _, v in ipairs(fetch_versions()) do
+  for _, v in ipairs(fetch_versions(NEOFORGE_MAVEN)) do
     local mc = mc_for(v)
+    if mc and not seen[mc] then
+      seen[mc] = true
+      out[#out + 1] = mc
+    end
+  end
+  for _, v in ipairs(fetch_versions(LEGACY_MAVEN)) do
+    local mc = legacy_mc_for(v)
     if mc and not seen[mc] then
       seen[mc] = true
       out[#out + 1] = mc
@@ -119,12 +153,12 @@ function versions()
   return out
 end
 
--- resolve_version picks the highest NeoForge build for an MC version.
-local function resolve_version(mc)
+-- resolve_modern_version picks the highest build from the current artifact.
+local function resolve_modern_version(mc)
   local prefix = prefix_for(mc)
   if not prefix then return nil end
   local best, best_patch = nil, -1
-  for _, v in ipairs(fetch_versions()) do
+  for _, v in ipairs(fetch_versions(NEOFORGE_MAVEN)) do
     if v:sub(1, #prefix) == prefix then
       local p = neo_patch(v)
       if p > best_patch then
@@ -133,6 +167,30 @@ local function resolve_version(mc)
     end
   end
   return best
+end
+
+-- resolve_legacy_version picks the highest net.neoforged:forge build for an MC
+-- version. The feed contains one malformed coordinate without an MC prefix;
+-- legacy_mc_for deliberately ignores it.
+local function resolve_legacy_version(mc)
+  local best, best_build = nil, nil
+  for _, v in ipairs(fetch_versions(LEGACY_MAVEN)) do
+    local candidate_mc, build = v:match("^(%d+%.%d+%.%d+)%-(.+)$")
+    if candidate_mc == mc and (not best_build or build_greater(build, best_build)) then
+      best, best_build = v, build
+    end
+  end
+  return best
+end
+
+-- resolve_version returns the Maven base, artifact id, and highest matching
+-- version. Modern coordinates take precedence if the feeds ever overlap.
+local function resolve_version(mc)
+  local modern = resolve_modern_version(mc)
+  if modern then return NEOFORGE_MAVEN, "neoforge", modern end
+  local legacy = resolve_legacy_version(mc)
+  if legacy then return LEGACY_MAVEN, "forge", legacy end
+  return nil, nil, nil
 end
 
 -- find_args_file walks libraries/ for a generated win_args.txt. jhmc.fs.glob is
@@ -158,7 +216,7 @@ local function detect_launch()
   if args_file then
     return { "@" .. args_file, "nogui" }
   end
-  for _, pat in ipairs({ "neoforge*.jar", "server.jar" }) do
+  for _, pat in ipairs({ "neoforge*.jar", "forge*.jar", "server.jar" }) do
     for _, jar in ipairs(jhmc.fs.glob(pat)) do
       if not jar:lower():find("installer") then
         return { "-jar", jar, "nogui" }
@@ -172,15 +230,15 @@ end
 -- runs --installServer, and returns the detected launch spec.
 function install(ctx)
   ctx.step("install.progress.resolving_version", -1)
-  local nf = resolve_version(ctx.version)
+  local maven, artifact, nf = resolve_version(ctx.version)
   if not nf then
     error("version not found: " .. ctx.version)
   end
   local major = jhmc.java_major_for(ctx.version)
-  local installer_url = MAVEN .. "/" .. nf .. "/neoforge-" .. nf .. "-installer.jar"
+  local installer_url = maven .. "/" .. nf .. "/" .. artifact .. "-" .. nf .. "-installer.jar"
 
   ctx.step("install.progress.downloading_installer", 0)
-  ctx.log("neoforge-" .. nf .. "-installer.jar")
+  ctx.log(artifact .. "-" .. nf .. "-installer.jar")
   jhmc.download(installer_url, { dest = "installer.jar" })
 
   ctx.step("install.progress.running_installer", -1)

@@ -15,52 +15,14 @@ type archivedAsset struct {
 	entryPath   string
 }
 
+// itemAsset is deliberately opaque to the engine. The WinUI client owns all
+// item-definition, model-inheritance, texture, tint, and rendering semantics.
 type itemAsset struct {
-	ModelJSON string
-	Textures  map[string][]byte
+	Files map[string][]byte
 }
 
-type modelDocument struct {
-	Parent   string                    `json:"parent"`
-	Textures map[string]string         `json:"textures"`
-	Elements []modelElement            `json:"elements"`
-	Display  map[string]modelTransform `json:"display"`
-}
-
-type modelElement struct {
-	From     [3]float64           `json:"from"`
-	To       [3]float64           `json:"to"`
-	Rotation *modelRotation       `json:"rotation,omitempty"`
-	Faces    map[string]modelFace `json:"faces"`
-}
-
-type modelRotation struct {
-	Origin [3]float64 `json:"origin"`
-	Axis   string     `json:"axis"`
-	Angle  float64    `json:"angle"`
-}
-
-type modelFace struct {
-	UV       [4]float64 `json:"uv"`
-	Texture  string     `json:"texture"`
-	Rotation int        `json:"rotation,omitempty"`
-}
-
-type modelTransform struct {
-	Rotation    [3]float64 `json:"rotation"`
-	Translation [3]float64 `json:"translation"`
-	Scale       [3]float64 `json:"scale"`
-}
-
-type resolvedModel struct {
-	Textures map[string]string `json:"textures"`
-	Elements []modelElement    `json:"elements,omitempty"`
-	GUI      modelTransform    `json:"gui"`
-	Special  string            `json:"special,omitempty"`
-}
-
-// itemAssetResolver reads models and texture bytes from local client assets,
-// resource packs, and mod/plugin JARs. Rendering stays in the WinUI process.
+// itemAssetResolver only locates resource-pack files and follows their declared
+// resource references. It does not interpret or flatten Minecraft models.
 type itemAssetResolver struct {
 	assets map[string]archivedAsset
 	cache  map[string]itemAsset
@@ -104,134 +66,138 @@ func (r *itemAssetResolver) Resolve(itemID string) itemAsset {
 		return itemAsset{}
 	}
 
-	modelRef := ""
-	var model resolvedModel
-	found := false
-	if definition := r.readJSON("assets/" + namespace + "/items/" + itemPath + ".json"); definition != nil {
-		if base, kind, texture, special := specialItemModel(definition); special {
-			if model, found = r.loadModel(base, 0); found && kind == "minecraft:chest" {
-				if textureNamespace, texturePath, ok := splitAssetID(texture, "minecraft"); ok {
-					model.Special = "chest"
-					model.Textures["special"] = textureNamespace + ":entity/chest/" + texturePath
+	result := itemAsset{Files: make(map[string][]byte)}
+	visitedModels := make(map[string]struct{})
+	definitionPath := normalizeAssetPath("assets/" + namespace + "/items/" + itemPath + ".json")
+	if definition := r.readAsset(definitionPath); len(definition) > 0 {
+		result.Files[definitionPath] = definition
+		r.collectJSONDependencies(definition, namespace, result.Files, visitedModels)
+	} else {
+		r.collectModel(namespace+":item/"+itemPath, namespace, result.Files, visitedModels)
+	}
+
+	if len(result.Files) == 0 {
+		return itemAsset{}
+	}
+	r.cache[itemID] = result
+	return result
+}
+
+func (r *itemAssetResolver) collectModel(
+	modelRef string,
+	defaultNamespace string,
+	files map[string][]byte,
+	visited map[string]struct{},
+) {
+	namespace, modelPath, ok := splitAssetID(modelRef, defaultNamespace)
+	if !ok {
+		return
+	}
+	path := normalizeAssetPath("assets/" + namespace + "/models/" + modelPath + ".json")
+	if _, seen := visited[path]; seen {
+		return
+	}
+	visited[path] = struct{}{}
+	data := r.readAsset(path)
+	if len(data) == 0 {
+		return
+	}
+	files[path] = data
+	r.collectJSONDependencies(data, namespace, files, visited)
+}
+
+func (r *itemAssetResolver) collectJSONDependencies(
+	data []byte,
+	defaultNamespace string,
+	files map[string][]byte,
+	visitedModels map[string]struct{},
+) {
+	var root any
+	if json.Unmarshal(data, &root) != nil {
+		return
+	}
+	var walk func(any, string)
+	walk = func(value any, field string) {
+		switch typed := value.(type) {
+		case map[string]any:
+			for key, child := range typed {
+				walk(child, strings.ToLower(key))
+			}
+		case []any:
+			for _, child := range typed {
+				walk(child, field)
+			}
+		case string:
+			switch field {
+			case "parent", "model", "base":
+				r.collectModel(typed, "minecraft", files, visitedModels)
+			case "texture":
+				r.collectTexture(typed, "minecraft", files)
+			case "type":
+				r.collectNamedTextures(typed, files)
+			}
+		}
+	}
+	walk(root, "")
+
+	// Texture variables live in a map, so their keys are arbitrary rather than
+	// literally named "texture". Collect all string values from that map.
+	if object, ok := root.(map[string]any); ok {
+		if textures, ok := object["textures"].(map[string]any); ok {
+			for _, value := range textures {
+				if ref, ok := value.(string); ok && !strings.HasPrefix(ref, "#") {
+					r.collectTexture(ref, "minecraft", files)
 				}
 			}
 		}
-		modelRef = findStringField(definition, "model")
 	}
-	if !found {
-		if modelRef == "" {
-			modelRef = namespace + ":item/" + itemPath
+}
+
+// Built-in special model types declare their resource name but not every
+// texture path used by Minecraft's entity renderer. Locate matching raw
+// textures by the declared resource name without interpreting the model type.
+func (r *itemAssetResolver) collectNamedTextures(ref string, files map[string][]byte) {
+	namespace, name, ok := splitAssetID(ref, "minecraft")
+	if !ok || strings.Contains(name, "/") {
+		return
+	}
+	prefix := normalizeAssetPath("assets/" + namespace + "/textures/")
+	directoryPart := "/" + strings.ToLower(name) + "/"
+	filePrefix := "/" + strings.ToLower(name) + "_"
+	for path := range r.assets {
+		if !strings.HasPrefix(path, prefix) || !strings.HasSuffix(path, ".png") {
+			continue
 		}
-		model, found = r.loadModel(modelRef, 0)
-	}
-	if !found {
-		model = resolvedModel{Textures: make(map[string]string)}
-		for _, direct := range []string{namespace + ":item/" + itemPath, namespace + ":block/" + itemPath} {
-			if len(r.readTexture(direct, namespace)) > 0 {
-				model.Textures["layer0"] = direct
-				found = true
-				break
+		if strings.Contains(path, directoryPart) || strings.Contains(path, filePrefix) {
+			if data := r.readAsset(path); len(data) > 0 {
+				files[path] = data
 			}
 		}
 	}
-	if !found {
-		return itemAsset{}
-	}
-
-	asset := itemAsset{Textures: make(map[string][]byte)}
-	if encoded, err := json.Marshal(model); err == nil {
-		asset.ModelJSON = string(encoded)
-	}
-	for _, ref := range modelTextureRefs(model) {
-		if data := r.readTexture(ref, "minecraft"); len(data) > 0 {
-			asset.Textures[ref] = data
-		}
-	}
-	r.cache[itemID] = asset
-	return asset
 }
 
-func specialItemModel(definition any) (base, kind, texture string, ok bool) {
-	root, ok := definition.(map[string]any)
-	if !ok {
-		return "", "", "", false
+func (r *itemAssetResolver) collectTexture(ref, defaultNamespace string, files map[string][]byte) {
+	namespace, texturePath, ok := splitAssetID(ref, defaultNamespace)
+	if !ok || strings.HasPrefix(texturePath, "#") {
+		return
 	}
-	model, ok := root["model"].(map[string]any)
-	if !ok || model["type"] != "minecraft:special" {
-		return "", "", "", false
-	}
-	base, _ = model["base"].(string)
-	special, _ := model["model"].(map[string]any)
-	kind, _ = special["type"].(string)
-	texture, _ = special["texture"].(string)
-	return base, kind, texture, base != "" && kind != "" && texture != ""
-}
-
-func (r *itemAssetResolver) loadModel(modelRef string, depth int) (resolvedModel, bool) {
-	if depth > 16 {
-		return resolvedModel{}, false
-	}
-	namespace, modelPath, ok := splitAssetID(modelRef, "minecraft")
-	if !ok {
-		return resolvedModel{}, false
-	}
-	data := r.readAsset("assets/" + namespace + "/models/" + modelPath + ".json")
-	if len(data) == 0 {
-		return resolvedModel{}, false
-	}
-	var document modelDocument
-	if json.Unmarshal(data, &document) != nil {
-		return resolvedModel{}, false
+	exact := normalizeAssetPath("assets/" + namespace + "/textures/" + texturePath + ".png")
+	if data := r.readAsset(exact); len(data) > 0 {
+		files[exact] = data
 	}
 
-	model := resolvedModel{Textures: make(map[string]string)}
-	if document.Parent != "" {
-		if parent, found := r.loadModel(document.Parent, depth+1); found {
-			model = parent
-		}
-	}
-	if model.Textures == nil {
-		model.Textures = make(map[string]string)
-	}
-	for key, value := range document.Textures {
-		model.Textures[key] = value
-	}
-	if document.Elements != nil {
-		model.Elements = document.Elements
-	}
-	if gui, found := document.Display["gui"]; found {
-		model.GUI = gui
-	}
-	return model, true
-}
-
-func modelTextureRefs(model resolvedModel) []string {
-	set := make(map[string]struct{})
-	for _, ref := range model.Textures {
-		if resolved := resolveTextureVariable(ref, model.Textures); resolved != "" {
-			set[resolved] = struct{}{}
-		}
-	}
-	for _, element := range model.Elements {
-		for _, face := range element.Faces {
-			if resolved := resolveTextureVariable(face.Texture, model.Textures); resolved != "" {
-				set[resolved] = struct{}{}
+	// Special model declarations use a short texture id whose directory is
+	// implied by their declared model type. Send matching raw assets and let C#
+	// apply that model-type rule; the engine remains format-agnostic.
+	prefix := normalizeAssetPath("assets/" + namespace + "/textures/")
+	suffix := "/" + strings.ToLower(texturePath) + ".png"
+	for path := range r.assets {
+		if strings.HasPrefix(path, prefix) && strings.HasSuffix(path, suffix) {
+			if data := r.readAsset(path); len(data) > 0 {
+				files[path] = data
 			}
 		}
 	}
-	refs := make([]string, 0, len(set))
-	for ref := range set {
-		refs = append(refs, ref)
-	}
-	sort.Strings(refs)
-	return refs
-}
-
-func resolveTextureVariable(ref string, textures map[string]string) string {
-	for index := 0; strings.HasPrefix(ref, "#") && index < 16; index++ {
-		ref = textures[strings.TrimPrefix(ref, "#")]
-	}
-	return ref
 }
 
 func localMinecraftClient(version string) string {
@@ -295,26 +261,6 @@ func (r *itemAssetResolver) indexArchive(path string) {
 	}
 }
 
-func (r *itemAssetResolver) readTexture(ref, defaultNamespace string) []byte {
-	namespace, texturePath, ok := splitAssetID(ref, defaultNamespace)
-	if !ok {
-		return nil
-	}
-	return r.readAsset("assets/" + namespace + "/textures/" + texturePath + ".png")
-}
-
-func (r *itemAssetResolver) readJSON(path string) any {
-	data := r.readAsset(path)
-	if len(data) == 0 {
-		return nil
-	}
-	var value any
-	if json.Unmarshal(data, &value) != nil {
-		return nil
-	}
-	return value
-}
-
 func (r *itemAssetResolver) readAsset(path string) []byte {
 	asset, ok := r.assets[normalizeAssetPath(path)]
 	if !ok {
@@ -356,25 +302,4 @@ func splitAssetID(value, defaultNamespace string) (string, string, bool) {
 
 func normalizeAssetPath(path string) string {
 	return strings.ToLower(strings.TrimPrefix(strings.ReplaceAll(path, `\`, "/"), "/"))
-}
-
-func findStringField(value any, field string) string {
-	switch typed := value.(type) {
-	case map[string]any:
-		if text, ok := typed[field].(string); ok {
-			return text
-		}
-		for _, child := range typed {
-			if found := findStringField(child, field); found != "" {
-				return found
-			}
-		}
-	case []any:
-		for _, child := range typed {
-			if found := findStringField(child, field); found != "" {
-				return found
-			}
-		}
-	}
-	return ""
 }

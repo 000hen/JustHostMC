@@ -1,0 +1,41 @@
+name: Feature request (English)
+description: Suggest an improvement or new capability for JustHostMC
+title: "[Feature]: "
+labels:
+  - "feature / 功能請求"
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: What are you trying to accomplish, and what is difficult today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the behavior or experience you would like.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Share any workarounds or other approaches you considered.
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Add mockups, examples, or related links if they help explain the idea.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues for similar requests.
+          required: true

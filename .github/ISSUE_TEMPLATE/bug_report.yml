@@ -1,0 +1,68 @@
+name: Bug report (English)
+description: Report a reproducible problem in JustHostMC
+title: "[Bug]: "
+labels:
+  - "bug / 錯誤回報"
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for helping improve JustHostMC. Please avoid including server credentials, tokens, or other secrets.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the problem and what you expected to happen instead.
+      placeholder: Tell us what went wrong and what the expected behavior was.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Give the smallest reliable sequence that triggers the problem.
+      placeholder: |
+        1. Open ...
+        2. Select ...
+        3. See ...
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: JustHostMC version or commit
+      placeholder: e.g. 1.2.0 or abc1234
+    validations:
+      required: true
+
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      placeholder: e.g. Windows 11 24H2
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs or screenshots
+      description: Paste logs or drag screenshots here. Remove private data first.
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Include the server type, Minecraft version, isolation backend, or anything else that may matter.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues for the same problem.
+          required: true
+        - label: I removed credentials, tokens, and other sensitive data.
+          required: true

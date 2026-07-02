@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Threading.Tasks;
+using JustHostMC.App.Controls;
 using JustHostMC.App.Models;
 using JustHostMC.App.Services;
 using JustHostMC.App.ViewModels;
@@ -129,10 +130,24 @@ public sealed partial class HomePage : Page
 
     private async void OnAddCardClick(object sender, RoutedEventArgs e)
     {
-        var dialog = new CreateServerDialog(Main) { XamlRoot = XamlRoot };
+        var content = new CreateServerDialog(Main);
+        var dialog = new ContentDialog
+        {
+            XamlRoot = XamlRoot,
+            Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
+            Title = _localizer.Get("CreateServerDialog_Title"),
+            Content = content,
+            PrimaryButtonText = _localizer.Get("CreateServerDialog_PrimaryButtonText"),
+            CloseButtonText = _localizer.Get("CreateServerDialog_CloseButtonText"),
+            DefaultButton = ContentDialogButton.Primary,
+            IsPrimaryButtonEnabled = content.CanSubmit,
+        };
+        content.CanSubmitChanged += (_, _) => dialog.IsPrimaryButtonEnabled = content.CanSubmit;
+        ContentDialogSizing.Apply(dialog);
+
         if (await dialog.ShowAsync() != ContentDialogResult.Primary)
             return;
-        if (dialog.BuildRequest() is { } request)
+        if (content.BuildRequest() is { } request)
             await Main.InstallServerAsync(request);
     }
 
@@ -140,9 +155,23 @@ public sealed partial class HomePage : Page
 
     private async Task ShowEditDialogAsync(ServerItem item)
     {
-        var dialog = new EditServerDialog(Main, item) { XamlRoot = XamlRoot };
+        var content = new EditServerDialog(Main, item);
+        var dialog = new ContentDialog
+        {
+            XamlRoot = XamlRoot,
+            Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
+            Title = _localizer.Get("EditServerDialog_Title"),
+            Content = content,
+            PrimaryButtonText = _localizer.Get("EditServerDialog_PrimaryButtonText"),
+            CloseButtonText = _localizer.Get("EditServerDialog_CloseButtonText"),
+            DefaultButton = ContentDialogButton.Primary,
+            IsPrimaryButtonEnabled = content.CanSubmit,
+        };
+        content.CanSubmitChanged += (_, _) => dialog.IsPrimaryButtonEnabled = content.CanSubmit;
+        ContentDialogSizing.Apply(dialog);
+
         if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-            await Main.UpdateServerAsync(dialog.BuildRequest());
+            await Main.UpdateServerAsync(content.BuildRequest());
     }
 
     private async Task ShowRenameDialogAsync(ServerItem item)

@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<controls:FluentContentDialog
+<UserControl
     x:Class="JustHostMC.App.Views.BanListDialog"
-    x:Name="RootDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:controls="using:JustHostMC.App.Controls"
-    xmlns:models="using:JustHostMC.App.Models"
-    x:Uid="BanListDialog"
-    DefaultButton="Close"
-    UseWideLayout="True">
+    xmlns:models="using:JustHostMC.App.Models">
 
     <ScrollViewer MaxHeight="700"
                   HorizontalScrollBarVisibility="Disabled"
@@ -209,4 +204,4 @@
             </StackPanel>
         </Grid>
     </ScrollViewer>
-</controls:FluentContentDialog>
+</UserControl>

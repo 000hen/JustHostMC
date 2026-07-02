@@ -1,7 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using JustHostMC.App.Controls;
 using JustHostMC.App.Models;
 using JustHostMC.App.ViewModels;
 using McManager.Grpc;
@@ -11,11 +11,14 @@ using Microsoft.UI.Xaml.Controls;
 namespace JustHostMC.App.Views;
 
 /// <summary>Edits server fields backed by ServerService.Update.</summary>
-public sealed partial class EditServerDialog : FluentContentDialog
+public sealed partial class EditServerDialog : UserControl
 {
     private readonly MainViewModel _viewModel;
     private readonly ServerItem _server;
     private bool _isLoadingVersions;
+
+    public bool CanSubmit { get; private set; }
+    public event EventHandler? CanSubmitChanged;
 
     public EditServerDialog(MainViewModel viewModel, ServerItem server)
     {
@@ -89,11 +92,16 @@ public sealed partial class EditServerDialog : FluentContentDialog
 
     private void UpdatePrimaryButtonState()
     {
-        IsPrimaryButtonEnabled = !_isLoadingVersions
-                                 && !string.IsNullOrWhiteSpace(NameBox.Text)
-                                 && VersionBox.SelectedItem is string
-                                 && IsValidNumber(MemoryBox)
-                                 && IsValidNumber(PortBox);
+        var canSubmit = !_isLoadingVersions
+                        && !string.IsNullOrWhiteSpace(NameBox.Text)
+                        && VersionBox.SelectedItem is string
+                        && IsValidNumber(MemoryBox)
+                        && IsValidNumber(PortBox);
+        if (CanSubmit == canSubmit)
+            return;
+
+        CanSubmit = canSubmit;
+        CanSubmitChanged?.Invoke(this, EventArgs.Empty);
     }
 
     private static bool IsValidNumber(NumberBox box) =>

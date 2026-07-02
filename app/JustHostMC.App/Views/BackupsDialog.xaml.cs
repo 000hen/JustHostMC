@@ -1,5 +1,4 @@
 using JustHostMC.App.Models;
-using JustHostMC.App.Controls;
 using JustHostMC.App.Services;
 using JustHostMC.App.ViewModels;
 using Microsoft.UI.Dispatching;
@@ -15,7 +14,7 @@ using Windows.Storage.Pickers;
 namespace JustHostMC.App.Views;
 
 /// <summary>Modal backup manager for one server: list, create, restore, delete.</summary>
-public sealed partial class BackupsDialog : FluentContentDialog
+public sealed partial class BackupsDialog : UserControl
 {
     private readonly string _serverId;
     private readonly string _serverName;
@@ -29,10 +28,9 @@ public sealed partial class BackupsDialog : FluentContentDialog
         _serverName = serverName;
         ViewModel = new BackupsViewModel(serverId, serverRunning, dispatcher, _localizer);
         InitializeComponent();
-        Title = serverName;
-
-        Opened += async (_, _) => await ViewModel.LoadAsync();
     }
+
+    public System.Threading.Tasks.Task LoadAsync() => ViewModel.LoadAsync();
 
     /// <summary>Helper for x:Bind to enable controls only when not busy.</summary>
     public bool Not(bool value) => !value;

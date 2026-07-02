@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using JustHostMC.App.Controls;
 using JustHostMC.App.Services;
 using JustHostMC.App.ViewModels;
 using McManager.Grpc;
@@ -12,12 +11,15 @@ using Microsoft.UI.Xaml.Controls;
 namespace JustHostMC.App.Views;
 
 /// <summary>Collects the parameters for creating a new server.</summary>
-public sealed partial class CreateServerDialog : FluentContentDialog
+public sealed partial class CreateServerDialog : UserControl
 {
     private readonly MainViewModel _viewModel;
     private readonly ILocalizer _localizer = new LocalizationService();
     private bool _isLoadingVersions;
     private bool _versionLoadFailed;
+
+    public bool CanSubmit { get; private set; }
+    public event EventHandler? CanSubmitChanged;
 
     private sealed record TypeChoice(ProviderInfo Provider, string Display)
     {
@@ -28,9 +30,6 @@ public sealed partial class CreateServerDialog : FluentContentDialog
     {
         _viewModel = viewModel;
         InitializeComponent();
-
-        // Disable the primary button until providers + a version are loaded.
-        IsPrimaryButtonEnabled = false;
 
         // Load the installed providers; selecting the first triggers a version load.
         _ = LoadProvidersAsync();
@@ -144,9 +143,14 @@ public sealed partial class CreateServerDialog : FluentContentDialog
     /// <summary>Enables the primary button only when versions are loaded and one is selected.</summary>
     private void UpdatePrimaryButtonState()
     {
-        IsPrimaryButtonEnabled = !_isLoadingVersions
-                                 && !_versionLoadFailed
-                                 && VersionBox.SelectedItem is string;
+        var canSubmit = !_isLoadingVersions
+                        && !_versionLoadFailed
+                        && VersionBox.SelectedItem is string;
+        if (CanSubmit == canSubmit)
+            return;
+
+        CanSubmit = canSubmit;
+        CanSubmitChanged?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>Builds the request from the form, or null if required fields are missing.</summary>

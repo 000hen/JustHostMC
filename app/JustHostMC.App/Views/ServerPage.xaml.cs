@@ -1,3 +1,4 @@
+using JustHostMC.App.Controls;
 using JustHostMC.App.Models;
 using JustHostMC.App.Services;
 using JustHostMC.App.ViewModels;
@@ -193,9 +194,17 @@ public sealed partial class ServerPage : Page {
     }
 
     private async void OnBackupsClick(object sender, RoutedEventArgs e) {
-        var dialog = new BackupsDialog(Server.Id, Server.Name, Server.IsRunning, DispatcherQueue) {
+        var content = new BackupsDialog(Server.Id, Server.Name, Server.IsRunning, DispatcherQueue);
+        var dialog = new ContentDialog {
             XamlRoot = XamlRoot,
+            Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
+            Title = Server.Name,
+            Content = content,
+            CloseButtonText = _localizer.Get("BackupsDialog_CloseButtonText"),
+            DefaultButton = ContentDialogButton.Close,
         };
+        dialog.Opened += async (_, _) => await content.LoadAsync();
+        ContentDialogSizing.Apply(dialog, useWideLayout: true);
         await dialog.ShowAsync();
     }
 
@@ -204,9 +213,22 @@ public sealed partial class ServerPage : Page {
     private async void OnEditClick(object sender, RoutedEventArgs e) => await ShowEditDialogAsync();
 
     private async Task ShowEditDialogAsync() {
-        var dialog = new EditServerDialog(_main, Server) { XamlRoot = XamlRoot };
+        var content = new EditServerDialog(_main, Server);
+        var dialog = new ContentDialog {
+            XamlRoot = XamlRoot,
+            Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
+            Title = _localizer.Get("EditServerDialog_Title"),
+            Content = content,
+            PrimaryButtonText = _localizer.Get("EditServerDialog_PrimaryButtonText"),
+            CloseButtonText = _localizer.Get("EditServerDialog_CloseButtonText"),
+            DefaultButton = ContentDialogButton.Primary,
+            IsPrimaryButtonEnabled = content.CanSubmit,
+        };
+        content.CanSubmitChanged += (_, _) => dialog.IsPrimaryButtonEnabled = content.CanSubmit;
+        ContentDialogSizing.Apply(dialog);
+
         if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-            await _main.UpdateServerAsync(dialog.BuildRequest());
+            await _main.UpdateServerAsync(content.BuildRequest());
     }
 
     private async Task ShowRenameDialogAsync() {
@@ -260,8 +282,9 @@ public sealed partial class ServerPage : Page {
             return;
 
         var view = new PlayerDataDialog(Server.Id, player);
-        var dialog = new PlayerDialogBase(view.ActionName, player, view) { XamlRoot = XamlRoot };
-        view.OnHeaderUpdated = dialog.UpdateHeader;
+        var content = new PlayerDialogBase(player, view);
+        var dialog = CreatePlayerDialog(view.ActionName, player, content);
+        view.OnHeaderUpdated = content.UpdateHeader;
         await dialog.ShowAsync();
     }
 
@@ -270,13 +293,37 @@ public sealed partial class ServerPage : Page {
             return;
 
         var view = new PlayerInventoryDialog(Server.Id, player);
-        var dialog = new PlayerDialogBase(view.ActionName, player, view) { XamlRoot = XamlRoot };
-        view.OnHeaderUpdated = dialog.UpdateHeader;
+        var content = new PlayerDialogBase(player, view);
+        var dialog = CreatePlayerDialog(view.ActionName, player, content);
+        view.OnHeaderUpdated = content.UpdateHeader;
         await dialog.ShowAsync();
     }
 
+    private ContentDialog CreatePlayerDialog(string actionName, PlayerItem player, PlayerDialogBase content) {
+        var dialog = new ContentDialog {
+            XamlRoot = XamlRoot,
+            Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
+            Title = string.Format(_localizer.Get("PlayerDialogBase_TitleFormat"), actionName, player.Name),
+            Content = content,
+            CloseButtonText = _localizer.Get("PlayerDialogBase_CloseButtonText"),
+            DefaultButton = ContentDialogButton.Close,
+        };
+        ContentDialogSizing.Apply(dialog, useWideLayout: true);
+        return dialog;
+    }
+
     private async void OnManageBansClick(object sender, RoutedEventArgs e) {
-        var dialog = new BanListDialog(Server.Id, IsStopped(Server.Status)) { XamlRoot = XamlRoot };
+        var content = new BanListDialog(Server.Id, IsStopped(Server.Status));
+        var dialog = new ContentDialog {
+            XamlRoot = XamlRoot,
+            Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
+            Title = _localizer.Get("BanListDialog_Title"),
+            Content = content,
+            CloseButtonText = _localizer.Get("BanListDialog_CloseButtonText"),
+            DefaultButton = ContentDialogButton.Close,
+        };
+        dialog.Opened += async (_, _) => await content.LoadAsync();
+        ContentDialogSizing.Apply(dialog, useWideLayout: true);
         await dialog.ShowAsync();
     }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
+using JustHostMC.App.Controls;
 using JustHostMC.App.Models;
 using JustHostMC.App.Services;
 using JustHostMC.App.ViewModels;
@@ -103,13 +104,22 @@ public sealed partial class ScriptsPage : Page
     private async Task<IReadOnlyList<PermissionKind>?> RequestConsentAsync(string scriptName, string luaSource)
     {
         var permissions = LuaPermissions.Parse(luaSource);
-        var dialog = new PermissionConsentDialog(scriptName, permissions, _localizer)
+        var content = new PermissionConsentDialog(permissions, _localizer);
+        var dialog = new ContentDialog
         {
             XamlRoot = XamlRoot,
+            Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
+            Title = _localizer.Get("PermissionConsentTitleNamed", ("name", scriptName)),
+            Content = content,
+            PrimaryButtonText = _localizer.Get("PermissionConsentDialog_PrimaryButtonText"),
+            CloseButtonText = _localizer.Get("PermissionConsentDialog_CloseButtonText"),
+            DefaultButton = ContentDialogButton.Primary,
         };
+        ContentDialogSizing.Apply(dialog);
+
         if (await dialog.ShowAsync() != ContentDialogResult.Primary)
             return null;
-        return dialog.Granted;
+        return content.Granted;
     }
 
     private async void OnRemoveProviderClick(object sender, RoutedEventArgs e)

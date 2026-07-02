@@ -110,9 +110,9 @@
   <data name="ConsoleSendCommandButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>送出指令</value></data>
 
   <!-- Create-server dialog -->
-  <data name="CreateServerDialog.Title" xml:space="preserve"><value>建立伺服器</value></data>
-  <data name="CreateServerDialog.PrimaryButtonText" xml:space="preserve"><value>建立</value></data>
-  <data name="CreateServerDialog.CloseButtonText" xml:space="preserve"><value>取消</value></data>
+  <data name="CreateServerDialog_Title" xml:space="preserve"><value>建立伺服器</value></data>
+  <data name="CreateServerDialog_PrimaryButtonText" xml:space="preserve"><value>建立</value></data>
+  <data name="CreateServerDialog_CloseButtonText" xml:space="preserve"><value>取消</value></data>
   <data name="CreateServerName.Header" xml:space="preserve"><value>名稱</value></data>
   <data name="CreateServerName.PlaceholderText" xml:space="preserve"><value>我的伺服器</value></data>
   <data name="CreateServer_DefaultName" xml:space="preserve"><value>我的伺服器</value></data>
@@ -151,7 +151,7 @@
 
   <!-- Backups -->
   <data name="ServerBackupsButton.Content" xml:space="preserve"><value>備份</value></data>
-  <data name="BackupsDialog.CloseButtonText" xml:space="preserve"><value>關閉</value></data>
+  <data name="BackupsDialog_CloseButtonText" xml:space="preserve"><value>關閉</value></data>
   <data name="BackupCreateButton.Content" xml:space="preserve"><value>建立備份</value></data>
   <data name="BackupSafeOnline.Content" xml:space="preserve"><value>線上安全備份（暫停儲存）</value></data>
   <data name="BackupsEmptyHint.Text" xml:space="preserve"><value>還沒有備份。選取「建立備份」來建立一份。</value></data>
@@ -294,7 +294,7 @@
   <data name="ConfigName_doImmediateRespawn" xml:space="preserve"><value>立即重生</value></data>
   <!-- Ban list -->
   <data name="BanListDialog_Title" xml:space="preserve"><value>封鎖名單</value></data>
-  <data name="BanListDialog.CloseButtonText" xml:space="preserve"><value>關閉</value></data>
+  <data name="BanListDialog_CloseButtonText" xml:space="preserve"><value>關閉</value></data>
   <data name="BanListStoppedNotice.Title" xml:space="preserve"><value>停止伺服器後再編輯</value></data>
   <data name="BanListStoppedNotice.Message" xml:space="preserve"><value>封鎖名單檔案最適合在伺服器停止時修改；伺服器執行中仍可使用主控台封鎖指令。</value></data>
   <data name="BanListStoppedNotice_Title" xml:space="preserve"><value>停止伺服器後再編輯</value></data>
@@ -319,7 +319,7 @@
   <data name="BanList_RemoveFailed" xml:space="preserve"><value>無法移除封鎖。</value></data>
   <data name="BanList_TargetRequired" xml:space="preserve"><value>請輸入玩家、UUID 或 IP 位址。</value></data>
   <data name="BanList_StoppedRequired" xml:space="preserve"><value>請先停止伺服器再編輯封鎖名單檔案。</value></data>
-  <data name="PlayerDialogBase.CloseButtonText" xml:space="preserve"><value>關閉</value></data>
+  <data name="PlayerDialogBase_CloseButtonText" xml:space="preserve"><value>關閉</value></data>
   <data name="PlayerRawDataBox.Header" xml:space="preserve"><value>原始玩家 NBT</value></data>
   <data name="PlayerDataDialog.ActionName" xml:space="preserve"><value>原始資料</value></data>
   <data name="PlayerInventoryDialog.ActionName" xml:space="preserve"><value>物品欄</value></data>
@@ -422,9 +422,9 @@
   <data name="BackupDeleteAction.Text" xml:space="preserve"><value>刪除</value></data>
   <data name="Backups_Deleting" xml:space="preserve"><value>刪除備份中</value></data>
   <data name="Backups_ExportFailed" xml:space="preserve"><value>無法匯出備份。</value></data>
-  <data name="EditServerDialog.Title" xml:space="preserve"><value>編輯伺服器</value></data>
-  <data name="EditServerDialog.PrimaryButtonText" xml:space="preserve"><value>儲存</value></data>
-  <data name="EditServerDialog.CloseButtonText" xml:space="preserve"><value>取消</value></data>
+  <data name="EditServerDialog_Title" xml:space="preserve"><value>編輯伺服器</value></data>
+  <data name="EditServerDialog_PrimaryButtonText" xml:space="preserve"><value>儲存</value></data>
+  <data name="EditServerDialog_CloseButtonText" xml:space="preserve"><value>取消</value></data>
   <data name="EditServerName.Header" xml:space="preserve"><value>名稱</value></data>
   <data name="EditServerName_Header" xml:space="preserve"><value>名稱</value></data>
   <data name="EditServerType.Header" xml:space="preserve"><value>類型</value></data>
@@ -453,9 +453,9 @@
   <data name="ScriptsRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>移除</value></data>
   <data name="ScriptsLogHeader.Text" xml:space="preserve"><value>自動化日誌</value></data>
   <data name="ScriptsLogEmpty.Text" xml:space="preserve"><value>尚無自動化輸出。</value></data>
-  <data name="PermissionConsentDialog.Title" xml:space="preserve"><value>檢視權限</value></data>
-  <data name="PermissionConsentDialog.PrimaryButtonText" xml:space="preserve"><value>允許所選</value></data>
-  <data name="PermissionConsentDialog.CloseButtonText" xml:space="preserve"><value>取消</value></data>
+  <data name="PermissionConsentDialog_Title" xml:space="preserve"><value>檢視權限</value></data>
+  <data name="PermissionConsentDialog_PrimaryButtonText" xml:space="preserve"><value>允許所選</value></data>
+  <data name="PermissionConsentDialog_CloseButtonText" xml:space="preserve"><value>取消</value></data>
   <data name="PermissionConsentIntro.Text" xml:space="preserve"><value>此腳本要求以下權限。請僅允許您信任的項目。</value></data>
   <data name="PermissionConsentNone.Text" xml:space="preserve"><value>此腳本未要求任何權限。</value></data>
   <data name="Permission_Network" xml:space="preserve"><value>網路存取</value></data>

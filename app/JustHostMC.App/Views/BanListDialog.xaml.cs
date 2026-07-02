@@ -1,6 +1,5 @@
 using System.Collections.ObjectModel;
 using Grpc.Core;
-using JustHostMC.App.Controls;
 using JustHostMC.App.Models;
 using JustHostMC.App.Services;
 using McManager.Grpc;
@@ -10,7 +9,7 @@ using Microsoft.UI.Xaml.Controls;
 namespace JustHostMC.App.Views;
 
 /// <summary>Modal editor for vanilla banned-players.json and banned-ips.json.</summary>
-public sealed partial class BanListDialog : FluentContentDialog
+public sealed partial class BanListDialog : UserControl
 {
     private readonly string _serverId;
     private readonly ILocalizer _localizer = new LocalizationService();
@@ -27,11 +26,9 @@ public sealed partial class BanListDialog : FluentContentDialog
         StoppedNoticeTitle = _localizer.Get("BanListStoppedNotice_Title");
         StoppedNoticeMessage = _localizer.Get("BanListStoppedNotice_Message");
         InitializeComponent();
-        Title = _localizer.Get("BanListDialog_Title");
-        Opened += async (_, _) => await LoadAsync();
     }
 
-    private async Task LoadAsync()
+    public async Task LoadAsync()
     {
         BusyBar.Visibility = Visibility.Visible;
         StatusText.Text = "";

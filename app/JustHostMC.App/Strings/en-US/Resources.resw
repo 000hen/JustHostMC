@@ -110,9 +110,9 @@
   <data name="ConsoleSendCommandButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Send command</value></data>
 
   <!-- Create-server dialog -->
-  <data name="CreateServerDialog.Title" xml:space="preserve"><value>Create server</value></data>
-  <data name="CreateServerDialog.PrimaryButtonText" xml:space="preserve"><value>Create</value></data>
-  <data name="CreateServerDialog.CloseButtonText" xml:space="preserve"><value>Cancel</value></data>
+  <data name="CreateServerDialog_Title" xml:space="preserve"><value>Create server</value></data>
+  <data name="CreateServerDialog_PrimaryButtonText" xml:space="preserve"><value>Create</value></data>
+  <data name="CreateServerDialog_CloseButtonText" xml:space="preserve"><value>Cancel</value></data>
   <data name="CreateServerName.Header" xml:space="preserve"><value>Name</value></data>
   <data name="CreateServerName.PlaceholderText" xml:space="preserve"><value>My server</value></data>
   <data name="CreateServer_DefaultName" xml:space="preserve"><value>My Server</value></data>
@@ -151,7 +151,7 @@
 
   <!-- Backups -->
   <data name="ServerBackupsButton.Content" xml:space="preserve"><value>Backups</value></data>
-  <data name="BackupsDialog.CloseButtonText" xml:space="preserve"><value>Close</value></data>
+  <data name="BackupsDialog_CloseButtonText" xml:space="preserve"><value>Close</value></data>
   <data name="BackupCreateButton.Content" xml:space="preserve"><value>Create backup</value></data>
   <data name="BackupCreateButtonLabel.Text" xml:space="preserve"><value>Create backup</value></data>
   <data name="BackupSafeOnline.Content" xml:space="preserve"><value>Safe online (pause saves)</value></data>
@@ -296,7 +296,7 @@
   <data name="ConfigName_doImmediateRespawn" xml:space="preserve"><value>Immediate respawn</value></data>
   <!-- Ban list -->
   <data name="BanListDialog_Title" xml:space="preserve"><value>Ban list</value></data>
-  <data name="BanListDialog.CloseButtonText" xml:space="preserve"><value>Close</value></data>
+  <data name="BanListDialog_CloseButtonText" xml:space="preserve"><value>Close</value></data>
   <data name="BanListStoppedNotice.Title" xml:space="preserve"><value>Stop server to edit</value></data>
   <data name="BanListStoppedNotice.Message" xml:space="preserve"><value>The ban files are safest to change while the server is stopped. Console ban commands still work while running.</value></data>
   <data name="BanListStoppedNotice_Title" xml:space="preserve"><value>Stop server to edit</value></data>
@@ -321,7 +321,7 @@
   <data name="BanList_RemoveFailed" xml:space="preserve"><value>Could not remove ban.</value></data>
   <data name="BanList_TargetRequired" xml:space="preserve"><value>Enter a player, UUID, or IP address.</value></data>
   <data name="BanList_StoppedRequired" xml:space="preserve"><value>Stop the server to edit ban-list files.</value></data>
-  <data name="PlayerDialogBase.CloseButtonText" xml:space="preserve"><value>Close</value></data>
+<data name="PlayerDialogBase_CloseButtonText" xml:space="preserve"><value>Close</value></data>
   <data name="PlayerDataDialog.ActionName" xml:space="preserve"><value>Raw data</value></data>
   <data name="PlayerInventoryDialog.ActionName" xml:space="preserve"><value>Inventory</value></data>
   <data name="PlayerDialogBase_TitleFormat" xml:space="preserve"><value>{0} for {1}</value></data>
@@ -456,9 +456,9 @@
   <data name="ServerEditMenuItem.Text" xml:space="preserve"><value>Edit server</value></data>
   <data name="ServerTitleRenameButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Rename server</value></data>
   <data name="RenameServerDialog_Title" xml:space="preserve"><value>Rename server</value></data>
-  <data name="EditServerDialog.Title" xml:space="preserve"><value>Edit server</value></data>
-  <data name="EditServerDialog.PrimaryButtonText" xml:space="preserve"><value>Save</value></data>
-  <data name="EditServerDialog.CloseButtonText" xml:space="preserve"><value>Cancel</value></data>
+  <data name="EditServerDialog_Title" xml:space="preserve"><value>Edit server</value></data>
+  <data name="EditServerDialog_PrimaryButtonText" xml:space="preserve"><value>Save</value></data>
+  <data name="EditServerDialog_CloseButtonText" xml:space="preserve"><value>Cancel</value></data>
   <data name="EditServerName.Header" xml:space="preserve"><value>Name</value></data>
   <data name="EditServerName_Header" xml:space="preserve"><value>Name</value></data>
   <data name="EditServerType.Header" xml:space="preserve"><value>Type</value></data>
@@ -487,9 +487,9 @@
   <data name="ScriptsRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Remove</value></data>
   <data name="ScriptsLogHeader.Text" xml:space="preserve"><value>Automation log</value></data>
   <data name="ScriptsLogEmpty.Text" xml:space="preserve"><value>No automation output yet.</value></data>
-  <data name="PermissionConsentDialog.Title" xml:space="preserve"><value>Review permissions</value></data>
-  <data name="PermissionConsentDialog.PrimaryButtonText" xml:space="preserve"><value>Allow selected</value></data>
-  <data name="PermissionConsentDialog.CloseButtonText" xml:space="preserve"><value>Cancel</value></data>
+  <data name="PermissionConsentDialog_Title" xml:space="preserve"><value>Review permissions</value></data>
+  <data name="PermissionConsentDialog_PrimaryButtonText" xml:space="preserve"><value>Allow selected</value></data>
+  <data name="PermissionConsentDialog_CloseButtonText" xml:space="preserve"><value>Cancel</value></data>
   <data name="PermissionConsentIntro.Text" xml:space="preserve"><value>This script requests the following permissions. Allow only what you trust it to do.</value></data>
   <data name="PermissionConsentNone.Text" xml:space="preserve"><value>This script does not request any permissions.</value></data>
   <data name="Permission_Network" xml:space="preserve"><value>Network access</value></data>

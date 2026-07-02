@@ -234,4 +234,7 @@ func TestScriptStreamLogReplaysHistory(t *testing.T) {
 	if lines[0].ScriptId != "auto1" {
 		t.Errorf("script id = %q, want auto1", lines[0].ScriptId)
 	}
+	if _, err := time.Parse(time.RFC3339Nano, lines[0].Timestamp); err != nil {
+		t.Errorf("timestamp = %q, want RFC3339: %v", lines[0].Timestamp, err)
+	}
 }

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="JustHostMC.App.Controls.ScriptSectionExpander"
+    x:Name="Root"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    HorizontalAlignment="Stretch"
+    HorizontalContentAlignment="Stretch">
+
+    <Expander IsExpanded="{Binding IsExpanded, ElementName=Root, Mode=TwoWay}"
+              HorizontalAlignment="Stretch"
+              HorizontalContentAlignment="Stretch">
+        <Expander.Header>
+            <Grid ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <ContentPresenter Content="{Binding HeaderContent, ElementName=Root}"
+                                  VerticalAlignment="Center" />
+
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            Spacing="8">
+                    <Button x:Uid="ScriptSectionShowInFolderButton"
+                            Click="OnShowInFolderClick">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE8B7;" FontSize="14" />
+                            <TextBlock x:Uid="ScriptSectionShowInFolderButtonLabel" />
+                        </StackPanel>
+                    </Button>
+                    <Button x:Uid="ScriptSectionAddScriptsButton"
+                            Style="{StaticResource AccentButtonStyle}"
+                            Click="OnAddScriptsClick">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE896;" FontSize="14" />
+                            <TextBlock x:Uid="ScriptSectionAddScriptsButtonLabel" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Expander.Header>
+
+        <ContentPresenter Content="{Binding SectionContent, ElementName=Root}"
+                          HorizontalAlignment="Stretch"
+                          HorizontalContentAlignment="Stretch" />
+    </Expander>
+</UserControl>

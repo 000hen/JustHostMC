@@ -562,7 +562,7 @@
                                   HorizontalScrollMode="Disabled"
                                   HorizontalScrollBarVisibility="Disabled"
                                   HorizontalContentAlignment="Stretch">
-                        <StackPanel Spacing="12" Padding="0,0,0,76" HorizontalAlignment="Stretch">
+                        <StackPanel Spacing="8" Padding="0,0,0,76" HorizontalAlignment="Stretch">
                             <TextBlock x:Uid="ConfigStoppedHint"
                                    TextWrapping="Wrap"
                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"

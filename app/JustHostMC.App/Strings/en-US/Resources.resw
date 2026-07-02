@@ -474,19 +474,31 @@
   <data name="ScriptsPageTitle.Text" xml:space="preserve"><value>Scripts</value></data>
   <data name="ScriptsPageSubtitle.Text" xml:space="preserve"><value>Import your own Lua provider and automation scripts, review the permissions they request, and manage what is installed.</value></data>
   <data name="ScriptsProvidersHeader.Text" xml:space="preserve"><value>Providers</value></data>
-  <data name="ScriptsImportProviderButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Import provider script</value></data>
-  <data name="ScriptsImportProviderButtonLabel.Text" xml:space="preserve"><value>Import provider</value></data>
+  <data name="ScriptSectionShowInFolderButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Show scripts in folder</value></data>
+  <data name="ScriptSectionShowInFolderButtonLabel.Text" xml:space="preserve"><value>Show in Folder</value></data>
+  <data name="ScriptSectionAddScriptsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Add scripts</value></data>
+  <data name="ScriptSectionAddScriptsButtonLabel.Text" xml:space="preserve"><value>Add Scripts</value></data>
   <data name="ScriptsProvidersEmpty.Text" xml:space="preserve"><value>No providers installed yet.</value></data>
   <data name="ScriptsAutomationHeader.Text" xml:space="preserve"><value>Automation scripts</value></data>
-  <data name="ScriptsImportScriptButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Import automation script</value></data>
-  <data name="ScriptsImportScriptButtonLabel.Text" xml:space="preserve"><value>Import script</value></data>
   <data name="ScriptsAutomationEmpty.Text" xml:space="preserve"><value>No automation scripts installed yet.</value></data>
   <data name="ScriptsBuiltinBadge.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Built in</value></data>
   <data name="ScriptsBuiltinBadgeLabel.Text" xml:space="preserve"><value>Built in</value></data>
   <data name="ScriptsEnabledToggle.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Enable or disable this script</value></data>
   <data name="ScriptsRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Remove</value></data>
-  <data name="ScriptsLogHeader.Text" xml:space="preserve"><value>Automation log</value></data>
-  <data name="ScriptsLogEmpty.Text" xml:space="preserve"><value>No automation output yet.</value></data>
+  <data name="ScriptsAllLogsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Open all automation logs in a new window</value></data>
+  <data name="ScriptsAllLogsButtonLabel.Text" xml:space="preserve"><value>All Logs</value></data>
+  <data name="ScriptsScriptLogsHeader.Text" xml:space="preserve"><value>Logs</value></data>
+  <data name="ScriptsScriptLogsEmpty.Text" xml:space="preserve"><value>No output from this script yet.</value></data>
+  <data name="ScriptLogsWindow_Title" xml:space="preserve"><value>All Automation Logs</value></data>
+  <data name="ScriptLogsWindowEmpty.Text" xml:space="preserve"><value>No automation output yet.</value></data>
+  <data name="ScriptLogsWindowNoSelection.Text" xml:space="preserve"><value>Select a log entry to view its details.</value></data>
+  <data name="ScriptLogsWindowScriptDetailsHeader.Text" xml:space="preserve"><value>Script</value></data>
+  <data name="ScriptLogsWindowScriptNameLabel.Text" xml:space="preserve"><value>Name</value></data>
+  <data name="ScriptLogsWindowScriptIdLabel.Text" xml:space="preserve"><value>ID</value></data>
+  <data name="ScriptLogsWindowDetailHeader.Text" xml:space="preserve"><value>Log detail</value></data>
+  <data name="Scripts_SystemLogName" xml:space="preserve"><value>System</value></data>
+  <data name="Scripts_LogEntryFallbackTitle" xml:space="preserve"><value>Log entry</value></data>
+  <data name="Scripts_OpenFolderFailed" xml:space="preserve"><value>Could not open the scripts folder.</value></data>
   <data name="PermissionConsentDialog.Title" xml:space="preserve"><value>Review permissions</value></data>
   <data name="PermissionConsentDialog.PrimaryButtonText" xml:space="preserve"><value>Allow selected</value></data>
   <data name="PermissionConsentDialog.CloseButtonText" xml:space="preserve"><value>Cancel</value></data>

@@ -24,6 +24,11 @@
             <ProgressBar IsIndeterminate="True"
                          Visibility="{x:Bind ViewModel.IsBusy, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
 
+            <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
+                       TextWrapping="WrapWholeWords"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                       Visibility="{x:Bind ViewModel.HasStatusMessage, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+
             <!-- Providers -->
             <controls:ScriptSectionExpander ShowInFolderClick="OnShowProvidersFolderClick"
                                             AddScriptsClick="OnImportProviderClick"

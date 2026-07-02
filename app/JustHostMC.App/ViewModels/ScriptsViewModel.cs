@@ -47,7 +47,16 @@ public sealed class ScriptsViewModel : ObservableObject, IAsyncDisposable {
     private string _statusMessage = "";
     public string StatusMessage {
         get => _statusMessage;
-        private set => SetProperty(ref _statusMessage, value);
+        private set {
+            if (SetProperty(ref _statusMessage, value))
+                HasStatusMessage = !string.IsNullOrWhiteSpace(value);
+        }
+    }
+
+    private bool _hasStatusMessage;
+    public bool HasStatusMessage {
+        get => _hasStatusMessage;
+        private set => SetProperty(ref _hasStatusMessage, value);
     }
 
     /// <summary>Sets a localized status message (used by the page for picker/IO errors).

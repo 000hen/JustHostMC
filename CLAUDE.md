@@ -172,7 +172,8 @@ both sides, then implement the Go `*Service` and call it from a C# ViewModel.
   with `await App.Current.DaemonReady`. `Views/` (pages + ContentDialogs),
   `ViewModels/`, `Models/`, `Services/`, `Controls/`, `Converters/`.
   `NavShellViewModel` owns the single live server list (`MainViewModel`) and caches
-  per-server ViewModels so gRPC streams survive page navigations.
+  per-server ViewModels so gRPC streams survive page navigations. Follow
+  `docs/mvvm.md` for the frontend's source-generation conventions.
 
 ### Cross-cutting conventions
 
@@ -189,25 +190,37 @@ both sides, then implement the Go `*Service` and call it from a C# ViewModel.
   `.` → `_` to match `.resw` keys. Adding a language is a new `.resw` folder, no
   code change.
 
+### MVVM Toolkit source generation
+
+- Observable UI state uses `[ObservableProperty]` on public partial properties
+  in a `partial` type. Do not hand-write backing fields with `SetProperty`.
+- Use `[NotifyPropertyChangedFor]` for computed-property dependencies and the
+  generated `On<Property>Changed` partial hooks for change side effects.
+- Commands use `[RelayCommand]`; use `CanExecute` and
+  `[NotifyCanExecuteChangedFor]` when availability depends on observable state.
+  Do not manually allocate relay commands unless runtime composition is required.
+- Use partial properties, not attributed fields: field targets produce
+  `MVVMTK0045` because they are not WinRT AOT-safe. The app intentionally uses
+  C# preview with .NET 9 for CommunityToolkit.Mvvm 8.4 partial-property support.
+- Keep a clean build free of MVVM Toolkit analyzer warnings. See `docs/mvvm.md`
+  for examples and the complete policy.
+
 ## WinUI XAML-compiler pitfalls in this project (hard-won — do not relearn)
 
 These cause cryptic startup/page-load crashes, not build errors, so `dotnet build`
 will not catch them.
 
-1. **Do not use `[ObservableProperty]`.** The source-generated partial properties
-   break the WinUI XAML compiler in this project. Write manual properties with
-   `SetProperty(ref _field, value)` (see `ConsoleViewModel`). `[RelayCommand]` is fine.
-2. **Marshal all stream/background updates to the UI thread** via
+1. **Marshal all stream/background updates to the UI thread** via
    `DispatcherQueue.TryEnqueue` (the `RunOnUI` pattern); ViewModels driving gRPC
    streams take a `DispatcherQueue`.
-3. **`x:Bind` `{StaticResource}` converters** must be declared in `App.Resources`
+2. **`x:Bind` `{StaticResource}` converters** must be declared in `App.Resources`
    or the XAML root — not an inner element's `.Resources` — else `0xC000027B` at
    startup.
-4. **`{Binding ElementName=...}` is dead inside a ListView item `DataTemplate`** —
+3. **`{Binding ElementName=...}` is dead inside a ListView item `DataTemplate`** —
    route item commands via `Click`+`Tag` or `x:Bind`.
-5. **`NavigationView.MenuItemsSource` of plain managed types + an `{x:Bind}`
+4. **`NavigationView.MenuItemsSource` of plain managed types + an `{x:Bind}`
    template crashes at startup** — build the items imperatively or use `{Binding}`.
-6. **Never share one `x:Uid` across different control types** when its `.resw`
+5. **Never share one `x:Uid` across different control types** when its `.resw`
    entry sets `.Content`: applying a `.Content` uid to a `TextBlock` (which has
    `.Text`) throws `XamlParseException 0x802B000A` the moment that page loads. Give
    each control type its own uid with the matching property suffix, and smoke-test

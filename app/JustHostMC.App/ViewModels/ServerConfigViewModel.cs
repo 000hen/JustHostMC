@@ -32,33 +32,15 @@ public sealed partial class ServerConfigViewModel : ObservableObject
     public ObservableCollection<ConfigEntryItem> Properties { get; } = new();
     public ObservableCollection<ConfigEntryItem> GameRules { get; } = new();
 
-    private bool _canModify;
-    public bool CanModify
-    {
-        get => _canModify;
-        private set
-        {
-            if (SetProperty(ref _canModify, value))
-            {
-                OnPropertyChanged(nameof(CanSaveGameRules));
-                OnPropertyChanged(nameof(CanSaveModifiedConfiguration));
-            }
-        }
-    }
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanSaveGameRules))]
+    [NotifyPropertyChangedFor(nameof(CanSaveModifiedConfiguration))]
+    public partial bool CanModify { get; private set; }
 
-    private bool _gameRulesWorldExists;
-    public bool GameRulesWorldExists
-    {
-        get => _gameRulesWorldExists;
-        private set
-        {
-            if (SetProperty(ref _gameRulesWorldExists, value))
-            {
-                OnPropertyChanged(nameof(CanSaveGameRules));
-                OnPropertyChanged(nameof(CanSaveModifiedConfiguration));
-            }
-        }
-    }
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanSaveGameRules))]
+    [NotifyPropertyChangedFor(nameof(CanSaveModifiedConfiguration))]
+    public partial bool GameRulesWorldExists { get; private set; }
 
     public bool CanSaveGameRules => CanModify && GameRulesWorldExists;
     public bool PropertiesModified => Properties.Any(item => item.IsModified);
@@ -68,40 +50,20 @@ public sealed partial class ServerConfigViewModel : ObservableObject
     public bool CanSaveModifiedConfiguration => !IsBusy && CanModify &&
         (PropertiesModified || (GameRulesWorldExists && GameRulesModified));
 
-    private bool _isBusy;
-    public bool IsBusy
-    {
-        get => _isBusy;
-        private set
-        {
-            if (SetProperty(ref _isBusy, value))
-            {
-                OnPropertyChanged(nameof(IsInitialLoading));
-                OnPropertyChanged(nameof(CanDiscardChanges));
-                OnPropertyChanged(nameof(CanSaveModifiedConfiguration));
-            }
-        }
-    }
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsInitialLoading))]
+    [NotifyPropertyChangedFor(nameof(CanDiscardChanges))]
+    [NotifyPropertyChangedFor(nameof(CanSaveModifiedConfiguration))]
+    public partial bool IsBusy { get; private set; }
 
     public bool IsInitialLoading => IsBusy && !_loaded;
 
-    private string _statusMessage = "";
-    public string StatusMessage
-    {
-        get => _statusMessage;
-        private set => SetProperty(ref _statusMessage, value);
-    }
+    [ObservableProperty]
+    public partial string StatusMessage { get; private set; } = "";
 
-    private string _gameRulesMessage = "";
-    public string GameRulesMessage
-    {
-        get => _gameRulesMessage;
-        private set
-        {
-            if (SetProperty(ref _gameRulesMessage, value))
-                OnPropertyChanged(nameof(HasGameRulesMessage));
-        }
-    }
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasGameRulesMessage))]
+    public partial string GameRulesMessage { get; private set; } = "";
 
     public bool HasGameRulesMessage => !string.IsNullOrWhiteSpace(GameRulesMessage);
 

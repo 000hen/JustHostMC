@@ -32,17 +32,17 @@ public sealed partial class MetricsViewModel : ObservableObject, IAsyncDisposabl
     public ObservableCollection<double> MemSeries { get; } = new();
     public ObservableCollection<double> NetSeries { get; } = new();
 
-    private string _cpuText = "—";
-    public string CpuText { get => _cpuText; private set => SetProperty(ref _cpuText, value); }
+    [ObservableProperty]
+    public partial string CpuText { get; private set; } = "—";
 
-    private string _memText = "—";
-    public string MemText { get => _memText; private set => SetProperty(ref _memText, value); }
+    [ObservableProperty]
+    public partial string MemText { get; private set; } = "—";
 
-    private string _netText = "—";
-    public string NetText { get => _netText; private set => SetProperty(ref _netText, value); }
+    [ObservableProperty]
+    public partial string NetText { get; private set; } = "—";
 
-    private bool _networkAvailable;
-    public bool NetworkAvailable { get => _networkAvailable; private set => SetProperty(ref _networkAvailable, value); }
+    [ObservableProperty]
+    public partial bool NetworkAvailable { get; private set; }
 
     public async Task AttachAsync()
     {

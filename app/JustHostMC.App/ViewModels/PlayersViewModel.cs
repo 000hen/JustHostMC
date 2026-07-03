@@ -26,12 +26,8 @@ public sealed partial class PlayersViewModel : ObservableObject, IAsyncDisposabl
 
     public ObservableCollection<PlayerItem> Players { get; } = new();
 
-    private int _count;
-    public int Count
-    {
-        get => _count;
-        private set => SetProperty(ref _count, value);
-    }
+    [ObservableProperty]
+    public partial int Count { get; private set; }
 
     /// <summary>Opens the roster stream and applies updates on the UI thread.</summary>
     public async Task AttachAsync()

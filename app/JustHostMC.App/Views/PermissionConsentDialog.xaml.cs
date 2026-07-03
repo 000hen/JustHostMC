@@ -10,27 +10,23 @@ using Microsoft.UI.Xaml.Controls;
 namespace JustHostMC.App.Views;
 
 /// <summary>One requested permission row with an allow/deny toggle, bound in the
-/// consent dialog. Uses manual SetProperty (not [ObservableProperty]).</summary>
-public sealed class ConsentRow : ObservableObject
+/// consent dialog.</summary>
+public sealed partial class ConsentRow : ObservableObject
 {
     public ConsentRow(Permission permission, ILocalizer localizer, bool allowed)
     {
         Kind = permission.Kind;
         Label = PermissionLabels.Label(permission.Kind, localizer);
         Reason = permission.Reason;
-        _allowed = allowed;
+        Allowed = allowed;
     }
 
     public PermissionKind Kind { get; }
     public string Label { get; }
     public string Reason { get; }
 
-    private bool _allowed;
-    public bool Allowed
-    {
-        get => _allowed;
-        set => SetProperty(ref _allowed, value);
-    }
+    [ObservableProperty]
+    public partial bool Allowed { get; set; }
 }
 
 /// <summary>Consent dialog: shows each requested permission with its reason and an

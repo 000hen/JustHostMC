@@ -35,44 +35,22 @@ public sealed partial class ModsViewModel : ObservableObject
 
     public ObservableCollection<ModFileItem> Files { get; } = new();
 
-    private bool _supported = true;
-    public bool Supported
-    {
-        get => _supported;
-        private set
-        {
-            if (SetProperty(ref _supported, value))
-                RecomputeCanModify();
-        }
-    }
+    [ObservableProperty]
+    public partial bool Supported { get; private set; } = true;
 
-    private bool _canModify;
-    public bool CanModify
-    {
-        get => _canModify;
-        private set => SetProperty(ref _canModify, value);
-    }
+    [ObservableProperty]
+    public partial bool CanModify { get; private set; }
 
-    private bool _isBusy;
-    public bool IsBusy
-    {
-        get => _isBusy;
-        private set => SetProperty(ref _isBusy, value);
-    }
+    [ObservableProperty]
+    public partial bool IsBusy { get; private set; }
 
-    private string _kindLabel = "";
-    public string KindLabel
-    {
-        get => _kindLabel;
-        private set => SetProperty(ref _kindLabel, value);
-    }
+    [ObservableProperty]
+    public partial string KindLabel { get; private set; } = "";
 
-    private string _statusMessage = "";
-    public string StatusMessage
-    {
-        get => _statusMessage;
-        private set => SetProperty(ref _statusMessage, value);
-    }
+    [ObservableProperty]
+    public partial string StatusMessage { get; private set; } = "";
+
+    partial void OnSupportedChanged(bool value) => RecomputeCanModify();
 
     /// <summary>Updates the stopped-server gate that allows upload/remove.</summary>
     public void SetServerStopped(bool stopped)
@@ -183,7 +161,7 @@ public sealed partial class ModsViewModel : ObservableObject
         }
     }
 
-    private void RecomputeCanModify() => CanModify = _supported && _serverStopped;
+    private void RecomputeCanModify() => CanModify = Supported && _serverStopped;
 
     private static string MapErrorKey(RpcException ex) => ex.StatusCode switch
     {

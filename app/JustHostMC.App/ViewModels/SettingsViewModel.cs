@@ -17,14 +17,32 @@ public sealed partial class SettingsViewModel : ObservableObject
     private readonly DispatcherQueue _dispatcher;
     private readonly ILocalizer _localizer;
 
-    private double _keepDays;
-    private double _maxTotalMb;
-    private string _statusMessage = "";
-    private bool _isBusy;
+    /// <summary>Number of days to keep logs (0 = no age limit).</summary>
+    [ObservableProperty]
+    public partial double KeepDays { get; set; }
 
-    private string _activeModeText = "";
-    private string _dockerStatusText = "";
-    private bool _useDocker;
+    /// <summary>Total log size cap in megabytes (0 = no size limit).</summary>
+    [ObservableProperty]
+    public partial double MaxTotalMb { get; set; }
+
+    [ObservableProperty]
+    public partial string StatusMessage { get; private set; } = "";
+
+    [ObservableProperty]
+    public partial bool IsBusy { get; private set; }
+
+    /// <summary>Localized description of the isolation backend currently in use.</summary>
+    [ObservableProperty]
+    public partial string ActiveModeText { get; private set; } = "";
+
+    /// <summary>Localized Docker availability line.</summary>
+    [ObservableProperty]
+    public partial string DockerStatusText { get; private set; } = "";
+
+    /// <summary>The user's Docker opt-in. Changing it persists immediately (effective next launch).</summary>
+    [ObservableProperty]
+    public partial bool UseDocker { get; set; }
+
     private bool _loadingBackend;
 
     public SettingsViewModel(DispatcherQueue dispatcher, ILocalizer localizer)
@@ -33,55 +51,10 @@ public sealed partial class SettingsViewModel : ObservableObject
         _localizer = localizer;
     }
 
-    /// <summary>Number of days to keep logs (0 = no age limit).</summary>
-    public double KeepDays
+    partial void OnUseDockerChanged(bool value)
     {
-        get => _keepDays;
-        set => SetProperty(ref _keepDays, value);
-    }
-
-    /// <summary>Total log size cap in megabytes (0 = no size limit).</summary>
-    public double MaxTotalMb
-    {
-        get => _maxTotalMb;
-        set => SetProperty(ref _maxTotalMb, value);
-    }
-
-    public string StatusMessage
-    {
-        get => _statusMessage;
-        private set => SetProperty(ref _statusMessage, value);
-    }
-
-    public bool IsBusy
-    {
-        get => _isBusy;
-        private set => SetProperty(ref _isBusy, value);
-    }
-
-    /// <summary>Localized description of the isolation backend currently in use.</summary>
-    public string ActiveModeText
-    {
-        get => _activeModeText;
-        private set => SetProperty(ref _activeModeText, value);
-    }
-
-    /// <summary>Localized Docker availability line.</summary>
-    public string DockerStatusText
-    {
-        get => _dockerStatusText;
-        private set => SetProperty(ref _dockerStatusText, value);
-    }
-
-    /// <summary>The user's Docker opt-in. Changing it persists immediately (effective next launch).</summary>
-    public bool UseDocker
-    {
-        get => _useDocker;
-        set
-        {
-            if (SetProperty(ref _useDocker, value) && !_loadingBackend)
-                _ = ApplyUseDockerAsync(value);
-        }
+        if (!_loadingBackend)
+            _ = ApplyUseDockerAsync(value);
     }
 
     /// <summary>Loads the current retention policy and backend info from the engine.</summary>

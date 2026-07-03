@@ -120,6 +120,7 @@
   <data name="ServerTypeVanillaItem.Content" xml:space="preserve"><value>原版</value></data>
   <data name="CreateServerVersionHint.Text" xml:space="preserve"><value>版本會從網路取得。</value></data>
   <data name="CreateServerVersion.Header" xml:space="preserve"><value>版本</value></data>
+  <data name="CreateServerVersion.PlaceholderText" xml:space="preserve"><value>搜尋版本</value></data>
   <data name="CreateServerVersionError.Title" xml:space="preserve"><value>無法載入版本</value></data>
   <data name="CreateServerVersionError.Message" xml:space="preserve"><value>請檢查網路連線，然後重新選取伺服器類型。</value></data>
   <data name="CreateServerAdvancedHeader.Text" xml:space="preserve"><value>進階設定</value></data>

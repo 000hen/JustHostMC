@@ -123,8 +123,6 @@ public sealed partial class CreateServerDialog : UserControl
         {
             var versions = await _viewModel.GetVersionsAsync(choice.Id);
             VersionBox.ItemsSource = versions;
-            if (versions.Length > 0)
-                VersionBox.SelectedIndex = 0;
         }
         catch
         {

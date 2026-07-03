@@ -19,7 +19,12 @@
 
         <TitleBar
             x:Name="SimpleTitleBar"
-            Title="JustHostMC">
+            Title="JustHostMC"
+            IsBackButtonVisible="{x:Bind ContentFrame.CanGoBack, Mode=OneWay}"
+            IsBackButtonEnabled="{x:Bind ContentFrame.CanGoBack, Mode=OneWay}"
+            BackRequested="OnTitleBarBackRequested"
+            IsPaneToggleButtonVisible="True"
+            PaneToggleRequested="OnTitleBarPaneToggleRequested">
             <TitleBar.IconSource>
                 <ImageIconSource ImageSource="ms-appx:///Assets/StoreLogo.png"/>
             </TitleBar.IconSource>
@@ -28,6 +33,7 @@
         <NavigationView x:Name="Nav"
                     PaneDisplayMode="Left"
                     IsBackButtonVisible="Collapsed"
+                    IsPaneToggleButtonVisible="False"
                     IsSettingsVisible="False"
                     IsTitleBarAutoPaddingEnabled="False"
                     SelectionChanged="OnNavSelectionChanged"
@@ -100,19 +106,19 @@
                         <FontIcon Glyph="&#xE710;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavScripts" Tag="scripts">
+                <NavigationViewItem x:Uid="NavScripts" x:Name="ScriptsItem" Tag="scripts">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE756;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavSettings" Tag="settings">
+                <NavigationViewItem x:Uid="NavSettings" x:Name="SettingsItem" Tag="settings">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE713;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
             </NavigationView.FooterMenuItems>
 
-            <Frame x:Name="ContentFrame" />
+            <Frame x:Name="ContentFrame" Navigated="OnContentFrameNavigated" />
         </NavigationView>
     </Grid>
 </Window>

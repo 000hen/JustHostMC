@@ -8,6 +8,7 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Data;
+using Microsoft.UI.Xaml.Navigation;
 using System.Collections.Specialized;
 using System.Runtime.InteropServices;
 using Windows.Graphics;
@@ -81,6 +82,7 @@ public sealed partial class MainWindow : Window {
         PaneFooterGrid.DataContext = Shell.Main.ProgressService;
         Title = localizer.Get("AppTitle");
         ExtendsContentIntoTitleBar = true;
+        SetTitleBar(SimpleTitleBar);
         InstallMinimumWindowSizeHook();
         ResizeToContent(1200, 820);
         Closed += OnClosed;
@@ -220,6 +222,29 @@ public sealed partial class MainWindow : Window {
                     ContentFrame.Navigate(typeof(SettingsPage));
                 break;
         }
+    }
+
+    private void OnTitleBarBackRequested(TitleBar sender, object args) {
+        if (ContentFrame.CanGoBack)
+            ContentFrame.GoBack();
+    }
+
+    private void OnTitleBarPaneToggleRequested(TitleBar sender, object args)
+        => Nav.IsPaneOpen = !Nav.IsPaneOpen;
+
+    private void OnContentFrameNavigated(object sender, NavigationEventArgs args) {
+        NavigationViewItem? item = args.SourcePageType switch {
+            var pageType when pageType == typeof(HomePage) => HomeItem,
+            var pageType when pageType == typeof(ScriptsPage) => ScriptsItem,
+            var pageType when pageType == typeof(SettingsPage) => SettingsItem,
+            var pageType when pageType == typeof(ServerPage)
+                && args.Parameter is ServerPageArgs serverArgs
+                && _serverItems.TryGetValue(serverArgs.Server.Id, out var serverItem) => serverItem,
+            _ => null,
+        };
+
+        if (item is not null && !Equals(Nav.SelectedItem, item))
+            Nav.SelectedItem = item;
     }
 
     private async void OnNavItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args) {

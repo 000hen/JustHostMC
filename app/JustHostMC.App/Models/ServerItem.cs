@@ -5,6 +5,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using JustHostMC.App.Services;
 using McManager.Grpc;
 using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Media;
 
 namespace JustHostMC.App.Models;
 
@@ -24,6 +26,7 @@ public sealed class ServerItem : ObservableObject
     private int _memoryMb;
     private int _sortOrder;
     private string _customJavaArgs = "";
+    private bool _hasUnreadStateChange;
 
     public ServerItem(Server proto, ILocalizer localizer,
         ProviderCatalog? providers = null, DispatcherQueue? dispatcher = null)
@@ -61,7 +64,11 @@ public sealed class ServerItem : ObservableObject
     public string Name
     {
         get => _name;
-        private set => SetProperty(ref _name, value);
+        private set
+        {
+            if (SetProperty(ref _name, value))
+                OnPropertyChanged(nameof(NavigationAutomationName));
+        }
     }
 
     public string McVersion
@@ -96,6 +103,8 @@ public sealed class ServerItem : ObservableObject
                 OnPropertyChanged(nameof(CanEditLaunchSettings));
                 OnPropertyChanged(nameof(StateActionText));
                 OnPropertyChanged(nameof(StateActionGlyph));
+                OnPropertyChanged(nameof(NavigationAutomationName));
+                OnPropertyChanged(nameof(NavigationStatusBrush));
             }
         }
     }
@@ -138,6 +147,37 @@ public sealed class ServerItem : ObservableObject
         ServerStatus.Crashed => "ServerStatus_Crashed",
         _ => "ServerStatus_Unknown",
     });
+
+    public bool HasUnreadStateChange
+    {
+        get => _hasUnreadStateChange;
+        set
+        {
+            if (SetProperty(ref _hasUnreadStateChange, value))
+            {
+                OnPropertyChanged(nameof(NavigationAutomationName));
+                OnPropertyChanged(nameof(NavigationInfoBadgeVisibility));
+            }
+        }
+    }
+
+    public Visibility NavigationInfoBadgeVisibility
+        => HasUnreadStateChange ? Visibility.Visible : Visibility.Collapsed;
+
+    public Brush NavigationStatusBrush => (Brush)Application.Current.Resources[Status switch
+    {
+        ServerStatus.Running => "SystemFillColorSuccessBrush",
+        ServerStatus.Crashed => "SystemFillColorCriticalBrush",
+        ServerStatus.Starting or ServerStatus.Stopping or ServerStatus.Installing => "SystemFillColorCautionBrush",
+        _ => "TextFillColorDisabledBrush",
+    }];
+
+    public string NavigationAutomationName => _localizer.Get(
+        HasUnreadStateChange
+            ? "ServerNav_StateChangedAutomationName"
+            : "ServerNav_AutomationName",
+        ("name", Name),
+        ("status", StatusText));
 
     // Prefer the live provider list's friendly name; fall back to the built-in
     // id→localized-name map, then to the raw id.

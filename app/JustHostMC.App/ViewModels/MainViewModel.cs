@@ -30,6 +30,16 @@ public partial class MainViewModel : ObservableObject
     private DispatcherQueueTimer? _refreshTimer;
 
     public ObservableCollection<ServerItem> Servers { get; } = new();
+    public ObservableCollection<object> NavigationItems { get; } = new()
+    {
+        NavigationDestination.Home,
+    };
+    public ObservableCollection<object> FooterNavigationItems { get; } = new()
+    {
+        NavigationDestination.AddServer,
+        NavigationDestination.Scripts,
+        NavigationDestination.Settings,
+    };
     public ObservableCollection<string> InstallLog { get; } = new();
     public ServerProgressService ProgressService { get; }
 
@@ -449,6 +459,7 @@ public partial class MainViewModel : ObservableObject
                 if (TryGetPendingUpdate(proto.Id, out var pending))
                     newItem.ApplyLocal(pending);
                 Servers.Add(newItem);
+                NavigationItems.Add(newItem);
             }
         }
 
@@ -456,7 +467,11 @@ public partial class MainViewModel : ObservableObject
         for (var i = Servers.Count - 1; i >= 0; i--)
         {
             if (!keep.Contains(Servers[i].Id))
+            {
+                var removed = Servers[i];
                 Servers.RemoveAt(i);
+                NavigationItems.Remove(removed);
+            }
         }
 
         for (var targetIndex = 0; targetIndex < list.Count; targetIndex++)
@@ -465,7 +480,10 @@ public partial class MainViewModel : ObservableObject
             var currentIndex = Servers.Select((server, index) => (server, index))
                 .FirstOrDefault(pair => pair.server.Id == id).index;
             if (currentIndex != targetIndex && currentIndex >= 0)
+            {
                 Servers.Move(currentIndex, targetIndex);
+                NavigationItems.Move(currentIndex + 1, targetIndex + 1);
+            }
         }
 
         OnServerStatsChanged();

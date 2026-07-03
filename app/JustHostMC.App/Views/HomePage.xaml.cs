@@ -130,7 +130,7 @@ public sealed partial class HomePage : Page
 
     private async void OnAddCardClick(object sender, RoutedEventArgs e)
     {
-        var content = new CreateServerDialog(Main);
+        var content = new ServerDialog(Main, ServerDialogMode.Create);
         var dialog = new ContentDialog
         {
             XamlRoot = XamlRoot,
@@ -147,7 +147,7 @@ public sealed partial class HomePage : Page
 
         if (await dialog.ShowAsync() != ContentDialogResult.Primary)
             return;
-        if (content.BuildRequest() is { } request)
+        if (content.BuildCreateRequest() is { } request)
             await Main.InstallServerAsync(request);
     }
 
@@ -155,7 +155,7 @@ public sealed partial class HomePage : Page
 
     private async Task ShowEditDialogAsync(ServerItem item)
     {
-        var content = new EditServerDialog(Main, item);
+        var content = new ServerDialog(Main, ServerDialogMode.Edit, item);
         var dialog = new ContentDialog
         {
             XamlRoot = XamlRoot,
@@ -171,7 +171,7 @@ public sealed partial class HomePage : Page
         ContentDialogSizing.Apply(dialog);
 
         if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-            await Main.UpdateServerAsync(content.BuildRequest());
+            await Main.UpdateServerAsync(content.BuildUpdateRequest());
     }
 
     private async Task ShowRenameDialogAsync(ServerItem item)

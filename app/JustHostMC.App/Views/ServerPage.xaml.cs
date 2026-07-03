@@ -213,7 +213,7 @@ public sealed partial class ServerPage : Page {
     private async void OnEditClick(object sender, RoutedEventArgs e) => await ShowEditDialogAsync();
 
     private async Task ShowEditDialogAsync() {
-        var content = new EditServerDialog(_main, Server);
+        var content = new ServerDialog(_main, ServerDialogMode.Edit, Server);
         var dialog = new ContentDialog {
             XamlRoot = XamlRoot,
             Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
@@ -228,7 +228,7 @@ public sealed partial class ServerPage : Page {
         ContentDialogSizing.Apply(dialog);
 
         if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-            await _main.UpdateServerAsync(content.BuildRequest());
+            await _main.UpdateServerAsync(content.BuildUpdateRequest());
     }
 
     private async Task ShowRenameDialogAsync() {

@@ -7,6 +7,7 @@ using McManager.Grpc;
 using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Navigation;
@@ -219,7 +220,19 @@ public sealed partial class MainWindow : Window {
     }
 
     private void OnTrackedServerPropertyChanged(object? sender, PropertyChangedEventArgs e) {
-        if (sender is not ServerItem server || e.PropertyName != nameof(ServerItem.Status))
+        if (sender is not ServerItem server
+            || !_serverItems.TryGetValue(server.Id, out var item))
+            return;
+
+        if (e.PropertyName == nameof(ServerItem.Name)) {
+            UpdateServerItemAutomationName(
+                item,
+                server,
+                hasUnreadStateChange: item.InfoBadge.Visibility == Visibility.Visible);
+            return;
+        }
+
+        if (e.PropertyName != nameof(ServerItem.Status))
             return;
 
         var previous = _lastServerStatuses.GetValueOrDefault(server.Id, server.Status);
@@ -254,8 +267,18 @@ public sealed partial class MainWindow : Window {
         ServerItem server,
         ServerTipKind kind,
         ServerProgressTracker? tracker = null) {
+        MarkServerStateChange(server);
         _pendingServerTips.Enqueue(new ServerTipNotification(server, tracker, kind));
         ShowNextServerTip();
+    }
+
+    private void MarkServerStateChange(ServerItem server) {
+        if (!_serverItems.TryGetValue(server.Id, out var item))
+            return;
+
+        var isSelected = ReferenceEquals(Nav.SelectedItem, item);
+        item.InfoBadge.Visibility = isSelected ? Visibility.Collapsed : Visibility.Visible;
+        UpdateServerItemAutomationName(item, server, hasUnreadStateChange: !isSelected);
     }
 
     private void ShowNextServerTip() {
@@ -318,7 +341,7 @@ public sealed partial class MainWindow : Window {
         ServerStateTip.IsOpen = false;
     }
 
-    private static NavigationViewItem CreateServerItem(ServerItem server) {
+    private NavigationViewItem CreateServerItem(ServerItem server) {
         var dot = new StatusDot { VerticalAlignment = VerticalAlignment.Center };
         dot.SetBinding(StatusDot.StatusProperty,
             new Binding { Source = server, Path = new PropertyPath("Status"), Mode = BindingMode.OneWay });
@@ -334,11 +357,34 @@ public sealed partial class MainWindow : Window {
         panel.Children.Add(dot);
         panel.Children.Add(text);
 
-        var item = new NavigationViewItem { Content = panel, Tag = server };
+        var item = new NavigationViewItem {
+            Content = panel,
+            Tag = server,
+            InfoBadge = new InfoBadge { Visibility = Visibility.Collapsed },
+        };
         item.SetBinding(ToolTipService.ToolTipProperty,
             new Binding { Source = server.ProgressTracker, Path = new PropertyPath("TooltipText"), Mode = BindingMode.OneWay });
+        UpdateServerItemAutomationName(item, server, hasUnreadStateChange: false);
 
         return item;
+    }
+
+    private void DismissServerStateChange(NavigationViewItem item, ServerItem server) {
+        item.InfoBadge.Visibility = Visibility.Collapsed;
+        UpdateServerItemAutomationName(item, server, hasUnreadStateChange: false);
+    }
+
+    private void UpdateServerItemAutomationName(
+        NavigationViewItem item,
+        ServerItem server,
+        bool hasUnreadStateChange) {
+        var key = hasUnreadStateChange
+            ? "ServerNav_StateChangedAutomationName"
+            : "ServerNav_AutomationName";
+        AutomationProperties.SetName(item, _localizer.Get(
+            key,
+            ("name", server.Name),
+            ("status", server.StatusText)));
     }
 
     private void OnNavSelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args) {
@@ -350,6 +396,7 @@ public sealed partial class MainWindow : Window {
                     ContentFrame.Navigate(typeof(HomePage), Shell);
                 break;
             case ServerItem server:
+                DismissServerStateChange(item, server);
                 if (ContentFrame.Content is ServerPage page && page.Server == server)
                     break;
                 ContentFrame.Navigate(typeof(ServerPage), new ServerPageArgs(server, Shell));

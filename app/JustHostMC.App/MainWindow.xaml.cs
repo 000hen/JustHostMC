@@ -234,7 +234,7 @@ public sealed partial class MainWindow : Window {
 
     private async System.Threading.Tasks.Task ShowCreateServerDialogAsync() {
         var localizer = new LocalizationService();
-        var content = new CreateServerDialog(Shell.Main);
+        var content = new ServerDialog(Shell.Main, ServerDialogMode.Create);
         var dialog = new ContentDialog {
             XamlRoot = Content.XamlRoot,
             Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
@@ -250,7 +250,7 @@ public sealed partial class MainWindow : Window {
 
         if (await dialog.ShowAsync() != ContentDialogResult.Primary)
             return;
-        if (content.BuildRequest() is { } request)
+        if (content.BuildCreateRequest() is { } request)
             await Shell.Main.InstallServerAsync(request);
     }
 }

@@ -59,7 +59,9 @@
                     </Grid.ColumnDefinitions>
                     <ComboBox x:Uid="CreateServerVersion" x:Name="VersionBox"
                               HorizontalAlignment="Stretch"
-                              SelectionChanged="OnVersionSelectionChanged" />
+                              SelectionChanged="OnVersionSelectionChanged"
+                              IsTextSearchEnabled="true"
+                              IsEditable="true" />
                     <ProgressRing x:Name="VersionLoading" Grid.Column="1"
                                   IsActive="True" Width="20" Height="20"
                                   VerticalAlignment="Center" />

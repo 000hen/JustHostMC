@@ -108,6 +108,12 @@
     <AppxBundlePlatforms>x86|x64|arm64</AppxBundlePlatforms>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
+
+    <!-- Keep all supported languages in the main package. The MSIX BuildTools
+         language-pack filter receives an empty manifest-language list for this
+         single-project WinUI build and otherwise drops every non-default locale. -->
+    <AppxBundleAutoResourcePackageQualifiers>Scale|DXFeatureLevel</AppxBundleAutoResourcePackageQualifiers>
+    <AppxDefaultResourceQualifiers>Language=en-US;zh-TW</AppxDefaultResourceQualifiers>
   </PropertyGroup>
 
 </Project>

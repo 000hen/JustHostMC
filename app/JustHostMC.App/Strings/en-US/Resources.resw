@@ -91,6 +91,8 @@
   <data name="ServerStatus_Stopping" xml:space="preserve"><value>Stopping</value></data>
   <data name="ServerStatus_Crashed" xml:space="preserve"><value>Crashed</value></data>
   <data name="ServerStatus_Unknown" xml:space="preserve"><value>Unknown</value></data>
+  <data name="ServerNav_AutomationName" xml:space="preserve"><value>{name}, {status}</value></data>
+  <data name="ServerNav_StateChangedAutomationName" xml:space="preserve"><value>{name}, state changed to {status}</value></data>
   <data name="ServerType_Vanilla" xml:space="preserve"><value>Vanilla</value></data>
   <data name="ServerType_Paper" xml:space="preserve"><value>Paper</value></data>
   <data name="ServerType_Spigot" xml:space="preserve"><value>Spigot</value></data>

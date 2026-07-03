@@ -815,40 +815,27 @@
                 </ScrollViewer>
             </Grid>
 
-            <StackPanel Grid.Row="2" Spacing="12">
-                <Border Padding="16" CornerRadius="8"
-                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                        BorderThickness="1"
-                        Visibility="{x:Bind Server.ProgressTracker.IsActive, Mode=OneWay, Converter={StaticResource BoolToVis}}">
-                    <StackPanel Spacing="12">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="{x:Bind Server.ProgressTracker.CurrentStep, Mode=OneWay}"
-                                       Style="{StaticResource BodyStrongTextBlockStyle}" />
-                            <Button Grid.Column="1" x:Uid="InstallDismissButton"
-                                    Command="{x:Bind Server.ProgressTracker.DismissCommand}"
-                                    Visibility="{x:Bind Server.ProgressTracker.HasFailed, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
-                        </Grid>
-                        <ProgressBar IsIndeterminate="{x:Bind Server.ProgressTracker.IsIndeterminate, Mode=OneWay}"
-                                     Value="{x:Bind Server.ProgressTracker.ProgressPercentage, Mode=OneWay}" />
-                    </StackPanel>
-                </Border>
-
-                <InfoBar x:Uid="InstallReadyInfoBar"
-                         IsOpen="{x:Bind Server.ProgressTracker.IsReadyToRun, Mode=OneWay}"
-                         Severity="Success"
-                         CloseButtonClick="OnReadyInfoBarClosed">
-                    <InfoBar.ActionButton>
-                        <Button x:Uid="InfoBarStartServerButton"
-                                Click="OnStateButtonClick"
-                                Style="{StaticResource AccentButtonStyle}" />
-                    </InfoBar.ActionButton>
-                </InfoBar>
-            </StackPanel>
+            <Border Grid.Row="2" Padding="16" CornerRadius="8"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    Visibility="{x:Bind Server.ProgressTracker.IsActive, Mode=OneWay, Converter={StaticResource BoolToVis}}">
+                <StackPanel Spacing="12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{x:Bind Server.ProgressTracker.CurrentStep, Mode=OneWay}"
+                                   Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        <Button Grid.Column="1" x:Uid="InstallDismissButton"
+                                Command="{x:Bind Server.ProgressTracker.DismissCommand}"
+                                Visibility="{x:Bind Server.ProgressTracker.HasFailed, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                    </Grid>
+                    <ProgressBar IsIndeterminate="{x:Bind Server.ProgressTracker.IsIndeterminate, Mode=OneWay}"
+                                 Value="{x:Bind Server.ProgressTracker.ProgressPercentage, Mode=OneWay}" />
+                </StackPanel>
+            </Border>
         </Grid>
     </Grid>
 </Page>

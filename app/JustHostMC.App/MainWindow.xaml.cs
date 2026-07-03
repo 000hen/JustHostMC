@@ -3,12 +3,14 @@ using JustHostMC.App.Models;
 using JustHostMC.App.Services;
 using JustHostMC.App.ViewModels;
 using JustHostMC.App.Views;
+using McManager.Grpc;
 using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Data;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Runtime.InteropServices;
 using Windows.Graphics;
 
@@ -65,8 +67,19 @@ public sealed partial class MainWindow : Window {
     }
 
     private readonly Dictionary<string, NavigationViewItem> _serverItems = new();
+    private readonly Dictionary<string, ServerStatus> _lastServerStatuses = new();
+    private readonly Queue<ServerTipNotification> _pendingServerTips = new();
     private readonly SubclassProc _subclassProc;
+    private readonly ILocalizer _localizer;
+    private ServerTipNotification? _currentServerTip;
     private IntPtr _hwnd;
+
+    private enum ServerTipKind { Installed, Started, Stopped, Crashed }
+
+    private sealed record ServerTipNotification(
+        ServerItem Server,
+        ServerProgressTracker? Tracker,
+        ServerTipKind Kind);
 
     /// <summary>The navigation shell: owns the shared MainViewModel.</summary>
     public NavShellViewModel Shell { get; }
@@ -74,12 +87,14 @@ public sealed partial class MainWindow : Window {
     public MainWindow() {
         _subclassProc = WindowSubclassProc;
 
-        var localizer = new LocalizationService();
-        Shell = new NavShellViewModel(new MainViewModel(localizer, DispatcherQueue));
+        _localizer = new LocalizationService();
+        Shell = new NavShellViewModel(new MainViewModel(_localizer, DispatcherQueue));
 
         InitializeComponent();
+        ServerStateTip.Closed += (_, _) => OnServerStateTipClosed();
+        ServerStateTip.ActionButtonClick += (_, _) => OnServerStateTipActionButtonClick();
         PaneFooterGrid.DataContext = Shell.Main.ProgressService;
-        Title = localizer.Get("AppTitle");
+        Title = _localizer.Get("AppTitle");
         ExtendsContentIntoTitleBar = true;
         InstallMinimumWindowSizeHook();
         ResizeToContent(1200, 820);
@@ -110,6 +125,11 @@ public sealed partial class MainWindow : Window {
     private void OnClosed(object sender, WindowEventArgs args) {
         if (_hwnd != IntPtr.Zero)
             RemoveWindowSubclass(_hwnd, _subclassProc, MinWindowSubclassId);
+
+        foreach (var item in _serverItems.Values) {
+            if (item.Tag is ServerItem server)
+                UntrackServer(server);
+        }
     }
 
     private IntPtr WindowSubclassProc(
@@ -141,11 +161,14 @@ public sealed partial class MainWindow : Window {
                 continue;
             var item = CreateServerItem(server);
             _serverItems[server.Id] = item;
+            TrackServer(server);
             Nav.MenuItems.Add(item);
         }
 
         var live = Shell.Main.Servers.Select(s => s.Id).ToHashSet();
         foreach (var (id, item) in _serverItems.Where(kv => !live.Contains(kv.Key)).ToList()) {
+            if (item.Tag is ServerItem server)
+                UntrackServer(server);
             Nav.MenuItems.Remove(item);
             _serverItems.Remove(id);
             _ = Shell.EvictServerCacheAsync(id);
@@ -173,6 +196,124 @@ public sealed partial class MainWindow : Window {
         Nav.IsTitleBarAutoPaddingEnabled = true;
         Nav.IsTitleBarAutoPaddingEnabled = false;
         Nav.UpdateLayout();
+    }
+
+    private void TrackServer(ServerItem server) {
+        _lastServerStatuses[server.Id] = server.Status;
+        server.PropertyChanged += OnTrackedServerPropertyChanged;
+        server.ProgressTracker.PropertyChanged += OnTrackedProgressPropertyChanged;
+
+        if (server.ProgressTracker.IsReadyToRun)
+            EnqueueServerTip(server, ServerTipKind.Installed, server.ProgressTracker);
+    }
+
+    private void UntrackServer(ServerItem server) {
+        server.PropertyChanged -= OnTrackedServerPropertyChanged;
+        server.ProgressTracker.PropertyChanged -= OnTrackedProgressPropertyChanged;
+        _lastServerStatuses.Remove(server.Id);
+
+        if (_currentServerTip?.Server == server)
+            ServerStateTip.IsOpen = false;
+    }
+
+    private void OnTrackedServerPropertyChanged(object? sender, PropertyChangedEventArgs e) {
+        if (sender is not ServerItem server || e.PropertyName != nameof(ServerItem.Status))
+            return;
+
+        var previous = _lastServerStatuses.GetValueOrDefault(server.Id, server.Status);
+        _lastServerStatuses[server.Id] = server.Status;
+
+        if (server.Status == ServerStatus.Running && previous != ServerStatus.Running)
+            EnqueueServerTip(server, ServerTipKind.Started);
+        else if (server.Status == ServerStatus.Stopped
+                 && previous is ServerStatus.Running or ServerStatus.Stopping)
+            EnqueueServerTip(server, ServerTipKind.Stopped);
+        else if (server.Status == ServerStatus.Crashed && previous != ServerStatus.Crashed)
+            EnqueueServerTip(server, ServerTipKind.Crashed);
+    }
+
+    private void OnTrackedProgressPropertyChanged(object? sender, PropertyChangedEventArgs e) {
+        if (sender is not ServerProgressTracker tracker
+            || e.PropertyName != nameof(ServerProgressTracker.IsReadyToRun))
+            return;
+
+        var server = Shell.Main.Servers.FirstOrDefault(
+            candidate => ReferenceEquals(candidate.ProgressTracker, tracker));
+        if (tracker.IsReadyToRun && server is not null) {
+            EnqueueServerTip(server, ServerTipKind.Installed, tracker);
+        }
+        else if (_currentServerTip is { Kind: ServerTipKind.Installed } current
+                 && ReferenceEquals(current.Tracker, tracker)) {
+            ServerStateTip.IsOpen = false;
+        }
+    }
+
+    private void EnqueueServerTip(
+        ServerItem server,
+        ServerTipKind kind,
+        ServerProgressTracker? tracker = null) {
+        _pendingServerTips.Enqueue(new ServerTipNotification(server, tracker, kind));
+        ShowNextServerTip();
+    }
+
+    private void ShowNextServerTip() {
+        if (_currentServerTip is not null || ServerStateTip.IsOpen)
+            return;
+
+        while (_pendingServerTips.TryDequeue(out var notification)) {
+            if (!_serverItems.TryGetValue(notification.Server.Id, out var target))
+                continue;
+            if (notification.Kind == ServerTipKind.Installed
+                && notification.Tracker?.IsReadyToRun != true)
+                continue;
+
+            _currentServerTip = notification;
+            ServerStateTip.Target = target;
+            ServerStateTip.Title = TipTitle(notification);
+            ServerStateTip.Subtitle = TipSubtitle(notification.Kind);
+            ServerStateTip.ActionButtonContent = notification.Kind == ServerTipKind.Installed
+                ? _localizer.Get("ServerTeachingTip_StartAction")
+                : null;
+            ServerStateTip.IsOpen = true;
+            return;
+        }
+    }
+
+    private string TipTitle(ServerTipNotification notification) => _localizer.Get(
+        notification.Kind switch {
+            ServerTipKind.Installed => "ServerTeachingTip_InstalledTitle",
+            ServerTipKind.Started => "ServerTeachingTip_StartedTitle",
+            ServerTipKind.Stopped => "ServerTeachingTip_StoppedTitle",
+            ServerTipKind.Crashed => "ServerTeachingTip_CrashedTitle",
+            _ => "ServerStatus_Unknown",
+        },
+        ("server", notification.Server.Name));
+
+    private string TipSubtitle(ServerTipKind kind) => _localizer.Get(kind switch {
+        ServerTipKind.Installed => "ServerTeachingTip_InstalledMessage",
+        ServerTipKind.Started => "ServerTeachingTip_StartedMessage",
+        ServerTipKind.Stopped => "ServerTeachingTip_StoppedMessage",
+        ServerTipKind.Crashed => "ServerTeachingTip_CrashedMessage",
+        _ => "ServerStatus_Unknown",
+    });
+
+    private void OnServerStateTipClosed() {
+        var closed = _currentServerTip;
+        _currentServerTip = null;
+
+        if (closed is { Kind: ServerTipKind.Installed, Tracker: not null })
+            closed.Tracker.IsReadyToRun = false;
+
+        DispatcherQueue.TryEnqueue(ShowNextServerTip);
+    }
+
+    private void OnServerStateTipActionButtonClick() {
+        if (_currentServerTip is { Kind: ServerTipKind.Installed } notification
+            && Shell.Main.StartServerCommand.CanExecute(notification.Server)) {
+            Shell.Main.StartServerCommand.Execute(notification.Server);
+        }
+
+        ServerStateTip.IsOpen = false;
     }
 
     private static NavigationViewItem CreateServerItem(ServerItem server) {

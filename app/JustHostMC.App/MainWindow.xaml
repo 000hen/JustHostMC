@@ -114,5 +114,10 @@
 
             <Frame x:Name="ContentFrame" />
         </NavigationView>
+
+        <TeachingTip x:Name="ServerStateTip"
+                     Grid.RowSpan="2"
+                     PreferredPlacement="Right"
+                     IsLightDismissEnabled="True" />
     </Grid>
 </Window>

@@ -466,9 +466,15 @@
   <data name="EditServerPort.Header" xml:space="preserve"><value>Port</value></data>
   <data name="EditServerStoppedNotice.Title" xml:space="preserve"><value>Stop the server to change launch settings</value></data>
   <data name="EditServerStoppedNotice.Message" xml:space="preserve"><value>Name changes can be saved while running. Stop the server to change version, memory, custom Java arguments, or port.</value></data>
-  <data name="InstallReadyInfoBar.Title" xml:space="preserve"><value>Server is ready to run</value></data>
-  <data name="InstallReadyInfoBar.Message" xml:space="preserve"><value>Installation completed successfully.</value></data>
-  <data name="InfoBarStartServerButton.Content" xml:space="preserve"><value>Start server</value></data>
+  <data name="ServerTeachingTip_InstalledTitle" xml:space="preserve"><value>{server} installed successfully</value></data>
+  <data name="ServerTeachingTip_InstalledMessage" xml:space="preserve"><value>The server is ready to run.</value></data>
+  <data name="ServerTeachingTip_StartedTitle" xml:space="preserve"><value>{server} started</value></data>
+  <data name="ServerTeachingTip_StartedMessage" xml:space="preserve"><value>The server is now running.</value></data>
+  <data name="ServerTeachingTip_StoppedTitle" xml:space="preserve"><value>{server} stopped</value></data>
+  <data name="ServerTeachingTip_StoppedMessage" xml:space="preserve"><value>The server stopped successfully.</value></data>
+  <data name="ServerTeachingTip_CrashedTitle" xml:space="preserve"><value>{server} crashed</value></data>
+  <data name="ServerTeachingTip_CrashedMessage" xml:space="preserve"><value>The server stopped unexpectedly.</value></data>
+  <data name="ServerTeachingTip_StartAction" xml:space="preserve"><value>Start server</value></data>
   <data name="install_ready_to_run" xml:space="preserve"><value>Ready to run.</value></data>
   <data name="NavScripts.Content" xml:space="preserve"><value>Scripts</value></data>
   <data name="ScriptsPageTitle.Text" xml:space="preserve"><value>Scripts</value></data>

@@ -13,7 +13,9 @@
     <EnableMsixTooling>true</EnableMsixTooling>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <LangVersion>latest</LangVersion>
+    <!-- CommunityToolkit.Mvvm 8.4 partial observable properties require the
+         .NET 9 SDK and C# preview; unlike field targets, they are WinRT AOT-safe. -->
+    <LangVersion>preview</LangVersion>
     <!-- English is the base / default language and fallback (PROMPT §14). -->
     <DefaultLanguage>en-US</DefaultLanguage>
   </PropertyGroup>

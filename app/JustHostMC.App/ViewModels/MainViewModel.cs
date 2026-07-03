@@ -51,47 +51,23 @@ public partial class MainViewModel : ObservableObject
     public int StoppedServers => Servers.Count(s => s.Status is ServerStatus.Stopped or ServerStatus.Crashed);
     public int BusyServers => Servers.Count(s => s.Status is ServerStatus.Installing or ServerStatus.Starting or ServerStatus.Stopping);
 
-    private string _engineStatus;
-    public string EngineStatus
-    {
-        get => _engineStatus;
-        private set => SetProperty(ref _engineStatus, value);
-    }
+    [ObservableProperty]
+    public partial string EngineStatus { get; private set; }
 
-    private bool _isInstalling;
-    public bool IsInstalling
-    {
-        get => _isInstalling;
-        private set => SetProperty(ref _isInstalling, value);
-    }
+    [ObservableProperty]
+    public partial bool IsInstalling { get; private set; }
 
-    private bool _installFailed;
-    public bool InstallFailed
-    {
-        get => _installFailed;
-        private set => SetProperty(ref _installFailed, value);
-    }
+    [ObservableProperty]
+    public partial bool InstallFailed { get; private set; }
 
-    private string _installStep = "";
-    public string InstallStep
-    {
-        get => _installStep;
-        private set => SetProperty(ref _installStep, value);
-    }
+    [ObservableProperty]
+    public partial string InstallStep { get; private set; } = "";
 
-    private double _installFraction;
-    public double InstallFraction
-    {
-        get => _installFraction;
-        private set => SetProperty(ref _installFraction, value);
-    }
+    [ObservableProperty]
+    public partial double InstallFraction { get; private set; }
 
-    private bool _installIsIndeterminate = true;
-    public bool InstallIsIndeterminate
-    {
-        get => _installIsIndeterminate;
-        private set => SetProperty(ref _installIsIndeterminate, value);
-    }
+    [ObservableProperty]
+    public partial bool InstallIsIndeterminate { get; private set; } = true;
 
     public MainViewModel(ILocalizer localizer, DispatcherQueue dispatcher)
     {
@@ -99,7 +75,7 @@ public partial class MainViewModel : ObservableObject
         _dispatcher = dispatcher;
         ProgressService = new ServerProgressService(_dispatcher);
         ProviderCatalog = new ProviderCatalog(FetchProvidersAsync);
-        _engineStatus = _localizer.Get("EngineStatus_Connecting");
+        EngineStatus = _localizer.Get("EngineStatus_Connecting");
     }
 
     /// <summary>Waits for the engine, probes Health, loads servers, polls status.</summary>

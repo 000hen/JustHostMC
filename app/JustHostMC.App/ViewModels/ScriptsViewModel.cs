@@ -17,7 +17,7 @@ namespace JustHostMC.App.ViewModels;
 /// The runtime automation engine ships separately, so every call degrades
 /// gracefully (status messages) if the engine returns an error.
 /// </summary>
-public sealed class ScriptsViewModel : ObservableObject, IAsyncDisposable {
+public sealed partial class ScriptsViewModel : ObservableObject, IAsyncDisposable {
     private const int MaxLogLines = 2000;
     private const int MaxPerScriptLogLines = 500;
     private const int MaxLineLength = 2000;
@@ -38,26 +38,14 @@ public sealed class ScriptsViewModel : ObservableObject, IAsyncDisposable {
     public ObservableCollection<ScriptItem> Scripts { get; } = new();
     public ObservableCollection<ScriptLogEntry> LogEntries { get; } = new();
 
-    private bool _isBusy;
-    public bool IsBusy {
-        get => _isBusy;
-        private set => SetProperty(ref _isBusy, value);
-    }
+    [ObservableProperty]
+    public partial bool IsBusy { get; private set; }
 
-    private string _statusMessage = "";
-    public string StatusMessage {
-        get => _statusMessage;
-        private set {
-            if (SetProperty(ref _statusMessage, value))
-                HasStatusMessage = !string.IsNullOrWhiteSpace(value);
-        }
-    }
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasStatusMessage))]
+    public partial string StatusMessage { get; private set; } = "";
 
-    private bool _hasStatusMessage;
-    public bool HasStatusMessage {
-        get => _hasStatusMessage;
-        private set => SetProperty(ref _hasStatusMessage, value);
-    }
+    public bool HasStatusMessage => !string.IsNullOrWhiteSpace(StatusMessage);
 
     /// <summary>Sets a localized status message (used by the page for picker/IO errors).
     /// Marshals to the UI thread.</summary>

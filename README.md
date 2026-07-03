@@ -56,7 +56,7 @@ WinUI 3 (C#)  <-- gRPC (Named Pipe) -->  engine (Go)  <-- IsolationBackend -->  
 
 | Layer | Role |
 |-------|------|
-| **Frontend** | C# / WinUI 3 (Windows App SDK), MVVM via `CommunityToolkit.Mvvm` |
+| **Frontend** | C# / WinUI 3 (Windows App SDK), MVVM via `CommunityToolkit.Mvvm`; see the [MVVM conventions](docs/mvvm.md) |
 | **Backend** | Go daemon (`engine/`) that provisions and supervises servers |
 | **IPC** | gRPC over Windows Named Pipe (`\\.\pipe\JustHostMC-<guid>`); OS-level access control |
 | **Contract** | `.proto` files under `proto/` are the single source of truth |
@@ -189,6 +189,7 @@ Before submitting, make sure:
 1. `go test ./...` passes in `engine/`
 2. `dotnet test` passes for the C# projects
 3. Any new `.proto` changes are reflected in both Go and C# stubs
+4. WinUI observable properties and commands follow the [MVVM Toolkit source-generation conventions](docs/mvvm.md)
 
 ## Links
 

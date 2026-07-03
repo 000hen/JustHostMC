@@ -27,24 +27,16 @@ public partial class ConsoleViewModel : ObservableObject, IAsyncDisposable
 
     public ObservableCollection<string> Lines { get; } = new();
 
-    private string _serverName;
-    public string ServerName
-    {
-        get => _serverName;
-        set => SetProperty(ref _serverName, value);
-    }
+    [ObservableProperty]
+    public partial string ServerName { get; set; }
 
-    private string _commandText = "";
-    public string CommandText
-    {
-        get => _commandText;
-        set => SetProperty(ref _commandText, value);
-    }
+    [ObservableProperty]
+    public partial string CommandText { get; set; } = "";
 
     public ConsoleViewModel(string serverId, string serverName, DispatcherQueue dispatcher)
     {
         _serverId = serverId;
-        _serverName = serverName;
+        ServerName = serverName;
         _dispatcher = dispatcher;
     }
 

@@ -18,9 +18,16 @@ public sealed partial class BackupsViewModel : ObservableObject
     private readonly DispatcherQueue _dispatcher;
     private readonly ILocalizer _localizer;
 
-    private bool _isBusy;
-    private bool _safeOnline;
-    private string _statusMessage = "";
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanRunActions))]
+    [NotifyPropertyChangedFor(nameof(CanRestore))]
+    public partial bool IsBusy { get; private set; }
+
+    [ObservableProperty]
+    public partial bool SafeOnline { get; set; }
+
+    [ObservableProperty]
+    public partial string StatusMessage { get; set; } = "";
 
     public BackupsViewModel(string serverId, bool serverRunning, DispatcherQueue dispatcher, ILocalizer localizer)
     {
@@ -28,7 +35,7 @@ public sealed partial class BackupsViewModel : ObservableObject
         _dispatcher = dispatcher;
         _localizer = localizer;
         ServerRunning = serverRunning;
-        _safeOnline = serverRunning; // a running server defaults to a safe online snapshot
+        SafeOnline = serverRunning; // a running server defaults to a safe online snapshot
     }
 
     public ObservableCollection<BackupItem> Backups { get; } = new();
@@ -36,34 +43,9 @@ public sealed partial class BackupsViewModel : ObservableObject
     /// <summary>True when the server is running, so safe-online applies and restore is blocked.</summary>
     public bool ServerRunning { get; }
 
-    public bool IsBusy
-    {
-        get => _isBusy;
-        private set
-        {
-            if (SetProperty(ref _isBusy, value))
-            {
-                OnPropertyChanged(nameof(CanRunActions));
-                OnPropertyChanged(nameof(CanRestore));
-            }
-        }
-    }
-
     public bool CanRunActions => !IsBusy;
 
     public bool CanRestore => !ServerRunning && !IsBusy;
-
-    public bool SafeOnline
-    {
-        get => _safeOnline;
-        set => SetProperty(ref _safeOnline, value);
-    }
-
-    public string StatusMessage
-    {
-        get => _statusMessage;
-        set => SetProperty(ref _statusMessage, value);
-    }
 
     /// <summary>Loads (or reloads) the server's backups, newest first.</summary>
     public async Task LoadAsync()

@@ -15,8 +15,8 @@ public sealed partial class ConfigEntryItem : ObservableObject
     {
         Key = entry.Key;
         DisplayName = ResolveDisplayName(localizer, entry.Key);
-        _value = entry.Value;
         _originalValue = entry.Value;
+        Value = entry.Value;
         Type = entry.Type;
         TypeText = ResolveTypeText(localizer, entry.Type);
         Supported = entry.Supported;
@@ -36,16 +36,9 @@ public sealed partial class ConfigEntryItem : ObservableObject
     public ObservableCollection<string> Choices { get; } = new();
     public bool HasDescription => !string.IsNullOrWhiteSpace(Description);
 
-    private string _value;
-    public string Value
-    {
-        get => _value;
-        set
-        {
-            if (SetProperty(ref _value, value))
-                OnPropertyChanged(nameof(IsModified));
-        }
-    }
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsModified))]
+    public partial string Value { get; set; }
 
     public bool IsModified => !string.Equals(Value, _originalValue, System.StringComparison.Ordinal);
 

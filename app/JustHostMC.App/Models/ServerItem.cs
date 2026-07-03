@@ -11,22 +11,55 @@ using Microsoft.UI.Xaml.Media;
 namespace JustHostMC.App.Models;
 
 /// <summary>Observable wrapper around a server, exposing localized, bindable state.</summary>
-public sealed class ServerItem : ObservableObject
+public sealed partial class ServerItem : ObservableObject
 {
     private static readonly Lazy<string?> ConnectHost = new(FindConnectHost);
 
     private readonly ILocalizer _localizer;
     private readonly ProviderCatalog? _providers;
     private readonly DispatcherQueue? _dispatcher;
-    private string _name = "";
-    private string _mcVersion = "";
-    private string _providerId = "";
-    private ServerStatus _status;
-    private int _port;
-    private int _memoryMb;
-    private int _sortOrder;
-    private string _customJavaArgs = "";
-    private bool _hasUnreadStateChange;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(NavigationAutomationName))]
+    public partial string Name { get; private set; } = "";
+
+    [ObservableProperty]
+    public partial string McVersion { get; private set; } = "";
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TypeText))]
+    public partial string ProviderId { get; private set; } = "";
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(StatusText))]
+    [NotifyPropertyChangedFor(nameof(CanStart))]
+    [NotifyPropertyChangedFor(nameof(CanStop))]
+    [NotifyPropertyChangedFor(nameof(CanToggleState))]
+    [NotifyPropertyChangedFor(nameof(IsTransitional))]
+    [NotifyPropertyChangedFor(nameof(IsRunning))]
+    [NotifyPropertyChangedFor(nameof(CanEditLaunchSettings))]
+    [NotifyPropertyChangedFor(nameof(StateActionText))]
+    [NotifyPropertyChangedFor(nameof(StateActionGlyph))]
+    [NotifyPropertyChangedFor(nameof(NavigationAutomationName))]
+    [NotifyPropertyChangedFor(nameof(NavigationStatusBrush))]
+    public partial ServerStatus Status { get; private set; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(EndpointText))]
+    public partial int Port { get; private set; }
+
+    [ObservableProperty]
+    public partial int MemoryMb { get; private set; }
+
+    [ObservableProperty]
+    public partial int SortOrder { get; private set; }
+
+    [ObservableProperty]
+    public partial string CustomJavaArgs { get; private set; } = "";
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(NavigationAutomationName))]
+    [NotifyPropertyChangedFor(nameof(NavigationInfoBadgeVisibility))]
+    public partial bool HasUnreadStateChange { get; set; }
 
     public ServerItem(Server proto, ILocalizer localizer,
         ProviderCatalog? providers = null, DispatcherQueue? dispatcher = null)
@@ -61,82 +94,6 @@ public sealed class ServerItem : ObservableObject
     public string Id { get; }
     public ServerProgressTracker ProgressTracker { get; set; } = null!;
 
-    public string Name
-    {
-        get => _name;
-        private set
-        {
-            if (SetProperty(ref _name, value))
-                OnPropertyChanged(nameof(NavigationAutomationName));
-        }
-    }
-
-    public string McVersion
-    {
-        get => _mcVersion;
-        private set => SetProperty(ref _mcVersion, value);
-    }
-
-    public string ProviderId
-    {
-        get => _providerId;
-        private set
-        {
-            if (SetProperty(ref _providerId, value))
-                OnPropertyChanged(nameof(TypeText));
-        }
-    }
-
-    public ServerStatus Status
-    {
-        get => _status;
-        private set
-        {
-            if (SetProperty(ref _status, value))
-            {
-                OnPropertyChanged(nameof(StatusText));
-                OnPropertyChanged(nameof(CanStart));
-                OnPropertyChanged(nameof(CanStop));
-                OnPropertyChanged(nameof(CanToggleState));
-                OnPropertyChanged(nameof(IsTransitional));
-                OnPropertyChanged(nameof(IsRunning));
-                OnPropertyChanged(nameof(CanEditLaunchSettings));
-                OnPropertyChanged(nameof(StateActionText));
-                OnPropertyChanged(nameof(StateActionGlyph));
-                OnPropertyChanged(nameof(NavigationAutomationName));
-                OnPropertyChanged(nameof(NavigationStatusBrush));
-            }
-        }
-    }
-
-    public int Port
-    {
-        get => _port;
-        private set
-        {
-            if (SetProperty(ref _port, value))
-                OnPropertyChanged(nameof(EndpointText));
-        }
-    }
-
-    public int MemoryMb
-    {
-        get => _memoryMb;
-        private set => SetProperty(ref _memoryMb, value);
-    }
-
-    public int SortOrder
-    {
-        get => _sortOrder;
-        private set => SetProperty(ref _sortOrder, value);
-    }
-
-    public string CustomJavaArgs
-    {
-        get => _customJavaArgs;
-        private set => SetProperty(ref _customJavaArgs, value);
-    }
-
     public string StatusText => _localizer.Get(Status switch
     {
         ServerStatus.Running => "ServerStatus_Running",
@@ -147,19 +104,6 @@ public sealed class ServerItem : ObservableObject
         ServerStatus.Crashed => "ServerStatus_Crashed",
         _ => "ServerStatus_Unknown",
     });
-
-    public bool HasUnreadStateChange
-    {
-        get => _hasUnreadStateChange;
-        set
-        {
-            if (SetProperty(ref _hasUnreadStateChange, value))
-            {
-                OnPropertyChanged(nameof(NavigationAutomationName));
-                OnPropertyChanged(nameof(NavigationInfoBadgeVisibility));
-            }
-        }
-    }
 
     public Visibility NavigationInfoBadgeVisibility
         => HasUnreadStateChange ? Visibility.Visible : Visibility.Collapsed;

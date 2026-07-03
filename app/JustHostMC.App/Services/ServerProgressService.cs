@@ -17,108 +17,43 @@ public partial class ServerProgressTracker : ObservableObject
 
     private readonly DispatcherQueue _dispatcher;
 
-    private string? _serverId;
-    public string? ServerId
-    {
-        get => _serverId;
-        set => SetProperty(ref _serverId, value);
-    }
+    [ObservableProperty]
+    public partial string? ServerId { get; set; }
 
-    private string _serverName = string.Empty;
-    public string ServerName
-    {
-        get => _serverName;
-        set
-        {
-            if (SetProperty(ref _serverName, value))
-            {
-                OnPropertyChanged(nameof(TooltipText));
-            }
-        }
-    }
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TooltipText))]
+    public partial string ServerName { get; set; } = string.Empty;
 
-    private bool _isActive;
-    public bool IsActive
-    {
-        get => _isActive;
-        set
-        {
-            if (SetProperty(ref _isActive, value))
-            {
-                OnPropertyChanged(nameof(NavigationText));
-                OnPropertyChanged(nameof(TooltipText));
-                IsActiveChanged?.Invoke(this);
-            }
-        }
-    }
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(NavigationText))]
+    [NotifyPropertyChangedFor(nameof(TooltipText))]
+    public partial bool IsActive { get; set; }
 
-    private bool _isInstalling;
-    public bool IsInstalling
-    {
-        get => _isInstalling;
-        set => SetProperty(ref _isInstalling, value);
-    }
+    [ObservableProperty]
+    public partial bool IsInstalling { get; set; }
 
-    private string _currentStep = string.Empty;
-    public string CurrentStep
-    {
-        get => _currentStep;
-        set
-        {
-            if (SetProperty(ref _currentStep, value))
-            {
-                OnPropertyChanged(nameof(NavigationText));
-                OnPropertyChanged(nameof(TooltipText));
-            }
-        }
-    }
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(NavigationText))]
+    [NotifyPropertyChangedFor(nameof(TooltipText))]
+    public partial string CurrentStep { get; set; } = string.Empty;
 
-    private double _progressFraction;
-    public double ProgressFraction
-    {
-        get => _progressFraction;
-        set
-        {
-            if (SetProperty(ref _progressFraction, value))
-            {
-                OnPropertyChanged(nameof(NavigationText));
-                OnPropertyChanged(nameof(ProgressPercentage));
-            }
-        }
-    }
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(NavigationText))]
+    [NotifyPropertyChangedFor(nameof(ProgressPercentage))]
+    public partial double ProgressFraction { get; set; }
 
-    private bool _isIndeterminate = true;
-    public bool IsIndeterminate
-    {
-        get => _isIndeterminate;
-        set => SetProperty(ref _isIndeterminate, value);
-    }
+    [ObservableProperty]
+    public partial bool IsIndeterminate { get; set; } = true;
 
-    private bool _hasFailed;
-    public bool HasFailed
-    {
-        get => _hasFailed;
-        set
-        {
-            if (SetProperty(ref _hasFailed, value))
-            {
-                OnPropertyChanged(nameof(TooltipText));
-            }
-        }
-    }
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TooltipText))]
+    public partial bool HasFailed { get; set; }
 
-    private bool _isReadyToRun;
-    public bool IsReadyToRun
-    {
-        get => _isReadyToRun;
-        set
-        {
-            if (SetProperty(ref _isReadyToRun, value))
-            {
-                OnPropertyChanged(nameof(TooltipText));
-            }
-        }
-    }
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TooltipText))]
+    public partial bool IsReadyToRun { get; set; }
+
+    partial void OnIsActiveChanged(bool value) => IsActiveChanged?.Invoke(this);
 
     public ObservableCollection<string> InstallLog { get; } = new();
 
@@ -149,7 +84,7 @@ public partial class ServerProgressTracker : ObservableObject
     public ServerProgressTracker(DispatcherQueue dispatcher, string serverName)
     {
         _dispatcher = dispatcher;
-        _serverName = serverName;
+        ServerName = serverName;
     }
 
     public void AppendLog(string line)
@@ -199,19 +134,11 @@ public sealed partial class ServerProgressService : ObservableObject
 
     public ObservableCollection<ServerProgressTracker> ActiveTrackers { get; } = new();
 
-    private ServerProgressTracker? _currentActiveTracker;
-    public ServerProgressTracker? CurrentActiveTracker
-    {
-        get => _currentActiveTracker;
-        private set
-        {
-            if (SetProperty(ref _currentActiveTracker, value))
-            {
-                OnPropertyChanged(nameof(HasActiveTracker));
-                UpdatePaginationProps();
-            }
-        }
-    }
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasActiveTracker))]
+    public partial ServerProgressTracker? CurrentActiveTracker { get; private set; }
+
+    partial void OnCurrentActiveTrackerChanged(ServerProgressTracker? value) => UpdatePaginationProps();
 
     public bool HasActiveTracker => CurrentActiveTracker is not null;
 

@@ -30,6 +30,9 @@ type Meta struct {
 	// Formats lists the descriptor files a parser script reads (parsers only),
 	// e.g. "fabric.mod.json"; shown in the parser management UI.
 	Formats []string
+	// NeedsKey marks a shop script whose source requires an API key
+	// (shops only); the shop is not Ready until one is configured.
+	NeedsKey bool
 }
 
 // DeclaredKinds returns just the permission kinds the script declares.
@@ -66,6 +69,9 @@ func parseMeta(L *lua.LState) (Meta, error) {
 	}
 	if m.ModLayout == "" {
 		m.ModLayout = "none"
+	}
+	if b, ok := tbl.RawGetString("needs_key").(lua.LBool); ok {
+		m.NeedsKey = bool(b)
 	}
 
 	if formats, ok := tbl.RawGetString("formats").(*lua.LTable); ok {

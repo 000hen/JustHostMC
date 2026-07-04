@@ -1,0 +1,34 @@
+package scripting
+
+import (
+	"os"
+	"path/filepath"
+	"strings"
+)
+
+// LoadUserShops registers every user-imported shop (loose *.lua file) under
+// dir. A missing dir is not an error; a single bad shop is reported via the
+// returned (first) error but does not stop the others from loading.
+func LoadUserShops(ss *ShopSet, dir string) error {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return err
+	}
+	var firstErr error
+	for _, e := range entries {
+		if e.IsDir() || !strings.HasSuffix(strings.ToLower(e.Name()), ".lua") {
+			continue
+		}
+		src, err := os.ReadFile(filepath.Join(dir, e.Name()))
+		if err == nil {
+			_, err = ss.AddSource(string(src), false)
+		}
+		if err != nil && firstErr == nil {
+			firstErr = err
+		}
+	}
+	return firstErr
+}

@@ -546,4 +546,10 @@
   <data name="InstallProgressPreviousButton.ToolTipService.ToolTip" xml:space="preserve"><value>上一步</value></data>
   <data name="InstallProgressNextButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>下一步</value></data>
   <data name="InstallProgressNextButton.ToolTipService.ToolTip" xml:space="preserve"><value>下一步</value></data>
+  <data name="Scripts_CurrentSessionTitle" xml:space="preserve">
+<value>目前工作階段</value>
+</data>
+  <data name="Scripts_PreviousSessionTitle" xml:space="preserve">
+<value>工作階段</value>
+</data>
 </root>

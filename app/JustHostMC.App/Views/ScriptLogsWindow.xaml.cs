@@ -7,16 +7,16 @@ using Windows.Graphics;
 
 namespace JustHostMC.App.Views;
 
-/// <summary>Displays the combined live output from all automation scripts.</summary>
+/// <summary>Displays automation output grouped by application session.</summary>
 public sealed partial class ScriptLogsWindow : Window
 {
     private readonly Window? _owner;
 
-    public ObservableCollection<ScriptLogEntry> LogEntries { get; }
+    public ObservableCollection<ScriptLogSession> LogSessions { get; }
 
-    public ScriptLogsWindow(ObservableCollection<ScriptLogEntry> logEntries)
+    public ScriptLogsWindow(ObservableCollection<ScriptLogSession> logSessions)
     {
-        LogEntries = logEntries;
+        LogSessions = logSessions;
         InitializeComponent();
         Root.DataContext = this;
 
@@ -31,8 +31,8 @@ public sealed partial class ScriptLogsWindow : Window
             _owner.Closed += OnOwnerClosed;
         Closed += OnClosed;
 
-        LogEntries.CollectionChanged += OnLogEntriesChanged;
-        if (LogEntries.Count > 0)
+        LogSessions.CollectionChanged += OnLogSessionsChanged;
+        if (LogSessions.Count > 0)
             LogList.SelectedIndex = 0;
     }
 
@@ -40,14 +40,14 @@ public sealed partial class ScriptLogsWindow : Window
 
     private void OnClosed(object sender, WindowEventArgs args)
     {
-        LogEntries.CollectionChanged -= OnLogEntriesChanged;
+        LogSessions.CollectionChanged -= OnLogSessionsChanged;
         if (_owner is not null)
             _owner.Closed -= OnOwnerClosed;
     }
 
-    private void OnLogEntriesChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    private void OnLogSessionsChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        if (LogList.SelectedIndex < 0 && LogEntries.Count > 0)
+        if (LogList.SelectedIndex < 0 && LogSessions.Count > 0)
             LogList.SelectedIndex = 0;
     }
 }

@@ -45,10 +45,10 @@
                            VerticalAlignment="Center"
                            TextAlignment="Center"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                           Visibility="{Binding LogEntries.Count, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
+                           Visibility="{Binding LogSessions.Count, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
 
                 <ListView x:Name="LogList"
-                          ItemsSource="{Binding LogEntries, Mode=OneWay}"
+                          ItemsSource="{Binding LogSessions, Mode=OneWay}"
                           SelectionMode="Single"
                           Background="Transparent">
                     <ListView.ItemContainerStyle>
@@ -57,13 +57,13 @@
                         </Style>
                     </ListView.ItemContainerStyle>
                     <ListView.ItemTemplate>
-                        <DataTemplate x:DataType="models:ScriptLogEntry">
+                        <DataTemplate x:DataType="models:ScriptLogSession">
                             <StackPanel Padding="6" Spacing="4">
                                 <TextBlock Text="{x:Bind Title}"
                                            FontWeight="SemiBold"
                                            TextTrimming="CharacterEllipsis"
                                            MaxLines="2" />
-                                <TextBlock Text="{x:Bind TimestampFormatted}"
+                                <TextBlock Text="{x:Bind StartedAtFormatted}"
                                            Style="{StaticResource CaptionTextBlockStyle}"
                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             </StackPanel>
@@ -94,54 +94,54 @@
                         <TextBlock Text="{Binding Title}"
                                    Style="{StaticResource TitleTextBlockStyle}"
                                    TextWrapping="Wrap" />
-                        <TextBlock Text="{Binding TimestampFormatted}"
+                        <TextBlock Text="{Binding StartedAtFormatted}"
                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
 
                         <Rectangle Height="1"
                                    Margin="0,4"
                                    Fill="{ThemeResource DividerStrokeColorDefaultBrush}" />
 
-                        <TextBlock x:Uid="ScriptLogsWindowScriptDetailsHeader"
-                                   Style="{StaticResource SubtitleTextBlockStyle}" />
-                        <Grid ColumnSpacing="12" RowSpacing="8">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock x:Uid="ScriptLogsWindowScriptNameLabel"
-                                       FontWeight="SemiBold" />
-                            <TextBlock Grid.Column="1"
-                                       Text="{Binding ScriptName}"
-                                       TextWrapping="Wrap" />
-                            <TextBlock x:Uid="ScriptLogsWindowScriptIdLabel"
-                                       Grid.Row="1"
-                                       FontWeight="SemiBold" />
-                            <TextBlock Grid.Row="1"
-                                       Grid.Column="1"
-                                       Text="{Binding ScriptId}"
-                                       FontFamily="Consolas"
-                                       IsTextSelectionEnabled="True"
-                                       TextWrapping="Wrap" />
-                        </Grid>
-
                         <TextBlock x:Uid="ScriptLogsWindowDetailHeader"
                                    Margin="0,8,0,0"
                                    Style="{StaticResource SubtitleTextBlockStyle}" />
-                        <Border Padding="14"
-                                CornerRadius="6"
-                                Background="{ThemeResource ControlFillColorDefaultBrush}"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                BorderThickness="1">
-                            <TextBlock Text="{Binding Detail}"
-                                       FontFamily="Consolas"
-                                       FontSize="12"
-                                       IsTextSelectionEnabled="True"
-                                       TextWrapping="Wrap" />
-                        </Border>
+                        <ItemsControl ItemsSource="{Binding Entries}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="models:ScriptLogEntry">
+                                    <Border Padding="14"
+                                            Margin="0,0,0,8"
+                                            CornerRadius="6"
+                                            Background="{ThemeResource ControlFillColorDefaultBrush}"
+                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                            BorderThickness="1">
+                                        <StackPanel Spacing="6">
+                                            <Grid ColumnSpacing="12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{x:Bind ScriptName}"
+                                                           FontWeight="SemiBold"
+                                                           TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{x:Bind TimestampFormatted}"
+                                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                            </Grid>
+                                            <TextBlock Text="{x:Bind ScriptId}"
+                                                       FontFamily="Consolas"
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                       IsTextSelectionEnabled="True" />
+                                            <TextBlock Text="{x:Bind Detail}"
+                                                       FontFamily="Consolas"
+                                                       FontSize="12"
+                                                       IsTextSelectionEnabled="True"
+                                                       TextWrapping="Wrap" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </StackPanel>
                 </ScrollViewer>
             </Grid>

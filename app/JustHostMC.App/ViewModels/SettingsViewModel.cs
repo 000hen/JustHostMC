@@ -46,6 +46,8 @@ public sealed partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     public partial string AppVersionText { get; private set; } = "";
 
+    public string AppName => JustHostMC.App.Helpers.ProcessInfoHelper.ProductName;
+
     private bool _loadingBackend;
 
     public SettingsViewModel(DispatcherQueue dispatcher, ILocalizer localizer)
@@ -53,29 +55,7 @@ public sealed partial class SettingsViewModel : ObservableObject
         _dispatcher = dispatcher;
         _localizer = localizer;
 
-        var assembly = System.Reflection.Assembly.GetEntryAssembly();
-        var version = assembly?.GetName().Version?.ToString(3) ?? "Unknown";
-
-        string gitBranch = "";
-        string gitSha = "";
-        if (assembly != null)
-        {
-            var attributes = assembly.GetCustomAttributes(typeof(System.Reflection.AssemblyMetadataAttribute), false);
-            foreach (System.Reflection.AssemblyMetadataAttribute attr in attributes)
-            {
-                if (attr.Key == "GitBranch") gitBranch = attr.Value ?? "";
-                if (attr.Key == "GitSha") gitSha = attr.Value ?? "";
-            }
-        }
-
-        if (!string.IsNullOrEmpty(gitBranch) && !string.IsNullOrEmpty(gitSha))
-        {
-            AppVersionText = $"v{version}+{gitSha} ({gitBranch})";
-        }
-        else
-        {
-            AppVersionText = $"v{version}";
-        }
+        AppVersionText = JustHostMC.App.Helpers.ProcessInfoHelper.FullVersion;
     }
 
     partial void OnUseDockerChanged(bool value)

@@ -1,4 +1,4 @@
-package scripting
+package scriptlog
 
 import (
 	"path/filepath"

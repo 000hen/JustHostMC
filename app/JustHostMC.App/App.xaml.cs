@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using JustHostMC.Core;
+using JustHostMC.App.Views;
 using Microsoft.UI.Xaml;
 
 namespace JustHostMC.App;
@@ -16,6 +17,7 @@ public partial class App : Application
     private Window? _window;
     private EngineHost? _engineHost;
     private DaemonClient? _daemon;
+    private EngineStdioWindow? _engineStdioWindow;
     private readonly TaskCompletionSource<DaemonClient> _daemonReady = new();
 
     /// <summary>Completes once the engine is up and the gRPC client is ready.</summary>
@@ -25,6 +27,26 @@ public partial class App : Application
 
     /// <summary>The main window, exposed so pages can obtain its HWND for pickers/dialogs.</summary>
     public Window? MainWindow => _window;
+
+    /// <summary>Opens or activates the single engine standard-stream monitor.</summary>
+    public void ShowEngineStdioWindow()
+    {
+        if (_engineHost is null)
+            return;
+
+        if (_engineStdioWindow is null)
+        {
+            var window = new EngineStdioWindow(_engineHost);
+            window.Closed += (_, _) =>
+            {
+                if (ReferenceEquals(_engineStdioWindow, window))
+                    _engineStdioWindow = null;
+            };
+            _engineStdioWindow = window;
+        }
+
+        _engineStdioWindow.Activate();
+    }
 
     public App() => InitializeComponent();
 

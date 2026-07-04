@@ -30,7 +30,7 @@ Java, Docker, or WSL required. The app downloads runtime dependencies
 - **Server metrics** — live resource monitoring with sparkline charts.
 - **Per-server memory limits** — enforced via Job Objects and JVM `-Xmx`.
 - **Port conflict detection** — checks for collisions at create/start time.
-- **Log retention** — daily-rotating console logs with TTL and size-cap cleanup.
+- **Log retention** — persistent server and automation logs with shared TTL and size-cap cleanup.
 - **Clean uninstall** — optional "Remove all data" wipes servers, backups, logs,
   and JRE cache.
 - **Internationalization** — English (base/fallback) and Traditional Chinese

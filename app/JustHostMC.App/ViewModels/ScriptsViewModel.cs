@@ -18,13 +18,14 @@ namespace JustHostMC.App.ViewModels;
 /// gracefully (status messages) if the engine returns an error.
 /// </summary>
 public sealed partial class ScriptsViewModel : ObservableObject, IAsyncDisposable {
-    private const int MaxLogLines = 2000;
+    private const int MaxLogLinesPerSession = 2000;
     private const int MaxPerScriptLogLines = 500;
     private const int MaxLineLength = 2000;
 
     private readonly DispatcherQueue _dispatcher;
     private readonly ILocalizer _localizer;
     private readonly Dictionary<string, List<string>> _logsByScript = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, ScriptLogSession> _logSessionsById = new(StringComparer.Ordinal);
 
     private CancellationTokenSource? _logCts;
     private bool _loaded;
@@ -36,7 +37,11 @@ public sealed partial class ScriptsViewModel : ObservableObject, IAsyncDisposabl
 
     public ObservableCollection<ProviderItem> Providers { get; } = new();
     public ObservableCollection<ScriptItem> Scripts { get; } = new();
-    public ObservableCollection<ScriptLogEntry> LogEntries { get; } = new();
+    /// <summary>
+    /// Application logging sessions in reverse chronological order. The current
+    /// run is created lazily when its first automation log line arrives.
+    /// </summary>
+    public ObservableCollection<ScriptLogSession> LogSessions { get; } = new();
 
     [ObservableProperty]
     public partial bool IsBusy { get; private set; }
@@ -201,7 +206,18 @@ public sealed partial class ScriptsViewModel : ObservableObject, IAsyncDisposabl
             using var call = daemon.Scripts.StreamLog(new Empty(), cancellationToken: token);
             await foreach (var ev in call.ResponseStream.ReadAllAsync(token).ConfigureAwait(false)) {
                 var timestamp = ParseLogTimestamp(ev.Timestamp);
-                RunOnUI(() => AppendLogLine(ev.ScriptId, ev.Line, timestamp));
+                var hasSessionMetadata = !string.IsNullOrWhiteSpace(ev.SessionId);
+                var sessionId = hasSessionMetadata ? ev.SessionId : "current";
+                var sessionStartedAt = ParseLogTimestamp(
+                    hasSessionMetadata ? ev.SessionStartedAt : ev.Timestamp);
+                var isCurrentSession = ev.CurrentSession || !hasSessionMetadata;
+                RunOnUI(() => AppendLogLine(
+                    ev.ScriptId,
+                    ev.Line,
+                    timestamp,
+                    sessionId,
+                    sessionStartedAt,
+                    isCurrentSession));
             }
         } catch (OperationCanceledException) {
         } catch (RpcException) {
@@ -210,7 +226,13 @@ public sealed partial class ScriptsViewModel : ObservableObject, IAsyncDisposabl
         }
     }
 
-    private void AppendLogLine(string scriptId, string line, DateTimeOffset timestamp) {
+    private void AppendLogLine(
+        string scriptId,
+        string line,
+        DateTimeOffset timestamp,
+        string sessionId,
+        DateTimeOffset sessionStartedAt,
+        bool isCurrentSession) {
         if (line.Length > MaxLineLength)
             line = line[..MaxLineLength] + "…";
 
@@ -221,33 +243,59 @@ public sealed partial class ScriptsViewModel : ObservableObject, IAsyncDisposabl
                 : scriptId;
         }
         var displayId = string.IsNullOrEmpty(scriptId) ? "—" : scriptId;
-        LogEntries.Add(new ScriptLogEntry(
+        var session = GetOrCreateLogSession(sessionId, sessionStartedAt, isCurrentSession);
+        session.Entries.Insert(0, new ScriptLogEntry(
             displayId,
             scriptName,
             line,
             timestamp,
             _localizer.Get("Scripts_LogEntryFallbackTitle")));
-        while (LogEntries.Count > MaxLogLines)
-            LogEntries.RemoveAt(0);
+        while (session.Entries.Count > MaxLogLinesPerSession)
+            session.Entries.RemoveAt(session.Entries.Count - 1);
 
-        if (string.IsNullOrEmpty(scriptId))
+        // Script cards are a live view of this run. Historical output remains
+        // available in the session-based All Logs window instead of being mixed
+        // into the current script output.
+        if (!isCurrentSession || string.IsNullOrEmpty(scriptId))
             return;
 
         if (!_logsByScript.TryGetValue(scriptId, out var scriptLines)) {
             scriptLines = new List<string>();
             _logsByScript[scriptId] = scriptLines;
         }
-        scriptLines.Add(line);
+        scriptLines.Insert(0, line);
         while (scriptLines.Count > MaxPerScriptLogLines)
-            scriptLines.RemoveAt(0);
+            scriptLines.RemoveAt(scriptLines.Count - 1);
 
         var script = Scripts.FirstOrDefault(item => item.Id == scriptId);
         if (script is null)
             return;
 
-        script.LogLines.Add(line);
+        script.LogLines.Insert(0, line);
         while (script.LogLines.Count > MaxPerScriptLogLines)
-            script.LogLines.RemoveAt(0);
+            script.LogLines.RemoveAt(script.LogLines.Count - 1);
+    }
+
+    private ScriptLogSession GetOrCreateLogSession(
+        string sessionId,
+        DateTimeOffset startedAt,
+        bool isCurrentSession) {
+        if (_logSessionsById.TryGetValue(sessionId, out var existing))
+            return existing;
+
+        var session = new ScriptLogSession(
+            sessionId,
+            startedAt,
+            _localizer.Get(isCurrentSession
+                ? "Scripts_CurrentSessionTitle"
+                : "Scripts_PreviousSessionTitle"));
+        _logSessionsById[sessionId] = session;
+
+        var index = 0;
+        while (index < LogSessions.Count && LogSessions[index].StartedAt > startedAt)
+            index++;
+        LogSessions.Insert(index, session);
+        return session;
     }
 
     private static DateTimeOffset ParseLogTimestamp(string value) =>

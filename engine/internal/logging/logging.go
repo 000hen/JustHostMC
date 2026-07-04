@@ -1,7 +1,7 @@
-// Package logging persists per-server install and console logs to disk and
-// enforces a retention policy over them: delete logs older than a number of days
-// and keep their total size under a cap (PROMPT §15). Persisting install logs is
-// what makes the cause of a failed install findable after the fact.
+// Package logging persists server and automation logs to disk and enforces a
+// shared retention policy over them: delete logs older than a number of days and
+// keep their total size under a cap (PROMPT §15). Persisting logs makes failures
+// and automation output findable after the fact.
 package logging
 
 import (

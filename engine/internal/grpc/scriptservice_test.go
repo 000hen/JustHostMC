@@ -237,4 +237,7 @@ func TestScriptStreamLogReplaysHistory(t *testing.T) {
 	if _, err := time.Parse(time.RFC3339Nano, lines[0].Timestamp); err != nil {
 		t.Errorf("timestamp = %q, want RFC3339: %v", lines[0].Timestamp, err)
 	}
+	if lines[0].SessionId == "" || lines[0].SessionStartedAt == "" || !lines[0].CurrentSession {
+		t.Errorf("session metadata = %+v, want current session id/start", lines[0])
+	}
 }

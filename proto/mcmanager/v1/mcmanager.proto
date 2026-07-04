@@ -211,6 +211,9 @@ message ScriptLogLine {
   string script_id = 1;
   string line = 2;
   string timestamp = 3; // RFC3339 UTC
+  string session_id = 4; // stable id for one application/engine run
+  string session_started_at = 5; // RFC3339 UTC
+  bool current_session = 6;
 }
 
 // -- Console: bidirectional stream --------------------------------------------
@@ -247,7 +250,7 @@ message RestoreBackupRequest {
 
 // -- Settings: log retention ---------------------------------------------------
 
-// LogRetention configures how install/console logs are kept (PROMPT 禮15).
+// LogRetention configures how install/console/automation logs are kept (PROMPT 禮15).
 message LogRetention {
   int32 keep_days = 1; // delete logs older than this many days (0 = no age limit)
   int64 max_total_bytes = 2; // cap on total log bytes; oldest purged first (0 = no size limit)

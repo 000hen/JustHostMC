@@ -2,14 +2,17 @@ package grpcsvc
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 
 	mcmanagerv1 "github.com/000hen/justhostmc/engine/gen/mcmanager/v1"
 	"github.com/000hen/justhostmc/engine/internal/appdata"
+	"github.com/000hen/justhostmc/engine/internal/scripting"
 	"github.com/000hen/justhostmc/engine/internal/store"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -25,13 +28,34 @@ const maxModBytes = 512 << 20 // 512 MiB
 // running JVM.
 type ModService struct {
 	mcmanagerv1.UnimplementedModServiceServer
-	store store.Store
-	paths appdata.Paths
+	store  store.Store
+	paths  appdata.Paths
+	parser ModParser
+
+	// metaCache memoizes parsed jar metadata keyed by
+	// serverID|name|size|mtimeUnixNano, so repeated List calls don't re-parse
+	// unchanged jars. Re-uploading a jar changes its mtime, which
+	// self-invalidates the old entry (stale keys are dropped per server).
+	metaMu    sync.Mutex
+	metaCache map[string]map[string]*mcmanagerv1.ModMetadata // server id -> key -> metadata
 }
 
-// NewModService builds a ModService over the registry and data paths.
-func NewModService(st store.Store, paths appdata.Paths) *ModService {
-	return &ModService{store: st, paths: paths}
+// ModParser extracts embedded metadata from one jar (path relative to the
+// server dir). *scripting.ParserSet satisfies it; matched=false means no
+// installed parser recognized the jar.
+type ModParser interface {
+	ParseJar(ctx context.Context, serverDir, jarRel string) (scripting.ModMeta, string, bool)
+}
+
+// NewModService builds a ModService over the registry and data paths. parser
+// may be nil (metadata then reports parsed=false for every jar).
+func NewModService(st store.Store, paths appdata.Paths, parser ModParser) *ModService {
+	return &ModService{
+		store:     st,
+		paths:     paths,
+		parser:    parser,
+		metaCache: map[string]map[string]*mcmanagerv1.ModMetadata{},
+	}
 }
 
 // modLayout maps a provider's declared mod layout (captured on the server record
@@ -48,8 +72,9 @@ func modLayout(layout string) (subdir string, kind mcmanagerv1.ModKind, ok bool)
 	}
 }
 
-// List returns the jar files in the server's plugins/mods folder.
-func (s *ModService) List(_ context.Context, req *mcmanagerv1.ServerId) (*mcmanagerv1.ModList, error) {
+// List returns the jar files in the server's plugins/mods folder, enriched
+// with parsed metadata (name/version/authors/icon/...) where a parser matches.
+func (s *ModService) List(ctx context.Context, req *mcmanagerv1.ServerId) (*mcmanagerv1.ModList, error) {
 	rec, ok := s.store.Get(req.Id)
 	if !ok {
 		return nil, status.Error(codes.NotFound, "server not found")
@@ -66,6 +91,7 @@ func (s *ModService) List(_ context.Context, req *mcmanagerv1.ServerId) (*mcmana
 	}
 
 	list := &mcmanagerv1.ModList{ServerId: req.Id, Kind: kind, Supported: true}
+	fresh := map[string]*mcmanagerv1.ModMetadata{}
 	for _, e := range entries {
 		if e.IsDir() || !strings.HasSuffix(strings.ToLower(e.Name()), ".jar") {
 			continue
@@ -74,10 +100,53 @@ func (s *ModService) List(_ context.Context, req *mcmanagerv1.ServerId) (*mcmana
 		if err != nil {
 			continue
 		}
-		list.Files = append(list.Files, &mcmanagerv1.ModFile{Name: e.Name(), SizeBytes: info.Size()})
+		meta := s.jarMetadata(ctx, req.Id, subdir, e.Name(), info.Size(), info.ModTime().UnixNano(), fresh)
+		list.Files = append(list.Files, &mcmanagerv1.ModFile{
+			Name:      e.Name(),
+			SizeBytes: info.Size(),
+			Metadata:  meta,
+		})
 	}
+	// Replace the server's cache with only the keys seen this pass so removed
+	// or re-uploaded jars don't accumulate stale entries.
+	s.metaMu.Lock()
+	s.metaCache[req.Id] = fresh
+	s.metaMu.Unlock()
 	sort.Slice(list.Files, func(i, j int) bool { return list.Files[i].Name < list.Files[j].Name })
 	return list, nil
+}
+
+// jarMetadata returns the (possibly cached) parsed metadata for one jar and
+// records it in fresh under its cache key.
+func (s *ModService) jarMetadata(ctx context.Context, serverID, subdir, name string, size, mtime int64, fresh map[string]*mcmanagerv1.ModMetadata) *mcmanagerv1.ModMetadata {
+	key := fmt.Sprintf("%s|%d|%d", name, size, mtime)
+	s.metaMu.Lock()
+	cached, ok := s.metaCache[serverID][key]
+	s.metaMu.Unlock()
+	if ok {
+		fresh[key] = cached
+		return cached
+	}
+
+	meta := &mcmanagerv1.ModMetadata{}
+	if s.parser != nil {
+		if m, parserID, matched := s.parser.ParseJar(ctx, s.paths.ServerDir(serverID), subdir+"/"+name); matched {
+			meta = &mcmanagerv1.ModMetadata{
+				Parsed:      true,
+				ParserId:    parserID,
+				Loader:      m.Loader,
+				ModId:       m.ModID,
+				Name:        m.Name,
+				Version:     m.Version,
+				Authors:     m.Authors,
+				Description: m.Description,
+				Website:     m.Website,
+				Icon:        m.Icon,
+			}
+		}
+	}
+	fresh[key] = meta
+	return meta
 }
 
 // Remove deletes one jar by name. The server must be stopped.

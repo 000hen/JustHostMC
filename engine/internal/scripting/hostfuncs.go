@@ -3,6 +3,7 @@ package scripting
 import (
 	"archive/zip"
 	"bufio"
+	"context"
 	"crypto/sha1"
 	"crypto/sha256"
 	"encoding/hex"
@@ -16,11 +17,14 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
 	mcmanagerv1 "github.com/000hen/justhostmc/engine/gen/mcmanager/v1"
 	"github.com/000hen/justhostmc/engine/internal/dl"
 	"github.com/000hen/justhostmc/engine/internal/provider"
+	"github.com/BurntSushi/toml"
 	lua "github.com/yuin/gopher-lua"
+	"gopkg.in/yaml.v3"
 )
 
 // newJHMC builds the `jhmc` table exposed to a script, with every function
@@ -29,6 +33,7 @@ func (inv *invocation) newJHMC(L *lua.LState) *lua.LTable {
 	t := L.NewTable()
 	reg := func(name string, fn lua.LGFunction) { t.RawSetString(name, L.NewFunction(fn)) }
 
+	reg("http", inv.httpRequest)
 	reg("http_get", inv.httpGet)
 	reg("http_json", inv.httpJSON)
 	reg("download", inv.download)
@@ -39,11 +44,26 @@ func (inv *invocation) newJHMC(L *lua.LState) *lua.LTable {
 	reg("java_major_for", inv.javaMajorFor)
 	reg("json_decode", inv.jsonDecode)
 	reg("json_encode", inv.jsonEncode)
+	reg("toml_decode", inv.tomlDecode)
+	reg("yaml_decode", inv.yamlDecode)
+	reg("zip_read", inv.zipRead)
+	reg("zip_entries", inv.zipEntries)
 	reg("copy_bundled", inv.copyBundled)
 	reg("log", func(L *lua.LState) int {
 		inv.emit(provider.Progress{LogLine: L.CheckString(1)})
 		return 0
 	})
+	reg("time", func(L *lua.LState) int {
+		L.Push(lua.LNumber(float64(time.Now().UnixMilli()) / 1000.0))
+		return 1
+	})
+
+	store := L.NewTable()
+	store.RawSetString("get", L.NewFunction(inv.storeGet))
+	store.RawSetString("set", L.NewFunction(inv.storeSet))
+	store.RawSetString("delete", L.NewFunction(inv.storeDelete))
+	store.RawSetString("keys", L.NewFunction(inv.storeKeys))
+	t.RawSetString("store", store)
 
 	fs := L.NewTable()
 	fs.RawSetString("read", L.NewFunction(inv.fsRead))
@@ -100,6 +120,82 @@ func (inv *invocation) httpJSON(L *lua.LState) int {
 		return 0
 	}
 	L.Push(goToLua(L, v))
+	return 1
+}
+
+// httpRequest is jhmc.http(opts): a full HTTP client for scripts. opts fields:
+// url (required), method (default "GET"), body, headers (table), timeout
+// (seconds, default 30, 0 keeps the invocation deadline), max_body (bytes,
+// default 64 MiB). Returns {status=, body=, headers=} — non-2xx responses are
+// returned, not raised, so scripts can inspect the status.
+func (inv *invocation) httpRequest(L *lua.LState) int {
+	inv.require(L, mcmanagerv1.PermissionKind_PERMISSION_NETWORK)
+	opts := L.CheckTable(1)
+
+	url := strField(opts, "url")
+	if url == "" {
+		inv.fail(L, fmt.Errorf("http: opts.url is required"))
+		return 0
+	}
+	method := strings.ToUpper(strField(opts, "method"))
+	if method == "" {
+		method = http.MethodGet
+	}
+	timeout := float64(luaNumberField(opts, "timeout"))
+	if opts.RawGetString("timeout") == lua.LNil {
+		timeout = 30
+	}
+	maxBody := int64(luaNumberField(opts, "max_body"))
+	if maxBody <= 0 {
+		maxBody = 64 << 20 // 64 MiB, matches http_get/http_json
+	}
+
+	ctx := inv.ctx
+	if timeout > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, time.Duration(timeout*float64(time.Second)))
+		defer cancel()
+	}
+
+	var bodyReader io.Reader
+	if body := strField(opts, "body"); body != "" {
+		bodyReader = strings.NewReader(body)
+	}
+	req, err := http.NewRequestWithContext(ctx, method, url, bodyReader)
+	if err != nil {
+		inv.fail(L, fmt.Errorf("http: %w", err))
+		return 0
+	}
+	req.Header.Set("User-Agent", scriptUserAgent)
+	if ht, ok := opts.RawGetString("headers").(*lua.LTable); ok {
+		ht.ForEach(func(k, v lua.LValue) {
+			if ks, ok := k.(lua.LString); ok {
+				req.Header.Set(string(ks), lua.LVAsString(v))
+			}
+		})
+	}
+
+	resp, err := inv.host.client.Do(req)
+	if err != nil {
+		inv.fail(L, fmt.Errorf("%s %s: %w", method, url, err))
+		return 0
+	}
+	defer resp.Body.Close()
+	respBody, err := io.ReadAll(io.LimitReader(resp.Body, maxBody))
+	if err != nil {
+		inv.fail(L, fmt.Errorf("%s %s: read body: %w", method, url, err))
+		return 0
+	}
+
+	result := L.NewTable()
+	result.RawSetString("status", lua.LNumber(resp.StatusCode))
+	result.RawSetString("body", lua.LString(respBody))
+	hdrs := L.NewTable()
+	for k, vs := range resp.Header {
+		hdrs.RawSetString(strings.ToLower(k), lua.LString(strings.Join(vs, ", ")))
+	}
+	result.RawSetString("headers", hdrs)
+	L.Push(result)
 	return 1
 }
 
@@ -354,6 +450,83 @@ func (inv *invocation) jsonDecode(L *lua.LState) int {
 	return 1
 }
 
+func (inv *invocation) tomlDecode(L *lua.LState) int {
+	var v map[string]any
+	if err := toml.Unmarshal([]byte(L.CheckString(1)), &v); err != nil {
+		inv.fail(L, fmt.Errorf("toml_decode: %w", err))
+		return 0
+	}
+	L.Push(goToLua(L, v))
+	return 1
+}
+
+func (inv *invocation) yamlDecode(L *lua.LState) int {
+	var v any
+	if err := yaml.Unmarshal([]byte(L.CheckString(1)), &v); err != nil {
+		inv.fail(L, fmt.Errorf("yaml_decode: %w", err))
+		return 0
+	}
+	L.Push(goToLua(L, v))
+	return 1
+}
+
+// zipReadCap bounds a single entry read via jhmc.zip_read (icons/descriptors
+// are tiny; this only guards against a hostile jar).
+const zipReadCap = 16 << 20 // 16 MiB
+
+// zipRead returns one entry's bytes from a zip/jar inside the server dir, or
+// nil when the entry does not exist.
+func (inv *invocation) zipRead(L *lua.LState) int {
+	inv.requireFS(L)
+	zipPath := inv.resolvePath(L, L.CheckString(1))
+	name := L.CheckString(2)
+
+	zr, err := zip.OpenReader(zipPath)
+	if err != nil {
+		inv.fail(L, err)
+		return 0
+	}
+	defer zr.Close()
+	for _, f := range zr.File {
+		if f.Name != name {
+			continue
+		}
+		rc, err := f.Open()
+		if err != nil {
+			inv.fail(L, err)
+			return 0
+		}
+		defer rc.Close()
+		b, err := io.ReadAll(io.LimitReader(rc, zipReadCap))
+		if err != nil {
+			inv.fail(L, err)
+			return 0
+		}
+		L.Push(lua.LString(b))
+		return 1
+	}
+	L.Push(lua.LNil)
+	return 1
+}
+
+// zipEntries lists the entry names of a zip/jar inside the server dir.
+func (inv *invocation) zipEntries(L *lua.LState) int {
+	inv.requireFS(L)
+	zipPath := inv.resolvePath(L, L.CheckString(1))
+	zr, err := zip.OpenReader(zipPath)
+	if err != nil {
+		inv.fail(L, err)
+		return 0
+	}
+	defer zr.Close()
+	out := L.NewTable()
+	for _, f := range zr.File {
+		out.Append(lua.LString(f.Name))
+	}
+	L.Push(out)
+	return 1
+}
+
 func (inv *invocation) jsonEncode(L *lua.LState) int {
 	b, err := json.Marshal(luaToGo(L.CheckAny(1)))
 	if err != nil {
@@ -457,6 +630,53 @@ func copyFile(src, dst string) error {
 	defer out.Close()
 	_, err = io.Copy(out, in)
 	return err
+}
+
+// -- per-script persistent store (jhmc.store.*) --------------------------------
+
+// requireStore raises a Lua error when no KV store is wired into this
+// invocation (e.g. provider installs, which have no script identity).
+func (inv *invocation) requireStore(L *lua.LState) {
+	if inv.kv == nil || inv.scriptID == "" {
+		inv.fail(L, fmt.Errorf("store: persistent storage is unavailable here"))
+	}
+}
+
+func (inv *invocation) storeGet(L *lua.LState) int {
+	inv.requireStore(L)
+	v, ok := inv.kv.Get(inv.scriptID, L.CheckString(1))
+	if !ok {
+		L.Push(lua.LNil)
+		return 1
+	}
+	L.Push(lua.LString(v))
+	return 1
+}
+
+func (inv *invocation) storeSet(L *lua.LState) int {
+	inv.requireStore(L)
+	if err := inv.kv.Set(inv.scriptID, L.CheckString(1), L.CheckString(2)); err != nil {
+		inv.fail(L, err)
+	}
+	return 0
+}
+
+func (inv *invocation) storeDelete(L *lua.LState) int {
+	inv.requireStore(L)
+	if err := inv.kv.Delete(inv.scriptID, L.CheckString(1)); err != nil {
+		inv.fail(L, err)
+	}
+	return 0
+}
+
+func (inv *invocation) storeKeys(L *lua.LState) int {
+	inv.requireStore(L)
+	out := L.NewTable()
+	for _, k := range inv.kv.Keys(inv.scriptID) {
+		out.Append(lua.LString(k))
+	}
+	L.Push(out)
+	return 1
 }
 
 // luaNumberField reads a numeric field from a table, returning 0 if absent.

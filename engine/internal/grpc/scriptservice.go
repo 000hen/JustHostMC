@@ -10,6 +10,8 @@ import (
 
 	mcmanagerv1 "github.com/000hen/justhostmc/engine/gen/mcmanager/v1"
 	"github.com/000hen/justhostmc/engine/internal/scripting"
+	"github.com/000hen/justhostmc/engine/internal/scripting/automation"
+	"github.com/000hen/justhostmc/engine/internal/scriptlog"
 	"google.golang.org/grpc/codes"
 )
 
@@ -17,10 +19,10 @@ import (
 // imports a user script (persisting it to the scripts dir), enables/disables a
 // script (starting/stopping its hooks), manages per-script permission grants,
 // removes user scripts, and streams the engine-wide automation log. It mirrors
-// ProviderService but drives a scripting.Manager instead of a Registry.
+// ProviderService but drives an automation.Manager instead of a Registry.
 type ScriptService struct {
 	mcmanagerv1.UnimplementedScriptServiceServer
-	mgr     *scripting.Manager
+	mgr     *automation.Manager
 	grants  *scripting.GrantStore
 	enabled *scripting.EnabledStore
 	dir     string // root dir where user scripts are persisted
@@ -29,7 +31,7 @@ type ScriptService struct {
 // NewScriptService builds a ScriptService. dir is where imported user scripts are
 // stored; grants persists permission decisions; enabled persists which scripts
 // the user has turned on.
-func NewScriptService(mgr *scripting.Manager, grants *scripting.GrantStore, enabled *scripting.EnabledStore, dir string) *ScriptService {
+func NewScriptService(mgr *automation.Manager, grants *scripting.GrantStore, enabled *scripting.EnabledStore, dir string) *ScriptService {
 	return &ScriptService{mgr: mgr, grants: grants, enabled: enabled, dir: dir}
 }
 
@@ -155,7 +157,7 @@ func (s *ScriptService) StreamLog(_ *mcmanagerv1.Empty, stream mcmanagerv1.Scrip
 	}
 }
 
-func scriptLogProto(line scripting.LogLine) *mcmanagerv1.ScriptLogLine {
+func scriptLogProto(line scriptlog.LogLine) *mcmanagerv1.ScriptLogLine {
 	return &mcmanagerv1.ScriptLogLine{
 		ScriptId:  line.ScriptID,
 		Line:      line.Line,
@@ -170,7 +172,7 @@ func (s *ScriptService) scriptPath(id string) string {
 
 // info maps an automation to the proto ScriptInfo, resolving its current enabled
 // state and effective permission grants.
-func (s *ScriptService) info(a *scripting.Automation) *mcmanagerv1.ScriptInfo {
+func (s *ScriptService) info(a *automation.Automation) *mcmanagerv1.ScriptInfo {
 	meta := a.Meta()
 	perms := make([]*mcmanagerv1.Permission, 0, len(meta.Permissions))
 	for _, p := range meta.Permissions {

@@ -1,4 +1,7 @@
-package scripting
+// Package scriptlog holds the engine-wide ring buffer of automation script
+// output: recent lines replay to new subscribers and live lines fan out,
+// mirroring the console hub's pattern.
+package scriptlog
 
 import (
 	"sync"

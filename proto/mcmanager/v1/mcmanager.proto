@@ -134,6 +134,8 @@ enum PermissionKind {
   PERMISSION_CONSOLE_WRITE = 5;  // send commands to the console
   PERMISSION_SERVER_CONTROL = 6; // start/stop/restart the server
   PERMISSION_SCHEDULE = 7;       // run actions on a timer
+  PERMISSION_SERVER_QUERY = 8;   // list/query server metadata from scripts
+  PERMISSION_PLAYER_MANAGE = 9;  // query/kick/ban players from scripts
 }
 
 message Permission {
@@ -196,6 +198,29 @@ message ScriptInfo {
 
 message ScriptList {
   repeated ScriptInfo scripts = 1;
+}
+
+// ParserInfo describes an installed mod/plugin metadata parser script
+// (built-in or user-imported).
+message ParserInfo {
+  string id = 1;
+  string name = 2;
+  string website = 3;
+  string description = 4;
+  string version = 5;
+  string author = 6;
+  bool builtin = 7;
+  repeated Permission permissions = 8;  // declared/requested permissions
+  repeated PermissionKind granted = 9;  // currently-granted subset
+  repeated string formats = 10;         // descriptor formats it reads, e.g. "fabric.mod.json"
+}
+
+message ParserList {
+  repeated ParserInfo parsers = 1;
+}
+
+message ImportParserRequest {
+  string lua_source = 1;
 }
 
 message ImportScriptRequest {
@@ -425,9 +450,26 @@ enum ModKind {
   PLUGIN = 1; // Paper/Spigot -> plugins/
   MOD = 2; // Forge/NeoForge/Fabric -> mods/
 }
+// ModMetadata is what a parser script extracted from a jar's embedded
+// descriptor (fabric.mod.json / mods.toml / plugin.yml / ...). parsed=false
+// means no installed parser recognized the jar (UI falls back to the filename).
+message ModMetadata {
+  bool parsed = 1;              // a parser matched this jar
+  string parser_id = 2;         // which parser produced it
+  string loader = 3;            // "fabric"|"quilt"|"forge"|"neoforge"|"forge-legacy"|"bukkit"|"paper"
+  string mod_id = 4;
+  string name = 5;
+  string version = 6;
+  repeated string authors = 7;
+  string description = 8;
+  string website = 9;
+  bytes icon = 10;              // raw image bytes (png/jpg), optional
+}
+
 message ModFile {
   string name = 1;
   int64 size_bytes = 2;
+  ModMetadata metadata = 3;
 }
 message ModList {
   string server_id = 1;
@@ -518,6 +560,15 @@ service ProviderService {
   rpc Import(ImportProviderRequest) returns (ProviderInfo); // import a user .lua (+ optional jar)
   rpc Remove(ProviderRef) returns (Empty);
   rpc SetPermissions(SetPermissionsRequest) returns (ProviderInfo);
+}
+
+// ParserService manages the Lua parser scripts that extract mod/plugin
+// metadata (name, version, authors, icon, ...) from uploaded jars.
+service ParserService {
+  rpc List(Empty) returns (ParserList);
+  rpc Import(ImportParserRequest) returns (ParserInfo);
+  rpc Remove(ProviderRef) returns (Empty);
+  rpc SetPermissions(SetPermissionsRequest) returns (ParserInfo);
 }
 
 // ScriptService manages automation/control scripts that drive running servers

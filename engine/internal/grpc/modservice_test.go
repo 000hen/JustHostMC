@@ -81,7 +81,7 @@ func TestModServiceList(t *testing.T) {
 		}
 	}
 
-	svc := NewModService(st, paths)
+	svc := NewModService(st, paths, nil)
 	list, err := svc.List(context.Background(), &mcmanagerv1.ServerId{Id: "s1"})
 	if err != nil {
 		t.Fatalf("List: %v", err)
@@ -101,7 +101,7 @@ func TestModServiceList(t *testing.T) {
 func TestModServiceListUnsupported(t *testing.T) {
 	st := store.NewMemory()
 	_ = st.Put(&store.Server{ID: "v1", ProviderID: "vanilla", ModLayout: "none", Status: mcmanagerv1.ServerStatus_STOPPED})
-	svc := NewModService(st, appdata.Paths{Base: t.TempDir()})
+	svc := NewModService(st, appdata.Paths{Base: t.TempDir()}, nil)
 
 	list, err := svc.List(context.Background(), &mcmanagerv1.ServerId{Id: "v1"})
 	if err != nil {
@@ -115,7 +115,7 @@ func TestModServiceListUnsupported(t *testing.T) {
 func TestModServiceRemoveRejectsRunning(t *testing.T) {
 	st := store.NewMemory()
 	_ = st.Put(&store.Server{ID: "s1", ProviderID: "paper", ModLayout: "plugins", Status: mcmanagerv1.ServerStatus_RUNNING})
-	svc := NewModService(st, appdata.Paths{Base: t.TempDir()})
+	svc := NewModService(st, appdata.Paths{Base: t.TempDir()}, nil)
 
 	_, err := svc.Remove(context.Background(), &mcmanagerv1.RemoveModRequest{ServerId: "s1", Name: "x.jar"})
 	if status.Code(err) != codes.FailedPrecondition {

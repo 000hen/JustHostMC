@@ -21,7 +21,11 @@ import (
 	"github.com/000hen/justhostmc/engine/internal/isolation"
 	"github.com/000hen/justhostmc/engine/internal/jre"
 	"github.com/000hen/justhostmc/engine/internal/logging"
+	"github.com/000hen/justhostmc/engine/internal/players"
+	"github.com/000hen/justhostmc/engine/internal/scriptdata"
 	"github.com/000hen/justhostmc/engine/internal/scripting"
+	"github.com/000hen/justhostmc/engine/internal/scripting/automation"
+	"github.com/000hen/justhostmc/engine/internal/scriptlog"
 	"github.com/000hen/justhostmc/engine/internal/settings"
 	"github.com/000hen/justhostmc/engine/internal/store"
 )
@@ -71,11 +75,27 @@ func main() {
 	if err := scripting.LoadUserProviders(providers, providersDir); err != nil {
 		log.Printf("load user providers: %v", err)
 	}
+	// Mod/plugin metadata parsers: sandboxed Lua scripts that read a jar's
+	// embedded descriptor (fabric.mod.json, mods.toml, plugin.yml, ...).
+	parserGrants := scripting.NewGrantStore(filepath.Join(paths.Base, "parser-grants.json"))
+	parsers := scripting.NewParserSet(host, parserGrants)
+	if err := scripting.LoadBuiltinParsers(parsers); err != nil {
+		log.Fatalf("load builtin parsers: %v", err)
+	}
+	parsersDir := filepath.Join(paths.Base, "parsers")
+	if err := scripting.LoadUserParsers(parsers, parsersDir); err != nil {
+		log.Printf("load user parsers: %v", err)
+	}
 	// Persist every console line to a daily-rotating per-server log file.
 	hub := console.NewHub()
 	sink := logging.NewSink(paths.LogsRoot())
 	defer sink.CloseAll()
 	hub.SetLineObserver(sink.Write)
+
+	// Player event bus: structured join/leave events derived from roster state
+	// diffs, feeding automation on_join/on_leave hooks.
+	eventBus := players.NewEventBus()
+	hub.AddLineObserver(eventBus.Feed)
 
 	// Choose the isolation backend: Docker only when the user opted in AND it is
 	// available, otherwise the on-machine Job Object backend (PROMPT 禮10.7).
@@ -91,6 +111,7 @@ func main() {
 		Paths:     paths,
 		Console:   hub,
 		CloseLogs: sink.CloseAll,
+		OnExit:    eventBus.Reset,
 	})
 	// Reclaim state from the persisted registry after a restart.
 	serverService.Reconcile(context.Background())
@@ -111,21 +132,33 @@ func main() {
 	// Apply the retention policy at startup, then periodically.
 	go runLogJanitor(settingsStore, paths.LogsRoot(), sink.CloseAll)
 
+	playerService := grpcsvc.NewPlayerService(hub, registry, paths)
+
 	// Automation scripts drive running servers via the console hub and the
 	// server service. They are sandboxed and permission-gated like providers.
 	scriptGrants := scripting.NewGrantStore(filepath.Join(paths.Base, "script-grants.json"))
 	scriptsEnabled := scripting.NewEnabledStore(filepath.Join(paths.Base, "scripts-enabled.json"))
-	automation := scripting.NewManager(host, scriptGrants, hub, serverService, scripting.NewLogBuffer(0))
+	scripts := automation.NewManager(automation.ManagerConfig{
+		Host:    host,
+		Grants:  scriptGrants,
+		Console: hub,
+		Control: serverService,
+		Logs:    scriptlog.NewLogBuffer(0),
+		Query:   &serverQueryAdapter{store: registry},
+		Players: &playerManagerAdapter{events: eventBus, players: playerService},
+		Events:  eventBus,
+		KV:      scriptdata.NewKVStore(filepath.Join(paths.Base, "script-data")),
+	})
 	scriptsDir := paths.ScriptsRoot()
-	if err := scripting.LoadUserScripts(automation, scriptsDir); err != nil {
+	if err := automation.LoadUserScripts(scripts, scriptsDir); err != nil {
 		log.Printf("load automation scripts: %v", err)
 	}
 	for _, id := range scriptsEnabled.EnabledIDs() {
-		if err := automation.Enable(id); err != nil {
+		if err := scripts.Enable(id); err != nil {
 			log.Printf("enable automation %q: %v", id, err)
 		}
 	}
-	defer automation.Shutdown()
+	defer scripts.Shutdown()
 
 	srv := grpcsvc.NewServer(grpcsvc.Config{
 		Providers:       providers,
@@ -133,12 +166,13 @@ func main() {
 		ConsoleService:  grpcsvc.NewConsoleService(hub),
 		BackupService:   backupService,
 		SettingsService: settingsService,
-		PlayerService:   grpcsvc.NewPlayerService(hub, registry, paths),
+		PlayerService:   playerService,
 		MetricsService:  grpcsvc.NewMetricsService(serverService),
-		ModService:      grpcsvc.NewModService(registry, paths),
+		ModService:      grpcsvc.NewModService(registry, paths, parsers),
 		ConfigService:   grpcsvc.NewConfigService(registry, paths),
 		ProviderService: grpcsvc.NewProviderService(providers, grants, providersDir),
-		ScriptService:   grpcsvc.NewScriptService(automation, scriptGrants, scriptsEnabled, scriptsDir),
+		ScriptService:   grpcsvc.NewScriptService(scripts, scriptGrants, scriptsEnabled, scriptsDir),
+		ParserService:   grpcsvc.NewParserService(parsers, parserGrants, parsersDir),
 	})
 	log.Printf("engine data dir: %s", paths.Base)
 

@@ -1,8 +1,9 @@
 # Scripting (Lua) — authoring guide
 
 JustHostMC's server **providers** (how a server type is discovered, downloaded and
-installed) and its **automation** (scripts that drive a running server) are
-sandboxed **Lua** scripts run by the engine. Built-in providers ship embedded;
+installed), its **automation** (scripts that drive a running server), and its
+**mod-metadata parsers** (scripts that read a mod/plugin jar's embedded
+descriptor for the Mods panel) are sandboxed **Lua** scripts run by the engine. Built-in providers ship embedded;
 users can import their own. Every script runs in a locked-down interpreter and may
 touch the outside world only through a curated, **permission-gated** host API.
 
@@ -23,10 +24,19 @@ The implementation lives in `engine/internal/scripting/`:
 | `luaprovider.go` | Adapts a Lua script to the Go `provider.Provider` interface |
 | `builtin.go` / `userproviders.go` | Load embedded built-ins / user-imported providers |
 | `builtin/*.lua` | The shipped provider scripts (`vanilla`, `paper`, `spigot`, `fabric`) |
+| `export.go` | The exported surface (`Invocation`, `NewSandbox`, `ParseMeta`, ...) the `automation` subpackage builds on |
+| `parser.go` / `parserregistry.go` | `LuaParser` + `ParserSet` — the mod-metadata parser subsystem (§8) |
+| `parserbuiltin.go` / `userparsers.go` | Load embedded built-in parsers / user-imported parsers |
+| `builtin_parsers/*.lua` | The shipped parser scripts (fabric, quilt, forge, neoforge, forge-legacy, bukkit) |
+| `automation/` | The automation runtime (§6): `Manager`, `runner`, the `server.*`/hook API |
 
-The proto contract is in `proto/mcmanager/v1/mcmanager.proto`: `ProviderService`
-and `ScriptService`, the messages `ProviderInfo` / `ScriptInfo`, `Permission`, and
-the `PermissionKind` enum.
+Related packages: `engine/internal/scriptlog` (the automation log ring buffer),
+`engine/internal/scriptdata` (the per-script `jhmc.store` KV store), and
+`engine/internal/players` (the `EventBus` powering `on_join`/`on_leave`).
+
+The proto contract is in `proto/mcmanager/v1/mcmanager.proto`: `ProviderService`,
+`ScriptService`, and `ParserService`, the messages `ProviderInfo` / `ScriptInfo` /
+`ParserInfo`, `Permission`, and the `PermissionKind` enum.
 
 ---
 
@@ -74,7 +84,9 @@ Valid `kind` names (`permissions.go` → `PermissionKind`):
 | `console_read` | `PERMISSION_CONSOLE_READ` | read the live console/log stream (automation) |
 | `console_write` | `PERMISSION_CONSOLE_WRITE` | send commands to the console (automation) |
 | `server_control` | `PERMISSION_SERVER_CONTROL` | start/stop/restart the server (automation) |
-| `schedule` | `PERMISSION_SCHEDULE` | run actions on a timer (automation) |
+| `schedule` | `PERMISSION_SCHEDULE` | run actions on a timer, `sleep` (automation) |
+| `server_query` | `PERMISSION_SERVER_QUERY` | list/inspect registered servers (automation) |
+| `player_manage` | `PERMISSION_PLAYER_MANAGE` | query players, ban lists, `on_join`/`on_leave` (automation) |
 
 ### `versions() -> { string, ... }`
 
@@ -139,6 +151,7 @@ error that aborts the script. Names below are exactly those bound in
 | `jhmc.http_get(url) -> string` | GET a URL, return the body as a string (≤ 64 MiB) |
 | `jhmc.http_json(url) -> table` | GET a URL and decode the JSON body into a Lua table |
 | `jhmc.download(url, opts) -> path` | Download `url` to `opts.dest` (a server-dir-relative path). Optional `opts.sha256` / `opts.sha1` verify the file (mismatch → `ErrChecksumMismatch`). Streams download progress. Returns the absolute destination path. |
+| `jhmc.http(opts) -> {status, body, headers}` | Full HTTP client. `opts`: `url` (required), `method` (default `"GET"`), `body`, `headers` (table), `timeout` (seconds, default 30), `max_body` (bytes, default 64 MiB). Non-2xx responses are **returned**, not raised, so scripts can branch on `status`. Response `headers` keys are lower-cased. |
 
 ### Filesystem — requires `fs_server` (confined to the server dir)
 
@@ -152,6 +165,8 @@ error that aborts the script. Names below are exactly those bound in
 | `jhmc.fs.remove(rel)` | recursively remove a path |
 | `jhmc.unzip(zipRel, destRel)` | extract a zip (both paths server-dir-relative), with zip-slip protection |
 | `jhmc.copy_bundled(name, destRel) -> destRel` | copy a file bundled alongside the script into the server dir (see §5) |
+| `jhmc.zip_read(zipRel, name) -> string\|nil` | read one entry from a zip/jar under the server dir (≤ 16 MiB); `nil` when the entry is absent |
+| `jhmc.zip_entries(zipRel) -> { string, ... }` | list a zip/jar's entry names |
 
 ### Process / Java — requires `install`
 
@@ -168,7 +183,24 @@ error that aborts the script. Names below are exactly those bound in
 | `jhmc.java_major_for(mcVersion) -> number` | map an MC version string to the Java major it requires |
 | `jhmc.json_decode(string) -> value` | parse JSON into a Lua value |
 | `jhmc.json_encode(value) -> string` | serialize a Lua value to JSON |
+| `jhmc.toml_decode(string) -> table` | parse TOML (e.g. `mods.toml`; `[[array-of-tables]]` becomes a list) |
+| `jhmc.yaml_decode(string) -> value` | parse YAML (e.g. `plugin.yml`) |
+| `jhmc.time() -> number` | current UTC Unix time in seconds (fractional) |
 | `jhmc.log(line)` | append a raw line to the install log (same as `ctx.log`) |
+
+### Persistent storage — no permission required (automation scripts)
+
+Each automation script gets an isolated key-value store persisted at
+`<data>/script-data/<scriptID>.json`. Keys and values are strings. The store is
+unavailable during import/meta-parse (top-level code) and in provider scripts —
+call it from hooks or `register()`.
+
+| Function | Description |
+|----------|-------------|
+| `jhmc.store.get(key) -> string\|nil` | read a key (`nil` when absent) |
+| `jhmc.store.set(key, value)` | write a key |
+| `jhmc.store.delete(key)` | delete a key (absent key is a no-op) |
+| `jhmc.store.keys() -> { string, ... }` | all keys, sorted |
 
 > Note: `jhmc.sha256`, `jhmc.fs.glob`, `jhmc.unzip`, and `jhmc.copy_bundled`
 > operate on files **inside the server dir**; `jhmc.copy_bundled` additionally
@@ -254,37 +286,84 @@ loose source (no jar) has no asset dir, so `copy_bundled` is unavailable to it.
 
 ## 6. Automation scripts
 
-> **Status:** the provider subsystem above is fully implemented. The automation
-> **host** (the runtime that drives running servers) is not yet merged into this
-> branch; `ScriptService`, `ScriptInfo`, and `ScriptLogLine` are defined in the
-> proto and the permission kinds exist, but the `server.*` script API surface is
-> not yet present in the engine. Treat the API names below as the **intended
-> surface** the proto and permissions support, not as a stable, shipped API.
+Automation/control scripts drive a *running* server: react to console output and
+player joins/leaves, send commands, start/stop servers, query the server list,
+manage ban lists, keep persistent state, or run actions on a schedule. They share
+the same `meta` header, the same sandbox, and the same consent model as
+providers, but use the automation host surface below instead of
+`versions()`/`install()`.
 
-Automation/control scripts drive a *running* server: react to console output, send
-commands, start/stop, or run actions on a schedule. They share the same `meta`
-header, the same sandbox, and the same consent model as providers, but use a
-different set of permissions and a different (automation) host surface.
+The runtime lives in `engine/internal/scripting/automation` (`Manager` owns the
+scripts; each enabled script runs on its own single-threaded Lua state, with
+every callback serialized through a job queue). `ScriptService` manages them over
+gRPC: `List`, `Import`, `SetEnabled`, `SetPermissions`, `Remove`, `StreamLog`.
+User scripts persist under the data dir's `scripts/` as loose `.lua` files.
 
 Relevant permissions: `console_read`, `console_write`, `server_control`,
-`schedule`.
+`schedule`, `server_query`, `player_manage` (plus `network` for `jhmc.http*`).
 
-The automation surface is the `server.*` table plus event/timer hooks — the
-counterpart to providers' `versions()`/`install()`. Conceptually:
+**Top-level code runs at import time with stub APIs** (so `meta` can be read);
+do real work inside hooks or the optional `register()` entry point, which runs
+when the script is enabled.
 
-- `on_log(handler)` — register a handler invoked for each new console line
-  (requires `console_read`).
-- `server.*` — control the server (e.g. send a command — `console_write`;
-  start/stop/restart — `server_control`).
-- `schedule(...)` — run an action on a timer (`schedule`).
+### Hooks (globals)
 
-The proto `ScriptService` manages these scripts: `List`, `Import` (a `.lua`
-source), `SetEnabled` (toggle a script on/off), `SetPermissions`, `Remove`, and
-`StreamLog` (an engine-wide automation log of `ScriptLogLine{script_id, line}`).
+| Function | Permission | Fires |
+|----------|------------|-------|
+| `on_log(id, handler(line))` | `console_read` | for every console line of server `id` |
+| `on_start(id, handler(id))` | (none) | when the script attaches to server `id`'s console |
+| `on_stop(id, handler(id))` | (none) | when server `id`'s console stream closes |
+| `on_join(id, handler(name))` | `player_manage` | when a player joins server `id` |
+| `on_leave(id, handler(name))` | `player_manage` | when a player leaves server `id` |
+| `schedule(seconds, handler())` | `schedule` | every `seconds` seconds until disabled |
 
-When the automation host lands, this section will be expanded with the exact
-`server.*` / `on_log` / `schedule` signatures. Until then, do not rely on specific
-automation function names.
+`on_join`/`on_leave` are **not** regex hooks over console text: they are fed by
+the engine's player `EventBus`, which derives structured events from roster
+state diffs (join/leave lines *and* `list` command replies all reconcile into
+one roster). Scripts never parse console lines for player presence.
+
+### The `server.*` table
+
+| Function | Permission | Description |
+|----------|------------|-------------|
+| `server.send(id, cmd)` | `console_write` | write a command to the server's stdin |
+| `server.logs(id) -> {lines={...}}` | `console_read` | snapshot of the buffered console history |
+| `server.start(id)` / `server.stop(id)` / `server.restart(id)` | `server_control` | lifecycle control |
+| `server.list() -> { {id,name,provider,mc_version,status,port,memory_mb}, ... }` | `server_query` | all registered servers |
+| `server.info(id) -> table or nil` | `server_query` | one server (same shape), `nil` if unknown |
+| `server.players(id) -> { name, ... }` | `player_manage` | players currently online |
+| `server.kick(id, name[, reason])` | `player_manage` + `console_write` | kick via the console `kick` command (server must be running) |
+| `server.ban(id, target[, reason])` | `player_manage` | add to `banned-players.json`/`banned-ips.json` (server must be **stopped**) |
+| `server.unban(id, target)` | `player_manage` | remove a ban (server must be stopped) |
+| `server.bans(id) -> { {type,target,reason,created}, ... }` | `player_manage` | current ban list (`type` is `"player"` or `"ip"`) |
+
+### Other globals
+
+- `log(...)` / `print(...)` — append to the engine-wide automation log
+  (streamed to the UI via `ScriptService.StreamLog`).
+- `sleep(seconds)` — requires `schedule`. Blocks **this script only** (its other
+  hooks queue behind it, like `time.sleep` in Python); disabling the script
+  interrupts the sleep.
+- `jhmc.store.*` — per-script persistent KV storage (§2).
+- `jhmc.time()` — current Unix time.
+
+### Example
+
+```lua
+meta = {
+  id = "greeter", name = "Greeter", version = "1.0.0",
+  permissions = {
+    { kind = "player_manage", reason = "React to players joining." },
+    { kind = "console_write", reason = "Send the welcome message." },
+  },
+}
+
+on_join("my-server", function(name)
+  local visits = tonumber(jhmc.store.get(name) or "0") + 1
+  jhmc.store.set(name, tostring(visits))
+  server.send("my-server", ("say Welcome %s (visit #%d)!"):format(name, visits))
+end)
+```
 
 ---
 
@@ -381,3 +460,79 @@ jhmc.download(server.url, { dest = "server.jar", sha1 = server.sha1 })
 
 For the real, shipped provider scripts, read
 `engine/internal/scripting/builtin/{vanilla,paper,spigot,fabric}.lua`.
+
+---
+
+## 8. Parser scripts (mod/plugin metadata)
+
+Parser scripts power the per-server **Plugins/Mods** panel: for each uploaded
+jar, the engine runs the installed parsers (built-ins first, in registration
+order) until one **matches**, and shows the extracted icon, name, version,
+authors, description, and website. Results are cached per jar
+(`name|size|mtime`), so unchanged jars are never re-parsed. A broken parser is
+logged and skipped — it can never break mod listing.
+
+`ParserService` manages them over gRPC (`List`, `Import`, `Remove`,
+`SetPermissions`) — the Scripts page has a "Mod Metadata Parsers" section. User
+parsers persist under the data dir's `parsers/` as loose `.lua` files; built-ins
+are embedded from `engine/internal/scripting/builtin_parsers/` (fabric, quilt,
+forge, neoforge, forge-legacy, bukkit/paper). Like all user scripts, imported
+parsers start with **no grants** until the user consents.
+
+A parser declares `meta` (with an informational `formats` list) and one global
+`parse(ctx)`:
+
+```lua
+meta = {
+  id = "parser-example",
+  name = "Example Parser",
+  formats = { "example.mod.json" },        -- descriptor files it reads (shown in the UI)
+  permissions = {
+    { kind = "fs_server", reason = "Read mod jars to extract their metadata" },
+  },
+}
+
+function parse(ctx)
+  -- ctx.jar is the jar's server-dir-relative path.
+  local raw = jhmc.zip_read(ctx.jar, "example.mod.json")
+  if raw == nil then return nil end        -- not ours: return nil => next parser tries
+  local m = jhmc.json_decode(raw)
+  return {                                  -- returning a table = matched
+    loader      = "example",               -- "fabric"|"quilt"|"forge"|"neoforge"|"forge-legacy"|"bukkit"|"paper"|...
+    mod_id      = m.id,
+    name        = m.name,
+    version     = m.version,
+    authors     = { "Alice", "Bob" },       -- table of strings (or a single string)
+    description = m.description,
+    website     = m.homepage,
+    icon        = jhmc.zip_read(ctx.jar, m.icon),  -- raw png/jpg bytes, optional
+  }
+end
+```
+
+Contract details:
+
+- `parse(ctx)` runs in a fresh sandbox per jar, confined to the server dir
+  (`fs_server` gates `zip_read`/`zip_entries`/`jhmc.fs.*`).
+- Return `nil` (or nothing) when the jar isn't recognized; the next parser runs.
+- Every returned field is optional; missing fields simply don't render.
+- Typical decoders: `jhmc.json_decode` (fabric/quilt/mcmod.info),
+  `jhmc.toml_decode` (mods.toml), `jhmc.yaml_decode` (plugin.yml).
+- A parser may also declare `network` to enrich results from an online API.
+
+## 9. Extending: fetching data from online services
+
+The host API is deliberately composable so future features — e.g. **browsing or
+fetching mods from the Modrinth API** — are scripts, not engine changes:
+
+- `jhmc.http{ url=..., method=..., headers=..., body=... }` (permission
+  `network`) talks to any REST API, with response headers and non-2xx statuses
+  observable for pagination/rate-limit handling.
+- `jhmc.json_decode` / `jhmc.toml_decode` / `jhmc.yaml_decode` parse whatever
+  the service returns; `jhmc.download` fetches files with checksum verification
+  into the server dir; `jhmc.store` remembers cursors/ETags between runs.
+- The permission model already covers this shape (`network` + `fs_server`), and
+  the three script subsystems (providers -> `Registry`, automation -> `Manager`,
+  parsers -> `ParserSet`) show the pattern for wiring a fourth kind of script
+  end-to-end: proto service -> `scripting` set + `GrantStore` -> gRPC service ->
+  UI section on the Scripts page.

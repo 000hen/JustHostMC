@@ -1,31 +1,72 @@
 package scripting
 
-import lua "github.com/yuin/gopher-lua"
+import (
+	"fmt"
+	"reflect"
+	"time"
 
-// goToLua converts a decoded JSON value (from encoding/json into any) to a Lua
-// value. Objects become tables keyed by string; arrays become 1-based tables.
+	lua "github.com/yuin/gopher-lua"
+)
+
+// goToLua converts a decoded Go value (from encoding/json, BurntSushi/toml or
+// yaml.v3) to a Lua value. Maps become tables keyed by string; slices/arrays
+// become 1-based tables. It is reflection-based so decoder-specific concrete
+// types (int64 from TOML, []map[string]any for TOML array-of-tables,
+// time.Time for TOML datetimes) all convert; anything unconvertible maps to nil.
 func goToLua(L *lua.LState, v any) lua.LValue {
-	switch x := v.(type) {
-	case nil:
+	if v == nil {
 		return lua.LNil
+	}
+	switch x := v.(type) {
 	case bool:
 		return lua.LBool(x)
 	case float64:
 		return lua.LNumber(x)
 	case string:
 		return lua.LString(x)
-	case []any:
+	case time.Time:
+		return lua.LString(x.Format(time.RFC3339))
+	}
+
+	rv := reflect.ValueOf(v)
+	switch rv.Kind() {
+	case reflect.Bool:
+		return lua.LBool(rv.Bool())
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return lua.LNumber(rv.Int())
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return lua.LNumber(rv.Uint())
+	case reflect.Float32, reflect.Float64:
+		return lua.LNumber(rv.Float())
+	case reflect.String:
+		return lua.LString(rv.String())
+	case reflect.Slice, reflect.Array:
 		t := L.NewTable()
-		for _, e := range x {
-			t.Append(goToLua(L, e))
+		for i := 0; i < rv.Len(); i++ {
+			t.Append(goToLua(L, rv.Index(i).Interface()))
 		}
 		return t
-	case map[string]any:
+	case reflect.Map:
 		t := L.NewTable()
-		for k, e := range x {
-			t.RawSetString(k, goToLua(L, e))
+		iter := rv.MapRange()
+		for iter.Next() {
+			key := iter.Key()
+			var ks string
+			if key.Kind() == reflect.String {
+				ks = key.String()
+			} else if key.Kind() == reflect.Interface && key.Elem().Kind() == reflect.String {
+				ks = key.Elem().String()
+			} else {
+				ks = fmt.Sprint(key.Interface())
+			}
+			t.RawSetString(ks, goToLua(L, iter.Value().Interface()))
 		}
 		return t
+	case reflect.Ptr, reflect.Interface:
+		if rv.IsNil() {
+			return lua.LNil
+		}
+		return goToLua(L, rv.Elem().Interface())
 	default:
 		return lua.LNil
 	}

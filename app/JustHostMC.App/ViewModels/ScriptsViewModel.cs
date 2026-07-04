@@ -1,4 +1,4 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Google.Protobuf;
 using Grpc.Core;
 using JustHostMC.App.Models;
@@ -36,6 +36,7 @@ public sealed partial class ScriptsViewModel : ObservableObject, IAsyncDisposabl
 
     public ObservableCollection<ProviderItem> Providers { get; } = new();
     public ObservableCollection<ScriptItem> Scripts { get; } = new();
+    public ObservableCollection<ParserItem> Parsers { get; } = new();
     public ObservableCollection<ScriptLogEntry> LogEntries { get; } = new();
 
     [ObservableProperty]
@@ -66,6 +67,7 @@ public sealed partial class ScriptsViewModel : ObservableObject, IAsyncDisposabl
             var daemon = await App.Current.DaemonReady;
             await RefreshProvidersAsync(daemon);
             await RefreshScriptsAsync(daemon);
+            await RefreshParsersAsync(daemon);
         } finally {
             RunOnUI(() => IsBusy = false);
         }
@@ -97,6 +99,19 @@ public sealed partial class ScriptsViewModel : ObservableObject, IAsyncDisposabl
                     }
                     Scripts.Add(item);
                 }
+            });
+        } catch (RpcException ex) {
+            RunOnUI(() => StatusMessage = _localizer.Get(MapErrorKey(ex)));
+        }
+    }
+
+    private async Task RefreshParsersAsync(JustHostMC.Core.DaemonClient daemon) {
+        try {
+            var list = await daemon.Parsers.ListAsync(new Empty());
+            RunOnUI(() => {
+                Parsers.Clear();
+                foreach (var p in list.Parsers)
+                    Parsers.Add(new ParserItem(p, _localizer));
             });
         } catch (RpcException ex) {
             RunOnUI(() => StatusMessage = _localizer.Get(MapErrorKey(ex)));
@@ -142,6 +157,21 @@ public sealed partial class ScriptsViewModel : ObservableObject, IAsyncDisposabl
         }
     }
 
+    /// <summary>Imports a mod-metadata parser script with the granted permissions.</summary>
+    public async Task ImportParserAsync(string luaSource, IReadOnlyList<PermissionKind> granted) {
+        RunOnUI(() => { IsBusy = true; StatusMessage = ""; });
+        try {
+            var daemon = await App.Current.DaemonReady;
+            var info = await daemon.Parsers.ImportAsync(new ImportParserRequest { LuaSource = luaSource });
+            await SetParserPermissionsAsync(daemon, info.Id, granted);
+            await RefreshParsersAsync(daemon);
+        } catch (RpcException ex) {
+            RunOnUI(() => StatusMessage = _localizer.Get(MapErrorKey(ex)));
+        } finally {
+            RunOnUI(() => IsBusy = false);
+        }
+    }
+
     public async Task SetScriptEnabledAsync(ScriptItem item, bool enabled) {
         try {
             var daemon = await App.Current.DaemonReady;
@@ -174,6 +204,23 @@ public sealed partial class ScriptsViewModel : ObservableObject, IAsyncDisposabl
         } catch (RpcException ex) {
             RunOnUI(() => StatusMessage = _localizer.Get(MapErrorKey(ex)));
         }
+    }
+
+    public async Task RemoveParserAsync(ParserItem item) {
+        try {
+            var daemon = await App.Current.DaemonReady;
+            await daemon.Parsers.RemoveAsync(new ProviderRef { Id = item.Id });
+            await RefreshParsersAsync(daemon);
+        } catch (RpcException ex) {
+            RunOnUI(() => StatusMessage = _localizer.Get(MapErrorKey(ex)));
+        }
+    }
+
+    private static async Task SetParserPermissionsAsync(
+        JustHostMC.Core.DaemonClient daemon, string id, IReadOnlyList<PermissionKind> granted) {
+        var req = new SetPermissionsRequest { Id = id };
+        req.Granted.AddRange(granted);
+        await daemon.Parsers.SetPermissionsAsync(req);
     }
 
     private static async Task SetProviderPermissionsAsync(

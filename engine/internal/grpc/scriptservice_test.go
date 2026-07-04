@@ -10,6 +10,8 @@ import (
 
 	mcmanagerv1 "github.com/000hen/justhostmc/engine/gen/mcmanager/v1"
 	"github.com/000hen/justhostmc/engine/internal/scripting"
+	"github.com/000hen/justhostmc/engine/internal/scripting/automation"
+	"github.com/000hen/justhostmc/engine/internal/scriptlog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -18,11 +20,15 @@ import (
 // newTestScriptService builds a ScriptService backed by an automation manager
 // with no console/control (List/Import/grant flows don't need them) and a temp
 // scripts dir.
-func newTestScriptService(t *testing.T) (*ScriptService, *scripting.Manager, string) {
+func newTestScriptService(t *testing.T) (*ScriptService, *automation.Manager, string) {
 	t.Helper()
 	dir := t.TempDir()
 	grants := scripting.NewGrantStore(filepath.Join(dir, "grants.json"))
-	mgr := scripting.NewManager(scripting.NewHost(nil, nil, nil), grants, nil, nil, scripting.NewLogBuffer(0))
+	mgr := automation.NewManager(automation.ManagerConfig{
+		Host:   scripting.NewHost(nil, nil, nil),
+		Grants: grants,
+		Logs:   scriptlog.NewLogBuffer(0),
+	})
 	enabled := scripting.NewEnabledStore(filepath.Join(dir, "enabled.json"))
 	return NewScriptService(mgr, grants, enabled, dir), mgr, dir
 }

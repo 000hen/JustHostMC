@@ -8,8 +8,12 @@ using Grpc.Core;
 using JustHostMC.App.Models;
 using JustHostMC.App.Services;
 using McManager.Grpc;
+using System.Runtime.InteropServices.WindowsRuntime;
 using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Windows.Storage;
+using Windows.Storage.Streams;
 
 namespace JustHostMC.App.ViewModels;
 
@@ -93,7 +97,7 @@ public sealed partial class ModsViewModel : ObservableObject
                 KindLabel = _localizer.Get(list.Kind == ModKind.Mod ? "Mods_KindMods" : "Mods_KindPlugins");
                 Files.Clear();
                 foreach (var file in list.Files)
-                    Files.Add(new ModFileItem(file.Name, file.SizeBytes));
+                    Files.Add(CreateItem(file));
                 _loaded = true;
             });
         }
@@ -158,6 +162,36 @@ public sealed partial class ModsViewModel : ObservableObject
         finally
         {
             RunOnUI(() => IsBusy = false);
+        }
+    }
+
+    /// <summary>Builds a list item, decoding the parsed jar icon (if any) into a
+    /// BitmapImage. Must run on the UI thread (BitmapImage is a UI object); the
+    /// async decode fills the image in place while the list already shows.</summary>
+    private static ModFileItem CreateItem(ModFile file)
+    {
+        ImageSource? icon = null;
+        if (file.Metadata is { Parsed: true } meta && meta.Icon.Length > 0)
+        {
+            var bitmap = new BitmapImage { DecodePixelWidth = 64 };
+            _ = LoadIconAsync(bitmap, meta.Icon);
+            icon = bitmap;
+        }
+        return new ModFileItem(file.Name, file.SizeBytes, file.Metadata, icon);
+    }
+
+    private static async Task LoadIconAsync(BitmapImage bitmap, ByteString bytes)
+    {
+        try
+        {
+            using var stream = new InMemoryRandomAccessStream();
+            await stream.WriteAsync(bytes.ToByteArray().AsBuffer());
+            stream.Seek(0);
+            await bitmap.SetSourceAsync(stream);
+        }
+        catch
+        {
+            // Undecodable icon bytes: the item keeps its fallback glyph area.
         }
     }
 

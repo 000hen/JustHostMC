@@ -17,6 +17,8 @@ var permByName = map[string]mcmanagerv1.PermissionKind{
 	"console_write":  mcmanagerv1.PermissionKind_PERMISSION_CONSOLE_WRITE,
 	"server_control": mcmanagerv1.PermissionKind_PERMISSION_SERVER_CONTROL,
 	"schedule":       mcmanagerv1.PermissionKind_PERMISSION_SCHEDULE,
+	"server_query":   mcmanagerv1.PermissionKind_PERMISSION_SERVER_QUERY,
+	"player_manage":  mcmanagerv1.PermissionKind_PERMISSION_PLAYER_MANAGE,
 }
 
 // permNames is the reverse of permByName for diagnostics/UI fallbacks.

@@ -24,6 +24,9 @@ type Hub struct {
 	// observer, if set, receives every output line for side effects such as
 	// persisting console logs to disk. It must not block.
 	observer func(id, line string)
+	// observers are additional line callbacks (player event bus, automation,
+	// ...) invoked alongside observer. They must not block either.
+	observers []func(id, line string)
 }
 
 // NewHub creates an empty hub.
@@ -36,6 +39,15 @@ func NewHub() *Hub {
 func (h *Hub) SetLineObserver(fn func(id, line string)) {
 	h.mu.Lock()
 	h.observer = fn
+	h.mu.Unlock()
+}
+
+// AddLineObserver registers an additional callback invoked for every console
+// line (alongside the primary observer). Add observers before any Register; a
+// callback must not block.
+func (h *Hub) AddLineObserver(fn func(id, line string)) {
+	h.mu.Lock()
+	h.observers = append(h.observers, fn)
 	h.mu.Unlock()
 }
 
@@ -68,12 +80,16 @@ func (h *Hub) Register(id string, inst isolation.Instance) {
 
 	h.mu.Lock()
 	observer := h.observer
+	observers := append([]func(string, string){}, h.observers...)
 	h.mu.Unlock()
 
 	go func() {
 		for line := range inst.Output() {
 			if observer != nil {
 				observer(id, line)
+			}
+			for _, fn := range observers {
+				fn(id, line)
 			}
 			sc.broadcast(line)
 		}

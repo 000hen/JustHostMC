@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -88,8 +88,31 @@ public sealed partial class ScriptsPage : Page {
         await ViewModel.ImportScriptAsync(source, granted);
     }
 
+    private async void OnImportParserClick(object sender, RoutedEventArgs e) {
+        var lua = await PickLuaFileAsync();
+        if (lua is null)
+            return;
+
+        string source;
+        try {
+            source = await FileIO.ReadTextAsync(lua);
+        } catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) {
+            ViewModel.SetStatus(_localizer.Get("Scripts_ReadFailed"));
+            return;
+        }
+
+        var granted = await RequestConsentAsync(lua.Name, source);
+        if (granted is null)
+            return;
+
+        await ViewModel.ImportParserAsync(source, granted);
+    }
+
     private void OnShowProvidersFolderClick(object sender, RoutedEventArgs e) =>
         ShowInFolder("providers");
+
+    private void OnShowParsersFolderClick(object sender, RoutedEventArgs e) =>
+        ShowInFolder("parsers");
 
     private void OnShowAutomationFolderClick(object sender, RoutedEventArgs e) =>
         ShowInFolder("scripts");
@@ -156,6 +179,13 @@ public sealed partial class ScriptsPage : Page {
             return;
         if (await ConfirmRemoveAsync(item.Name))
             await ViewModel.RemoveProviderAsync(item);
+    }
+
+    private async void OnRemoveParserClick(object sender, RoutedEventArgs e) {
+        if (sender is not ScriptEntryCard { Item: ParserItem item })
+            return;
+        if (await ConfirmRemoveAsync(item.Name))
+            await ViewModel.RemoveParserAsync(item);
     }
 
     private async void OnRemoveScriptClick(object sender, RoutedEventArgs e) {

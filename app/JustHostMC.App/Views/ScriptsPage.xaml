@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="JustHostMC.App.Views.ScriptsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -50,6 +50,33 @@
                                 <DataTemplate x:DataType="models:ProviderItem">
                                     <controls:ScriptEntryCard Item="{x:Bind}"
                                                               RemoveClick="OnRemoveProviderClick" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </controls:ScriptSectionExpander.SectionContent>
+            </controls:ScriptSectionExpander>
+
+            <!-- Mod/plugin metadata parsers -->
+            <controls:ScriptSectionExpander ShowInFolderClick="OnShowParsersFolderClick"
+                                            AddScriptsClick="OnImportParserClick">
+                <controls:ScriptSectionExpander.HeaderContent>
+                    <TextBlock x:Uid="ScriptsParsersHeader"
+                               Style="{StaticResource SubtitleTextBlockStyle}" />
+                </controls:ScriptSectionExpander.HeaderContent>
+                <controls:ScriptSectionExpander.SectionContent>
+                    <StackPanel Spacing="8">
+                        <TextBlock x:Uid="ScriptsParsersEmpty"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   Visibility="{x:Bind ViewModel.Parsers.Count, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
+
+                        <ItemsControl ItemsSource="{x:Bind ViewModel.Parsers, Mode=OneWay}"
+                                      HorizontalAlignment="Stretch"
+                                      HorizontalContentAlignment="Stretch">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="models:ParserItem">
+                                    <controls:ScriptEntryCard Item="{x:Bind}"
+                                                              RemoveClick="OnRemoveParserClick" />
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>

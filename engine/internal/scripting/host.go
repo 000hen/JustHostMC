@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	mcmanagerv1 "github.com/000hen/justhostmc/engine/gen/mcmanager/v1"
+	"github.com/000hen/justhostmc/engine/internal/httpcache"
 	"github.com/000hen/justhostmc/engine/internal/provider"
 	lua "github.com/yuin/gopher-lua"
 )
@@ -22,7 +23,12 @@ type Host struct {
 	client http.Client
 	jre    provider.JavaResolver // runtime-only (java)
 	jdk    provider.JavaResolver // full JDK (java + javac), e.g. for Spigot BuildTools
+	cache  *httpcache.Cache      // jhmc.http_cache backend; unwired = network-only
 }
+
+// SetHTTPCache wires the disk-backed ETag cache behind jhmc.http_cache.
+// Without it the function still works but every call hits the network.
+func (h *Host) SetHTTPCache(c *httpcache.Cache) { h.cache = c }
 
 // NewHost builds a Host. jre/jdk resolve (downloading if needed) a java.exe for a
 // Java major version; either may be nil for scripts that never resolve Java.

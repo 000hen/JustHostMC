@@ -21,6 +21,7 @@ import (
 
 	mcmanagerv1 "github.com/000hen/justhostmc/engine/gen/mcmanager/v1"
 	"github.com/000hen/justhostmc/engine/internal/dl"
+	"github.com/000hen/justhostmc/engine/internal/httpcache"
 	"github.com/000hen/justhostmc/engine/internal/provider"
 	"github.com/BurntSushi/toml"
 	lua "github.com/yuin/gopher-lua"
@@ -36,6 +37,7 @@ func (inv *invocation) newJHMC(L *lua.LState) *lua.LTable {
 	reg("http", inv.httpRequest)
 	reg("http_get", inv.httpGet)
 	reg("http_json", inv.httpJSON)
+	reg("http_cache", inv.httpCached)
 	reg("download", inv.download)
 	reg("sha256", inv.sha256File)
 	reg("unzip", inv.unzip)
@@ -192,6 +194,56 @@ func (inv *invocation) httpRequest(L *lua.LState) int {
 	result.RawSetString("body", lua.LString(respBody))
 	hdrs := L.NewTable()
 	for k, vs := range resp.Header {
+		hdrs.RawSetString(strings.ToLower(k), lua.LString(strings.Join(vs, ", ")))
+	}
+	result.RawSetString("headers", hdrs)
+	L.Push(result)
+	return 1
+}
+
+// httpCached is jhmc.http_cache(opts): a GET through the engine's disk-backed
+// ETag cache. opts: url (required), headers (table), ttl (seconds a cached
+// entry is served with no network round-trip; default 300, 0 = always
+// revalidate with If-None-Match). Returns {status=, body=, headers=, cached=}
+// — like jhmc.http, non-2xx responses are returned, not raised.
+func (inv *invocation) httpCached(L *lua.LState) int {
+	inv.require(L, mcmanagerv1.PermissionKind_PERMISSION_NETWORK)
+	opts := L.CheckTable(1)
+
+	url := strField(opts, "url")
+	if url == "" {
+		inv.fail(L, fmt.Errorf("http_cache: opts.url is required"))
+		return 0
+	}
+	ttl := 300 * time.Second
+	if tv := opts.RawGetString("ttl"); tv != lua.LNil {
+		ttl = time.Duration(float64(lua.LVAsNumber(tv)) * float64(time.Second))
+	}
+	headers := map[string]string{"User-Agent": scriptUserAgent}
+	if ht, ok := opts.RawGetString("headers").(*lua.LTable); ok {
+		ht.ForEach(func(k, v lua.LValue) {
+			if ks, ok := k.(lua.LString); ok {
+				headers[string(ks)] = lua.LVAsString(v)
+			}
+		})
+	}
+
+	cache := inv.host.cache
+	if cache == nil {
+		cache = httpcache.New("", 0) // network-only passthrough
+	}
+	res, err := cache.Get(inv.ctx, &inv.host.client, url, headers, ttl)
+	if err != nil {
+		inv.fail(L, err)
+		return 0
+	}
+
+	result := L.NewTable()
+	result.RawSetString("status", lua.LNumber(res.Status))
+	result.RawSetString("body", lua.LString(res.Body))
+	result.RawSetString("cached", lua.LBool(res.Cached))
+	hdrs := L.NewTable()
+	for k, vs := range res.Headers {
 		hdrs.RawSetString(strings.ToLower(k), lua.LString(strings.Join(vs, ", ")))
 	}
 	result.RawSetString("headers", hdrs)

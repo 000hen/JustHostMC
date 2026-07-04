@@ -72,6 +72,23 @@ func TestParseFabricIconSizeMap(t *testing.T) {
 	}
 }
 
+func TestParseFabricBOMContributorsAndSourceFallback(t *testing.T) {
+	ps := newBuiltinParserSet(t)
+	meta, _, ok := parseFixture(t, ps, map[string]string{
+		"fabric.mod.json": "\xEF\xBB\xBF" + `{
+			"id":"bommod","version":"1","authors":["Alice"],
+			"contributors":[{"name":"Bob"}],
+			"contact":{"sources":"https://example.test/source"}
+		}`,
+	})
+	if !ok {
+		t.Fatal("BOM-prefixed fabric metadata not matched")
+	}
+	if !reflect.DeepEqual(meta.Authors, []string{"Alice", "Bob"}) || meta.Website != "https://example.test/source" {
+		t.Errorf("meta = %+v", meta)
+	}
+}
+
 func TestParseQuilt(t *testing.T) {
 	ps := newBuiltinParserSet(t)
 	meta, parserID, ok := parseFixture(t, ps, map[string]string{
@@ -98,6 +115,26 @@ func TestParseQuilt(t *testing.T) {
 	if meta.Loader != "quilt" || meta.ModID != "qmod" || meta.Name != "Quilt Mod" ||
 		meta.Version != "3.1" || meta.Website != "https://quilt.example" ||
 		len(meta.Authors) != 1 || meta.Authors[0] != "Carol" || len(meta.Icon) == 0 {
+		t.Errorf("meta = %+v", meta)
+	}
+}
+
+func TestParseQuiltBOMAndIconSizeMap(t *testing.T) {
+	ps := newBuiltinParserSet(t)
+	meta, _, ok := parseFixture(t, ps, map[string]string{
+		"quilt.mod.json": "\xEF\xBB\xBF" + `{
+			"quilt_loader":{"id":"qmap","version":"1","metadata":{
+				"icon":{"32":"small.png","256":"large.png"},
+				"contact":{"sources":"https://example.test/quilt"}
+			}}
+		}`,
+		"small.png": "small",
+		"large.png": "LARGE",
+	})
+	if !ok {
+		t.Fatal("BOM-prefixed quilt metadata not matched")
+	}
+	if string(meta.Icon) != "LARGE" || meta.Website != "https://example.test/quilt" {
 		t.Errorf("meta = %+v", meta)
 	}
 }
@@ -150,6 +187,21 @@ version = "${file.jarVersion}"
 	}
 }
 
+func TestParseForgeVersionFromManifest(t *testing.T) {
+	ps := newBuiltinParserSet(t)
+	meta, _, ok := parseFixture(t, ps, map[string]string{
+		"META-INF/mods.toml": `
+[[mods]]
+modId = "manifestversion"
+version = "${file.jarVersion}"
+`,
+		"META-INF/MANIFEST.MF": "Manifest-Version: 1.0\r\nImplementation-Version: 6.0.0.26\r\n",
+	})
+	if !ok || meta.Version != "6.0.0.26" {
+		t.Fatalf("ok=%v meta=%+v", ok, meta)
+	}
+}
+
 func TestParseNeoForge(t *testing.T) {
 	ps := newBuiltinParserSet(t)
 	meta, parserID, ok := parseFixture(t, ps, map[string]string{
@@ -167,6 +219,21 @@ authors = "Frank"
 	if parserID != "parser-neoforge" || meta.Loader != "neoforge" || meta.ModID != "neomod" ||
 		meta.Name != "Neo Mod" || !reflect.DeepEqual(meta.Authors, []string{"Frank"}) {
 		t.Errorf("parserID=%q meta = %+v", parserID, meta)
+	}
+}
+
+func TestParseNeoForgeVersionFromManifest(t *testing.T) {
+	ps := newBuiltinParserSet(t)
+	meta, _, ok := parseFixture(t, ps, map[string]string{
+		"META-INF/neoforge.mods.toml": `
+[[mods]]
+modId = "neomanifest"
+version = "${file.jarVersion}"
+`,
+		"META-INF/MANIFEST.MF": "Manifest-Version: 1.0\nImplementation-Version: 2.3.4\n",
+	})
+	if !ok || meta.Version != "2.3.4" {
+		t.Fatalf("ok=%v meta=%+v", ok, meta)
 	}
 }
 
@@ -202,6 +269,41 @@ func TestParseForgeLegacyModListWrapper(t *testing.T) {
 	}
 	if meta.ModID != "wrapped" {
 		t.Errorf("meta = %+v", meta)
+	}
+}
+
+func TestParseForgeLegacyAlternativeMetadata(t *testing.T) {
+	ps := newBuiltinParserSet(t)
+	meta, parserID, ok := parseFixture(t, ps, map[string]string{
+		"cccmod.info": "\xEF\xBB\xBF" + `{"modid":"codechicken","name":"CodeChicken","description":"first line\nsecond line","version":"1","authors":"Chicken Bones, Contributor"}`,
+	})
+	if !ok || parserID != "parser-forge-legacy" {
+		t.Fatalf("ok=%v parserID=%q meta=%+v", ok, parserID, meta)
+	}
+	if meta.ModID != "codechicken" || meta.Description != "first line\nsecond line" ||
+		!reflect.DeepEqual(meta.Authors, []string{"Chicken Bones", "Contributor"}) {
+		t.Errorf("meta = %+v", meta)
+	}
+}
+
+func TestParseLiteLoader(t *testing.T) {
+	ps := newBuiltinParserSet(t)
+	meta, parserID, ok := parseFixture(t, ps, map[string]string{
+		"litemod.json": "\xEF\xBB\xBF" + `{
+			"name":"ArmorsHUDRevived","mcversion":"1.12.r2","revision":"143",
+			"author":"Shadow_Hawk","description":"Armor HUD","url":"https://example.test/lite"
+		}`,
+	})
+	if !ok || parserID != "parser-liteloader" {
+		t.Fatalf("ok=%v parserID=%q meta=%+v", ok, parserID, meta)
+	}
+	want := ModMeta{
+		Loader: "liteloader", ModID: "ArmorsHUDRevived", Name: "ArmorsHUDRevived",
+		Version: "1.12.r2:143", Authors: []string{"Shadow_Hawk"},
+		Description: "Armor HUD", Website: "https://example.test/lite",
+	}
+	if !reflect.DeepEqual(meta, want) {
+		t.Errorf("meta = %+v, want %+v", meta, want)
 	}
 }
 

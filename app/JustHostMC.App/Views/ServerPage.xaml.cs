@@ -407,6 +407,8 @@ public sealed partial class ServerPage : Page {
     private async void OnUploadClick(object sender, RoutedEventArgs e) {
         var picker = new FileOpenPicker();
         picker.FileTypeFilter.Add(".jar");
+        if (Mods.AcceptsLiteMod)
+            picker.FileTypeFilter.Add(".litemod");
         var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.Current.MainWindow);
         WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
 

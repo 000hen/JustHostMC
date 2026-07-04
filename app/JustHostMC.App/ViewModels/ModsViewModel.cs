@@ -51,6 +51,8 @@ public sealed partial class ModsViewModel : ObservableObject
     [ObservableProperty]
     public partial string KindLabel { get; private set; } = "";
 
+    public bool AcceptsLiteMod { get; private set; }
+
     [ObservableProperty]
     public partial string StatusMessage { get; private set; } = "";
 
@@ -94,6 +96,7 @@ public sealed partial class ModsViewModel : ObservableObject
             RunOnUI(() =>
             {
                 Supported = list.Supported;
+                AcceptsLiteMod = list.Kind == ModKind.Mod;
                 KindLabel = _localizer.Get(list.Kind == ModKind.Mod ? "Mods_KindMods" : "Mods_KindPlugins");
                 Files.Clear();
                 foreach (var file in list.Files)

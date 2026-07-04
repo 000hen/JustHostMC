@@ -26,6 +26,10 @@ function parse(ctx)
       name = name:match("^%s*(.-)%s*$")
       if name ~= "" then authors[#authors + 1] = name end
     end
+  elseif type(author_str) == "table" then
+    for _, name in ipairs(author_str) do
+      if type(name) == "string" and name ~= "" then authors[#authors + 1] = name end
+    end
   end
 
   local icon
@@ -35,7 +39,17 @@ function parse(ctx)
   end
 
   local version = mod.version
-  if type(version) == "string" and version:find("${", 1, true) then version = nil end
+  if version == "${file.jarVersion}" then
+    local manifest = jhmc.zip_read(ctx.jar, "META-INF/MANIFEST.MF")
+    if type(manifest) == "string" then
+      version = manifest:match("[\r\n]?Implementation%-Version:%s*([^\r\n]+)")
+      if version then version = version:match("^%s*(.-)%s*$") end
+    else
+      version = nil
+    end
+  elseif type(version) == "string" and version:find("${", 1, true) then
+    version = nil
+  end
 
   return {
     loader = "neoforge",
@@ -44,7 +58,7 @@ function parse(ctx)
     version = version,
     authors = authors,
     description = mod.description,
-    website = mod.displayURL or t.displayURL,
+    website = mod.displayURL or t.displayURL or t.issueTrackerURL,
     icon = icon,
   }
 end

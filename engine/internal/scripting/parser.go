@@ -10,7 +10,7 @@ import (
 // ModMeta is the uniform metadata a parser script extracts from a mod/plugin
 // jar, regardless of the descriptor format it was read from.
 type ModMeta struct {
-	Loader      string // "fabric" | "quilt" | "forge" | "neoforge" | "forge-legacy" | "bukkit" | "paper"
+	Loader      string // "fabric" | "quilt" | "forge" | "neoforge" | "forge-legacy" | "liteloader" | "bukkit" | "paper"
 	ModID       string
 	Name        string
 	Version     string

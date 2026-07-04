@@ -15,12 +15,15 @@ meta = {
 function parse(ctx)
   local raw = jhmc.zip_read(ctx.jar, "fabric.mod.json")
   if raw == nil then return nil end
+  -- JSON descriptors produced by some Windows tooling start with a UTF-8 BOM.
+  raw = raw:gsub("^\239\187\191", "")
   local ok, m = pcall(jhmc.json_decode, raw)
   if not ok or type(m) ~= "table" then return nil end
 
   local authors = {}
-  if type(m.authors) == "table" then
-    for _, a in ipairs(m.authors) do
+  local function append_people(people)
+    if type(people) ~= "table" then return end
+    for _, a in ipairs(people) do
       if type(a) == "string" then
         authors[#authors + 1] = a
       elseif type(a) == "table" and type(a.name) == "string" then
@@ -28,10 +31,18 @@ function parse(ctx)
       end
     end
   end
+  append_people(m.authors)
+  append_people(m.contributors)
 
   local website
-  if type(m.contact) == "table" and type(m.contact.homepage) == "string" then
-    website = m.contact.homepage
+  if type(m.contact) == "table" then
+    if type(m.contact.homepage) == "string" then
+      website = m.contact.homepage
+    elseif type(m.contact.sources) == "string" then
+      website = m.contact.sources
+    elseif type(m.contact.issues) == "string" then
+      website = m.contact.issues
+    end
   end
 
   -- icon is a path string or a map of size -> path; pick the largest size.

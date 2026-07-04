@@ -456,7 +456,7 @@ enum ModKind {
 message ModMetadata {
   bool parsed = 1;              // a parser matched this jar
   string parser_id = 2;         // which parser produced it
-  string loader = 3;            // "fabric"|"quilt"|"forge"|"neoforge"|"forge-legacy"|"bukkit"|"paper"
+  string loader = 3;            // "fabric"|"quilt"|"forge"|"neoforge"|"forge-legacy"|"liteloader"|"bukkit"|"paper"
   string mod_id = 4;
   string name = 5;
   string version = 6;

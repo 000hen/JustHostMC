@@ -19,11 +19,11 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// maxModBytes caps a single uploaded plugin/mod jar; individual jars are far
+// maxModBytes caps a single uploaded plugin/mod archive; individual files are far
 // smaller, so this just guards against a runaway or malicious upload.
 const maxModBytes = 512 << 20 // 512 MiB
 
-// ModService manages the jar files in a server's plugins or mods folder. Uploads
+// ModService manages mod archives in a server's plugins or mods folder. Uploads
 // and removals require the server to be stopped so files aren't changed beneath a
 // running JVM.
 type ModService struct {
@@ -72,7 +72,7 @@ func modLayout(layout string) (subdir string, kind mcmanagerv1.ModKind, ok bool)
 	}
 }
 
-// List returns the jar files in the server's plugins/mods folder, enriched
+// List returns the archives in the server's plugins/mods folder, enriched
 // with parsed metadata (name/version/authors/icon/...) where a parser matches.
 func (s *ModService) List(ctx context.Context, req *mcmanagerv1.ServerId) (*mcmanagerv1.ModList, error) {
 	rec, ok := s.store.Get(req.Id)
@@ -93,7 +93,7 @@ func (s *ModService) List(ctx context.Context, req *mcmanagerv1.ServerId) (*mcma
 	list := &mcmanagerv1.ModList{ServerId: req.Id, Kind: kind, Supported: true}
 	fresh := map[string]*mcmanagerv1.ModMetadata{}
 	for _, e := range entries {
-		if e.IsDir() || !strings.HasSuffix(strings.ToLower(e.Name()), ".jar") {
+		if e.IsDir() || !supportedModFile(e.Name(), kind) {
 			continue
 		}
 		info, err := e.Info()
@@ -151,11 +151,11 @@ func (s *ModService) jarMetadata(ctx context.Context, serverID, subdir, name str
 
 // Remove deletes one jar by name. The server must be stopped.
 func (s *ModService) Remove(_ context.Context, req *mcmanagerv1.RemoveModRequest) (*mcmanagerv1.Empty, error) {
-	dir, err := s.writableDir(req.ServerId)
+	dir, kind, err := s.writableDir(req.ServerId)
 	if err != nil {
 		return nil, err
 	}
-	name, err := safeJarName(req.Name)
+	name, err := safeModFileName(req.Name, kind)
 	if err != nil {
 		return nil, err
 	}
@@ -165,7 +165,7 @@ func (s *ModService) Remove(_ context.Context, req *mcmanagerv1.RemoveModRequest
 	return &mcmanagerv1.Empty{}, nil
 }
 
-// Upload streams a jar into the server's plugins/mods folder. The first message
+// Upload streams an archive into the server's plugins/mods folder. The first message
 // carries the init (server id + filename); the rest carry raw bytes. It writes to
 // a temp file and renames into place only on success. The server must be stopped.
 func (s *ModService) Upload(stream grpc.ClientStreamingServer[mcmanagerv1.UploadModRequest, mcmanagerv1.ModFile]) error {
@@ -178,11 +178,11 @@ func (s *ModService) Upload(stream grpc.ClientStreamingServer[mcmanagerv1.Upload
 		return status.Error(codes.InvalidArgument, "first upload message must carry init")
 	}
 
-	dir, err := s.writableDir(init.ServerId)
+	dir, kind, err := s.writableDir(init.ServerId)
 	if err != nil {
 		return err
 	}
-	name, err := safeJarName(init.Filename)
+	name, err := safeModFileName(init.Filename, kind)
 	if err != nil {
 		return err
 	}
@@ -237,32 +237,40 @@ func (s *ModService) Upload(stream grpc.ClientStreamingServer[mcmanagerv1.Upload
 
 // writableDir validates that the server exists, supports plugins/mods, and is
 // stopped, then returns its jar directory.
-func (s *ModService) writableDir(serverID string) (string, error) {
+func (s *ModService) writableDir(serverID string) (string, mcmanagerv1.ModKind, error) {
 	rec, ok := s.store.Get(serverID)
 	if !ok {
-		return "", status.Error(codes.NotFound, "server not found")
+		return "", mcmanagerv1.ModKind_MOD_KIND_UNSPECIFIED, status.Error(codes.NotFound, "server not found")
 	}
-	subdir, _, ok := modLayout(rec.ModLayout)
+	subdir, kind, ok := modLayout(rec.ModLayout)
 	if !ok {
-		return "", errorStatus(codes.FailedPrecondition, mcmanagerv1.ErrorCode_MOD_UNSUPPORTED,
+		return "", mcmanagerv1.ModKind_MOD_KIND_UNSPECIFIED, errorStatus(codes.FailedPrecondition, mcmanagerv1.ErrorCode_MOD_UNSUPPORTED,
 			"this server type has no plugins/mods folder", nil)
 	}
 	if rec.Status != mcmanagerv1.ServerStatus_STOPPED && rec.Status != mcmanagerv1.ServerStatus_CRASHED {
-		return "", errorStatus(codes.FailedPrecondition, mcmanagerv1.ErrorCode_SERVER_RUNNING,
+		return "", mcmanagerv1.ModKind_MOD_KIND_UNSPECIFIED, errorStatus(codes.FailedPrecondition, mcmanagerv1.ErrorCode_SERVER_RUNNING,
 			"stop the server before changing plugins/mods", nil)
 	}
-	return filepath.Join(s.paths.ServerDir(serverID), subdir), nil
+	return filepath.Join(s.paths.ServerDir(serverID), subdir), kind, nil
 }
 
-// safeJarName reduces a client-supplied filename to a safe basename and requires a
-// .jar extension, rejecting path traversal.
-func safeJarName(name string) (string, error) {
+// supportedModFile accepts normal jars everywhere and legacy .litemod archives
+// only in mod directories.
+func supportedModFile(name string, kind mcmanagerv1.ModKind) bool {
+	lower := strings.ToLower(name)
+	return strings.HasSuffix(lower, ".jar") ||
+		(kind == mcmanagerv1.ModKind_MOD && strings.HasSuffix(lower, ".litemod"))
+}
+
+// safeModFileName reduces a client-supplied filename to a safe basename,
+// validates its archive extension, and rejects path traversal.
+func safeModFileName(name string, kind mcmanagerv1.ModKind) (string, error) {
 	base := filepath.Base(filepath.FromSlash(strings.ReplaceAll(name, `\`, "/")))
 	if base == "." || base == string(filepath.Separator) || strings.Contains(base, "..") {
 		return "", status.Error(codes.InvalidArgument, "invalid filename")
 	}
-	if !strings.HasSuffix(strings.ToLower(base), ".jar") {
-		return "", status.Error(codes.InvalidArgument, "filename must end in .jar")
+	if !supportedModFile(base, kind) {
+		return "", status.Error(codes.InvalidArgument, "filename must end in .jar (or .litemod for mods)")
 	}
 	return base, nil
 }

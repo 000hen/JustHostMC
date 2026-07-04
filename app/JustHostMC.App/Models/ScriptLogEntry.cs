@@ -3,7 +3,7 @@ using System.Globalization;
 
 namespace JustHostMC.App.Models;
 
-/// <summary>One timestamped automation log event for the list-detail log window.</summary>
+/// <summary>One timestamped automation log event within an application session.</summary>
 public sealed class ScriptLogEntry {
     private const int MaxTitleLength = 80;
 

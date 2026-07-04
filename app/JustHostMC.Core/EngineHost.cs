@@ -9,18 +9,55 @@ namespace JustHostMC.Core;
 /// </summary>
 public sealed class EngineHost : IAsyncDisposable
 {
+    private const int MaxStdioHistory = 5000;
     private const string ReadyLine = "MCMANAGER_READY";
     private const string PipeEnvVar = "MCMANAGER_PIPE";
     private const string DataDirEnvVar = "MCMANAGER_DATA_DIR";
 
     private readonly EngineHostOptions _options;
+    private readonly Lock _stdioLock = new();
+    private readonly List<EngineStdioEntry> _stdioHistory = [];
     private Process? _process;
+    private long _stdioSequence;
 
     public EngineHost(EngineHostOptions options)
         => _options = options ?? throw new ArgumentNullException(nameof(options));
 
     /// <summary>Set once <see cref="StartAsync"/> has completed the handshake.</summary>
     public EngineConnection? Connection { get; private set; }
+
+    /// <summary>Process identifier while the engine child process is available.</summary>
+    public int? ProcessId
+    {
+        get
+        {
+            try { return _process?.Id; }
+            catch (InvalidOperationException) { return null; }
+        }
+    }
+
+    /// <summary>The sequence number of the most recently captured stdio entry.</summary>
+    public long LastStdioSequence => Interlocked.Read(ref _stdioSequence);
+
+    /// <summary>
+    /// Raised for every line read from stdout/stderr and for stdin lifecycle markers.
+    /// Handlers run on background threads and must marshal UI work themselves.
+    /// </summary>
+    public event EventHandler<EngineStdioEntry>? StdioReceived;
+
+    /// <summary>Returns the bounded engine stdio history captured since launch.</summary>
+    public IReadOnlyList<EngineStdioEntry> GetStdioSnapshot()
+    {
+        lock (_stdioLock)
+            return [.. _stdioHistory];
+    }
+
+    /// <summary>Clears captured stdio history without affecting the engine process.</summary>
+    public void ClearStdioHistory()
+    {
+        lock (_stdioLock)
+            _stdioHistory.Clear();
+    }
 
     /// <summary>
     /// Starts the engine, passes a generated pipe name via environment variable,
@@ -52,25 +89,55 @@ public sealed class EngineHost : IAsyncDisposable
             throw new InvalidOperationException("Failed to start the engine process.");
         _process = process;
 
-        PumpDiagnostics(process);
+        RecordStdio(EngineStdioStream.StdIn, "[open] Parent lifecycle watchdog connected.");
 
-        await WaitForReadyAsync(process, cancellationToken).ConfigureAwait(false);
+        var readySource = new TaskCompletionSource(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+        PumpStandardOutput(process, readySource);
+        PumpStandardError(process);
+
+        await WaitForReadyAsync(readySource.Task, cancellationToken).ConfigureAwait(false);
         Connection = new EngineConnection(pipeName);
         return Connection;
     }
 
-    private void PumpDiagnostics(Process process)
+    private void PumpStandardOutput(Process process, TaskCompletionSource readySource)
     {
-        if (_options.OnDiagnosticLine is null)
-            return;
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                string? line;
+                while ((line = await process.StandardOutput.ReadLineAsync().ConfigureAwait(false)) is not null)
+                {
+                    RecordStdio(EngineStdioStream.StdOut, line);
+                    if (line.Equals(ReadyLine, StringComparison.Ordinal))
+                        readySource.TrySetResult();
+                }
 
+                readySource.TrySetException(
+                    new InvalidOperationException("Engine exited before signaling readiness."));
+            }
+            catch (Exception ex)
+            {
+                readySource.TrySetException(ex);
+            }
+        });
+    }
+
+    private void PumpStandardError(Process process)
+    {
         _ = Task.Run(async () =>
         {
             try
             {
                 string? line;
                 while ((line = await process.StandardError.ReadLineAsync().ConfigureAwait(false)) is not null)
-                    _options.OnDiagnosticLine(line);
+                {
+                    RecordStdio(EngineStdioStream.StdErr, line);
+                    try { _options.OnDiagnosticLine?.Invoke(line); }
+                    catch { /* diagnostics callbacks are best-effort */ }
+                }
             }
             catch
             {
@@ -79,27 +146,38 @@ public sealed class EngineHost : IAsyncDisposable
         });
     }
 
-    private async Task WaitForReadyAsync(Process process, CancellationToken cancellationToken)
+    private async Task WaitForReadyAsync(Task readyTask, CancellationToken cancellationToken)
     {
         using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         timeoutCts.CancelAfter(_options.StartupTimeout);
 
         try
         {
-            while (true)
-            {
-                var line = await process.StandardOutput.ReadLineAsync(timeoutCts.Token).ConfigureAwait(false);
-                if (line is null)
-                    throw new InvalidOperationException("Engine exited before signaling readiness.");
-
-                if (line.Equals(ReadyLine, StringComparison.Ordinal))
-                    return;
-            }
+            await readyTask.WaitAsync(timeoutCts.Token).ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (timeoutCts.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
         {
             throw new TimeoutException($"Engine did not signal readiness within {_options.StartupTimeout}.");
         }
+    }
+
+    private void RecordStdio(EngineStdioStream stream, string message)
+    {
+        var entry = new EngineStdioEntry(
+            Interlocked.Increment(ref _stdioSequence),
+            DateTimeOffset.Now,
+            stream,
+            message);
+
+        lock (_stdioLock)
+        {
+            _stdioHistory.Add(entry);
+            if (_stdioHistory.Count > MaxStdioHistory)
+                _stdioHistory.RemoveRange(0, _stdioHistory.Count - MaxStdioHistory);
+        }
+
+        try { StdioReceived?.Invoke(this, entry); }
+        catch { /* observers must never interrupt process IO */ }
     }
 
     public async ValueTask DisposeAsync()
@@ -114,7 +192,12 @@ public sealed class EngineHost : IAsyncDisposable
             if (!process.HasExited)
             {
                 // Closing stdin trips the engine's watchdog -> graceful shutdown.
-                try { process.StandardInput.Close(); } catch { /* already gone */ }
+                try
+                {
+                    process.StandardInput.Close();
+                    RecordStdio(EngineStdioStream.StdIn, "[EOF] Parent lifecycle watchdog closed.");
+                }
+                catch { /* already gone */ }
 
                 using var cts = new CancellationTokenSource(_options.StopTimeout);
                 try { await process.WaitForExitAsync(cts.Token).ConfigureAwait(false); }

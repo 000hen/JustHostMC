@@ -23,6 +23,19 @@ public class HealthIntegrationTests
     }
 
     [Fact]
+    public async Task StartAsync_CapturesReadyLineInStdioHistory()
+    {
+        await using var host = EngineFixture.NewHost();
+
+        await host.StartAsync();
+
+        Assert.Contains(host.GetStdioSnapshot(), entry =>
+            entry.Stream == EngineStdioStream.StdOut
+            && entry.Message == "MCMANAGER_READY");
+        Assert.NotNull(host.ProcessId);
+    }
+
+    [Fact]
     public async Task Health_Succeeds()
     {
         await using var host = EngineFixture.NewHost();

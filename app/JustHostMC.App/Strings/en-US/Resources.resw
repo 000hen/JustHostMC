@@ -181,7 +181,10 @@
   <data name="SettingsKeepDays.Header" xml:space="preserve"><value>Keep logs for (days)</value></data>
   <data name="SettingsMaxSize.Header" xml:space="preserve"><value>Total size cap (MB)</value></data>
   <data name="SettingsSaveButton.Content" xml:space="preserve"><value>Save</value></data>
-  <data name="SettingsPurgeButton.Content" xml:space="preserve"><value>Purge now</value></data>
+<data name="SettingsPurgeButton.Content" xml:space="preserve"><value>Purge now</value></data>
+<data name="SettingsEngineMonitorHeader.Text" xml:space="preserve"><value>Engine diagnostics</value></data>
+<data name="SettingsEngineMonitorHint.Text" xml:space="preserve"><value>Inspect the engine process's live standard output, error output, and input-watchdog lifecycle.</value></data>
+<data name="SettingsEngineMonitorButton.Content" xml:space="preserve"><value>Open engine monitor</value></data>
   <data name="Settings_Saved" xml:space="preserve"><value>Settings saved.</value></data>
   <data name="Settings_SaveFailed" xml:space="preserve"><value>Could not save settings.</value></data>
   <data name="Settings_LoadFailed" xml:space="preserve"><value>Could not load settings.</value></data>
@@ -194,7 +197,22 @@
   <data name="SettingsRemoveDataConfirmButton.Content" xml:space="preserve"><value>Remove everything</value></data>
   <data name="Settings_RemovingData" xml:space="preserve"><value>Removing all data</value></data>
   <data name="Settings_DataRemoved" xml:space="preserve"><value>All data removed.</value></data>
-  <data name="Settings_RemoveDataFailed" xml:space="preserve"><value>Could not remove all data.</value></data>
+<data name="Settings_RemoveDataFailed" xml:space="preserve"><value>Could not remove all data.</value></data>
+
+<!-- Engine stdio monitor -->
+<data name="EngineMonitor_Title" xml:space="preserve"><value>Engine monitor</value></data>
+<data name="EngineMonitorClearButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Clear engine output</value></data>
+<data name="EngineMonitorClearButtonLabel.Text" xml:space="preserve"><value>Clear</value></data>
+<data name="EngineMonitorCopyButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Copy visible engine output</value></data>
+<data name="EngineMonitorCopyButtonLabel.Text" xml:space="preserve"><value>Copy</value></data>
+<data name="EngineMonitorPauseButton.Content" xml:space="preserve"><value>Pause</value></data>
+<data name="EngineMonitorAutoScrollCheckBox.Content" xml:space="preserve"><value>Auto-scroll</value></data>
+<data name="EngineMonitorSearchBox.PlaceholderText" xml:space="preserve"><value>Filter messages</value></data>
+<data name="EngineMonitorSearchBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Filter engine messages</value></data>
+<data name="EngineMonitorStdinHint.Text" xml:space="preserve"><value>Stdin is reserved for the parent-process watchdog; it is intentionally read-only here.</value></data>
+<data name="EngineMonitorEmptyText.Text" xml:space="preserve"><value>No engine output matches the current filters.</value></data>
+<data name="EngineMonitor_Status" xml:space="preserve"><value>Engine PID {pid}  •  {visible} visible / {total} captured</value></data>
+<data name="EngineMonitor_StatusPaused" xml:space="preserve"><value>Paused  •  Engine PID {pid}  •  {total} captured</value></data>
 
   <!-- Isolation backend (Docker opt-in) -->
   <data name="SettingsBackendHeader.Text" xml:space="preserve"><value>Where servers run</value></data>
@@ -549,5 +567,10 @@
   <data name="HomeCardMoveUpButton.ToolTipService.ToolTip" xml:space="preserve"><value>Move server up</value></data>
   <data name="HomeCardMoveDownButton.ToolTipService.ToolTip" xml:space="preserve"><value>Move server down</value></data>
   <data name="HomeCardEditButton.ToolTipService.ToolTip" xml:space="preserve"><value>Edit server</value></data>
+  <data name="Scripts_CurrentSessionTitle" xml:space="preserve">
+<value>Current session</value>
+</data>
+  <data name="Scripts_PreviousSessionTitle" xml:space="preserve">
+<value>Session</value>
+</data>
 </root>
-

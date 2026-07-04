@@ -89,7 +89,6 @@ func main() {
 	// Persist every console line to a daily-rotating per-server log file.
 	hub := console.NewHub()
 	sink := logging.NewSink(paths.LogsRoot())
-	defer sink.CloseAll()
 	hub.SetLineObserver(sink.Write)
 
 	// Player event bus: structured join/leave events derived from roster state
@@ -100,6 +99,20 @@ func main() {
 	// Choose the isolation backend: Docker only when the user opted in AND it is
 	// available, otherwise the on-machine Job Object backend (PROMPT 禮10.7).
 	settingsStore := settings.NewStore(filepath.Join(paths.Base, "settings.json"))
+	// Purge before restoring automation history so expired sessions are never
+	// replayed into the UI during this run.
+	applyLogRetention(settingsStore, paths.LogsRoot(), sink.CloseAll)
+	automationLogs, err := scriptlog.NewPersistentLogBuffer(
+		0, filepath.Join(paths.LogsRoot(), "automation"))
+	if err != nil {
+		log.Fatalf("open automation logs: %v", err)
+	}
+	closeLogs := func() {
+		sink.CloseAll()
+		automationLogs.Close()
+	}
+	defer closeLogs()
+
 	backend, activeMode := selectBackend(context.Background(), settingsStore)
 	log.Printf("isolation backend: %s", activeMode)
 
@@ -110,7 +123,7 @@ func main() {
 		Backend:   backend,
 		Paths:     paths,
 		Console:   hub,
-		CloseLogs: sink.CloseAll,
+		CloseLogs: closeLogs,
 		OnExit:    eventBus.Reset,
 	})
 	// Reclaim state from the persisted registry after a restart.
@@ -127,10 +140,10 @@ func main() {
 		Store:      settingsStore,
 		LogsRoot:   paths.LogsRoot(),
 		ActiveMode: string(activeMode),
-		CloseLogs:  sink.CloseAll,
+		CloseLogs:  closeLogs,
 	})
-	// Apply the retention policy at startup, then periodically.
-	go runLogJanitor(settingsStore, paths.LogsRoot(), sink.CloseAll)
+	// The startup pass ran before history was restored; continue periodically.
+	go runLogJanitor(settingsStore, paths.LogsRoot(), closeLogs)
 
 	playerService := grpcsvc.NewPlayerService(hub, registry, paths)
 
@@ -143,7 +156,7 @@ func main() {
 		Grants:  scriptGrants,
 		Console: hub,
 		Control: serverService,
-		Logs:    scriptlog.NewLogBuffer(0),
+		Logs:    automationLogs,
 		Query:   &serverQueryAdapter{store: registry},
 		Players: &playerManagerAdapter{events: eventBus, players: playerService},
 		Events:  eventBus,
@@ -212,32 +225,32 @@ func selectBackend(ctx context.Context, settingsStore *settings.Store) (isolatio
 // policy in the background (in addition to the immediate purge at startup).
 const logRetentionInterval = 6 * time.Hour
 
-// runLogJanitor applies the stored retention policy immediately and then on a
-// timer for the life of the process (PROMPT 禮15).
+// runLogJanitor reapplies the stored retention policy on a timer for the life
+// of the process (PROMPT 禮15). The startup pass is synchronous in main so
+// expired automation sessions are gone before persistent history is loaded.
 func runLogJanitor(settingsStore *settings.Store, logsRoot string, closeLogs func()) {
-	purge := func() {
-		s, err := settingsStore.Load()
-		if err != nil {
-			log.Printf("log retention: load settings: %v", err)
-			return
-		}
-		if closeLogs != nil {
-			closeLogs()
-		}
-		removed, freed, err := logging.Purge(logsRoot, s.Policy(), time.Now())
-		if err != nil {
-			log.Printf("log retention: purge: %v", err)
-		}
-		if removed > 0 {
-			log.Printf("log retention: purged %d files (%d bytes freed)", removed, freed)
-		}
-	}
-
-	purge()
 	ticker := time.NewTicker(logRetentionInterval)
 	defer ticker.Stop()
 	for range ticker.C {
-		purge()
+		applyLogRetention(settingsStore, logsRoot, closeLogs)
+	}
+}
+
+func applyLogRetention(settingsStore *settings.Store, logsRoot string, closeLogs func()) {
+	s, err := settingsStore.Load()
+	if err != nil {
+		log.Printf("log retention: load settings: %v", err)
+		return
+	}
+	if closeLogs != nil {
+		closeLogs()
+	}
+	removed, freed, err := logging.Purge(logsRoot, s.Policy(), time.Now())
+	if err != nil {
+		log.Printf("log retention: purge: %v", err)
+	}
+	if removed > 0 {
+		log.Printf("log retention: purged %d files (%d bytes freed)", removed, freed)
 	}
 }
 

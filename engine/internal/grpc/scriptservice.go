@@ -159,9 +159,12 @@ func (s *ScriptService) StreamLog(_ *mcmanagerv1.Empty, stream mcmanagerv1.Scrip
 
 func scriptLogProto(line scriptlog.LogLine) *mcmanagerv1.ScriptLogLine {
 	return &mcmanagerv1.ScriptLogLine{
-		ScriptId:  line.ScriptID,
-		Line:      line.Line,
-		Timestamp: line.Timestamp.Format(time.RFC3339Nano),
+		ScriptId:         line.ScriptID,
+		Line:             line.Line,
+		Timestamp:        line.Timestamp.Format(time.RFC3339Nano),
+		SessionId:        line.SessionID,
+		SessionStartedAt: line.SessionStartedAt.Format(time.RFC3339Nano),
+		CurrentSession:   line.CurrentSession,
 	}
 }
 

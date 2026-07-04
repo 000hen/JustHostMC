@@ -119,7 +119,7 @@ public sealed partial class ScriptsPage : Page {
 
     private void OnShowAllLogsClick(object sender, RoutedEventArgs e) {
         if (_logsWindow is null) {
-            var window = new ScriptLogsWindow(ViewModel.LogEntries);
+            var window = new ScriptLogsWindow(ViewModel.LogSessions);
             window.Closed += (_, _) => {
                 if (ReferenceEquals(_logsWindow, window))
                     _logsWindow = null;

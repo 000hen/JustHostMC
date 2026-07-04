@@ -43,12 +43,19 @@ public sealed partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     public partial bool UseDocker { get; set; }
 
+    [ObservableProperty]
+    public partial string AppVersionText { get; private set; } = "";
+
+    public string AppName => JustHostMC.App.Helpers.ProcessInfoHelper.ProductName;
+
     private bool _loadingBackend;
 
     public SettingsViewModel(DispatcherQueue dispatcher, ILocalizer localizer)
     {
         _dispatcher = dispatcher;
         _localizer = localizer;
+
+        AppVersionText = JustHostMC.App.Helpers.ProcessInfoHelper.FullVersion;
     }
 
     partial void OnUseDockerChanged(bool value)

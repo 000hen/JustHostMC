@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
@@ -558,4 +558,7 @@
   <data name="Scripts_PreviousSessionTitle" xml:space="preserve">
 <value>工作階段</value>
 </data>
+  <data name="SettingsAboutHeader.Text" xml:space="preserve"><value>關於</value></data>
+  <data name="SettingsAboutRepo.Text" xml:space="preserve"><value>GitHub 儲存庫</value></data>
+  <data name="SettingsAboutIssues.Text" xml:space="preserve"><value>回報問題</value></data>
 </root>

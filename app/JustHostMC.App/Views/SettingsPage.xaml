@@ -8,7 +8,7 @@
     mc:Ignorable="d">
 
     <ScrollViewer Padding="24" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <StackPanel MaxWidth="640" HorizontalAlignment="Left" Spacing="16">
+        <StackPanel Spacing="16">
 
             <TextBlock x:Uid="SettingsTitle" Style="{StaticResource TitleTextBlockStyle}" />
 
@@ -18,11 +18,11 @@
                        Style="{StaticResource CaptionTextBlockStyle}" />
 
             <NumberBox x:Uid="SettingsKeepDays" Value="{x:Bind ViewModel.KeepDays, Mode=TwoWay}"
-                       Minimum="0" SpinButtonPlacementMode="Inline" />
+                       Minimum="0" SpinButtonPlacementMode="Inline" HorizontalAlignment="Left" />
             <NumberBox x:Uid="SettingsMaxSize" Value="{x:Bind ViewModel.MaxTotalMb, Mode=TwoWay}"
-                       Minimum="0" SpinButtonPlacementMode="Inline" />
+                       Minimum="0" SpinButtonPlacementMode="Inline" HorizontalAlignment="Left" />
 
-            <Grid ColumnSpacing="12">
+            <Grid ColumnSpacing="12" HorizontalAlignment="Left">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
@@ -88,6 +88,62 @@
                     </Button>
                 </StackPanel>
             </Border>
+            
+            <!-- About -->
+            <TextBlock x:Uid="SettingsAboutHeader" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
+            <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" CornerRadius="8">
+                <Expander.Header>
+                    <Grid MinHeight="56">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Image Source="ms-appx:///Assets/Square44x44Logo.scale-200.png" Width="24" Height="24" Margin="0,0,16,0" VerticalAlignment="Center" />
+                        
+                        <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.AppName, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+
+                        <TextBlock Grid.Column="2" Text="{x:Bind ViewModel.AppVersionText, Mode=OneWay}" 
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center"/>
+                    </Grid>
+                </Expander.Header>
+                <Expander.Content>
+                    <StackPanel Spacing="0" Margin="-16">
+                        <!-- Repository -->
+                        <Grid Padding="16,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:Uid="SettingsAboutRepo" VerticalAlignment="Center"/>
+                            <HyperlinkButton Grid.Column="1" NavigateUri="https://github.com/000hen/JustHostMC">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <TextBlock Text="github.com/000hen/JustHostMC" VerticalAlignment="Center" />
+                                    <FontIcon Glyph="&#xE8A7;" FontSize="12" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </HyperlinkButton>
+                        </Grid>
+                        
+                        <MenuFlyoutSeparator Margin="0" />
+                        
+                        <!-- Issues -->
+                        <Grid Padding="16,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:Uid="SettingsAboutIssues" VerticalAlignment="Center"/>
+                            <HyperlinkButton Grid.Column="1" NavigateUri="https://github.com/000hen/JustHostMC/issues">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <TextBlock Text="github.com/000hen/JustHostMC/issues" VerticalAlignment="Center" />
+                                    <FontIcon Glyph="&#xE8A7;" FontSize="12" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </HyperlinkButton>
+                        </Grid>
+                    </StackPanel>
+                </Expander.Content>
+            </Expander>
         </StackPanel>
     </ScrollViewer>
 </Page>

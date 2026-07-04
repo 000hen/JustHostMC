@@ -116,4 +116,18 @@
     <AppxDefaultResourceQualifiers>Language=en-US;zh-TW</AppxDefaultResourceQualifiers>
   </PropertyGroup>
 
+  <!-- Embed Git info -->
+  <Target Name="AddGitMetadata" BeforeTargets="GetAssemblyAttributes" Condition="Exists('$(MSBuildProjectDirectory)\..\..\.git')">
+    <Exec Command="git rev-parse --short HEAD" ConsoleToMSBuild="true" StandardOutputImportance="low" IgnoreExitCode="true">
+      <Output TaskParameter="ConsoleOutput" PropertyName="GitSha" />
+    </Exec>
+    <Exec Command="git rev-parse --abbrev-ref HEAD" ConsoleToMSBuild="true" StandardOutputImportance="low" IgnoreExitCode="true">
+      <Output TaskParameter="ConsoleOutput" PropertyName="GitBranch" />
+    </Exec>
+    <ItemGroup>
+      <AssemblyMetadata Include="GitSha" Value="$(GitSha)" Condition="'$(GitSha)' != ''" />
+      <AssemblyMetadata Include="GitBranch" Value="$(GitBranch)" Condition="'$(GitBranch)' != ''" />
+    </ItemGroup>
+  </Target>
+
 </Project>

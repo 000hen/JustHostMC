@@ -58,783 +58,294 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AppDisplayName" xml:space="preserve">
-    <value>JustHostMC</value>
-  </data>
-  <data name="AppDescription" xml:space="preserve">
-    <value>JustHostMC — Minecraft 伺服器管理工具</value>
-  </data>
-  <data name="AppPublisherDisplayName" xml:space="preserve">
-    <value>Muisnow Devs</value>
-  </data>
-  <data name="AppTitle" xml:space="preserve">
-    <value>JustHostMC</value>
-  </data>
-  <data name="MainTitle.Text" xml:space="preserve">
-    <value>JustHostMC - Minecraft 伺服器管理工具</value>
-  </data>
-  <data name="RefreshButton.ToolTipService.ToolTip" xml:space="preserve">
-    <value>重新整理</value>
-  </data>
-  <data name="CreateServerButtonLabel.Text" xml:space="preserve">
-    <value>建立伺服器</value>
-  </data>
-  <data name="NoServersHint.Text" xml:space="preserve">
-    <value>還沒有伺服器。選取「建立伺服器」來新增一個。</value>
-  </data>
-  <data name="OnMachineNotice.Title" xml:space="preserve">
-    <value>伺服器會在這台電腦上執行</value>
-  </data>
-  <data name="OnMachineNotice.Message" xml:space="preserve">
-    <value>未使用 Docker 時，伺服器會直接在你的電腦上執行（不在容器中）。每個伺服器的記憶體限制仍會套用。</value>
-  </data>
-  <data name="EngineStatus_Connecting" xml:space="preserve">
-    <value>正在連線到引擎</value>
-  </data>
-  <data name="EngineStatus_Connected" xml:space="preserve">
-    <value>引擎已連線。</value>
-  </data>
-  <data name="EngineStatus_Failed" xml:space="preserve">
-    <value>無法連線到引擎。</value>
-  </data>
-  <data name="ServerStartButton.Content" xml:space="preserve">
-    <value>啟動</value>
-  </data>
-  <data name="ServerStopButton.Content" xml:space="preserve">
-    <value>停止</value>
-  </data>
-  <data name="ServerDeleteButton.Content" xml:space="preserve">
-    <value>刪除</value>
-  </data>
-  <data name="ServerStatus_Running" xml:space="preserve">
-    <value>執行中</value>
-  </data>
-  <data name="ServerStatus_Stopped" xml:space="preserve">
-    <value>已停止</value>
-  </data>
-  <data name="ServerStatus_Installing" xml:space="preserve">
-    <value>安裝中</value>
-  </data>
-  <data name="ServerStatus_Starting" xml:space="preserve">
-    <value>啟動中</value>
-  </data>
-  <data name="ServerStatus_Stopping" xml:space="preserve">
-    <value>停止中</value>
-  </data>
-  <data name="ServerStatus_Crashed" xml:space="preserve">
-    <value>已當機</value>
-  </data>
-  <data name="ServerStatus_Unknown" xml:space="preserve">
-    <value>不明</value>
-  </data>
-  <data name="ServerNav_AutomationName" xml:space="preserve">
-    <value>{name}，{status}</value>
-  </data>
-  <data name="ServerNav_StateChangedAutomationName" xml:space="preserve">
-    <value>{name}，狀態已變更為{status}</value>
-  </data>
-  <data name="ServerType_Vanilla" xml:space="preserve">
-    <value>原版</value>
-  </data>
-  <data name="ServerType_Paper" xml:space="preserve">
-    <value>Paper</value>
-  </data>
-  <data name="ServerType_Spigot" xml:space="preserve">
-    <value>Spigot</value>
-  </data>
-  <data name="ServerType_Forge" xml:space="preserve">
-    <value>Forge</value>
-  </data>
-  <data name="ServerType_NeoForge" xml:space="preserve">
-    <value>NeoForge</value>
-  </data>
-  <data name="ServerType_Fabric" xml:space="preserve">
-    <value>Fabric</value>
-  </data>
-  <data name="ServerType_Unknown" xml:space="preserve">
-    <value>不明</value>
-  </data>
-  <data name="ServerConsoleButton.Content" xml:space="preserve">
-    <value>控制台</value>
-  </data>
-  <data name="ConsoleDialog.Title" xml:space="preserve">
-    <value>控制台</value>
-  </data>
-  <data name="ConsoleDialog.CloseButtonText" xml:space="preserve">
-    <value>關閉</value>
-  </data>
-  <data name="ConsoleInput.PlaceholderText" xml:space="preserve">
-    <value>輸入指令後按 Enter</value>
-  </data>
-  <data name="ConsoleSendButton.Content" xml:space="preserve">
-    <value>送出</value>
-  </data>
-  <data name="ConsoleOutputHeader.Text" xml:space="preserve">
-    <value>控制台輸出</value>
-  </data>
-  <data name="ConsoleSendButtonLabel.Text" xml:space="preserve">
-    <value>送出</value>
-  </data>
-  <data name="ConsoleSendCommandButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>送出指令</value>
-  </data>
-  <data name="CreateServerDialog_Title" xml:space="preserve">
-    <value>建立伺服器</value>
-  </data>
-  <data name="CreateServerDialog_PrimaryButtonText" xml:space="preserve">
-    <value>建立</value>
-  </data>
-  <data name="CreateServerDialog_CloseButtonText" xml:space="preserve">
-    <value>取消</value>
-  </data>
-  <data name="CreateServerName.Header" xml:space="preserve">
-    <value>名稱</value>
-  </data>
-  <data name="CreateServerName.PlaceholderText" xml:space="preserve">
-    <value>我的伺服器</value>
-  </data>
-  <data name="CreateServer_DefaultName" xml:space="preserve">
-    <value>我的伺服器</value>
-  </data>
-  <data name="CreateServerType.Header" xml:space="preserve">
-    <value>類型</value>
-  </data>
-  <data name="ServerTypeVanillaItem.Content" xml:space="preserve">
-    <value>原版</value>
-  </data>
-  <data name="CreateServerVersionHint.Text" xml:space="preserve">
-    <value>版本會從網路取得。</value>
-  </data>
-  <data name="CreateServerVersion.Header" xml:space="preserve">
-    <value>版本</value>
-  </data>
-  <data name="CreateServerVersionError.Title" xml:space="preserve">
-    <value>無法載入版本</value>
-  </data>
-  <data name="CreateServerVersionError.Message" xml:space="preserve">
-    <value>請檢查網路連線，然後重新選取伺服器類型。</value>
-  </data>
-  <data name="CreateServerAdvancedHeader.Text" xml:space="preserve">
-    <value>進階設定</value>
-  </data>
-  <data name="CreateServerMemory.Header" xml:space="preserve">
-    <value>記憶體 (MB)</value>
-  </data>
-  <data name="CreateServerMemoryHint.Text" xml:space="preserve">
-    <value>Java 行程的最大堆積記憶體。多數伺服器建議使用 2048 MB。</value>
-  </data>
-  <data name="CreateServerPort.Header" xml:space="preserve">
-    <value>連接埠</value>
-  </data>
-  <data name="CreateServerPortHint.Text" xml:space="preserve">
-    <value>保留為 0 可自動指派可用連接埠。Minecraft 預設值為 25565。</value>
-  </data>
-  <data name="InstallProgressHeader.Text" xml:space="preserve">
-    <value>建立伺服器中</value>
-  </data>
-  <data name="InstallDismissButton.Content" xml:space="preserve">
-    <value>關閉</value>
-  </data>
-  <data name="install_progress_preparing" xml:space="preserve">
-    <value>準備中</value>
-  </data>
-  <data name="install_progress_resolving_version" xml:space="preserve">
-    <value>解析版本中</value>
-  </data>
-  <data name="install_progress_downloading_server" xml:space="preserve">
-    <value>下載伺服器中</value>
-  </data>
-  <data name="install_progress_downloading_jre" xml:space="preserve">
-    <value>下載 Java 執行階段中</value>
-  </data>
-  <data name="install_progress_extracting_jre" xml:space="preserve">
-    <value>解壓縮 Java 執行階段中</value>
-  </data>
-  <data name="install_progress_downloading_installer" xml:space="preserve">
-    <value>下載安裝程式中</value>
-  </data>
-  <data name="install_progress_running_installer" xml:space="preserve">
-    <value>執行安裝程式中</value>
-  </data>
-  <data name="install_progress_done" xml:space="preserve">
-    <value>完成。</value>
-  </data>
-  <data name="error_version_not_found" xml:space="preserve">
-    <value>找不到該版本。</value>
-  </data>
-  <data name="error_jre_download_failed" xml:space="preserve">
-    <value>無法下載所需的 Java 執行階段。</value>
-  </data>
-  <data name="error_type_unsupported" xml:space="preserve">
-    <value>此伺服器類型尚未支援。</value>
-  </data>
-  <data name="error_install_failed" xml:space="preserve">
-    <value>安裝失敗。請查看記錄以了解詳細資訊。</value>
-  </data>
-  <data name="error_backup_failed" xml:space="preserve">
-    <value>備份作業失敗。請查看記錄以了解詳細資訊。</value>
-  </data>
-  <data name="error_backup_not_found" xml:space="preserve">
-    <value>找不到該備份。</value>
-  </data>
-  <data name="error_server_running" xml:space="preserve">
-    <value>還原備份前，請先停止伺服器。</value>
-  </data>
-  <data name="ServerBackupsButton.Content" xml:space="preserve">
-    <value>備份</value>
-  </data>
-  <data name="BackupsDialog_CloseButtonText" xml:space="preserve">
-    <value>關閉</value>
-  </data>
-  <data name="BackupCreateButton.Content" xml:space="preserve">
-    <value>建立備份</value>
-  </data>
-  <data name="BackupCreateButtonLabel.Text" xml:space="preserve">
-    <value>建立備份</value>
-  </data>
-  <data name="BackupSafeOnline.Content" xml:space="preserve">
-    <value>線上安全備份（暫停儲存）</value>
-  </data>
-  <data name="BackupSafeOnlineLabel.Text" xml:space="preserve">
-    <value>線上安全備份（暫停儲存）</value>
-  </data>
-  <data name="BackupsEmptyHint.Text" xml:space="preserve">
-    <value>還沒有備份。選取「建立備份」來建立一份。</value>
-  </data>
-  <data name="BackupRestoreButton.Content" xml:space="preserve">
-    <value>還原</value>
-  </data>
-  <data name="BackupRestoreConfirmText.Text" xml:space="preserve">
-    <value>要還原這份備份嗎？這會取代伺服器目前的世界與檔案。伺服器必須先停止。</value>
-  </data>
-  <data name="BackupRestoreConfirmButton.Content" xml:space="preserve">
-    <value>還原</value>
-  </data>
-  <data name="BackupDeleteButton.Content" xml:space="preserve">
-    <value>刪除</value>
-  </data>
-  <data name="BackupDeleteConfirmText.Text" xml:space="preserve">
-    <value>要永久刪除這份備份嗎？</value>
-  </data>
-  <data name="BackupDeleteConfirmButton.Content" xml:space="preserve">
-    <value>刪除</value>
-  </data>
-  <data name="Backups_Creating" xml:space="preserve">
-    <value>建立備份中</value>
-  </data>
-  <data name="Backups_Created" xml:space="preserve">
-    <value>備份已建立。</value>
-  </data>
-  <data name="Backups_Restoring" xml:space="preserve">
-    <value>還原備份中</value>
-  </data>
-  <data name="Backups_Restored" xml:space="preserve">
-    <value>備份已還原。</value>
-  </data>
-  <data name="Backups_Deleting" xml:space="preserve">
-    <value>刪除備份中</value>
-  </data>
-  <data name="Backups_Deleted" xml:space="preserve">
-    <value>備份已刪除。</value>
-  </data>
-  <data name="SettingsButton.Content" xml:space="preserve">
-    <value>設定</value>
-  </data>
-  <data name="SettingsDialog.Title" xml:space="preserve">
-    <value>設定</value>
-  </data>
-  <data name="SettingsDialog.CloseButtonText" xml:space="preserve">
-    <value>關閉</value>
-  </data>
-  <data name="SettingsRetentionHeader.Text" xml:space="preserve">
-    <value>記錄保留</value>
-  </data>
-  <data name="SettingsRetentionHint.Text" xml:space="preserve">
-    <value>安裝、控制台與自動化記錄會自動清理。使用 0 表示不限制。</value>
-  </data>
-  <data name="SettingsKeepDays.Header" xml:space="preserve">
-    <value>記錄保留天數</value>
-  </data>
-  <data name="SettingsMaxSize.Header" xml:space="preserve">
-    <value>總大小上限 (MB)</value>
-  </data>
-  <data name="SettingsSaveButton.Content" xml:space="preserve">
-    <value>儲存</value>
-  </data>
-  <data name="SettingsPurgeButton.Content" xml:space="preserve">
-    <value>立即清理</value>
-  </data>
-  <data name="Settings_Saved" xml:space="preserve">
-    <value>設定已儲存。</value>
-  </data>
-  <data name="Settings_SaveFailed" xml:space="preserve">
-    <value>無法儲存設定。</value>
-  </data>
-  <data name="Settings_LoadFailed" xml:space="preserve">
-    <value>無法載入設定。</value>
-  </data>
-  <data name="Settings_PurgeResult" xml:space="preserve">
-    <value>已清理 {count} 個檔案，釋放 {size}。</value>
-  </data>
-  <data name="Settings_PurgeFailed" xml:space="preserve">
-    <value>無法清理記錄。</value>
-  </data>
-  <data name="SettingsDataHeader.Text" xml:space="preserve">
-    <value>移除所有資料</value>
-  </data>
-  <data name="SettingsDataHint.Text" xml:space="preserve">
-    <value>停止所有伺服器，並永久刪除所有伺服器、備份、記錄，以及已下載的 Java 執行階段。此動作無法復原。</value>
-  </data>
-  <data name="SettingsRemoveDataButton.Content" xml:space="preserve">
-    <value>移除所有資料</value>
-  </data>
-  <data name="SettingsRemoveDataConfirmText.Text" xml:space="preserve">
-    <value>要刪除所有伺服器、備份、記錄和 Java 執行階段嗎？此動作無法復原。</value>
-  </data>
-  <data name="SettingsRemoveDataConfirmButton.Content" xml:space="preserve">
-    <value>全部移除</value>
-  </data>
-  <data name="Settings_RemovingData" xml:space="preserve">
-    <value>正在移除所有資料</value>
-  </data>
-  <data name="Settings_DataRemoved" xml:space="preserve">
-    <value>所有資料已移除。</value>
-  </data>
-  <data name="Settings_RemoveDataFailed" xml:space="preserve">
-    <value>無法移除所有資料。</value>
-  </data>
-  <data name="SettingsBackendHeader.Text" xml:space="preserve">
-    <value>伺服器執行位置</value>
-  </data>
-  <data name="SettingsUseDocker.Header" xml:space="preserve">
-    <value>可用時使用 Docker</value>
-  </data>
-  <data name="SettingsBackendHint.Text" xml:space="preserve">
-    <value>重新啟動應用程式後生效。JustHostMC 不會安裝 Docker、WSL 或 Hyper-V；是否啟用由你決定。</value>
-  </data>
-  <data name="Backend_Mode_OnMachine" xml:space="preserve">
-    <value>伺服器會直接在這台電腦上執行（使用 Windows Job Objects 隔離）。</value>
-  </data>
-  <data name="Backend_Mode_Docker" xml:space="preserve">
-    <value>伺服器會在這台電腦上的 Docker 容器中執行。</value>
-  </data>
-  <data name="Backend_DockerAvailable" xml:space="preserve">
-    <value>偵測到 Docker（版本 {version}）。</value>
-  </data>
-  <data name="Backend_DockerUnavailable" xml:space="preserve">
-    <value>未偵測到 Docker。啟動 Docker Desktop 以啟用此選項。</value>
-  </data>
-  <data name="Backend_DockerPrefSaved" xml:space="preserve">
-    <value>已儲存。重新啟動應用程式以套用後端變更。</value>
-  </data>
-  <data name="NavHome.Content" xml:space="preserve">
-    <value>首頁</value>
-  </data>
-  <data name="NavAddServer.Content" xml:space="preserve">
-    <value>新增伺服器</value>
-  </data>
-  <data name="NavSettings.Content" xml:space="preserve">
-    <value>設定</value>
-  </data>
-  <data name="HomeTitle.Text" xml:space="preserve">
-    <value>首頁</value>
-  </data>
-  <data name="SettingsTitle.Text" xml:space="preserve">
-    <value>設定</value>
-  </data>
-  <data name="HomeAddCard.Text" xml:space="preserve">
-    <value>新增伺服器</value>
-  </data>
-  <data name="ServerSectionConsole.Text" xml:space="preserve">
-    <value>控制台</value>
-  </data>
-  <data name="ServerSectionPlayers.Text" xml:space="preserve">
-    <value>玩家</value>
-  </data>
-  <data name="ServerSectionPerformance.Text" xml:space="preserve">
-    <value>效能</value>
-  </data>
-  <data name="ServerSectionMods.Text" xml:space="preserve">
-    <value>插件 / 模組</value>
-  </data>
-  <data name="ServerSectionConfig.Text" xml:space="preserve">
-    <value>設定</value>
-  </data>
-  <data name="ServerSectionConfigHint.Text" xml:space="preserve">
-    <value>管理伺服器啟動設定與進階選項</value>
-  </data>
-  <data name="ServerBackupsMenuItem.Text" xml:space="preserve">
-    <value>備份</value>
-  </data>
-  <data name="ServerDeleteMenuItem.Text" xml:space="preserve">
-    <value>刪除伺服器</value>
-  </data>
-  <data name="ServerMoreButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>更多選項</value>
-  </data>
-  <data name="ServerMetaTypeLabel.Text" xml:space="preserve">
-    <value>類型</value>
-  </data>
-  <data name="ServerMetaVersionLabel.Text" xml:space="preserve">
-    <value>版本</value>
-  </data>
-  <data name="ServerMetaPortLabel.Text" xml:space="preserve">
-    <value>連接埠</value>
-  </data>
-  <data name="ServerMetaMemoryLabel.Text" xml:space="preserve">
-    <value>記憶體</value>
-  </data>
-  <data name="ServerMetaNameLabel.Text" xml:space="preserve">
-    <value>名稱</value>
-  </data>
-  <data name="ServerMetaCustomJavaArgsLabel.Text" xml:space="preserve">
-    <value>自訂 Java 參數</value>
-  </data>
-  <data name="Server_PortLabel" xml:space="preserve">
-    <value>連接埠 {port}</value>
-  </data>
-  <data name="Server_PortAutoValue" xml:space="preserve">
-    <value>自動</value>
-  </data>
-  <data name="Server_MemoryValue" xml:space="preserve">
-    <value>{memory} MB</value>
-  </data>
-  <data name="Server_ValueUnknown" xml:space="preserve">
-    <value>未知</value>
-  </data>
-  <data name="ServerState_Start" xml:space="preserve">
-    <value>啟動</value>
-  </data>
-  <data name="ServerState_Stop" xml:space="preserve">
-    <value>停止</value>
-  </data>
-  <data name="ServerState_Starting" xml:space="preserve">
-    <value>啟動中</value>
-  </data>
-  <data name="ServerState_Stopping" xml:space="preserve">
-    <value>停止中</value>
-  </data>
-  <data name="ServerState_Installing" xml:space="preserve">
-    <value>安裝中</value>
-  </data>
-  <data name="ServerDelete_Title" xml:space="preserve">
-    <value>要刪除伺服器嗎？</value>
-  </data>
-  <data name="ServerDelete_Body" xml:space="preserve">
-    <value>這會永久刪除伺服器及其世界。此動作無法復原。</value>
-  </data>
-  <data name="ServerDelete_Confirm" xml:space="preserve">
-    <value>刪除</value>
-  </data>
-  <data name="Common_Cancel" xml:space="preserve">
-    <value>取消</value>
-  </data>
-  <data name="Players_Header" xml:space="preserve">
-    <value>玩家（{count}）</value>
-  </data>
-  <data name="PlayersEmptyHint.Text" xml:space="preserve">
-    <value>目前沒有玩家在線上。</value>
-  </data>
-  <data name="ManageBansButtonLabel.Text" xml:space="preserve">
-    <value>管理封鎖</value>
-  </data>
-  <data name="ManageBansButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>管理封鎖名單</value>
-  </data>
-  <data name="ConfigStoppedHint.Text" xml:space="preserve">
-    <value>請先停止伺服器，再安全地儲存 server.properties、遊戲規則或封鎖名單變更。</value>
-  </data>
-  <data name="ConfigPropertiesSection.Title" xml:space="preserve">
-    <value>server.properties</value>
-  </data>
-  <data name="ConfigPropertiesSection.Description" xml:space="preserve">
-    <value>可用屬性與編輯器會依此伺服器的 Minecraft 版本篩選。</value>
-  </data>
-  <data name="ConfigSavePropertiesButton.Content" xml:space="preserve">
-    <value>儲存屬性</value>
-  </data>
-  <data name="ConfigGameRulesSection.Title" xml:space="preserve">
-    <value>遊戲規則</value>
-  </data>
-  <data name="ConfigGameRulesSection.Description" xml:space="preserve">
-    <value>控制世界行為、生物生成、傷害、物品欄及其他遊戲規則。</value>
-  </data>
-  <data name="ConfigModifiedText.Text" xml:space="preserve">
-    <value>設定已修改。</value>
-  </data>
-  <data name="ConfigDiscardButtonLabel.Text" xml:space="preserve">
-    <value>放棄</value>
-  </data>
-  <data name="ConfigSaveModifiedButtonLabel.Text" xml:space="preserve">
-    <value>儲存變更</value>
-  </data>
-  <data name="ConfigSaveGameRulesButton.Content" xml:space="preserve">
-    <value>儲存遊戲規則</value>
-  </data>
-  <data name="Config_LoadFailed" xml:space="preserve">
-    <value>無法載入伺服器設定。</value>
-  </data>
-  <data name="Config_SaveFailed" xml:space="preserve">
-    <value>無法儲存伺服器設定。</value>
-  </data>
-  <data name="Config_Saved" xml:space="preserve">
-    <value>設定已儲存。</value>
-  </data>
-  <data name="ConfigType_Boolean" xml:space="preserve">
-    <value>布林值</value>
-  </data>
-  <data name="ConfigType_Integer" xml:space="preserve">
-    <value>整數</value>
-  </data>
-  <data name="ConfigType_Choice" xml:space="preserve">
-    <value>選項</value>
-  </data>
-  <data name="ConfigType_Text" xml:space="preserve">
-    <value>文字</value>
-  </data>
-  <data name="ConfigName_server_port" xml:space="preserve">
-    <value>伺服器連接埠</value>
-  </data>
-  <data name="ConfigName_query_port" xml:space="preserve">
-    <value>查詢連接埠</value>
-  </data>
-  <data name="ConfigName_motd" xml:space="preserve">
-    <value>伺服器訊息</value>
-  </data>
-  <data name="ConfigName_difficulty" xml:space="preserve">
-    <value>難度</value>
-  </data>
-  <data name="ConfigName_gamemode" xml:space="preserve">
-    <value>遊戲模式</value>
-  </data>
-  <data name="ConfigName_max_players" xml:space="preserve">
-    <value>玩家人數上限</value>
-  </data>
-  <data name="ConfigName_pvp" xml:space="preserve">
-    <value>玩家對戰</value>
-  </data>
-  <data name="ConfigName_online_mode" xml:space="preserve">
-    <value>正版驗證</value>
-  </data>
-  <data name="ConfigName_white_list" xml:space="preserve">
-    <value>白名單</value>
-  </data>
-  <data name="ConfigName_view_distance" xml:space="preserve">
-    <value>可視距離</value>
-  </data>
-  <data name="ConfigName_simulation_distance" xml:space="preserve">
-    <value>模擬距離</value>
-  </data>
-  <data name="ConfigName_spawn_protection" xml:space="preserve">
-    <value>重生點保護</value>
-  </data>
-  <data name="ConfigName_allow_flight" xml:space="preserve">
-    <value>允許飛行</value>
-  </data>
-  <data name="ConfigName_allow_nether" xml:space="preserve">
-    <value>允許地獄</value>
-  </data>
-  <data name="ConfigName_enable_command_block" xml:space="preserve">
-    <value>啟用指令方塊</value>
-  </data>
-  <data name="ConfigName_enable_rcon" xml:space="preserve">
-    <value>啟用 RCON</value>
-  </data>
-  <data name="ConfigName_enforce_whitelist" xml:space="preserve">
-    <value>強制白名單</value>
-  </data>
-  <data name="ConfigName_resource_pack" xml:space="preserve">
-    <value>資源包網址</value>
-  </data>
-  <data name="ConfigName_level_name" xml:space="preserve">
-    <value>世界資料夾</value>
-  </data>
-  <data name="ConfigName_level_seed" xml:space="preserve">
-    <value>世界種子</value>
-  </data>
-  <data name="ConfigName_keepInventory" xml:space="preserve">
-    <value>保留物品欄</value>
-  </data>
-  <data name="ConfigName_mobGriefing" xml:space="preserve">
-    <value>生物破壞</value>
-  </data>
-  <data name="ConfigName_doDaylightCycle" xml:space="preserve">
-    <value>日夜循環</value>
-  </data>
-  <data name="ConfigName_doWeatherCycle" xml:space="preserve">
-    <value>天氣循環</value>
-  </data>
-  <data name="ConfigName_doMobSpawning" xml:space="preserve">
-    <value>生物生成</value>
-  </data>
-  <data name="ConfigName_doMobLoot" xml:space="preserve">
-    <value>生物掉落物</value>
-  </data>
-  <data name="ConfigName_doFireTick" xml:space="preserve">
-    <value>火焰蔓延</value>
-  </data>
-  <data name="ConfigName_randomTickSpeed" xml:space="preserve">
-    <value>隨機刻速度</value>
-  </data>
-  <data name="ConfigName_spawnRadius" xml:space="preserve">
-    <value>重生半徑</value>
-  </data>
-  <data name="ConfigName_showDeathMessages" xml:space="preserve">
-    <value>顯示死亡訊息</value>
-  </data>
-  <data name="ConfigName_playersSleepingPercentage" xml:space="preserve">
-    <value>睡覺玩家百分比</value>
-  </data>
-  <data name="ConfigName_doImmediateRespawn" xml:space="preserve">
-    <value>立即重生</value>
-  </data>
-  <data name="BanListDialog_Title" xml:space="preserve">
-    <value>封鎖名單</value>
-  </data>
-  <data name="BanListDialog_CloseButtonText" xml:space="preserve">
-    <value>關閉</value>
-  </data>
-  <data name="BanListStoppedNotice.Title" xml:space="preserve">
-    <value>停止伺服器後再編輯</value>
-  </data>
-  <data name="BanListStoppedNotice.Message" xml:space="preserve">
-    <value>封鎖名單檔案最適合在伺服器停止時修改；伺服器執行中仍可使用主控台封鎖指令。</value>
-  </data>
-  <data name="BanListStoppedNotice_Title" xml:space="preserve">
-    <value>停止伺服器後再編輯</value>
-  </data>
-  <data name="BanListStoppedNotice_Message" xml:space="preserve">
-    <value>封鎖名單檔案最適合在伺服器停止時修改；伺服器執行中仍可使用主控台封鎖指令。</value>
-  </data>
-  <data name="BanListAddHeader.Text" xml:space="preserve">
-    <value>新增封鎖</value>
-  </data>
-  <data name="BanListAddHint.Text" xml:space="preserve">
-    <value>將玩家名稱、UUID 或 IP 位址加入原版封鎖名單檔案。</value>
-  </data>
-  <data name="BanListTypeBox.Header" xml:space="preserve">
-    <value>類型</value>
-  </data>
-  <data name="BanListTypePlayerItem.Content" xml:space="preserve">
-    <value>玩家</value>
-  </data>
-  <data name="BanListTypeIpItem.Content" xml:space="preserve">
-    <value>IP 位址</value>
-  </data>
-  <data name="BanListTargetBox.Header" xml:space="preserve">
-    <value>目標</value>
-  </data>
-  <data name="BanListTargetBox.PlaceholderText" xml:space="preserve">
-    <value>玩家名稱、UUID 或 IP</value>
-  </data>
-  <data name="BanListReasonBox.Header" xml:space="preserve">
-    <value>原因</value>
-  </data>
-  <data name="BanListReasonBox.PlaceholderText" xml:space="preserve">
-    <value>選填</value>
-  </data>
-  <data name="BanListAddButtonLabel.Text" xml:space="preserve">
-    <value>新增</value>
-  </data>
-  <data name="BanListEmptyHint.Text" xml:space="preserve">
-    <value>目前沒有封鎖項目。</value>
-  </data>
-  <data name="BanListRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>移除封鎖</value>
-  </data>
-  <data name="BanList_TypePlayer" xml:space="preserve">
-    <value>玩家</value>
-  </data>
-  <data name="BanList_TypeIp" xml:space="preserve">
-    <value>IP</value>
-  </data>
-  <data name="BanList_NoReason" xml:space="preserve">
-    <value>未提供原因</value>
-  </data>
-  <data name="BanList_LoadFailed" xml:space="preserve">
-    <value>無法載入封鎖名單。</value>
-  </data>
-  <data name="BanList_AddFailed" xml:space="preserve">
-    <value>無法新增封鎖。</value>
-  </data>
-  <data name="BanList_RemoveFailed" xml:space="preserve">
-    <value>無法移除封鎖。</value>
-  </data>
-  <data name="BanList_TargetRequired" xml:space="preserve">
-    <value>請輸入玩家、UUID 或 IP 位址。</value>
-  </data>
-  <data name="BanList_StoppedRequired" xml:space="preserve">
-    <value>請先停止伺服器再編輯封鎖名單檔案。</value>
-  </data>
-  <data name="PlayerDialogBase_CloseButtonText" xml:space="preserve">
-    <value>關閉</value>
-  </data>
-  <data name="PlayerDataDialog_ActionName" xml:space="preserve">
-    <value>原始資料</value>
-  </data>
-  <data name="PlayerInventoryDialog_ActionName" xml:space="preserve">
-    <value>物品欄</value>
-  </data>
-  <data name="PlayerDialogBase_TitleFormat" xml:space="preserve">
-    <value>{1} 的{0}</value>
-  </data>
-  <data name="PlayerRawDataBox.Header" xml:space="preserve">
-    <value>原始玩家 NBT</value>
-  </data>
-  <data name="PlayerInventoryEquipmentHeader.Text" xml:space="preserve">
-    <value>裝備</value>
-  </data>
-  <data name="PlayerInventoryMainHeader.Text" xml:space="preserve">
-    <value>物品欄</value>
-  </data>
-  <data name="PlayerInventoryHotbarHeader.Text" xml:space="preserve">
-    <value>快捷列</value>
-  </data>
-  <data name="PlayerInventoryEnderHeader.Text" xml:space="preserve">
-    <value>終界箱</value>
-  </data>
-  <data name="MetricsCpu.Text" xml:space="preserve">
-    <value>CPU</value>
-  </data>
-  <data name="MetricsMemory.Text" xml:space="preserve">
-    <value>記憶體</value>
-  </data>
-  <data name="MetricsNetwork.Text" xml:space="preserve">
-    <value>網路</value>
-  </data>
-  <data name="MetricsNetworkUnavailable.Text" xml:space="preserve">
-    <value>在本機執行後端無法取得個別行程的網路使用量。使用 Docker 執行伺服器即可查看網路指標。</value>
-  </data>
-  <data name="ModsUploadButton.Content" xml:space="preserve">
-    <value>上傳</value>
-  </data>
-  <data name="ModsRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>移除</value>
-  </data>
-  <data name="ModsRemoveConfirmText.Text" xml:space="preserve">
-    <value>要移除此檔案嗎？</value>
-  </data>
-  <data name="ModsRemoveConfirmButton.Content" xml:space="preserve">
-    <value>移除</value>
-  </data>
-  <data name="ModsStoppedHint.Text" xml:space="preserve">
-    <value>請停止伺服器後再新增或移除檔案。</value>
-  </data>
-  <data name="ModsUnsupportedHint.Text" xml:space="preserve">
-    <value>此伺服器類型沒有插件或模組資料夾。</value>
-  </data>
-  <data name="Mods_KindPlugins" xml:space="preserve">
-    <value>插件</value>
-  </data>
-  <data name="Mods_KindMods" xml:space="preserve">
-    <value>模組</value>
-  </data>
-  <data name="Mods_StoppedRequired" xml:space="preserve">
-    <value>變更插件或模組前，請先停止伺服器。</value>
-  </data>
-  <data name="Mods_OperationFailed" xml:space="preserve">
-    <value>作業失敗。請再試一次。</value>
-  </data>
+
+  <!-- Package manifest (ms-resource: references) -->
+  <data name="AppDisplayName" xml:space="preserve"><value>JustHostMC</value></data>
+  <data name="AppDescription" xml:space="preserve"><value>JustHostMC — Minecraft 伺服器管理工具</value></data>
+  <data name="AppPublisherDisplayName" xml:space="preserve"><value>Muisnow Devs</value></data>
+
+  <!-- App + shell -->
+  <data name="AppTitle" xml:space="preserve"><value>JustHostMC</value></data>
+  <data name="MainTitle.Text" xml:space="preserve"><value>JustHostMC - Minecraft 伺服器管理工具</value></data>
+  <data name="RefreshButton.ToolTipService.ToolTip" xml:space="preserve"><value>重新整理</value></data>
+  <data name="CreateServerButtonLabel.Text" xml:space="preserve"><value>建立伺服器</value></data>
+  <data name="NoServersHint.Text" xml:space="preserve"><value>還沒有伺服器。選取「建立伺服器」來新增一個。</value></data>
+
+  <!-- First-run on-machine notice -->
+  <data name="OnMachineNotice.Title" xml:space="preserve"><value>伺服器會在這台電腦上執行</value></data>
+  <data name="OnMachineNotice.Message" xml:space="preserve"><value>未使用 Docker 時，伺服器會直接在你的電腦上執行（不在容器中）。每個伺服器的記憶體限制仍會套用。</value></data>
+
+  <!-- Engine status -->
+  <data name="EngineStatus_Connecting" xml:space="preserve"><value>正在連線到引擎</value></data>
+  <data name="EngineStatus_Connected" xml:space="preserve"><value>引擎已連線。</value></data>
+  <data name="EngineStatus_Failed" xml:space="preserve"><value>無法連線到引擎。</value></data>
+
+  <!-- Server list actions + status -->
+  <data name="ServerStartButton.Content" xml:space="preserve"><value>啟動</value></data>
+  <data name="ServerStopButton.Content" xml:space="preserve"><value>停止</value></data>
+  <data name="ServerDeleteButton.Content" xml:space="preserve"><value>刪除</value></data>
+  <data name="ServerStatus_Running" xml:space="preserve"><value>執行中</value></data>
+  <data name="ServerStatus_Stopped" xml:space="preserve"><value>已停止</value></data>
+  <data name="ServerStatus_Installing" xml:space="preserve"><value>安裝中</value></data>
+  <data name="ServerStatus_Starting" xml:space="preserve"><value>啟動中</value></data>
+  <data name="ServerStatus_Stopping" xml:space="preserve"><value>停止中</value></data>
+  <data name="ServerStatus_Crashed" xml:space="preserve"><value>已當機</value></data>
+  <data name="ServerStatus_Unknown" xml:space="preserve"><value>不明</value></data>
+  <data name="ServerNav_AutomationName" xml:space="preserve"><value>{name}，{status}</value></data>
+  <data name="ServerNav_StateChangedAutomationName" xml:space="preserve"><value>{name}，狀態已變更為{status}</value></data>
+  <data name="ServerType_Vanilla" xml:space="preserve"><value>原版</value></data>
+  <data name="ServerType_Paper" xml:space="preserve"><value>Paper</value></data>
+  <data name="ServerType_Spigot" xml:space="preserve"><value>Spigot</value></data>
+  <data name="ServerType_Forge" xml:space="preserve"><value>Forge</value></data>
+  <data name="ServerType_NeoForge" xml:space="preserve"><value>NeoForge</value></data>
+  <data name="ServerType_Fabric" xml:space="preserve"><value>Fabric</value></data>
+  <data name="ServerType_Unknown" xml:space="preserve"><value>不明</value></data>
+
+  <!-- Console -->
+  <data name="ServerConsoleButton.Content" xml:space="preserve"><value>控制台</value></data>
+  <data name="ConsoleDialog.Title" xml:space="preserve"><value>控制台</value></data>
+  <data name="ConsoleDialog.CloseButtonText" xml:space="preserve"><value>關閉</value></data>
+  <data name="ConsoleInput.PlaceholderText" xml:space="preserve"><value>輸入指令後按 Enter</value></data>
+  <data name="ConsoleSendButton.Content" xml:space="preserve"><value>送出</value></data>
+  <data name="ConsoleOutputHeader.Text" xml:space="preserve"><value>控制台輸出</value></data>
+  <data name="ConsoleSendButtonLabel.Text" xml:space="preserve"><value>送出</value></data>
+  <data name="ConsoleSendCommandButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>送出指令</value></data>
+
+  <!-- Create-server dialog -->
+  <data name="CreateServerDialog_Title" xml:space="preserve"><value>建立伺服器</value></data>
+  <data name="CreateServerDialog_PrimaryButtonText" xml:space="preserve"><value>建立</value></data>
+  <data name="CreateServerDialog_CloseButtonText" xml:space="preserve"><value>取消</value></data>
+  <data name="CreateServerName.Header" xml:space="preserve"><value>名稱</value></data>
+  <data name="CreateServerName.PlaceholderText" xml:space="preserve"><value>我的伺服器</value></data>
+  <data name="CreateServer_DefaultName" xml:space="preserve"><value>我的伺服器</value></data>
+  <data name="CreateServerType.Header" xml:space="preserve"><value>類型</value></data>
+  <data name="ServerTypeVanillaItem.Content" xml:space="preserve"><value>原版</value></data>
+  <data name="CreateServerVersionHint.Text" xml:space="preserve"><value>版本會從網路取得。</value></data>
+  <data name="CreateServerVersion.Header" xml:space="preserve"><value>版本</value></data>
+  <data name="CreateServerVersionError.Title" xml:space="preserve"><value>無法載入版本</value></data>
+  <data name="CreateServerVersionError.Message" xml:space="preserve"><value>請檢查網路連線，然後重新選取伺服器類型。</value></data>
+  <data name="CreateServerAdvancedHeader.Text" xml:space="preserve"><value>進階設定</value></data>
+  <data name="CreateServerMemory.Header" xml:space="preserve"><value>記憶體 (MB)</value></data>
+  <data name="CreateServerMemoryHint.Text" xml:space="preserve"><value>Java 行程的最大堆積記憶體。多數伺服器建議使用 2048 MB。</value></data>
+  <data name="CreateServerPort.Header" xml:space="preserve"><value>連接埠</value></data>
+  <data name="CreateServerPortHint.Text" xml:space="preserve"><value>保留為 0 可自動指派可用連接埠。Minecraft 預設值為 25565。</value></data>
+
+  <!-- Install progress -->
+  <data name="InstallProgressHeader.Text" xml:space="preserve"><value>建立伺服器中</value></data>
+  <data name="InstallDismissButton.Content" xml:space="preserve"><value>關閉</value></data>
+  <data name="install_progress_preparing" xml:space="preserve"><value>準備中</value></data>
+  <data name="install_progress_resolving_version" xml:space="preserve"><value>解析版本中</value></data>
+  <data name="install_progress_downloading_server" xml:space="preserve"><value>下載伺服器中</value></data>
+  <data name="install_progress_downloading_jre" xml:space="preserve"><value>下載 Java 執行階段中</value></data>
+  <data name="install_progress_extracting_jre" xml:space="preserve"><value>解壓縮 Java 執行階段中</value></data>
+  <data name="install_progress_downloading_installer" xml:space="preserve"><value>下載安裝程式中</value></data>
+  <data name="install_progress_running_installer" xml:space="preserve"><value>執行安裝程式中</value></data>
+  <data name="install_progress_done" xml:space="preserve"><value>完成。</value></data>
+
+  <!-- Errors (mapped from ErrorCode / status) -->
+  <data name="error_version_not_found" xml:space="preserve"><value>找不到該版本。</value></data>
+  <data name="error_jre_download_failed" xml:space="preserve"><value>無法下載所需的 Java 執行階段。</value></data>
+  <data name="error_type_unsupported" xml:space="preserve"><value>此伺服器類型尚未支援。</value></data>
+  <data name="error_install_failed" xml:space="preserve"><value>安裝失敗。請查看記錄以了解詳細資訊。</value></data>
+  <data name="error_backup_failed" xml:space="preserve"><value>備份作業失敗。請查看記錄以了解詳細資訊。</value></data>
+  <data name="error_backup_not_found" xml:space="preserve"><value>找不到該備份。</value></data>
+  <data name="error_server_running" xml:space="preserve"><value>還原備份前，請先停止伺服器。</value></data>
+
+  <!-- Backups -->
+  <data name="ServerBackupsButton.Content" xml:space="preserve"><value>備份</value></data>
+  <data name="BackupsDialog_CloseButtonText" xml:space="preserve"><value>關閉</value></data>
+  <data name="BackupCreateButton.Content" xml:space="preserve"><value>建立備份</value></data>
+  <data name="BackupSafeOnline.Content" xml:space="preserve"><value>線上安全備份（暫停儲存）</value></data>
+  <data name="BackupsEmptyHint.Text" xml:space="preserve"><value>還沒有備份。選取「建立備份」來建立一份。</value></data>
+  <data name="BackupRestoreButton.Content" xml:space="preserve"><value>還原</value></data>
+  <data name="BackupRestoreConfirmText.Text" xml:space="preserve"><value>要還原這份備份嗎？這會取代伺服器目前的世界與檔案。伺服器必須先停止。</value></data>
+  <data name="BackupRestoreConfirmButton.Content" xml:space="preserve"><value>還原</value></data>
+  <data name="BackupDeleteButton.Content" xml:space="preserve"><value>刪除</value></data>
+  <data name="BackupDeleteConfirmText.Text" xml:space="preserve"><value>要永久刪除這份備份嗎？</value></data>
+  <data name="BackupDeleteConfirmButton.Content" xml:space="preserve"><value>刪除</value></data>
+  <data name="Backups_Creating" xml:space="preserve"><value>建立備份中</value></data>
+  <data name="Backups_Created" xml:space="preserve"><value>備份已建立。</value></data>
+  <data name="Backups_Restoring" xml:space="preserve"><value>還原備份中</value></data>
+  <data name="Backups_Restored" xml:space="preserve"><value>備份已還原。</value></data>
+  <data name="Backups_Deleted" xml:space="preserve"><value>備份已刪除。</value></data>
+
+  <!-- Settings -->
+  <data name="SettingsButton.Content" xml:space="preserve"><value>設定</value></data>
+  <data name="SettingsDialog.Title" xml:space="preserve"><value>設定</value></data>
+  <data name="SettingsDialog.CloseButtonText" xml:space="preserve"><value>關閉</value></data>
+  <data name="SettingsRetentionHeader.Text" xml:space="preserve"><value>記錄保留</value></data>
+  <data name="SettingsRetentionHint.Text" xml:space="preserve"><value>安裝與控制台記錄會自動清理。使用 0 表示不限制。</value></data>
+  <data name="SettingsKeepDays.Header" xml:space="preserve"><value>記錄保留天數</value></data>
+  <data name="SettingsMaxSize.Header" xml:space="preserve"><value>總大小上限 (MB)</value></data>
+  <data name="SettingsSaveButton.Content" xml:space="preserve"><value>儲存</value></data>
+  <data name="SettingsPurgeButton.Content" xml:space="preserve"><value>立即清理</value></data>
+  <data name="Settings_Saved" xml:space="preserve"><value>設定已儲存。</value></data>
+  <data name="Settings_SaveFailed" xml:space="preserve"><value>無法儲存設定。</value></data>
+  <data name="Settings_LoadFailed" xml:space="preserve"><value>無法載入設定。</value></data>
+  <data name="Settings_PurgeResult" xml:space="preserve"><value>已清理 {count} 個檔案，釋放 {size}。</value></data>
+  <data name="Settings_PurgeFailed" xml:space="preserve"><value>無法清理記錄。</value></data>
+  <data name="SettingsDataHeader.Text" xml:space="preserve"><value>移除所有資料</value></data>
+  <data name="SettingsDataHint.Text" xml:space="preserve"><value>停止所有伺服器，並永久刪除所有伺服器、備份、記錄，以及已下載的 Java 執行階段。此動作無法復原。</value></data>
+  <data name="SettingsRemoveDataButton.Content" xml:space="preserve"><value>移除所有資料</value></data>
+  <data name="SettingsRemoveDataConfirmText.Text" xml:space="preserve"><value>要刪除所有伺服器、備份、記錄和 Java 執行階段嗎？此動作無法復原。</value></data>
+  <data name="SettingsRemoveDataConfirmButton.Content" xml:space="preserve"><value>全部移除</value></data>
+  <data name="Settings_RemovingData" xml:space="preserve"><value>正在移除所有資料</value></data>
+  <data name="Settings_DataRemoved" xml:space="preserve"><value>所有資料已移除。</value></data>
+  <data name="Settings_RemoveDataFailed" xml:space="preserve"><value>無法移除所有資料。</value></data>
+
+  <!-- Isolation backend (Docker opt-in) -->
+  <data name="SettingsBackendHeader.Text" xml:space="preserve"><value>伺服器執行位置</value></data>
+  <data name="SettingsUseDocker.Header" xml:space="preserve"><value>可用時使用 Docker</value></data>
+  <data name="SettingsBackendHint.Text" xml:space="preserve"><value>重新啟動應用程式後生效。JustHostMC 不會安裝 Docker、WSL 或 Hyper-V；是否啟用由你決定。</value></data>
+  <data name="Backend_Mode_OnMachine" xml:space="preserve"><value>伺服器會直接在這台電腦上執行（使用 Windows Job Objects 隔離）。</value></data>
+  <data name="Backend_Mode_Docker" xml:space="preserve"><value>伺服器會在這台電腦上的 Docker 容器中執行。</value></data>
+  <data name="Backend_DockerAvailable" xml:space="preserve"><value>偵測到 Docker（版本 {version}）。</value></data>
+  <data name="Backend_DockerUnavailable" xml:space="preserve"><value>未偵測到 Docker。啟動 Docker Desktop 以啟用此選項。</value></data>
+  <data name="Backend_DockerPrefSaved" xml:space="preserve"><value>已儲存。重新啟動應用程式以套用後端變更。</value></data>
+  <!-- Navigation shell + Home -->
+  <data name="NavHome.Content" xml:space="preserve"><value>首頁</value></data>
+  <data name="NavAddServer.Content" xml:space="preserve"><value>新增伺服器</value></data>
+  <data name="NavSettings.Content" xml:space="preserve"><value>設定</value></data>
+  <data name="HomeTitle.Text" xml:space="preserve"><value>首頁</value></data>
+  <data name="SettingsTitle.Text" xml:space="preserve"><value>設定</value></data>
+  <data name="HomeAddCard.Text" xml:space="preserve"><value>新增伺服器</value></data>
+  <!-- Server page: sections, header, state button -->
+  <data name="ServerSectionConsole.Text" xml:space="preserve"><value>控制台</value></data>
+  <data name="ServerSectionPlayers.Text" xml:space="preserve"><value>玩家</value></data>
+  <data name="ServerSectionPerformance.Text" xml:space="preserve"><value>效能</value></data>
+  <data name="ServerSectionMods.Text" xml:space="preserve"><value>插件 / 模組</value></data>
+  <data name="ServerSectionConfig.Text" xml:space="preserve"><value>設定</value></data>
+  <data name="ServerSectionConfigHint.Text" xml:space="preserve"><value>管理伺服器啟動設定與進階選項</value></data>
+  <data name="ServerEditMenuItem.Text" xml:space="preserve"><value>編輯伺服器</value></data>
+  <data name="ServerBackupsMenuItem.Text" xml:space="preserve"><value>備份</value></data>
+  <data name="ServerDeleteMenuItem.Text" xml:space="preserve"><value>刪除伺服器</value></data>
+  <data name="ServerMoreButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>更多選項</value></data>
+  <data name="ServerMetaTypeLabel.Text" xml:space="preserve"><value>類型</value></data>
+  <data name="ServerMetaVersionLabel.Text" xml:space="preserve"><value>版本</value></data>
+  <data name="ServerMetaPortLabel.Text" xml:space="preserve"><value>連接埠</value></data>
+  <data name="ServerMetaMemoryLabel.Text" xml:space="preserve"><value>記憶體</value></data>
+  <data name="ServerMetaNameLabel.Text" xml:space="preserve"><value>名稱</value></data>
+  <data name="ServerMetaCustomJavaArgsLabel.Text" xml:space="preserve"><value>自訂 Java 參數</value></data>
+  <data name="Server_PortLabel" xml:space="preserve"><value>連接埠 {port}</value></data>
+  <data name="Server_PortAutoValue" xml:space="preserve"><value>自動</value></data>
+  <data name="Server_MemoryValue" xml:space="preserve"><value>{memory} MB</value></data>
+  <data name="Server_ValueUnknown" xml:space="preserve"><value>未知</value></data>
+  <data name="ServerState_Start" xml:space="preserve"><value>啟動</value></data>
+  <data name="ServerState_Stop" xml:space="preserve"><value>停止</value></data>
+  <data name="ServerState_Starting" xml:space="preserve"><value>啟動中</value></data>
+  <data name="ServerState_Stopping" xml:space="preserve"><value>停止中</value></data>
+  <data name="ServerState_Installing" xml:space="preserve"><value>安裝中</value></data>
+  <data name="ServerDelete_Title" xml:space="preserve"><value>要刪除伺服器嗎？</value></data>
+  <data name="ServerDelete_Body" xml:space="preserve"><value>這會永久刪除伺服器及其世界。此動作無法復原。</value></data>
+  <data name="ServerDelete_Confirm" xml:space="preserve"><value>刪除</value></data>
+  <data name="Common_Cancel" xml:space="preserve"><value>取消</value></data>
+  <!-- Players -->
+  <data name="Players_Header" xml:space="preserve"><value>玩家（{count}）</value></data>
+  <data name="PlayersEmptyHint.Text" xml:space="preserve"><value>目前沒有玩家在線上。</value></data>
+  <data name="ManageBansButtonLabel.Text" xml:space="preserve"><value>管理封鎖</value></data>
+  <data name="ManageBansButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>管理封鎖名單</value></data>
+  <!-- Configuration -->
+  <data name="ConfigStoppedHint.Text" xml:space="preserve"><value>請先停止伺服器，再安全地儲存 server.properties、遊戲規則或封鎖名單變更。</value></data>
+  <data name="ConfigPropertiesSection.Title" xml:space="preserve"><value>server.properties</value></data>
+  <data name="ConfigPropertiesSection.Description" xml:space="preserve"><value>可用屬性與編輯器會依此伺服器的 Minecraft 版本篩選。</value></data>
+  <data name="ConfigSavePropertiesButton.Content" xml:space="preserve"><value>儲存屬性</value></data>
+  <data name="ConfigGameRulesSection.Title" xml:space="preserve"><value>遊戲規則</value></data>
+  <data name="ConfigGameRulesSection.Description" xml:space="preserve"><value>控制世界行為、生物生成、傷害、物品欄及其他遊戲規則。</value></data>
+  <data name="ConfigModifiedText.Text" xml:space="preserve"><value>設定已修改。</value></data>
+  <data name="ConfigDiscardButtonLabel.Text" xml:space="preserve"><value>放棄</value></data>
+  <data name="ConfigSaveModifiedButtonLabel.Text" xml:space="preserve"><value>儲存變更</value></data>
+  <data name="ConfigSaveGameRulesButton.Content" xml:space="preserve"><value>儲存遊戲規則</value></data>
+  <data name="Config_LoadFailed" xml:space="preserve"><value>無法載入伺服器設定。</value></data>
+  <data name="Config_SaveFailed" xml:space="preserve"><value>無法儲存伺服器設定。</value></data>
+  <data name="Config_Saved" xml:space="preserve"><value>設定已儲存。</value></data>
+  <data name="ConfigType_Boolean" xml:space="preserve"><value>布林值</value></data>
+  <data name="ConfigType_Integer" xml:space="preserve"><value>整數</value></data>
+  <data name="ConfigType_Choice" xml:space="preserve"><value>選項</value></data>
+  <data name="ConfigType_Text" xml:space="preserve"><value>文字</value></data>
+  <data name="ConfigName_server_port" xml:space="preserve"><value>伺服器連接埠</value></data>
+  <data name="ConfigName_query_port" xml:space="preserve"><value>查詢連接埠</value></data>
+  <data name="ConfigName_motd" xml:space="preserve"><value>伺服器訊息</value></data>
+  <data name="ConfigName_difficulty" xml:space="preserve"><value>難度</value></data>
+  <data name="ConfigName_gamemode" xml:space="preserve"><value>遊戲模式</value></data>
+  <data name="ConfigName_max_players" xml:space="preserve"><value>玩家人數上限</value></data>
+  <data name="ConfigName_pvp" xml:space="preserve"><value>玩家對戰</value></data>
+  <data name="ConfigName_online_mode" xml:space="preserve"><value>正版驗證</value></data>
+  <data name="ConfigName_white_list" xml:space="preserve"><value>白名單</value></data>
+  <data name="ConfigName_view_distance" xml:space="preserve"><value>可視距離</value></data>
+  <data name="ConfigName_simulation_distance" xml:space="preserve"><value>模擬距離</value></data>
+  <data name="ConfigName_spawn_protection" xml:space="preserve"><value>重生點保護</value></data>
+  <data name="ConfigName_allow_flight" xml:space="preserve"><value>允許飛行</value></data>
+  <data name="ConfigName_allow_nether" xml:space="preserve"><value>允許地獄</value></data>
+  <data name="ConfigName_enable_command_block" xml:space="preserve"><value>啟用指令方塊</value></data>
+  <data name="ConfigName_enable_rcon" xml:space="preserve"><value>啟用 RCON</value></data>
+  <data name="ConfigName_enforce_whitelist" xml:space="preserve"><value>強制白名單</value></data>
+  <data name="ConfigName_resource_pack" xml:space="preserve"><value>資源包網址</value></data>
+  <data name="ConfigName_level_name" xml:space="preserve"><value>世界資料夾</value></data>
+  <data name="ConfigName_level_seed" xml:space="preserve"><value>世界種子</value></data>
+  <data name="ConfigName_keepInventory" xml:space="preserve"><value>保留物品欄</value></data>
+  <data name="ConfigName_mobGriefing" xml:space="preserve"><value>生物破壞</value></data>
+  <data name="ConfigName_doDaylightCycle" xml:space="preserve"><value>日夜循環</value></data>
+  <data name="ConfigName_doWeatherCycle" xml:space="preserve"><value>天氣循環</value></data>
+  <data name="ConfigName_doMobSpawning" xml:space="preserve"><value>生物生成</value></data>
+  <data name="ConfigName_doMobLoot" xml:space="preserve"><value>生物掉落物</value></data>
+  <data name="ConfigName_doFireTick" xml:space="preserve"><value>火焰蔓延</value></data>
+  <data name="ConfigName_randomTickSpeed" xml:space="preserve"><value>隨機刻速度</value></data>
+  <data name="ConfigName_spawnRadius" xml:space="preserve"><value>重生半徑</value></data>
+  <data name="ConfigName_showDeathMessages" xml:space="preserve"><value>顯示死亡訊息</value></data>
+  <data name="ConfigName_playersSleepingPercentage" xml:space="preserve"><value>睡覺玩家百分比</value></data>
+  <data name="ConfigName_doImmediateRespawn" xml:space="preserve"><value>立即重生</value></data>
+  <!-- Ban list -->
+  <data name="BanListDialog_Title" xml:space="preserve"><value>封鎖名單</value></data>
+  <data name="BanListDialog_CloseButtonText" xml:space="preserve"><value>關閉</value></data>
+  <data name="BanListStoppedNotice.Title" xml:space="preserve"><value>停止伺服器後再編輯</value></data>
+  <data name="BanListStoppedNotice.Message" xml:space="preserve"><value>封鎖名單檔案最適合在伺服器停止時修改；伺服器執行中仍可使用主控台封鎖指令。</value></data>
+  <data name="BanListStoppedNotice_Title" xml:space="preserve"><value>停止伺服器後再編輯</value></data>
+  <data name="BanListStoppedNotice_Message" xml:space="preserve"><value>封鎖名單檔案最適合在伺服器停止時修改；伺服器執行中仍可使用主控台封鎖指令。</value></data>
+  <data name="BanListAddHeader.Text" xml:space="preserve"><value>新增封鎖</value></data>
+  <data name="BanListAddHint.Text" xml:space="preserve"><value>將玩家名稱、UUID 或 IP 位址加入原版封鎖名單檔案。</value></data>
+  <data name="BanListTypeBox.Header" xml:space="preserve"><value>類型</value></data>
+  <data name="BanListTypePlayerItem.Content" xml:space="preserve"><value>玩家</value></data>
+  <data name="BanListTypeIpItem.Content" xml:space="preserve"><value>IP 位址</value></data>
+  <data name="BanListTargetBox.Header" xml:space="preserve"><value>目標</value></data>
+  <data name="BanListTargetBox.PlaceholderText" xml:space="preserve"><value>玩家名稱、UUID 或 IP</value></data>
+  <data name="BanListReasonBox.Header" xml:space="preserve"><value>原因</value></data>
+  <data name="BanListReasonBox.PlaceholderText" xml:space="preserve"><value>選填</value></data>
+  <data name="BanListAddButtonLabel.Text" xml:space="preserve"><value>新增</value></data>
+  <data name="BanListEmptyHint.Text" xml:space="preserve"><value>目前沒有封鎖項目。</value></data>
+  <data name="BanListRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>移除封鎖</value></data>
+  <data name="BanList_TypePlayer" xml:space="preserve"><value>玩家</value></data>
+  <data name="BanList_TypeIp" xml:space="preserve"><value>IP</value></data>
+  <data name="BanList_NoReason" xml:space="preserve"><value>未提供原因</value></data>
+  <data name="BanList_LoadFailed" xml:space="preserve"><value>無法載入封鎖名單。</value></data>
+  <data name="BanList_AddFailed" xml:space="preserve"><value>無法新增封鎖。</value></data>
+  <data name="BanList_RemoveFailed" xml:space="preserve"><value>無法移除封鎖。</value></data>
+  <data name="BanList_TargetRequired" xml:space="preserve"><value>請輸入玩家、UUID 或 IP 位址。</value></data>
+  <data name="BanList_StoppedRequired" xml:space="preserve"><value>請先停止伺服器再編輯封鎖名單檔案。</value></data>
+  <data name="PlayerDialogBase_CloseButtonText" xml:space="preserve"><value>關閉</value></data>
+  <data name="PlayerRawDataBox.Header" xml:space="preserve"><value>原始玩家 NBT</value></data>
+  <data name="PlayerDataDialog_ActionName" xml:space="preserve"><value>原始資料</value></data>
+  <data name="PlayerInventoryDialog_ActionName" xml:space="preserve"><value>物品欄</value></data>
+  <data name="PlayerDialogBase_TitleFormat" xml:space="preserve"><value>{1} 的{0}</value></data>
+  <data name="PlayerInventoryEquipmentHeader.Text" xml:space="preserve"><value>裝備</value></data>
+  <data name="PlayerInventoryMainHeader.Text" xml:space="preserve"><value>物品欄</value></data>
+  <data name="PlayerInventoryHotbarHeader.Text" xml:space="preserve"><value>快捷列</value></data>
+  <data name="PlayerInventoryEnderHeader.Text" xml:space="preserve"><value>終界箱</value></data>
+  <!-- Performance metrics -->
+  <data name="MetricsCpu.Text" xml:space="preserve"><value>CPU</value></data>
+  <data name="MetricsMemory.Text" xml:space="preserve"><value>記憶體</value></data>
+  <data name="MetricsNetwork.Text" xml:space="preserve"><value>網路</value></data>
+  <data name="MetricsNetworkUnavailable.Text" xml:space="preserve"><value>在本機執行後端無法取得個別行程的網路使用量。使用 Docker 執行伺服器即可查看網路指標。</value></data>
+  <!-- Plugins / Mods -->
+  <data name="ModsUploadButton.Content" xml:space="preserve"><value>上傳</value></data>
+  <data name="ModsRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>移除</value></data>
+  <data name="ModsRemoveConfirmText.Text" xml:space="preserve"><value>要移除此檔案嗎？</value></data>
+  <data name="ModsRemoveConfirmButton.Content" xml:space="preserve"><value>移除</value></data>
+  <data name="ModsStoppedHint.Text" xml:space="preserve"><value>請停止伺服器後再新增或移除檔案。</value></data>
+  <data name="ModsUnsupportedHint.Text" xml:space="preserve"><value>此伺服器類型沒有插件或模組資料夾。</value></data>
+  <data name="Mods_KindPlugins" xml:space="preserve"><value>插件</value></data>
+  <data name="Mods_KindMods" xml:space="preserve"><value>模組</value></data>
+  <data name="Mods_StoppedRequired" xml:space="preserve"><value>變更插件或模組前，請先停止伺服器。</value></data>
+  <data name="Mods_OperationFailed" xml:space="preserve"><value>作業失敗。請再試一次。</value></data>
   <data name="ServerOpenInstanceFolderMenuItem.Text" xml:space="preserve">
     <value>開啟執行個體資料夾</value>
   </data>
@@ -889,32 +400,11 @@
   <data name="BackupOpenFolderButton.Content" xml:space="preserve">
     <value>開啟備份資料夾</value>
   </data>
-  <data name="BackupOpenFolderButtonLabel.Text" xml:space="preserve">
-    <value>開啟備份資料夾</value>
-  </data>
   <data name="BackupExportButton.Content" xml:space="preserve">
     <value>匯出</value>
   </data>
-  <data name="BackupActionsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>備份動作</value>
-  </data>
-  <data name="BackupActionsButtonLabel.Text" xml:space="preserve">
-    <value>動作</value>
-  </data>
-  <data name="BackupExportAction.Text" xml:space="preserve">
-    <value>匯出</value>
-  </data>
-  <data name="BackupRestoreAction.Text" xml:space="preserve">
-    <value>還原</value>
-  </data>
-  <data name="BackupDeleteAction.Text" xml:space="preserve">
-    <value>刪除</value>
-  </data>
   <data name="Backups_ExportSourceMissing" xml:space="preserve">
     <value>在本機資料夾中找不到備份檔。請開啟備份資料夾手動匯出。</value>
-  </data>
-  <data name="Backups_ExportFailed" xml:space="preserve">
-    <value>無法匯出備份。</value>
   </data>
   <data name="Backups_Exported" xml:space="preserve">
     <value>已匯出至 {path}</value>
@@ -922,328 +412,126 @@
   <data name="Backups_FolderMissing" xml:space="preserve">
     <value>尚未找到備份資料夾。</value>
   </data>
-  <data name="CreateServerCustomJavaArgs.Header" xml:space="preserve">
-    <value>自訂 Java 參數（選填）</value>
-  </data>
-  <data name="CreateServerCustomJavaArgs.PlaceholderText" xml:space="preserve">
-    <value>範例：-Dexample=true -XX:MaxGCPauseMillis=150</value>
-  </data>
-  <data name="HomeTotalServersLabel.Text" xml:space="preserve">
-    <value>總伺服器</value>
-  </data>
-  <data name="HomeRunningServersLabel.Text" xml:space="preserve">
-    <value>執行中</value>
-  </data>
-  <data name="HomeStoppedServersLabel.Text" xml:space="preserve">
-    <value>就緒</value>
-  </data>
-  <data name="HomeBusyServersLabel.Text" xml:space="preserve">
-    <value>變更狀態中</value>
-  </data>
-  <data name="HomeCardTypeLabel.Text" xml:space="preserve">
-    <value>類型</value>
-  </data>
-  <data name="HomeCardVersionLabel.Text" xml:space="preserve">
-    <value>版本</value>
-  </data>
-  <data name="HomeCardEndpointLabel.Text" xml:space="preserve">
-    <value>位址</value>
-  </data>
-  <data name="HomeCardCopyAddressButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>複製位址</value>
-  </data>
-  <data name="HomeCardRenameButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>重新命名伺服器</value>
-  </data>
-  <data name="HomeCardMoreButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>伺服器動作</value>
-  </data>
-  <data name="HomeCardMoveUpButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>上移伺服器</value>
-  </data>
-  <data name="HomeCardMoveDownButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>下移伺服器</value>
-  </data>
-  <data name="HomeCardEditButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>編輯伺服器</value>
-  </data>
-  <data name="HomeCardEditMenuItem.Text" xml:space="preserve">
-    <value>編輯伺服器</value>
-  </data>
-  <data name="HomeCardOpenMenuItem.Text" xml:space="preserve">
-    <value>開啟伺服器</value>
-  </data>
-  <data name="HomeCardDeleteMenuItem.Text" xml:space="preserve">
-    <value>刪除伺服器</value>
-  </data>
-  <data name="ServerEditMenuItem.Text" xml:space="preserve">
-    <value>編輯伺服器</value>
-  </data>
-  <data name="ServerTitleRenameButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>重新命名伺服器</value>
-  </data>
-  <data name="RenameServerDialog_Title" xml:space="preserve">
-    <value>重新命名伺服器</value>
-  </data>
-  <data name="EditServerDialog_Title" xml:space="preserve">
-    <value>編輯伺服器</value>
-  </data>
-  <data name="EditServerDialog_PrimaryButtonText" xml:space="preserve">
-    <value>儲存</value>
-  </data>
-  <data name="EditServerDialog_CloseButtonText" xml:space="preserve">
-    <value>取消</value>
-  </data>
-  <data name="EditServerName.Header" xml:space="preserve">
-    <value>名稱</value>
-  </data>
-  <data name="EditServerName_Header" xml:space="preserve">
-    <value>名稱</value>
-  </data>
-  <data name="EditServerType.Header" xml:space="preserve">
-    <value>類型</value>
-  </data>
-  <data name="EditServerVersion.Header" xml:space="preserve">
-    <value>版本</value>
-  </data>
-  <data name="EditServerPort.Header" xml:space="preserve">
-    <value>連接埠</value>
-  </data>
-  <data name="EditServerStoppedNotice.Title" xml:space="preserve">
-    <value>停止伺服器才能變更啟動設定</value>
-  </data>
-  <data name="EditServerStoppedNotice.Message" xml:space="preserve">
-    <value>伺服器執行時仍可儲存名稱變更。若要變更版本、記憶體、自訂 Java 參數或連接埠，請先停止伺服器。</value>
-  </data>
-  <data name="ServerTeachingTip_InstalledTitle" xml:space="preserve">
-    <value>{server} 已成功安裝</value>
-  </data>
-  <data name="ServerTeachingTip_InstalledMessage" xml:space="preserve">
-    <value>伺服器已準備好執行。</value>
-  </data>
-  <data name="ServerTeachingTip_StartedTitle" xml:space="preserve">
-    <value>{server} 已啟動</value>
-  </data>
-  <data name="ServerTeachingTip_StartedMessage" xml:space="preserve">
-    <value>伺服器目前正在執行。</value>
-  </data>
-  <data name="ServerTeachingTip_StoppedTitle" xml:space="preserve">
-    <value>{server} 已停止</value>
-  </data>
-  <data name="ServerTeachingTip_StoppedMessage" xml:space="preserve">
-    <value>伺服器已順利停止。</value>
-  </data>
-  <data name="ServerTeachingTip_CrashedTitle" xml:space="preserve">
-    <value>{server} 已當機</value>
-  </data>
-  <data name="ServerTeachingTip_CrashedMessage" xml:space="preserve">
-    <value>伺服器意外停止。</value>
-  </data>
-  <data name="ServerTeachingTip_StartAction" xml:space="preserve">
-    <value>啟動伺服器</value>
-  </data>
-  <data name="install_ready_to_run" xml:space="preserve">
-    <value>已準備就緒。</value>
-  </data>
-  <data name="NavScripts.Content" xml:space="preserve">
-    <value>腳本</value>
-  </data>
-  <data name="ScriptsPageTitle.Text" xml:space="preserve">
-    <value>腳本</value>
-  </data>
-  <data name="ScriptsPageSubtitle.Text" xml:space="preserve">
-    <value>匯入您自己的 Lua 提供者與自動化腳本，檢視它們要求的權限，並管理已安裝的項目。</value>
-  </data>
-  <data name="ScriptsProvidersHeader.Text" xml:space="preserve">
-    <value>提供者</value>
-  </data>
-  <data name="ScriptSectionShowInFolderButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>在資料夾中顯示腳本</value>
-  </data>
-  <data name="ScriptSectionShowInFolderButtonLabel.Text" xml:space="preserve">
-    <value>在資料夾中顯示</value>
-  </data>
-  <data name="ScriptSectionAddScriptsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>新增腳本</value>
-  </data>
-  <data name="ScriptSectionAddScriptsButtonLabel.Text" xml:space="preserve">
-    <value>新增腳本</value>
-  </data>
-  <data name="ScriptsProvidersEmpty.Text" xml:space="preserve">
-    <value>尚未安裝任何提供者。</value>
-  </data>
-  <data name="ScriptsAutomationHeader.Text" xml:space="preserve">
-    <value>自動化腳本</value>
-  </data>
-  <data name="ScriptsAutomationEmpty.Text" xml:space="preserve">
-    <value>尚未安裝任何自動化腳本。</value>
-  </data>
-  <data name="ScriptsBuiltinBadge.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>內建</value>
-  </data>
-  <data name="ScriptsBuiltinBadgeLabel.Text" xml:space="preserve">
-    <value>內建</value>
-  </data>
-  <data name="ScriptsEnabledToggle.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>啟用或停用此腳本</value>
-  </data>
-  <data name="ScriptsRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>移除</value>
-  </data>
-  <data name="ScriptsAllLogsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>在新視窗中開啟所有自動化日誌</value>
-  </data>
-  <data name="ScriptsAllLogsButtonLabel.Text" xml:space="preserve">
-    <value>所有日誌</value>
-  </data>
-  <data name="ScriptsScriptLogsHeader.Text" xml:space="preserve">
-    <value>日誌</value>
-  </data>
-  <data name="ScriptsScriptLogsEmpty.Text" xml:space="preserve">
-    <value>此腳本尚無輸出。</value>
-  </data>
-  <data name="ScriptLogsWindow_Title" xml:space="preserve">
-    <value>所有自動化日誌</value>
-  </data>
-  <data name="ScriptLogsWindowEmpty.Text" xml:space="preserve">
-    <value>尚無自動化輸出。</value>
-  </data>
-  <data name="ScriptLogsWindowNoSelection.Text" xml:space="preserve">
-    <value>選取工作階段以檢視其日誌。</value>
-  </data>
-  <data name="ScriptLogsWindowScriptDetailsHeader.Text" xml:space="preserve">
-    <value>腳本</value>
-  </data>
-  <data name="ScriptLogsWindowScriptNameLabel.Text" xml:space="preserve">
-    <value>名稱</value>
-  </data>
-  <data name="ScriptLogsWindowScriptIdLabel.Text" xml:space="preserve">
-    <value>識別碼</value>
-  </data>
-  <data name="ScriptLogsWindowDetailHeader.Text" xml:space="preserve">
-    <value>日誌項目</value>
-  </data>
-  <data name="Scripts_SystemLogName" xml:space="preserve">
-    <value>系統</value>
-  </data>
-  <data name="Scripts_LogEntryFallbackTitle" xml:space="preserve">
-    <value>日誌項目</value>
-  </data>
-<data name="Scripts_CurrentSessionTitle" xml:space="preserve">
+  <data name="CreateServerCustomJavaArgs.Header" xml:space="preserve"><value>自訂 Java 參數（選填）</value></data>
+  <data name="CreateServerCustomJavaArgs.PlaceholderText" xml:space="preserve"><value>範例：-Dexample=true -XX:MaxGCPauseMillis=150</value></data>
+  <data name="BackupCreateButtonLabel.Text" xml:space="preserve"><value>建立備份</value></data>
+  <data name="BackupOpenFolderButtonLabel.Text" xml:space="preserve"><value>開啟備份資料夾</value></data>
+  <data name="BackupSafeOnlineLabel.Text" xml:space="preserve"><value>線上安全備份（暫停儲存）</value></data>
+  <data name="BackupActionsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>備份動作</value></data>
+  <data name="BackupActionsButtonLabel.Text" xml:space="preserve"><value>動作</value></data>
+  <data name="BackupExportAction.Text" xml:space="preserve"><value>匯出</value></data>
+  <data name="BackupRestoreAction.Text" xml:space="preserve"><value>還原</value></data>
+  <data name="BackupDeleteAction.Text" xml:space="preserve"><value>刪除</value></data>
+  <data name="Backups_Deleting" xml:space="preserve"><value>刪除備份中</value></data>
+  <data name="Backups_ExportFailed" xml:space="preserve"><value>無法匯出備份。</value></data>
+  <data name="EditServerDialog_Title" xml:space="preserve"><value>編輯伺服器</value></data>
+  <data name="EditServerDialog_PrimaryButtonText" xml:space="preserve"><value>儲存</value></data>
+  <data name="EditServerDialog_CloseButtonText" xml:space="preserve"><value>取消</value></data>
+  <data name="EditServerName.Header" xml:space="preserve"><value>名稱</value></data>
+  <data name="EditServerName_Header" xml:space="preserve"><value>名稱</value></data>
+  <data name="EditServerType.Header" xml:space="preserve"><value>類型</value></data>
+  <data name="EditServerVersion.Header" xml:space="preserve"><value>版本</value></data>
+  <data name="EditServerPort.Header" xml:space="preserve"><value>連接埠</value></data>
+  <data name="EditServerStoppedNotice.Title" xml:space="preserve"><value>停止伺服器才能變更啟動設定</value></data>
+  <data name="EditServerStoppedNotice.Message" xml:space="preserve"><value>伺服器執行時仍可儲存名稱變更。若要變更版本、記憶體、自訂 Java 參數或連接埠，請先停止伺服器。</value></data>
+  <data name="ServerTeachingTip_InstalledTitle" xml:space="preserve"><value>{server} 已成功安裝</value></data>
+  <data name="ServerTeachingTip_InstalledMessage" xml:space="preserve"><value>伺服器已準備好執行。</value></data>
+  <data name="ServerTeachingTip_StartedTitle" xml:space="preserve"><value>{server} 已啟動</value></data>
+  <data name="ServerTeachingTip_StartedMessage" xml:space="preserve"><value>伺服器目前正在執行。</value></data>
+  <data name="ServerTeachingTip_StoppedTitle" xml:space="preserve"><value>{server} 已停止</value></data>
+  <data name="ServerTeachingTip_StoppedMessage" xml:space="preserve"><value>伺服器已順利停止。</value></data>
+  <data name="ServerTeachingTip_CrashedTitle" xml:space="preserve"><value>{server} 已當機</value></data>
+  <data name="ServerTeachingTip_CrashedMessage" xml:space="preserve"><value>伺服器意外停止。</value></data>
+  <data name="ServerTeachingTip_StartAction" xml:space="preserve"><value>啟動伺服器</value></data>
+  <data name="install_ready_to_run" xml:space="preserve"><value>已準備就緒。</value></data>
+  <data name="NavScripts.Content" xml:space="preserve"><value>腳本</value></data>
+  <data name="ScriptsPageTitle.Text" xml:space="preserve"><value>腳本</value></data>
+  <data name="ScriptsPageSubtitle.Text" xml:space="preserve"><value>匯入您自己的 Lua 提供者與自動化腳本，檢視它們要求的權限，並管理已安裝的項目。</value></data>
+  <data name="ScriptsProvidersHeader.Text" xml:space="preserve"><value>提供者</value></data>
+  <data name="ScriptSectionShowInFolderButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>在資料夾中顯示腳本</value></data>
+  <data name="ScriptSectionShowInFolderButtonLabel.Text" xml:space="preserve"><value>在資料夾中顯示</value></data>
+  <data name="ScriptSectionAddScriptsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>新增腳本</value></data>
+  <data name="ScriptSectionAddScriptsButtonLabel.Text" xml:space="preserve"><value>新增腳本</value></data>
+  <data name="ScriptsProvidersEmpty.Text" xml:space="preserve"><value>尚未安裝任何提供者。</value></data>
+  <data name="ScriptsAutomationHeader.Text" xml:space="preserve"><value>自動化腳本</value></data>
+  <data name="ScriptsAutomationEmpty.Text" xml:space="preserve"><value>尚未安裝任何自動化腳本。</value></data>
+  <data name="ScriptsBuiltinBadge.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>內建</value></data>
+  <data name="ScriptsBuiltinBadgeLabel.Text" xml:space="preserve"><value>內建</value></data>
+  <data name="ScriptsEnabledToggle.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>啟用或停用此腳本</value></data>
+  <data name="ScriptsRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>移除</value></data>
+  <data name="ScriptsAllLogsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>在新視窗中開啟所有自動化日誌</value></data>
+  <data name="ScriptsAllLogsButtonLabel.Text" xml:space="preserve"><value>所有日誌</value></data>
+  <data name="ScriptsScriptLogsHeader.Text" xml:space="preserve"><value>日誌</value></data>
+  <data name="ScriptsScriptLogsEmpty.Text" xml:space="preserve"><value>此腳本尚無輸出。</value></data>
+  <data name="ScriptLogsWindow_Title" xml:space="preserve"><value>所有自動化日誌</value></data>
+  <data name="ScriptLogsWindowEmpty.Text" xml:space="preserve"><value>尚無自動化輸出。</value></data>
+  <data name="ScriptLogsWindowNoSelection.Text" xml:space="preserve"><value>選取日誌項目以檢視詳細資料。</value></data>
+  <data name="ScriptLogsWindowScriptDetailsHeader.Text" xml:space="preserve"><value>腳本</value></data>
+  <data name="ScriptLogsWindowScriptNameLabel.Text" xml:space="preserve"><value>名稱</value></data>
+  <data name="ScriptLogsWindowScriptIdLabel.Text" xml:space="preserve"><value>識別碼</value></data>
+  <data name="ScriptLogsWindowDetailHeader.Text" xml:space="preserve"><value>日誌詳細資料</value></data>
+  <data name="Scripts_SystemLogName" xml:space="preserve"><value>系統</value></data>
+  <data name="Scripts_LogEntryFallbackTitle" xml:space="preserve"><value>日誌項目</value></data>
+  <data name="Scripts_OpenFolderFailed" xml:space="preserve"><value>無法開啟腳本資料夾。</value></data>
+  <data name="PermissionConsentDialog_Title" xml:space="preserve"><value>檢視權限</value></data>
+  <data name="PermissionConsentDialog_PrimaryButtonText" xml:space="preserve"><value>允許所選</value></data>
+  <data name="PermissionConsentDialog_CloseButtonText" xml:space="preserve"><value>取消</value></data>
+  <data name="PermissionConsentIntro.Text" xml:space="preserve"><value>此腳本要求以下權限。請僅允許您信任的項目。</value></data>
+  <data name="PermissionConsentNone.Text" xml:space="preserve"><value>此腳本未要求任何權限。</value></data>
+  <data name="Permission_Network" xml:space="preserve"><value>網路存取</value></data>
+  <data name="Permission_Install" xml:space="preserve"><value>安裝檔案</value></data>
+  <data name="Permission_FsServer" xml:space="preserve"><value>存取伺服器資料夾</value></data>
+  <data name="Permission_ConsoleRead" xml:space="preserve"><value>讀取伺服器主控台</value></data>
+  <data name="Permission_ConsoleWrite" xml:space="preserve"><value>寫入伺服器主控台</value></data>
+  <data name="Permission_ServerControl" xml:space="preserve"><value>啟動與停止伺服器</value></data>
+  <data name="Permission_Schedule" xml:space="preserve"><value>依排程執行</value></data>
+  <data name="Permission_Unknown" xml:space="preserve"><value>未知權限</value></data>
+  <data name="Scripts_ReadFailed" xml:space="preserve"><value>無法讀取所選的檔案。</value></data>
+  <data name="Scripts_ImportInvalid" xml:space="preserve"><value>腳本無效，無法匯入。</value></data>
+  <data name="Scripts_AlreadyExists" xml:space="preserve"><value>已安裝相同識別碼的腳本。</value></data>
+  <data name="Scripts_BuiltinProtected" xml:space="preserve"><value>內建腳本無法修改。</value></data>
+  <data name="Scripts_NotAvailable" xml:space="preserve"><value>自動化引擎尚未可用。</value></data>
+  <data name="Scripts_OperationFailed" xml:space="preserve"><value>操作失敗，請再試一次。</value></data>
+  <data name="Scripts_RemoveConfirmTitle" xml:space="preserve"><value>移除腳本</value></data>
+  <data name="Scripts_RemoveConfirmBody" xml:space="preserve"><value>要移除「{name}」嗎？此操作無法復原。</value></data>
+  <data name="Scripts_RemoveConfirmPrimary" xml:space="preserve"><value>移除</value></data>
+  <data name="Scripts_RemoveConfirmCancel" xml:space="preserve"><value>取消</value></data>
+  <data name="PermissionConsentTitleNamed" xml:space="preserve"><value>檢視權限 — {name}</value></data>
+  <data name="CreateServer_ProviderAuthor" xml:space="preserve"><value>作者：{author}</value></data>
+  <data name="CreateServerProviderWebsite.Content" xml:space="preserve"><value>造訪網站</value></data>
+  <data name="HomeTotalServersLabel.Text" xml:space="preserve"><value>總伺服器</value></data>
+  <data name="HomeRunningServersLabel.Text" xml:space="preserve"><value>執行中</value></data>
+  <data name="HomeStoppedServersLabel.Text" xml:space="preserve"><value>就緒</value></data>
+  <data name="HomeBusyServersLabel.Text" xml:space="preserve"><value>變更狀態中</value></data>
+  <data name="HomeCardTypeLabel.Text" xml:space="preserve"><value>類型</value></data>
+  <data name="HomeCardVersionLabel.Text" xml:space="preserve"><value>版本</value></data>
+  <data name="HomeCardEndpointLabel.Text" xml:space="preserve"><value>位址</value></data>
+  <data name="HomeCardCopyAddressButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>複製位址</value></data>
+  <data name="HomeCardCopyAddressButton.ToolTipService.ToolTip" xml:space="preserve"><value>複製位址</value></data>
+  <data name="HomeCardRenameButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>重新命名伺服器</value></data>
+  <data name="HomeCardRenameButton.ToolTipService.ToolTip" xml:space="preserve"><value>重新命名伺服器</value></data>
+  <data name="HomeCardMoreButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>伺服器動作</value></data>
+  <data name="HomeCardMoreButton.ToolTipService.ToolTip" xml:space="preserve"><value>伺服器動作</value></data>
+  <data name="HomeCardMoveUpButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>上移伺服器</value></data>
+  <data name="HomeCardMoveUpButton.ToolTipService.ToolTip" xml:space="preserve"><value>上移伺服器</value></data>
+  <data name="HomeCardMoveDownButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>下移伺服器</value></data>
+  <data name="HomeCardMoveDownButton.ToolTipService.ToolTip" xml:space="preserve"><value>下移伺服器</value></data>
+  <data name="HomeCardEditButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>編輯伺服器</value></data>
+  <data name="HomeCardEditButton.ToolTipService.ToolTip" xml:space="preserve"><value>編輯伺服器</value></data>
+  <data name="HomeCardEditMenuItem.Text" xml:space="preserve"><value>編輯伺服器</value></data>
+  <data name="HomeCardOpenMenuItem.Text" xml:space="preserve"><value>開啟伺服器</value></data>
+  <data name="HomeCardDeleteMenuItem.Text" xml:space="preserve"><value>刪除伺服器</value></data>
+  <data name="ServerTitleRenameButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>重新命名伺服器</value></data>
+  <data name="RenameServerDialog_Title" xml:space="preserve"><value>重新命名伺服器</value></data>
+  <data name="EditServerName_Header" xml:space="preserve"><value>名稱</value></data>
+  <data name="InstallProgressPreviousButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>上一步</value></data>
+  <data name="InstallProgressPreviousButton.ToolTipService.ToolTip" xml:space="preserve"><value>上一步</value></data>
+  <data name="InstallProgressNextButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>下一步</value></data>
+  <data name="InstallProgressNextButton.ToolTipService.ToolTip" xml:space="preserve"><value>下一步</value></data>
+  <data name="Scripts_CurrentSessionTitle" xml:space="preserve">
 <value>目前工作階段</value>
 </data>
-<data name="Scripts_PreviousSessionTitle" xml:space="preserve">
+  <data name="Scripts_PreviousSessionTitle" xml:space="preserve">
 <value>工作階段</value>
 </data>
-  <data name="Scripts_OpenFolderFailed" xml:space="preserve">
-    <value>無法開啟腳本資料夾。</value>
-  </data>
-  <data name="PermissionConsentDialog_Title" xml:space="preserve">
-    <value>檢視權限</value>
-  </data>
-  <data name="PermissionConsentDialog_PrimaryButtonText" xml:space="preserve">
-    <value>允許所選</value>
-  </data>
-  <data name="PermissionConsentDialog_CloseButtonText" xml:space="preserve">
-    <value>取消</value>
-  </data>
-  <data name="PermissionConsentIntro.Text" xml:space="preserve">
-    <value>此腳本要求以下權限。請僅允許您信任的項目。</value>
-  </data>
-  <data name="PermissionConsentNone.Text" xml:space="preserve">
-    <value>此腳本未要求任何權限。</value>
-  </data>
-  <data name="Permission_Network" xml:space="preserve">
-    <value>網路存取</value>
-  </data>
-  <data name="Permission_Install" xml:space="preserve">
-    <value>安裝檔案</value>
-  </data>
-  <data name="Permission_FsServer" xml:space="preserve">
-    <value>存取伺服器資料夾</value>
-  </data>
-  <data name="Permission_ConsoleRead" xml:space="preserve">
-    <value>讀取伺服器主控台</value>
-  </data>
-  <data name="Permission_ConsoleWrite" xml:space="preserve">
-    <value>寫入伺服器主控台</value>
-  </data>
-  <data name="Permission_ServerControl" xml:space="preserve">
-    <value>啟動與停止伺服器</value>
-  </data>
-  <data name="Permission_Schedule" xml:space="preserve">
-    <value>依排程執行</value>
-  </data>
-  <data name="Permission_Unknown" xml:space="preserve">
-    <value>未知權限</value>
-  </data>
-  <data name="Scripts_ReadFailed" xml:space="preserve">
-    <value>無法讀取所選的檔案。</value>
-  </data>
-  <data name="Scripts_ImportInvalid" xml:space="preserve">
-    <value>腳本無效，無法匯入。</value>
-  </data>
-  <data name="Scripts_AlreadyExists" xml:space="preserve">
-    <value>已安裝相同識別碼的腳本。</value>
-  </data>
-  <data name="Scripts_BuiltinProtected" xml:space="preserve">
-    <value>內建腳本無法修改。</value>
-  </data>
-  <data name="Scripts_NotAvailable" xml:space="preserve">
-    <value>自動化引擎尚未可用。</value>
-  </data>
-  <data name="Scripts_OperationFailed" xml:space="preserve">
-    <value>操作失敗，請再試一次。</value>
-  </data>
-  <data name="Scripts_RemoveConfirmTitle" xml:space="preserve">
-    <value>移除腳本</value>
-  </data>
-  <data name="Scripts_RemoveConfirmBody" xml:space="preserve">
-    <value>要移除「{name}」嗎？此操作無法復原。</value>
-  </data>
-  <data name="Scripts_RemoveConfirmPrimary" xml:space="preserve">
-    <value>移除</value>
-  </data>
-  <data name="Scripts_RemoveConfirmCancel" xml:space="preserve">
-    <value>取消</value>
-  </data>
-  <data name="PermissionConsentTitleNamed" xml:space="preserve">
-    <value>檢視權限 — {name}</value>
-  </data>
-  <data name="CreateServer_ProviderAuthor" xml:space="preserve">
-    <value>作者：{author}</value>
-  </data>
-  <data name="CreateServerProviderWebsite.Content" xml:space="preserve">
-    <value>造訪網站</value>
-  </data>
-  <data name="InstallProgressPreviousButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>上一步</value>
-  </data>
-  <data name="InstallProgressPreviousButton.ToolTipService.ToolTip" xml:space="preserve">
-    <value>上一步</value>
-  </data>
-  <data name="InstallProgressNextButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>下一步</value>
-  </data>
-  <data name="InstallProgressNextButton.ToolTipService.ToolTip" xml:space="preserve">
-    <value>下一步</value>
-  </data>
-  <data name="HomeCardCopyAddressButton.ToolTipService.ToolTip" xml:space="preserve">
-    <value>複製位址</value>
-  </data>
-  <data name="HomeCardRenameButton.ToolTipService.ToolTip" xml:space="preserve">
-    <value>重新命名伺服器</value>
-  </data>
-  <data name="HomeCardMoreButton.ToolTipService.ToolTip" xml:space="preserve">
-    <value>伺服器動作</value>
-  </data>
-  <data name="HomeCardMoveUpButton.ToolTipService.ToolTip" xml:space="preserve">
-    <value>上移伺服器</value>
-  </data>
-  <data name="HomeCardMoveDownButton.ToolTipService.ToolTip" xml:space="preserve">
-    <value>下移伺服器</value>
-  </data>
-  <data name="HomeCardEditButton.ToolTipService.ToolTip" xml:space="preserve">
-    <value>編輯伺服器</value>
-  </data>
 </root>

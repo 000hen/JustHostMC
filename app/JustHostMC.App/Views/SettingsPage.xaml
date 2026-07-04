@@ -53,6 +53,20 @@
                 </StackPanel>
             </Border>
 
+            <!-- Engine diagnostics -->
+            <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                    CornerRadius="8" Padding="16">
+                <StackPanel Spacing="8">
+                    <TextBlock x:Uid="SettingsEngineMonitorHeader" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    <TextBlock x:Uid="SettingsEngineMonitorHint" TextWrapping="Wrap"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               Style="{StaticResource CaptionTextBlockStyle}" />
+                    <Button x:Uid="SettingsEngineMonitorButton"
+                            HorizontalAlignment="Left"
+                            Click="OnOpenEngineMonitorClick" />
+                </StackPanel>
+            </Border>
+
             <!-- Destructive: remove all data -->
             <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
                     CornerRadius="8" Padding="16">

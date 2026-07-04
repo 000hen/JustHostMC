@@ -178,7 +178,10 @@
   <data name="SettingsKeepDays.Header" xml:space="preserve"><value>記錄保留天數</value></data>
   <data name="SettingsMaxSize.Header" xml:space="preserve"><value>總大小上限 (MB)</value></data>
   <data name="SettingsSaveButton.Content" xml:space="preserve"><value>儲存</value></data>
-  <data name="SettingsPurgeButton.Content" xml:space="preserve"><value>立即清理</value></data>
+<data name="SettingsPurgeButton.Content" xml:space="preserve"><value>立即清理</value></data>
+<data name="SettingsEngineMonitorHeader.Text" xml:space="preserve"><value>引擎診斷</value></data>
+<data name="SettingsEngineMonitorHint.Text" xml:space="preserve"><value>檢視引擎行程的即時標準輸出、錯誤輸出與輸入監看生命週期。</value></data>
+<data name="SettingsEngineMonitorButton.Content" xml:space="preserve"><value>開啟引擎監視器</value></data>
   <data name="Settings_Saved" xml:space="preserve"><value>設定已儲存。</value></data>
   <data name="Settings_SaveFailed" xml:space="preserve"><value>無法儲存設定。</value></data>
   <data name="Settings_LoadFailed" xml:space="preserve"><value>無法載入設定。</value></data>
@@ -191,7 +194,22 @@
   <data name="SettingsRemoveDataConfirmButton.Content" xml:space="preserve"><value>全部移除</value></data>
   <data name="Settings_RemovingData" xml:space="preserve"><value>正在移除所有資料</value></data>
   <data name="Settings_DataRemoved" xml:space="preserve"><value>所有資料已移除。</value></data>
-  <data name="Settings_RemoveDataFailed" xml:space="preserve"><value>無法移除所有資料。</value></data>
+<data name="Settings_RemoveDataFailed" xml:space="preserve"><value>無法移除所有資料。</value></data>
+
+<!-- Engine stdio monitor -->
+<data name="EngineMonitor_Title" xml:space="preserve"><value>引擎監視器</value></data>
+<data name="EngineMonitorClearButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>清除引擎輸出</value></data>
+<data name="EngineMonitorClearButtonLabel.Text" xml:space="preserve"><value>清除</value></data>
+<data name="EngineMonitorCopyButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>複製顯示中的引擎輸出</value></data>
+<data name="EngineMonitorCopyButtonLabel.Text" xml:space="preserve"><value>複製</value></data>
+<data name="EngineMonitorPauseButton.Content" xml:space="preserve"><value>暫停</value></data>
+<data name="EngineMonitorAutoScrollCheckBox.Content" xml:space="preserve"><value>自動捲動</value></data>
+<data name="EngineMonitorSearchBox.PlaceholderText" xml:space="preserve"><value>篩選訊息</value></data>
+<data name="EngineMonitorSearchBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>篩選引擎訊息</value></data>
+<data name="EngineMonitorStdinHint.Text" xml:space="preserve"><value>標準輸入保留給父行程監看機制，因此在此僅供檢視。</value></data>
+<data name="EngineMonitorEmptyText.Text" xml:space="preserve"><value>沒有符合目前篩選條件的引擎輸出。</value></data>
+<data name="EngineMonitor_Status" xml:space="preserve"><value>引擎 PID {pid}  •  顯示 {visible} 筆 / 已擷取 {total} 筆</value></data>
+<data name="EngineMonitor_StatusPaused" xml:space="preserve"><value>已暫停  •  引擎 PID {pid}  •  已擷取 {total} 筆</value></data>
 
   <!-- Isolation backend (Docker opt-in) -->
   <data name="SettingsBackendHeader.Text" xml:space="preserve"><value>伺服器執行位置</value></data>

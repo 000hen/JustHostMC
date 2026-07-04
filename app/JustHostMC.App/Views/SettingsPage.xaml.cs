@@ -18,4 +18,7 @@ public sealed partial class SettingsPage : Page
         InitializeComponent();
         Loaded += async (_, _) => await ViewModel.LoadAsync();
     }
+
+    private void OnOpenEngineMonitorClick(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        => App.Current.ShowEngineStdioWindow();
 }

@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Google.Protobuf;
@@ -8,8 +10,12 @@ using Grpc.Core;
 using JustHostMC.App.Models;
 using JustHostMC.App.Services;
 using McManager.Grpc;
+using System.Runtime.InteropServices.WindowsRuntime;
 using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Windows.Storage;
+using Windows.Storage.Streams;
 
 namespace JustHostMC.App.ViewModels;
 
@@ -18,6 +24,7 @@ namespace JustHostMC.App.ViewModels;
 public sealed partial class ModsViewModel : ObservableObject
 {
     private const int ChunkSize = 64 * 1024;
+    private const int UiBatchSize = 24;
 
     private readonly string _serverId;
     private readonly DispatcherQueue _dispatcher;
@@ -35,6 +42,9 @@ public sealed partial class ModsViewModel : ObservableObject
 
     public ObservableCollection<ModFileItem> Files { get; } = new();
 
+    /// <summary>Stable placeholder count used by the loading skeleton.</summary>
+    public IReadOnlyList<int> LoadingRows { get; } = Enumerable.Range(0, 5).ToArray();
+
     [ObservableProperty]
     public partial bool Supported { get; private set; } = true;
 
@@ -45,12 +55,31 @@ public sealed partial class ModsViewModel : ObservableObject
     public partial bool IsBusy { get; private set; }
 
     [ObservableProperty]
+    public partial bool IsLoading { get; private set; } = true;
+
+    [ObservableProperty]
     public partial string KindLabel { get; private set; } = "";
+
+    public bool AcceptsLiteMod { get; private set; }
+
+    public bool ShowOperationProgress => IsBusy && !IsLoading;
 
     [ObservableProperty]
     public partial string StatusMessage { get; private set; } = "";
 
     partial void OnSupportedChanged(bool value) => RecomputeCanModify();
+
+    partial void OnIsBusyChanged(bool value)
+    {
+        OnPropertyChanged(nameof(ShowOperationProgress));
+        RecomputeCanModify();
+    }
+
+    partial void OnIsLoadingChanged(bool value)
+    {
+        OnPropertyChanged(nameof(ShowOperationProgress));
+        RecomputeCanModify();
+    }
 
     /// <summary>Updates the stopped-server gate that allows upload/remove.</summary>
     public void SetServerStopped(bool stopped)
@@ -83,23 +112,57 @@ public sealed partial class ModsViewModel : ObservableObject
 
     private async Task RefreshCoreAsync()
     {
+        await RunOnUIAsync(() =>
+        {
+            IsLoading = true;
+            StatusMessage = "";
+        });
+
         try
         {
-            var daemon = await App.Current.DaemonReady;
-            var list = await daemon.Mods.ListAsync(new ServerId { Id = _serverId });
-            RunOnUI(() =>
+            // Keep the potentially long parser RPC and its continuation away from
+            // the UI synchronization context. The engine itself parses out of process.
+            var daemon = await App.Current.DaemonReady.ConfigureAwait(false);
+            var call = daemon.Mods.ListAsync(new ServerId { Id = _serverId });
+            var list = await call.ResponseAsync.ConfigureAwait(false);
+            var files = list.Files.ToArray();
+
+            await RunOnUIAsync(() =>
             {
                 Supported = list.Supported;
+                AcceptsLiteMod = list.Kind == ModKind.Mod;
                 KindLabel = _localizer.Get(list.Kind == ModKind.Mod ? "Mods_KindMods" : "Mods_KindPlugins");
                 Files.Clear();
-                foreach (var file in list.Files)
-                    Files.Add(new ModFileItem(file.Name, file.SizeBytes));
-                _loaded = true;
             });
+
+            // Creating BitmapImage instances and notifying ObservableCollection
+            // must happen on the UI thread. Apply bounded batches so rendering and
+            // input can run between chunks of a large mod list.
+            for (var offset = 0; offset < files.Length; offset += UiBatchSize)
+            {
+                var batch = files.Skip(offset).Take(UiBatchSize).ToArray();
+                await RunOnUIAsync(() =>
+                {
+                    foreach (var file in batch)
+                        Files.Add(CreateItem(file));
+                }).ConfigureAwait(false);
+            }
+
+            await RunOnUIAsync(() => _loaded = true).ConfigureAwait(false);
         }
         catch (RpcException)
         {
-            // Transient; a later refresh reconciles.
+            await RunOnUIAsync(() => StatusMessage = _localizer.Get("Mods_OperationFailed"))
+                .ConfigureAwait(false);
+        }
+        catch
+        {
+            await RunOnUIAsync(() => StatusMessage = _localizer.Get("Mods_OperationFailed"))
+                .ConfigureAwait(false);
+        }
+        finally
+        {
+            await RunOnUIAsync(() => IsLoading = false).ConfigureAwait(false);
         }
     }
 
@@ -161,7 +224,38 @@ public sealed partial class ModsViewModel : ObservableObject
         }
     }
 
-    private void RecomputeCanModify() => CanModify = Supported && _serverStopped;
+    /// <summary>Builds a list item, decoding the parsed jar icon (if any) into a
+    /// BitmapImage. Must run on the UI thread (BitmapImage is a UI object); the
+    /// async decode fills the image in place while the list already shows.</summary>
+    private static ModFileItem CreateItem(ModFile file)
+    {
+        ImageSource? icon = null;
+        if (file.Metadata is { Parsed: true } meta && meta.Icon.Length > 0)
+        {
+            var bitmap = new BitmapImage { DecodePixelWidth = 64 };
+            _ = LoadIconAsync(bitmap, meta.Icon);
+            icon = bitmap;
+        }
+        return new ModFileItem(file.Name, file.SizeBytes, file.Metadata, icon);
+    }
+
+    private static async Task LoadIconAsync(BitmapImage bitmap, ByteString bytes)
+    {
+        try
+        {
+            using var stream = new InMemoryRandomAccessStream();
+            await stream.WriteAsync(bytes.ToByteArray().AsBuffer());
+            stream.Seek(0);
+            await bitmap.SetSourceAsync(stream);
+        }
+        catch
+        {
+            // Undecodable icon bytes: the item keeps its fallback glyph area.
+        }
+    }
+
+    private void RecomputeCanModify() =>
+        CanModify = Supported && _serverStopped && !IsBusy && !IsLoading;
 
     private static string MapErrorKey(RpcException ex) => ex.StatusCode switch
     {
@@ -175,5 +269,32 @@ public sealed partial class ModsViewModel : ObservableObject
             action();
         else
             _dispatcher.TryEnqueue(() => action());
+    }
+
+    private Task RunOnUIAsync(Action action)
+    {
+        if (_dispatcher.HasThreadAccess)
+        {
+            action();
+            return Task.CompletedTask;
+        }
+
+        var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        if (!_dispatcher.TryEnqueue(() =>
+            {
+                try
+                {
+                    action();
+                    completion.SetResult();
+                }
+                catch (Exception ex)
+                {
+                    completion.SetException(ex);
+                }
+            }))
+        {
+            completion.SetException(new InvalidOperationException("The UI dispatcher is unavailable."));
+        }
+        return completion.Task;
     }
 }

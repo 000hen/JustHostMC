@@ -16,6 +16,8 @@ public static class PermissionLabels
         PermissionKind.PermissionConsoleWrite => "Permission_ConsoleWrite",
         PermissionKind.PermissionServerControl => "Permission_ServerControl",
         PermissionKind.PermissionSchedule => "Permission_Schedule",
+        PermissionKind.PermissionServerQuery => "Permission_ServerQuery",
+        PermissionKind.PermissionPlayerManage => "Permission_PlayerManage",
         _ => "Permission_Unknown",
     };
 

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
@@ -500,6 +500,10 @@
   <data name="ScriptsPageTitle.Text" xml:space="preserve"><value>Scripts</value></data>
   <data name="ScriptsPageSubtitle.Text" xml:space="preserve"><value>Import your own Lua provider and automation scripts, review the permissions they request, and manage what is installed.</value></data>
   <data name="ScriptsProvidersHeader.Text" xml:space="preserve"><value>Providers</value></data>
+  <data name="ScriptsParsersHeader.Text" xml:space="preserve"><value>Mod Metadata Parsers</value></data>
+  <data name="ScriptsParsersEmpty.Text" xml:space="preserve"><value>No parsers installed. Parsers read a mod or plugin jar's embedded metadata (name, version, authors, icon) for the server Mods panel.</value></data>
+  <data name="Parsers_Formats" xml:space="preserve"><value>Reads: {formats}</value></data>
+  <data name="ModsWebsiteLink.Content" xml:space="preserve"><value>Website</value></data>
   <data name="ScriptSectionShowInFolderButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Show scripts in folder</value></data>
   <data name="ScriptSectionShowInFolderButtonLabel.Text" xml:space="preserve"><value>Show in Folder</value></data>
   <data name="ScriptSectionAddScriptsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Add scripts</value></data>
@@ -537,6 +541,8 @@
   <data name="Permission_ConsoleWrite" xml:space="preserve"><value>Write to the server console</value></data>
   <data name="Permission_ServerControl" xml:space="preserve"><value>Start and stop servers</value></data>
   <data name="Permission_Schedule" xml:space="preserve"><value>Run on a schedule</value></data>
+  <data name="Permission_ServerQuery" xml:space="preserve"><value>List and inspect your servers</value></data>
+  <data name="Permission_PlayerManage" xml:space="preserve"><value>View and manage players (kick/ban)</value></data>
   <data name="Permission_Unknown" xml:space="preserve"><value>Unknown permission</value></data>
   <data name="Scripts_ReadFailed" xml:space="preserve"><value>Could not read the selected file.</value></data>
   <data name="Scripts_ImportInvalid" xml:space="preserve"><value>The script could not be imported because it is invalid.</value></data>

@@ -1,4 +1,4 @@
-package scripting
+package automation
 
 import (
 	"context"
@@ -7,6 +7,8 @@ import (
 	"time"
 
 	mcmanagerv1 "github.com/000hen/justhostmc/engine/gen/mcmanager/v1"
+	"github.com/000hen/justhostmc/engine/internal/scripting"
+	"github.com/000hen/justhostmc/engine/internal/scriptlog"
 )
 
 // fakeConsole is an in-memory Console: it records sent commands, replays a fixed
@@ -108,7 +110,12 @@ func waitFor(t *testing.T, msg string, cond func() bool) {
 }
 
 func newTestManager(con Console, ctl ServerControl) *Manager {
-	return NewManager(NewHost(nil, nil, nil), nil, con, ctl, NewLogBuffer(0))
+	return NewManager(ManagerConfig{
+		Host:    scripting.NewHost(nil, nil, nil),
+		Console: con,
+		Control: ctl,
+		Logs:    scriptlog.NewLogBuffer(0),
+	})
 }
 
 // TestOnLogDispatch verifies an on_log hook fires for live console lines and the

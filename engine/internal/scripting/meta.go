@@ -27,6 +27,9 @@ type Meta struct {
 	// per-server mods/plugins UI without server-type-specific code.
 	ModLayout   string
 	Permissions []Permission
+	// Formats lists the descriptor files a parser script reads (parsers only),
+	// e.g. "fabric.mod.json"; shown in the parser management UI.
+	Formats []string
 }
 
 // DeclaredKinds returns just the permission kinds the script declares.
@@ -63,6 +66,14 @@ func parseMeta(L *lua.LState) (Meta, error) {
 	}
 	if m.ModLayout == "" {
 		m.ModLayout = "none"
+	}
+
+	if formats, ok := tbl.RawGetString("formats").(*lua.LTable); ok {
+		formats.ForEach(func(_, fv lua.LValue) {
+			if s, ok := fv.(lua.LString); ok && strings.TrimSpace(string(s)) != "" {
+				m.Formats = append(m.Formats, strings.TrimSpace(string(s)))
+			}
+		})
 	}
 
 	if perms, ok := tbl.RawGetString("permissions").(*lua.LTable); ok {

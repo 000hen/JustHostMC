@@ -34,6 +34,9 @@ type ServerServiceConfig struct {
 	// CloseLogs, if set, closes all open console-log file handles. RemoveAllData
 	// calls it before wiping the logs directory (Windows can't delete open files).
 	CloseLogs func()
+	// OnExit, if set, is called after a server's instance exits (stop or crash),
+	// e.g. to reset the player event bus roster for that server.
+	OnExit func(id string)
 }
 
 // ServerService implements the ServerService RPCs: it orchestrates the provider
@@ -460,6 +463,10 @@ func (s *ServerService) watchExit(id string, inst isolation.Instance) {
 	wasStopping := s.stopping[id]
 	delete(s.stopping, id)
 	s.mu.Unlock()
+
+	if s.cfg.OnExit != nil {
+		s.cfg.OnExit(id)
+	}
 
 	rec, ok := s.cfg.Store.Get(id)
 	if !ok {

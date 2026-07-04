@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
@@ -466,6 +466,10 @@
   <data name="ScriptsPageTitle.Text" xml:space="preserve"><value>腳本</value></data>
   <data name="ScriptsPageSubtitle.Text" xml:space="preserve"><value>匯入您自己的 Lua 提供者與自動化腳本，檢視它們要求的權限，並管理已安裝的項目。</value></data>
   <data name="ScriptsProvidersHeader.Text" xml:space="preserve"><value>提供者</value></data>
+  <data name="ScriptsParsersHeader.Text" xml:space="preserve"><value>模組資訊解析器</value></data>
+  <data name="ScriptsParsersEmpty.Text" xml:space="preserve"><value>尚未安裝任何解析器。解析器會讀取模組或外掛 jar 內嵌的資訊（名稱、版本、作者、圖示），顯示在伺服器的模組面板。</value></data>
+  <data name="Parsers_Formats" xml:space="preserve"><value>讀取：{formats}</value></data>
+  <data name="ModsWebsiteLink.Content" xml:space="preserve"><value>網站</value></data>
   <data name="ScriptSectionShowInFolderButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>在資料夾中顯示腳本</value></data>
   <data name="ScriptSectionShowInFolderButtonLabel.Text" xml:space="preserve"><value>在資料夾中顯示</value></data>
   <data name="ScriptSectionAddScriptsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>新增腳本</value></data>
@@ -503,6 +507,8 @@
   <data name="Permission_ConsoleWrite" xml:space="preserve"><value>寫入伺服器主控台</value></data>
   <data name="Permission_ServerControl" xml:space="preserve"><value>啟動與停止伺服器</value></data>
   <data name="Permission_Schedule" xml:space="preserve"><value>依排程執行</value></data>
+  <data name="Permission_ServerQuery" xml:space="preserve"><value>列出並檢視您的伺服器</value></data>
+  <data name="Permission_PlayerManage" xml:space="preserve"><value>檢視與管理玩家（踢出／封鎖）</value></data>
   <data name="Permission_Unknown" xml:space="preserve"><value>未知權限</value></data>
   <data name="Scripts_ReadFailed" xml:space="preserve"><value>無法讀取所選的檔案。</value></data>
   <data name="Scripts_ImportInvalid" xml:space="preserve"><value>腳本無效，無法匯入。</value></data>

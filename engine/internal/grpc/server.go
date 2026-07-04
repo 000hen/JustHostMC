@@ -3,9 +3,9 @@ package grpcsvc
 import (
 	"net"
 
-	winio "github.com/Microsoft/go-winio"
 	mcmanagerv1 "github.com/000hen/justhostmc/engine/gen/mcmanager/v1"
 	"github.com/000hen/justhostmc/engine/internal/scripting"
+	winio "github.com/Microsoft/go-winio"
 	"google.golang.org/grpc"
 )
 
@@ -28,6 +28,7 @@ type Config struct {
 	ModService      mcmanagerv1.ModServiceServer
 	ConfigService   mcmanagerv1.ConfigServiceServer
 	ProviderService mcmanagerv1.ProviderServiceServer
+	ParserService   mcmanagerv1.ParserServiceServer
 	ScriptService   mcmanagerv1.ScriptServiceServer
 }
 
@@ -63,6 +64,9 @@ func NewServer(cfg Config) *grpc.Server {
 	}
 	if cfg.ProviderService != nil {
 		mcmanagerv1.RegisterProviderServiceServer(srv, cfg.ProviderService)
+	}
+	if cfg.ParserService != nil {
+		mcmanagerv1.RegisterParserServiceServer(srv, cfg.ParserService)
 	}
 	if cfg.ScriptService != nil {
 		mcmanagerv1.RegisterScriptServiceServer(srv, cfg.ScriptService)

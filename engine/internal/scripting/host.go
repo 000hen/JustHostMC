@@ -36,6 +36,16 @@ func NewHost(client *http.Client, jre, jdk provider.JavaResolver) *Host {
 	return h
 }
 
+// KV is the per-script persistent key-value store the jhmc.store API binds to.
+// Implemented by scriptdata.KVStore; scriptID scopes every call to the owning
+// script so scripts cannot see each other's data.
+type KV interface {
+	Get(scriptID, key string) (string, bool)
+	Set(scriptID, key, value string) error
+	Delete(scriptID, key string) error
+	Keys(scriptID string) []string
+}
+
 // invocation is the per-call state the host functions close over.
 type invocation struct {
 	ctx      context.Context
@@ -45,6 +55,9 @@ type invocation struct {
 	granted  GrantSet // permissions the user granted this script
 	report   func(provider.Progress)
 	lastErr  error // structured error stashed before a Lua RaiseError, for mapping
+
+	kv       KV     // jhmc.store backend (nil where no store is wired, e.g. providers)
+	scriptID string // id scoping jhmc.store access
 }
 
 func (inv *invocation) emit(p provider.Progress) {

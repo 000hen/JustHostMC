@@ -21,6 +21,8 @@ public static partial class LuaPermissions
         ["console_write"] = PermissionKind.PermissionConsoleWrite,
         ["server_control"] = PermissionKind.PermissionServerControl,
         ["schedule"] = PermissionKind.PermissionSchedule,
+        ["server_query"] = PermissionKind.PermissionServerQuery,
+        ["player_manage"] = PermissionKind.PermissionPlayerManage,
     };
 
     // Matches one `{ kind = "name", reason = "text" }` entry (reason optional, order-agnostic).

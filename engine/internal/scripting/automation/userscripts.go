@@ -1,4 +1,4 @@
-package scripting
+package automation
 
 import (
 	"os"

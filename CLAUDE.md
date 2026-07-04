@@ -95,10 +95,10 @@ dotnet test  app/JustHostMC.Core.Tests/JustHostMC.Core.Tests.csproj --filter "Fu
 
 ### The contract drives everything
 
-`proto/mcmanager/v1/mcmanager.proto` defines all messages and **11 services**
+`proto/mcmanager/v1/mcmanager.proto` defines all messages and **12 services**
 (`EngineService`, `ServerService`, `ConsoleService`, `BackupService`,
 `SettingsService`, `PlayerService`, `MetricsService`, `ModService`,
-`ConfigService`, `ProviderService`, `ScriptService`). Adding or changing an RPC is a proto edit first, then regen on
+`ConfigService`, `ProviderService`, `ScriptService`, `ParserService`). Adding or changing an RPC is a proto edit first, then regen on
 both sides, then implement the Go `*Service` and call it from a C# ViewModel.
 `csharp_namespace = McManager.Grpc`; Go import path
 `github.com/000hen/justhostmc/engine`.
@@ -134,19 +134,27 @@ both sides, then implement the Go `*Service` and call it from a C# ViewModel.
   version to the required Java major; sentinel errors in `errors.go`
   (`ErrVersionNotFound`, `ErrChecksumMismatch`). **Concrete server types are no
   longer Go adapters here — they are Lua scripts (see below).**
-- `internal/scripting/` — the Lua subsystem that *is* the providers (and will host
-  automation). `host.go` runs sandboxed gopher-lua (`base/table/string/math` only;
-  no `os`/`io`/`require`; fs confined to the server dir) and exposes the
-  permission-gated `jhmc.*` host API (`hostfuncs.go`). `Registry` (`registry.go`)
-  holds installed providers and resolves effective grants; `GrantStore`
-  (`grants.go`) persists per-script permission decisions to `grants.json`;
-  `LuaProvider` adapts a script to `provider.Provider`. Built-in provider scripts
-  live in `engine/internal/scripting/builtin/*.lua` (vanilla, paper, spigot,
-  fabric), loaded by `LoadBuiltins`; user-imported ones load from the data dir via
-  `LoadUserProviders`. `ProviderService` (and the proto-defined `ScriptService` for
-  automation) are wired in `internal/grpc/`. **Adding a server type is now "drop a
-  `.lua` in `builtin/` or import one at runtime" — not a Go provider.** See
-  [`docs/scripting.md`](docs/scripting.md) for the script-authoring guide.
+- `internal/scripting/` — the Lua core: `host.go` runs sandboxed gopher-lua
+  (`base/table/string/math` only; no `os`/`io`/`require`; fs confined to the
+  server dir) and exposes the permission-gated `jhmc.*` host API (`hostfuncs.go`:
+  http/json/toml/yaml/zip/fs/store/...). Three script subsystems build on it:
+  **providers** (`Registry`, `LuaProvider`, `builtin/*.lua` — vanilla, paper,
+  spigot, fabric), **automation** (the `automation/` subpackage: `Manager` +
+  the `server.*`/`on_*`/`schedule` runtime, via the exported surface in
+  `export.go`), and **mod-metadata parsers** (`ParserSet`, `LuaParser`,
+  `builtin_parsers/*.lua` — fabric/quilt/forge/neoforge/forge-legacy/bukkit; they
+  enrich `ModService.List` with icon/name/authors/version, cached per jar).
+  `GrantStore` (`grants.go`) persists per-script permission decisions
+  (`grants.json`, `script-grants.json`, `parser-grants.json`).
+  `ProviderService`/`ScriptService`/`ParserService` are wired in
+  `internal/grpc/`. **Adding a server type is "drop a `.lua` in `builtin/` or
+  import one at runtime" — not a Go provider; same for parsers in
+  `builtin_parsers/`.** See [`docs/scripting.md`](docs/scripting.md) for the
+  script-authoring guide.
+- `internal/scriptlog/` — automation log ring buffer; `internal/scriptdata/` —
+  per-script `jhmc.store` KV files; `internal/players/` also hosts the
+  `EventBus` (roster state-diff join/leave events feeding `on_join`/`on_leave`
+  and `server.players`).
 - `internal/isolation/` — `IsolationBackend` interface with two impls:
   `jobobject_windows.go` (default; Windows Job Objects = memory cap +
   kill-on-close) and `docker.go` (opt-in, never auto-installed). `SelectMode`

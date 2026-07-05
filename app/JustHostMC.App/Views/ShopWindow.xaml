@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="JustHostMC.App.Views.ShopWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:grpc="using:McManager.Grpc"
+    mc:Ignorable="d">
+
+    <Window.SystemBackdrop>
+        <MicaBackdrop Kind="BaseAlt" />
+    </Window.SystemBackdrop>
+
+    <Grid x:Name="Root"
+          Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <TitleBar x:Name="ShopTitleBar">
+            <TitleBar.IconSource>
+                <ImageIconSource ImageSource="ms-appx:///Assets/StoreLogo.png" />
+            </TitleBar.IconSource>
+        </TitleBar>
+
+        <Grid Grid.Row="1"
+              Padding="16,8,16,8"
+              ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Button x:Name="BackButton"
+                    x:Uid="ShopBackButton"
+                    AutomationProperties.AutomationId="ShopBack"
+                    Width="40"
+                    IsEnabled="False"
+                    Click="OnBackClick">
+                <FontIcon Glyph="&#xE72B;" FontSize="14" />
+            </Button>
+
+            <SelectorBar x:Name="ShopSelector"
+                         Grid.Column="1"
+                         VerticalAlignment="Center"
+                         SelectionChanged="OnShopSelectionChanged" />
+
+            <AutoSuggestBox x:Name="SearchBox"
+                            x:Uid="ShopSearchBox"
+                            AutomationProperties.AutomationId="ShopSearch"
+                            Grid.Column="2"
+                            MaxWidth="420"
+                            VerticalAlignment="Center"
+                            QueryIcon="Find"
+                            TextChanged="OnSearchTextChanged"
+                            QuerySubmitted="OnSearchSubmitted" />
+
+            <StackPanel Grid.Column="3"
+                        Orientation="Horizontal"
+                        VerticalAlignment="Center"
+                        Spacing="8">
+                <ToggleButton x:Name="VersionFilterToggle"
+                              AutomationProperties.AutomationId="ShopVersionFilter"
+                              IsChecked="{x:Bind ViewModel.UseVersionFilter, Mode=TwoWay}"
+                              Visibility="{x:Bind ViewModel.HasVersionFilter}"
+                              Click="OnFilterChanged">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE73E;" FontSize="12"
+                                  Visibility="{x:Bind ViewModel.UseVersionFilter, Mode=OneWay}" />
+                        <TextBlock Text="{x:Bind ViewModel.VersionFilterLabel}" />
+                    </StackPanel>
+                </ToggleButton>
+                <ToggleButton x:Name="LoaderFilterToggle"
+                              AutomationProperties.AutomationId="ShopLoaderFilter"
+                              IsChecked="{x:Bind ViewModel.UseLoaderFilter, Mode=TwoWay}"
+                              Visibility="{x:Bind ViewModel.HasLoaderFilter}"
+                              Click="OnFilterChanged">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE73E;" FontSize="12"
+                                  Visibility="{x:Bind ViewModel.UseLoaderFilter, Mode=OneWay}" />
+                        <TextBlock Text="{x:Bind ViewModel.LoaderFilterLabel}" />
+                    </StackPanel>
+                </ToggleButton>
+            </StackPanel>
+        </Grid>
+
+        <InfoBar x:Name="KeyMissingBar"
+                 x:Uid="ShopKeyMissingBar"
+                 Grid.Row="2"
+                 VerticalAlignment="Top"
+                 Margin="16,0"
+                 Severity="Warning"
+                 IsClosable="False"
+                 IsOpen="False"
+                 Canvas.ZIndex="1" />
+
+        <Frame x:Name="ContentFrame"
+               Grid.Row="2"
+               Navigated="OnFrameNavigated" />
+    </Grid>
+</Window>

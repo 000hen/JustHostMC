@@ -48,6 +48,14 @@ public sealed partial class SettingsViewModel : ObservableObject
 
     public string AppName => JustHostMC.App.Helpers.ProcessInfoHelper.ProductName;
 
+    /// <summary>User-entered CurseForge API key (write-only; never read back).</summary>
+    [ObservableProperty]
+    public partial string CurseForgeKey { get; set; } = "";
+
+    /// <summary>Localized line describing whether a CurseForge key is configured.</summary>
+    [ObservableProperty]
+    public partial string CurseForgeKeyStatus { get; private set; } = "";
+
     private bool _loadingBackend;
 
     public SettingsViewModel(DispatcherQueue dispatcher, ILocalizer localizer)
@@ -84,6 +92,55 @@ public sealed partial class SettingsViewModel : ObservableObject
         }
 
         await LoadBackendAsync();
+        await LoadShopKeysAsync();
+    }
+
+    private async Task LoadShopKeysAsync()
+    {
+        try
+        {
+            var daemon = await App.Current.DaemonReady;
+            var keys = await daemon.Settings.GetShopKeysAsync(
+                new Empty(), deadline: DateTime.UtcNow.AddSeconds(30));
+            var status = "Settings_ShopKeyNone";
+            foreach (var key in keys.Keys)
+            {
+                if (key.ShopId != "curseforge")
+                    continue;
+                status = key.HasUserKey ? "Settings_ShopKeyUser"
+                    : key.HasBuiltinKey ? "Settings_ShopKeyBuiltin"
+                    : "Settings_ShopKeyNone";
+            }
+            RunOnUI(() => CurseForgeKeyStatus = _localizer.Get(status));
+        }
+        catch (RpcException)
+        {
+            // The shop key line stays empty; the rest of the page still works.
+        }
+    }
+
+    [RelayCommand]
+    private async Task SaveCurseForgeKey()
+    {
+        try
+        {
+            var daemon = await App.Current.DaemonReady;
+            await daemon.Settings.SetShopKeyAsync(new ShopKey
+            {
+                ShopId = "curseforge",
+                ApiKey = CurseForgeKey,
+            }, deadline: DateTime.UtcNow.AddSeconds(30));
+            RunOnUI(() =>
+            {
+                CurseForgeKey = "";
+                StatusMessage = _localizer.Get("Settings_Saved");
+            });
+            await LoadShopKeysAsync();
+        }
+        catch (RpcException)
+        {
+            RunOnUI(() => StatusMessage = _localizer.Get("Settings_SaveFailed"));
+        }
     }
 
     private async Task LoadBackendAsync()

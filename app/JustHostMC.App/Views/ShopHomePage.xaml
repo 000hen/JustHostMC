@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="JustHostMC.App.Views.ShopHomePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:JustHostMC.App.Models"
+    xmlns:local="using:JustHostMC.App.Views"
+    mc:Ignorable="d">
+
+    <Grid Padding="16,8,16,0">
+        <ProgressRing IsActive="{x:Bind ViewModel.IsHomeLoading, Mode=OneWay}"
+                      Width="48" Height="48" />
+
+        <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                   Visibility="{x:Bind HasStatus(ViewModel.StatusMessage), Mode=OneWay}" />
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      Visibility="{x:Bind local:ShopHomePage.InvertVisibility(ViewModel.IsHomeLoading), Mode=OneWay}">
+            <ItemsControl ItemsSource="{x:Bind ViewModel.HomeSections, Mode=OneWay}"
+                          Margin="0,0,0,24">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="models:ShopSectionItem">
+                        <StackPanel Spacing="8" Margin="0,8,0,16">
+                            <TextBlock Text="{x:Bind Title}"
+                                       Style="{StaticResource SubtitleTextBlockStyle}" />
+                            <ItemsControl ItemsSource="{x:Bind Projects}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <VariableSizedWrapGrid Orientation="Horizontal"
+                                                               ItemWidth="272"
+                                                               ItemHeight="104" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="models:ShopProjectItem">
+                                        <Button Margin="0,0,8,8"
+                                                Padding="12"
+                                                HorizontalAlignment="Stretch"
+                                                VerticalAlignment="Stretch"
+                                                HorizontalContentAlignment="Stretch"
+                                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                Click="OnProjectClick"
+                                                Tag="{x:Bind}">
+                                            <Grid ColumnSpacing="12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <Grid Width="48" Height="48" VerticalAlignment="Top">
+                                                    <FontIcon Glyph="&#xE7B8;" FontSize="20"
+                                                              Visibility="{x:Bind FallbackIconVisibility}" />
+                                                    <Border CornerRadius="6" Visibility="{x:Bind IconVisibility}">
+                                                        <Image Source="{x:Bind Icon}" Stretch="UniformToFill" />
+                                                    </Border>
+                                                </Grid>
+                                                <StackPanel Grid.Column="1" Spacing="2">
+                                                    <TextBlock Text="{x:Bind Title}"
+                                                               Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                    <TextBlock Text="{x:Bind Summary}"
+                                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                               TextWrapping="Wrap"
+                                                               MaxLines="2"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                    <StackPanel Orientation="Horizontal" Spacing="10">
+                                                        <TextBlock Text="{x:Bind Author}"
+                                                                   Visibility="{x:Bind AuthorVisibility}"
+                                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                                   Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                                            <FontIcon Glyph="&#xE896;" FontSize="10"
+                                                                      Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                                                            <TextBlock Text="{x:Bind DownloadsText}"
+                                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                                       Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</Page>

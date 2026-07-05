@@ -772,10 +772,35 @@
                                 <Border Width="235" Height="10" HorizontalAlignment="Left" CornerRadius="3"
                                         Opacity="0.7" Background="{ThemeResource ControlFillColorSecondaryBrush}" />
                             </StackPanel>
-                            <Button x:Uid="ModsUploadButton" Grid.Column="1" Style="{StaticResource AccentButtonStyle}"
-                                Click="OnUploadClick" IsEnabled="{x:Bind Mods.CanModify, Mode=OneWay}"
-                                Visibility="{x:Bind Mods.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
-                            <Border Grid.Column="1" Width="88" Height="32" CornerRadius="4"
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8"
+                                        Visibility="{x:Bind Mods.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}">
+                                <Button AutomationProperties.AutomationId="ModsExportAll"
+                                        Click="OnExportModsClick"
+                                        IsEnabled="{x:Bind Mods.Supported, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <FontIcon Glyph="&#xE896;" FontSize="14" />
+                                        <TextBlock x:Uid="ModsExportAllLabel" />
+                                    </StackPanel>
+                                </Button>
+                                <Button AutomationProperties.AutomationId="ModsBrowse"
+                                        Style="{StaticResource AccentButtonStyle}"
+                                        Click="OnBrowseShopClick"
+                                        IsEnabled="{x:Bind Mods.Supported, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <FontIcon Glyph="&#xE719;" FontSize="14" />
+                                        <TextBlock x:Uid="ModsBrowseLabel" />
+                                    </StackPanel>
+                                </Button>
+                                <Button AutomationProperties.AutomationId="ModsAddJars"
+                                        Click="OnUploadClick"
+                                        IsEnabled="{x:Bind Mods.CanModify, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <FontIcon Glyph="&#xE8E5;" FontSize="14" />
+                                        <TextBlock x:Uid="ModsUploadLabel" />
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                            <Border Grid.Column="1" Width="264" Height="32" CornerRadius="4"
                                     Visibility="{x:Bind Mods.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVis}}"
                                     Background="{ThemeResource ControlFillColorSecondaryBrush}" />
                         </Grid>

@@ -23,6 +23,7 @@ public sealed class DaemonClient : IAsyncDisposable
     public ProviderService.ProviderServiceClient Providers { get; }
     public ScriptService.ScriptServiceClient Scripts { get; }
     public ParserService.ParserServiceClient Parsers { get; }
+    public ShopService.ShopServiceClient Shop { get; }
 
     public DaemonClient(EngineConnection connection)
         : this(connection.PipeName)
@@ -54,6 +55,7 @@ public sealed class DaemonClient : IAsyncDisposable
         Providers = new ProviderService.ProviderServiceClient(_channel);
         Scripts = new ScriptService.ScriptServiceClient(_channel);
         Parsers = new ParserService.ParserServiceClient(_channel);
+        Shop = new ShopService.ShopServiceClient(_channel);
     }
 
     public async ValueTask DisposeAsync() => await _channel.ShutdownAsync().ConfigureAwait(false);

@@ -90,8 +90,6 @@
                     </Grid>
                 </StackPanel>
             </Border>
-                </StackPanel>
-            </Border>
 
             <!-- Destructive: remove all data -->
             <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"

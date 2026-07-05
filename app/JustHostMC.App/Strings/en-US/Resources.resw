@@ -577,6 +577,34 @@
   <data name="SettingsAboutRepo.Text" xml:space="preserve"><value>GitHub Repository</value></data>
   <data name="SettingsAboutIssues.Text" xml:space="preserve"><value>Report an Issue</value></data>
   <data name="ShopWindow_Title" xml:space="preserve"><value>Mod Shop</value></data>
+  <data name="ShopDiscoverTitle.Text" xml:space="preserve"><value>Find something brilliant for your server</value></data>
+  <data name="ShopDiscoverSubtitle.Text" xml:space="preserve"><value>Explore community projects selected for this server. Compatibility filters are on by default, so what you see is ready to fit.</value></data>
+  <data name="ShopDismissWelcome.ToolTipService.ToolTip" xml:space="preserve"><value>Dismiss</value></data>
+  <data name="ShopSearchResultsHeading.Text" xml:space="preserve"><value>Search results</value></data>
+  <data name="ShopCompactFilters.Content" xml:space="preserve"><value>Filters</value></data>
+  <data name="ShopFilterHeading.Text" xml:space="preserve"><value>Filters</value></data>
+  <data name="ShopResetFilters.Content" xml:space="preserve"><value>Reset</value></data>
+  <data name="ShopCompatibilityHeading.Text" xml:space="preserve"><value>Compatibility</value></data>
+  <data name="ShopCompatibilityDescription.Text" xml:space="preserve"><value>Only show projects that support this server.</value></data>
+  <data name="ShopSourceHeading.Text" xml:space="preserve"><value>Source</value></data>
+  <data name="ShopSourceDescription.Text" xml:space="preserve"><value>Change source from the tabs above.</value></data>
+  <data name="ShopFilterHint.Message" xml:space="preserve"><value>Turn off a compatibility filter to broaden the results.</value></data>
+  <data name="ShopCategoriesHeading.Text" xml:space="preserve"><value>Categories</value></data>
+  <data name="ShopCategoriesDescription.Text" xml:space="preserve"><value>Select one or more categories. Results may match any selection.</value></data>
+  <data name="shop_category_adventure" xml:space="preserve"><value>Adventure</value></data>
+  <data name="shop_category_decoration" xml:space="preserve"><value>Decoration</value></data>
+  <data name="shop_category_equipment" xml:space="preserve"><value>Equipment</value></data>
+  <data name="shop_category_game-mechanics" xml:space="preserve"><value>Game mechanics</value></data>
+  <data name="shop_category_library" xml:space="preserve"><value>Library</value></data>
+  <data name="shop_category_magic" xml:space="preserve"><value>Magic</value></data>
+  <data name="shop_category_management" xml:space="preserve"><value>Management</value></data>
+  <data name="shop_category_mobs" xml:space="preserve"><value>Mobs</value></data>
+  <data name="shop_category_optimization" xml:space="preserve"><value>Optimization</value></data>
+  <data name="shop_category_storage" xml:space="preserve"><value>Storage</value></data>
+  <data name="shop_category_technology" xml:space="preserve"><value>Technology</value></data>
+  <data name="shop_category_transportation" xml:space="preserve"><value>Transportation</value></data>
+  <data name="shop_category_utility" xml:space="preserve"><value>Utility</value></data>
+  <data name="shop_category_worldgen" xml:space="preserve"><value>World generation</value></data>
   <data name="ShopSearchBox.PlaceholderText" xml:space="preserve"><value>Search mods…</value></data>
   <data name="ShopBackButton.ToolTipService.ToolTip" xml:space="preserve"><value>Back</value></data>
   <data name="ShopKeyMissingBar.Message" xml:space="preserve"><value>This source needs an API key. Add one in Settings to enable it.</value></data>
@@ -606,8 +634,14 @@
   <data name="Shop_ErrorKeyMissing" xml:space="preserve"><value>This source needs an API key. Add one in Settings.</value></data>
   <data name="Shop_ErrorServerRunning" xml:space="preserve"><value>Stop the server before installing mods.</value></data>
   <data name="shop_home_popular" xml:space="preserve"><value>Most downloaded</value></data>
+  <data name="shop_home_popular_description" xml:space="preserve"><value>Community favorites with a proven track record.</value></data>
   <data name="shop_home_trending" xml:space="preserve"><value>Trending</value></data>
+  <data name="shop_home_trending_description" xml:space="preserve"><value>Projects gaining attention across the community.</value></data>
+  <data name="shop_home_recommended" xml:space="preserve"><value>Recommended for this server</value></data>
+  <data name="shop_home_recommended_description" xml:space="preserve"><value>Popular community picks compatible with this server's version and loader.</value></data>
   <data name="shop_home_updated" xml:space="preserve"><value>Recently updated</value></data>
+  <data name="shop_home_updated_description" xml:space="preserve"><value>Fresh releases and actively maintained projects.</value></data>
+  <data name="shop_home_featured_description" xml:space="preserve"><value>Projects currently featured by this source.</value></data>
   <data name="shop_home_featured" xml:space="preserve"><value>Featured</value></data>
   <data name="ModsExportAllLabel.Text" xml:space="preserve"><value>Download all</value></data>
   <data name="ModsBrowseLabel.Text" xml:space="preserve"><value>Browse</value></data>

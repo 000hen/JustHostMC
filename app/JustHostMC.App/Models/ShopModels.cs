@@ -34,25 +34,35 @@ public sealed class ShopProjectItem
 
     public ShopProject Project { get; }
     public string Title => Project.Title;
+    public string Initial => string.IsNullOrWhiteSpace(Title) ? "?" : Title[..1].ToUpperInvariant();
     public string Author => Project.Author;
+    public string AuthorLine => Author;
     public string Summary => Project.Summary;
     public string DownloadsText => ShopFormat.Count(Project.Downloads);
+    public string ProjectTypeLabel => Project.ProjectType.Length == 0
+        ? ""
+        : char.ToUpperInvariant(Project.ProjectType[0]) + Project.ProjectType[1..];
+    public string CategoriesText => string.Join("  ·  ", Project.Categories.Take(4));
     public BitmapImage? Icon { get; }
     public Visibility IconVisibility => Icon is null ? Visibility.Collapsed : Visibility.Visible;
     public Visibility FallbackIconVisibility => Icon is null ? Visibility.Visible : Visibility.Collapsed;
     public Visibility AuthorVisibility => Author.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
+    public Visibility ProjectTypeVisibility => ProjectTypeLabel.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
+    public Visibility CategoriesVisibility => CategoriesText.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
 }
 
 /// <summary>One home-page section (a localized title plus its cards).</summary>
 public sealed class ShopSectionItem
 {
-    public ShopSectionItem(string title, IReadOnlyList<ShopProjectItem> projects)
+    public ShopSectionItem(string title, string description, IReadOnlyList<ShopProjectItem> projects)
     {
         Title = title;
+        Description = description;
         Projects = projects;
     }
 
     public string Title { get; }
+    public string Description { get; }
     public IReadOnlyList<ShopProjectItem> Projects { get; }
 }
 

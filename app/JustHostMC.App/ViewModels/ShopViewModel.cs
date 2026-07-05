@@ -42,6 +42,8 @@ public sealed partial class ShopViewModel : ObservableObject
 
     public ShopSearchResults SearchResults { get; }
 
+    public ObservableCollection<ShopCategoryFilter> CategoryFilters { get; } = new();
+
     [ObservableProperty]
     public partial ShopInfo? SelectedShop { get; set; }
 
@@ -70,6 +72,34 @@ public sealed partial class ShopViewModel : ObservableObject
     public bool HasLoaderFilter => Context.Loader.Length > 0;
     public string VersionFilterLabel => Context.McVersion;
     public string LoaderFilterLabel => Context.Loader;
+    public string SelectedShopName => SelectedShop?.Name ?? "";
+
+    public bool HasCategoryFilters => CategoryFilters.Count > 0;
+
+    partial void OnSelectedShopChanged(ShopInfo? value)
+    {
+        OnPropertyChanged(nameof(SelectedShopName));
+        CategoryFilters.Clear();
+        if (value?.Id == "modrinth")
+        {
+            foreach (var id in ModrinthCategories)
+                CategoryFilters.Add(new ShopCategoryFilter(id, _localizer.Get($"shop.category.{id}")));
+        }
+        OnPropertyChanged(nameof(HasCategoryFilters));
+    }
+
+    private static readonly string[] ModrinthCategories =
+    [
+        "adventure", "decoration", "equipment", "game-mechanics", "library", "magic",
+        "management", "mobs", "optimization", "storage", "technology", "transportation",
+        "utility", "worldgen",
+    ];
+
+    public void ResetCategoryFilters()
+    {
+        foreach (var category in CategoryFilters)
+            category.IsSelected = false;
+    }
 
     private string EffectiveVersion => UseVersionFilter ? Context.McVersion : "";
     private string EffectiveLoader => UseLoaderFilter ? Context.Loader : "";
@@ -121,6 +151,7 @@ public sealed partial class ShopViewModel : ObservableObject
                 .Where(s => s.Projects.Count > 0)
                 .Select(s => new ShopSectionItem(
                     _localizer.Get(s.Title.Key),
+                    GetSectionDescription(s.Title.Key),
                     s.Projects.Select(p => new ShopProjectItem(p)).ToArray()))
                 .ToArray();
 
@@ -151,6 +182,13 @@ public sealed partial class ShopViewModel : ObservableObject
         }
     }
 
+    private string GetSectionDescription(string titleKey)
+    {
+        var descriptionKey = $"{titleKey}.description";
+        var description = _localizer.Get(descriptionKey);
+        return description == descriptionKey ? "" : description;
+    }
+
     /// <summary>Starts a fresh search for the current query/filters.</summary>
     public async Task StartSearchAsync()
     {
@@ -175,7 +213,7 @@ public sealed partial class ShopViewModel : ObservableObject
         try
         {
             var daemon = await App.Current.DaemonReady;
-            var page = await daemon.Shop.SearchAsync(new ShopSearchRequest
+            var request = new ShopSearchRequest
             {
                 ShopId = shop.Id,
                 Query = Query,
@@ -185,7 +223,9 @@ public sealed partial class ShopViewModel : ObservableObject
                 Sort = Sort,
                 Offset = offset,
                 Limit = PageSize,
-            }, deadline: DateTime.UtcNow.AddSeconds(30));
+            };
+            request.Categories.AddRange(CategoryFilters.Where(c => c.IsSelected).Select(c => c.Id));
+            var page = await daemon.Shop.SearchAsync(request, deadline: DateTime.UtcNow.AddSeconds(30));
             await RunOnUIAsync(() => TotalResults = page.Total);
             return page.Projects.Select(p => new ShopProjectItem(p)).ToArray();
         }
@@ -212,7 +252,7 @@ public sealed partial class ShopViewModel : ObservableObject
         try
         {
             var daemon = await App.Current.DaemonReady;
-            var page = await daemon.Shop.SearchAsync(new ShopSearchRequest
+            var request = new ShopSearchRequest
             {
                 ShopId = shop.Id,
                 Query = text,
@@ -222,7 +262,9 @@ public sealed partial class ShopViewModel : ObservableObject
                 Sort = ShopSort.Relevance,
                 Offset = 0,
                 Limit = SuggestionCount,
-            }, deadline: DateTime.UtcNow.AddSeconds(10));
+            };
+            request.Categories.AddRange(CategoryFilters.Where(c => c.IsSelected).Select(c => c.Id));
+            var page = await daemon.Shop.SearchAsync(request, deadline: DateTime.UtcNow.AddSeconds(10));
             return page.Projects.Select(p => p.Title).ToArray();
         }
         catch
@@ -258,13 +300,29 @@ public sealed partial class ShopViewModel : ObservableObject
     }
 }
 
+public sealed partial class ShopCategoryFilter : ObservableObject
+{
+    public ShopCategoryFilter(string id, string label)
+    {
+        Id = id;
+        Label = label;
+    }
+
+    public string Id { get; }
+    public string Label { get; }
+
+    [ObservableProperty]
+    public partial bool IsSelected { get; set; }
+}
+
 /// <summary>Search results with offset paging: the ListView keeps calling
 /// LoadMoreItemsAsync while the user scrolls and more pages exist.</summary>
 public sealed class ShopSearchResults : ObservableCollection<ShopProjectItem>, ISupportIncrementalLoading
 {
     private readonly Func<int, Task<IReadOnlyList<ShopProjectItem>>> _loadPage;
     private bool _exhausted;
-    private bool _loading;
+    private int _generation;
+    private int _loadingGeneration = -1;
 
     public ShopSearchResults(Func<int, Task<IReadOnlyList<ShopProjectItem>>> loadPage)
     {
@@ -275,6 +333,7 @@ public sealed class ShopSearchResults : ObservableCollection<ShopProjectItem>, I
 
     public void Reset()
     {
+        _generation++;
         Clear();
         _exhausted = false;
     }
@@ -283,12 +342,15 @@ public sealed class ShopSearchResults : ObservableCollection<ShopProjectItem>, I
     {
         return System.Runtime.InteropServices.WindowsRuntime.AsyncInfo.Run(async _ =>
         {
-            if (_loading || _exhausted)
+            var generation = _generation;
+            if (_loadingGeneration == generation || _exhausted)
                 return new LoadMoreItemsResult { Count = 0 };
-            _loading = true;
+            _loadingGeneration = generation;
             try
             {
                 var page = await _loadPage(Count);
+                if (generation != _generation)
+                    return new LoadMoreItemsResult { Count = 0 };
                 if (page.Count == 0)
                     _exhausted = true;
                 foreach (var item in page)
@@ -297,7 +359,8 @@ public sealed class ShopSearchResults : ObservableCollection<ShopProjectItem>, I
             }
             finally
             {
-                _loading = false;
+                if (_loadingGeneration == generation)
+                    _loadingGeneration = -1;
             }
         });
     }

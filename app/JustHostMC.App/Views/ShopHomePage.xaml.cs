@@ -13,6 +13,8 @@ public sealed partial class ShopHomePage : Page
 
     public ShopViewModel ViewModel { get; private set; } = null!;
 
+    public IReadOnlyList<int> SkeletonItems { get; } = [0, 1, 2, 3, 4, 5];
+
     public ShopHomePage()
     {
         InitializeComponent();
@@ -35,9 +37,18 @@ public sealed partial class ShopHomePage : Page
             _window?.ShowProject(item);
     }
 
+    private void OnFilterChanged(object sender, RoutedEventArgs e) =>
+        _ = ViewModel.LoadHomeAsync();
+
+    private void OnDismissWelcome(object sender, RoutedEventArgs e) =>
+        WelcomeBanner.Visibility = Visibility.Collapsed;
+
     public Visibility HasStatus(string status) =>
         status.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
 
     public static Visibility InvertVisibility(bool value) =>
         value ? Visibility.Collapsed : Visibility.Visible;
+
+    public Visibility LoadingVisibility(bool value) =>
+        value ? Visibility.Visible : Visibility.Collapsed;
 }

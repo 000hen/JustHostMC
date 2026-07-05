@@ -581,6 +581,7 @@ message ShopSearchRequest {
   ShopSort sort = 6;
   int32 offset = 7;
   int32 limit = 8; // clamped engine-side to the source's max page size
+  repeated string categories = 9; // source category ids/slugs; any selected category may match
 }
 
 message ShopProjectRequest {

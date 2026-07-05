@@ -115,13 +115,14 @@ type ShopFile struct {
 
 // ShopQuery carries the browse/search filter set into a script.
 type ShopQuery struct {
-	Query     string
-	MCVersion string // empty = no version filter
-	Loader    string // empty = no loader filter
-	Kind      string // "mod" | "plugin"
-	Sort      string // "relevance" | "downloads" | "follows" | "newest" | "updated"
-	Offset    int
-	Limit     int
+	Query      string
+	MCVersion  string   // empty = no version filter
+	Loader     string   // empty = no loader filter
+	Kind       string   // "mod" | "plugin"
+	Categories []string // source-native category ids/slugs; empty = all
+	Sort       string   // "relevance" | "downloads" | "follows" | "newest" | "updated"
+	Offset     int
+	Limit      int
 }
 
 // shopFuncs are the globals every shop script must define.
@@ -186,7 +187,7 @@ func (s *LuaShop) grants() GrantSet {
 
 // call runs one script global with a ctx table built from fields, returning
 // the result table. It enforces the needs_key gate first.
-func (s *LuaShop) call(ctx context.Context, fn string, fields map[string]lua.LValue) (*lua.LTable, error) {
+func (s *LuaShop) call(ctx context.Context, fn string, fields map[string]lua.LValue, slices ...map[string][]string) (*lua.LTable, error) {
 	if !s.Ready() {
 		return nil, fmt.Errorf("%w: shop %s", ErrShopKeyMissing, s.meta.ID)
 	}
@@ -204,6 +205,15 @@ func (s *LuaShop) call(ctx context.Context, fn string, fields map[string]lua.LVa
 	ctxTbl := L.NewTable()
 	for k, v := range fields {
 		ctxTbl.RawSetString(k, v)
+	}
+	if len(slices) > 0 {
+		for key, values := range slices[0] {
+			items := L.NewTable()
+			for _, value := range values {
+				items.Append(lua.LString(value))
+			}
+			ctxTbl.RawSetString(key, items)
+		}
 	}
 	cfg := L.NewTable()
 	cfg.RawSetString("api_key", lua.LString(s.Key()))
@@ -274,7 +284,7 @@ func (s *LuaShop) Search(ctx context.Context, q ShopQuery) (ShopPage, error) {
 		"sort":       lua.LString(q.Sort),
 		"offset":     lua.LNumber(q.Offset),
 		"limit":      lua.LNumber(q.Limit),
-	})
+	}, map[string][]string{"categories": q.Categories})
 	if err != nil {
 		return ShopPage{}, err
 	}

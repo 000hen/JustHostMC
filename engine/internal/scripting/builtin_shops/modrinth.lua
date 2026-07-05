@@ -69,6 +69,13 @@ local function facets(ctx)
   if (ctx.mc_version or "") ~= "" then
     groups[#groups + 1] = '["versions:' .. ctx.mc_version .. '"]'
   end
+  if #(ctx.categories or {}) > 0 then
+    local parts = {}
+    for _, category in ipairs(ctx.categories) do
+      parts[#parts + 1] = '"categories:' .. category .. '"'
+    end
+    groups[#groups + 1] = "[" .. table.concat(parts, ",") .. "]"
+  end
   return "[" .. table.concat(groups, ",") .. "]"
 end
 
@@ -103,11 +110,11 @@ end
 
 function home(ctx)
   local popular = run_search(ctx, "downloads", 0, 12)
-  local trending = run_search(ctx, "follows", 0, 12)
+  local recommended = run_search(ctx, "follows", 0, 12)
   local updated = run_search(ctx, "updated", 0, 12)
   return { sections = {
     { title_key = "shop.home.popular", projects = popular },
-    { title_key = "shop.home.trending", projects = trending },
+    { title_key = "shop.home.recommended", projects = recommended },
     { title_key = "shop.home.updated", projects = updated },
   } }
 end

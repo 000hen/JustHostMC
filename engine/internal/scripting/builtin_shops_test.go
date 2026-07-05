@@ -74,7 +74,8 @@ func TestModrinthSearchBuildsFacets(t *testing.T) {
 	sh, _ := ss.Get("modrinth")
 
 	page, err := sh.Search(context.Background(), ShopQuery{
-		Query: "sodium", MCVersion: "26.1", Loader: "fabric", Kind: "mod", Sort: "downloads", Limit: 20,
+		Query: "sodium", MCVersion: "26.1", Loader: "fabric", Kind: "mod",
+		Categories: []string{"optimization", "technology"}, Sort: "downloads", Limit: 20,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -82,7 +83,7 @@ func TestModrinthSearchBuildsFacets(t *testing.T) {
 	if gotPath != "/v2/search" || gotQuery != "sodium" || gotIndex != "downloads" {
 		t.Fatalf("request: path=%q query=%q index=%q", gotPath, gotQuery, gotIndex)
 	}
-	want := `[["project_type:mod"],["categories:fabric"],["versions:26.1"]]`
+	want := `[["project_type:mod"],["categories:fabric"],["versions:26.1"],["categories:optimization","categories:technology"]]`
 	if gotFacets != want {
 		t.Fatalf("facets = %q, want %q", gotFacets, want)
 	}
@@ -150,8 +151,8 @@ func TestCurseForgeSearchParams(t *testing.T) {
 			"data": []map[string]any{{
 				"id": 310806, "slug": "jei", "name": "JEI", "summary": "items",
 				"classId": 6, "downloadCount": 12345, "thumbsUpCount": 7,
-				"logo":    map[string]any{"thumbnailUrl": "http://cf/t.png"},
-				"authors": []map[string]any{{"name": "mezz"}},
+				"logo":       map[string]any{"thumbnailUrl": "http://cf/t.png"},
+				"authors":    []map[string]any{{"name": "mezz"}},
 				"categories": []map[string]any{{"name": "Utility"}},
 			}},
 			"pagination": map[string]any{"index": 0, "pageSize": 20, "totalCount": 55},

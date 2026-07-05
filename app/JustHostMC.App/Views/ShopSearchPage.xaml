@@ -6,35 +6,137 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:JustHostMC.App.Models"
+    xmlns:viewModels="using:JustHostMC.App.ViewModels"
     mc:Ignorable="d">
 
-    <Grid Padding="16,8,16,0" RowSpacing="8">
+    <Grid x:Name="RootLayout"
+          MaxWidth="1440"
+          HorizontalAlignment="Center"
+          Padding="24,16,24,0"
+          ColumnSpacing="20"
+          RowSpacing="12">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState x:Name="CompactSearch">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="RootLayout.Padding" Value="12,8,12,0" />
+                        <Setter Target="FilterColumn.Width" Value="0" />
+                        <Setter Target="FilterRail.Visibility" Value="Collapsed" />
+                        <Setter Target="CompactFilterButton.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="WideSearch">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1050" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="RootLayout.Padding" Value="24,16,24,0" />
+                        <Setter Target="FilterColumn.Width" Value="292" />
+                        <Setter Target="FilterRail.Visibility" Value="Visible" />
+                        <Setter Target="CompactFilterButton.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition x:Name="FilterColumn" Width="0" />
+        </Grid.ColumnDefinitions>
 
         <Grid ColumnSpacing="12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <TextBlock VerticalAlignment="Center"
-                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                       Text="{x:Bind ResultSummary(ViewModel.TotalResults, ViewModel.Query), Mode=OneWay}" />
-            <ComboBox x:Name="SortCombo"
-                      x:Uid="ShopSortCombo"
-                      AutomationProperties.AutomationId="ShopSort"
-                      Grid.Column="1"
-                      MinWidth="160"
-                      SelectedIndex="0"
-                      SelectionChanged="OnSortChanged">
-                <ComboBoxItem x:Uid="ShopSortRelevance" />
-                <ComboBoxItem x:Uid="ShopSortDownloads" />
-                <ComboBoxItem x:Uid="ShopSortFollows" />
-                <ComboBoxItem x:Uid="ShopSortNewest" />
-                <ComboBoxItem x:Uid="ShopSortUpdated" />
-            </ComboBox>
+            <StackPanel Spacing="2">
+                <TextBlock x:Uid="ShopSearchResultsHeading"
+                           Style="{StaticResource SubtitleTextBlockStyle}" />
+                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           Text="{x:Bind ResultSummary(ViewModel.TotalResults, ViewModel.Query), Mode=OneWay}" />
+            </StackPanel>
+
+            <Button x:Name="CompactFilterButton"
+                    x:Uid="ShopCompactFilters"
+                    Grid.Column="1"
+                    Visibility="Collapsed"
+                    VerticalAlignment="Center">
+                <Button.ContentTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE71C;" FontSize="14" />
+                            <TextBlock Text="{Binding}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </Button.ContentTemplate>
+                <Button.Flyout>
+                    <Flyout Placement="BottomEdgeAlignedRight">
+                        <ScrollViewer MaxHeight="620" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel Width="280" Spacing="16">
+                            <TextBlock x:Uid="ShopFilterHeading"
+                                       Style="{StaticResource SubtitleTextBlockStyle}" />
+                            <ComboBox x:Name="CompactSortCombo"
+                                      x:Uid="ShopSortCombo"
+                                      HorizontalAlignment="Stretch"
+                                      SelectedIndex="0"
+                                      SelectionChanged="OnCompactSortChanged">
+                                <ComboBoxItem x:Uid="ShopSortRelevance" />
+                                <ComboBoxItem x:Uid="ShopSortDownloads" />
+                                <ComboBoxItem x:Uid="ShopSortFollows" />
+                                <ComboBoxItem x:Uid="ShopSortNewest" />
+                                <ComboBoxItem x:Uid="ShopSortUpdated" />
+                            </ComboBox>
+                            <Rectangle Height="1"
+                                       Fill="{ThemeResource DividerStrokeColorDefaultBrush}" />
+                            <StackPanel Spacing="4">
+                                <TextBlock x:Uid="ShopCompatibilityHeading"
+                                           Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                <TextBlock x:Uid="ShopCompatibilityDescription"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
+                            <CheckBox Content="{x:Bind ViewModel.VersionFilterLabel, Mode=OneWay}"
+                                      IsChecked="{x:Bind ViewModel.UseVersionFilter, Mode=TwoWay}"
+                                      Visibility="{x:Bind ViewModel.HasVersionFilter}"
+                                      Click="OnVersionFilterChanged" />
+                            <CheckBox Content="{x:Bind ViewModel.LoaderFilterLabel, Mode=OneWay}"
+                                      IsChecked="{x:Bind ViewModel.UseLoaderFilter, Mode=TwoWay}"
+                                      Visibility="{x:Bind ViewModel.HasLoaderFilter}"
+                                      Click="OnLoaderFilterChanged" />
+                            <StackPanel Spacing="8"
+                                        Visibility="{x:Bind BoolToVisibility(ViewModel.HasCategoryFilters), Mode=OneWay}">
+                                <Rectangle Height="1"
+                                           Fill="{ThemeResource DividerStrokeColorDefaultBrush}" />
+                                <TextBlock x:Uid="ShopCategoriesHeading"
+                                           Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                <ItemsControl ItemsSource="{x:Bind ViewModel.CategoryFilters, Mode=OneWay}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="viewModels:ShopCategoryFilter">
+                                            <CheckBox Content="{x:Bind Label}"
+                                                      IsChecked="{x:Bind IsSelected, Mode=TwoWay}"
+                                                      Tag="{x:Bind}"
+                                                      Click="OnCategoryFilterChanged" />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                            <Button x:Uid="ShopResetFilters"
+                                    HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Center"
+                                    Click="OnResetFilters" />
+                        </StackPanel>
+                        </ScrollViewer>
+                    </Flyout>
+                </Button.Flyout>
+            </Button>
         </Grid>
 
         <ListView Grid.Row="1"
@@ -46,69 +148,261 @@
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                    <Setter Property="Padding" Value="8" />
+                    <Setter Property="Padding" Value="0" />
+                    <Setter Property="Margin" Value="0,0,0,8" />
+                    <Setter Property="CornerRadius" Value="8" />
                 </Style>
             </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="models:ShopProjectItem">
-                    <Grid ColumnSpacing="12"
-                          Padding="0,6"
-                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                          BorderThickness="0,0,0,1">
+                    <Grid Padding="14" ColumnSpacing="14" MinHeight="106">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="76" />
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <Grid Width="44" Height="44" VerticalAlignment="Top">
-                            <FontIcon Glyph="&#xE7B8;" FontSize="18"
-                                      Visibility="{x:Bind FallbackIconVisibility}" />
-                            <Border CornerRadius="6" Visibility="{x:Bind IconVisibility}">
+
+                        <Grid Width="76" Height="76" VerticalAlignment="Top">
+                            <Border Background="{ThemeResource AccentFillColorTertiaryBrush}"
+                                    CornerRadius="10">
+                                <TextBlock Text="{x:Bind Initial}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           FontSize="28"
+                                           FontWeight="SemiBold"
+                                           Visibility="{x:Bind FallbackIconVisibility}" />
+                            </Border>
+                            <Border CornerRadius="10"
+                                    Visibility="{x:Bind IconVisibility}">
                                 <Image Source="{x:Bind Icon}" Stretch="UniformToFill" />
                             </Border>
                         </Grid>
-                        <StackPanel Grid.Column="1" Spacing="2">
+
+                        <StackPanel Grid.Column="1" Spacing="5">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <TextBlock Text="{x:Bind Title}"
-                                           Style="{StaticResource BodyStrongTextBlockStyle}"
+                                           Style="{StaticResource SubtitleTextBlockStyle}"
                                            TextTrimming="CharacterEllipsis" />
-                                <TextBlock Text="{x:Bind Author}"
+                                <TextBlock Text="{x:Bind AuthorLine}"
                                            Visibility="{x:Bind AuthorVisibility}"
                                            VerticalAlignment="Bottom"
                                            Style="{StaticResource CaptionTextBlockStyle}"
                                            Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
                             </StackPanel>
                             <TextBlock Text="{x:Bind Summary}"
-                                       Style="{StaticResource CaptionTextBlockStyle}"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                        TextWrapping="Wrap"
                                        MaxLines="2"
                                        TextTrimming="CharacterEllipsis" />
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Border Padding="7,2"
+                                        CornerRadius="10"
+                                        Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                                        Visibility="{x:Bind ProjectTypeVisibility}">
+                                    <TextBlock Text="{x:Bind ProjectTypeLabel}"
+                                               Style="{StaticResource CaptionTextBlockStyle}" />
+                                </Border>
+                                <TextBlock Text="{x:Bind CategoriesText}"
+                                           VerticalAlignment="Center"
+                                           Visibility="{x:Bind CategoriesVisibility}"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                           TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
                         </StackPanel>
-                        <StackPanel Grid.Column="2"
-                                    Orientation="Horizontal"
-                                    Spacing="4"
-                                    VerticalAlignment="Center">
-                            <FontIcon Glyph="&#xE896;" FontSize="11"
-                                      Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
-                            <TextBlock Text="{x:Bind DownloadsText}"
-                                       Style="{StaticResource CaptionTextBlockStyle}"
-                                       Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
-                        </StackPanel>
+
+                        <Border Grid.Column="2"
+                                Padding="9,5"
+                                CornerRadius="12"
+                                VerticalAlignment="Top"
+                                Background="{ThemeResource ControlFillColorSecondaryBrush}">
+                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                <FontIcon Glyph="&#xE896;"
+                                          FontSize="11"
+                                          Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                <TextBlock Text="{x:Bind DownloadsText}"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            </StackPanel>
+                        </Border>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
 
-        <ProgressRing Grid.Row="1"
-                      Width="40" Height="40"
-                      IsActive="{x:Bind ViewModel.IsSearchLoading, Mode=OneWay}" />
+        <Border x:Name="FilterRail"
+                Grid.Column="1"
+                Grid.RowSpan="2"
+                Visibility="Collapsed"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="10">
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+                <StackPanel Padding="20" Spacing="18">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock x:Uid="ShopFilterHeading"
+                                   Style="{StaticResource SubtitleTextBlockStyle}"
+                                   VerticalAlignment="Center" />
+                        <Button x:Uid="ShopResetFilters"
+                                Grid.Column="1"
+                                Padding="8,4"
+                                Click="OnResetFilters" />
+                    </Grid>
 
-        <TextBlock Grid.Row="1"
-                   x:Uid="ShopSearchEmpty"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"
-                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                   Visibility="{x:Bind ShowEmpty(ViewModel.IsSearchLoading, ViewModel.TotalResults), Mode=OneWay}" />
+                    <ComboBox x:Name="WideSortCombo"
+                              x:Uid="ShopSortCombo"
+                              HorizontalAlignment="Stretch"
+                              SelectedIndex="0"
+                              SelectionChanged="OnWideSortChanged">
+                        <ComboBoxItem x:Uid="ShopSortRelevance" />
+                        <ComboBoxItem x:Uid="ShopSortDownloads" />
+                        <ComboBoxItem x:Uid="ShopSortFollows" />
+                        <ComboBoxItem x:Uid="ShopSortNewest" />
+                        <ComboBoxItem x:Uid="ShopSortUpdated" />
+                    </ComboBox>
+
+                    <Rectangle Height="1"
+                               Fill="{ThemeResource DividerStrokeColorDefaultBrush}" />
+
+                    <StackPanel Spacing="6">
+                        <TextBlock x:Uid="ShopSourceHeading"
+                                   Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        <Border Padding="10,8"
+                                CornerRadius="6"
+                                Background="{ThemeResource ControlFillColorSecondaryBrush}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE8D4;" FontSize="13" />
+                                <TextBlock Text="{x:Bind ViewModel.SelectedShopName, Mode=OneWay}"
+                                           TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                        </Border>
+                        <TextBlock x:Uid="ShopSourceDescription"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+
+                    <Rectangle Height="1"
+                               Fill="{ThemeResource DividerStrokeColorDefaultBrush}" />
+
+                    <StackPanel Spacing="5">
+                        <TextBlock x:Uid="ShopCompatibilityHeading"
+                                   Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        <TextBlock x:Uid="ShopCompatibilityDescription"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                    <CheckBox Content="{x:Bind ViewModel.VersionFilterLabel, Mode=OneWay}"
+                              IsChecked="{x:Bind ViewModel.UseVersionFilter, Mode=TwoWay}"
+                              Visibility="{x:Bind ViewModel.HasVersionFilter}"
+                              Click="OnVersionFilterChanged" />
+                    <CheckBox Content="{x:Bind ViewModel.LoaderFilterLabel, Mode=OneWay}"
+                              IsChecked="{x:Bind ViewModel.UseLoaderFilter, Mode=TwoWay}"
+                              Visibility="{x:Bind ViewModel.HasLoaderFilter}"
+                              Click="OnLoaderFilterChanged" />
+
+                    <StackPanel Spacing="8"
+                                Visibility="{x:Bind BoolToVisibility(ViewModel.HasCategoryFilters), Mode=OneWay}">
+                        <Rectangle Height="1"
+                                   Fill="{ThemeResource DividerStrokeColorDefaultBrush}" />
+                        <StackPanel Spacing="4">
+                            <TextBlock x:Uid="ShopCategoriesHeading"
+                                       Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <TextBlock x:Uid="ShopCategoriesDescription"
+                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                        <ItemsControl ItemsSource="{x:Bind ViewModel.CategoryFilters, Mode=OneWay}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="viewModels:ShopCategoryFilter">
+                                    <CheckBox Content="{x:Bind Label}"
+                                              IsChecked="{x:Bind IsSelected, Mode=TwoWay}"
+                                              Tag="{x:Bind}"
+                                              Click="OnCategoryFilterChanged" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <InfoBar x:Uid="ShopFilterHint"
+                             IsOpen="True"
+                             IsClosable="False"
+                             Severity="Informational" />
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <ItemsControl Grid.Row="1"
+                      Opacity="0.62"
+                      ItemsSource="{x:Bind SkeletonItems}"
+                      Visibility="{x:Bind ShowSkeleton(ViewModel.IsSearchLoading, ViewModel.SearchResults.Count), Mode=OneWay}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border Height="106"
+                            Margin="0,0,0,8"
+                            Padding="14"
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8">
+                        <Grid ColumnSpacing="14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="76" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="76" />
+                            </Grid.ColumnDefinitions>
+                            <Border Width="76" Height="76"
+                                    Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                                    CornerRadius="10" />
+                            <StackPanel Grid.Column="1" Spacing="9" VerticalAlignment="Center">
+                                <Border Width="220" Height="17"
+                                        HorizontalAlignment="Left"
+                                        Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                                        CornerRadius="4" />
+                                <Border Height="11"
+                                        Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                                        CornerRadius="3" />
+                                <Border Width="360" MaxWidth="360" Height="11"
+                                        HorizontalAlignment="Left"
+                                        Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                                        CornerRadius="3" />
+                                <Border Width="130" Height="17"
+                                        HorizontalAlignment="Left"
+                                        Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                                        CornerRadius="8" />
+                            </StackPanel>
+                            <Border Grid.Column="2"
+                                    Width="64" Height="24"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Top"
+                                    Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                                    CornerRadius="12" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <StackPanel Grid.Row="1"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Spacing="10"
+                    Visibility="{x:Bind ShowEmpty(ViewModel.IsSearchLoading, ViewModel.TotalResults), Mode=OneWay}">
+            <FontIcon Glyph="&#xE721;"
+                      FontSize="32"
+                      Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+            <TextBlock x:Uid="ShopSearchEmpty"
+                       MaxWidth="420"
+                       TextAlignment="Center"
+                       TextWrapping="Wrap"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+        </StackPanel>
     </Grid>
 </Page>

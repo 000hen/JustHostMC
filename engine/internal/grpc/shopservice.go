@@ -93,13 +93,14 @@ func (s *ShopService) Search(ctx context.Context, req *mcmanagerv1.ShopSearchReq
 		limit = shopSearchMaxLimit
 	}
 	page, err := sh.Search(ctx, scripting.ShopQuery{
-		Query:     req.Query,
-		MCVersion: req.McVersion,
-		Loader:    req.Loader,
-		Kind:      kindString(req.Kind),
-		Sort:      sortString(req.Sort),
-		Offset:    int(req.Offset),
-		Limit:     limit,
+		Query:      req.Query,
+		MCVersion:  req.McVersion,
+		Loader:     req.Loader,
+		Kind:       kindString(req.Kind),
+		Categories: slices.Clone(req.Categories),
+		Sort:       sortString(req.Sort),
+		Offset:     int(req.Offset),
+		Limit:      limit,
 	})
 	if err != nil {
 		return nil, mapShopError(err)

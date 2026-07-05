@@ -6,180 +6,363 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:JustHostMC.App.Models"
-    xmlns:grpc="using:McManager.Grpc"
-    xmlns:local="using:JustHostMC.App.Views"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid Padding="16,8,16,0" RowSpacing="12">
+    <Grid x:Name="RootLayout" Padding="12,8,12,0" RowSpacing="12">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState x:Name="CompactDetail">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="RootLayout.Padding" Value="12,8,12,0" />
+                        <Setter Target="DetailLayout.ColumnSpacing" Value="0" />
+                        <Setter Target="DetailLayout.RowSpacing" Value="12" />
+                        <Setter Target="RailColumn.Width" Value="*" />
+                        <Setter Target="DetailsColumn.Width" Value="0" />
+                        <Setter Target="ProjectRail.Visibility" Value="Collapsed" />
+                        <Setter Target="CompactHeader.Visibility" Value="Visible" />
+                        <Setter Target="RightPane.(Grid.Column)" Value="0" />
+                        <Setter Target="RightPane.(Grid.Row)" Value="1" />
+                        <Setter Target="RightPane.(Grid.RowSpan)" Value="1" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="WideDetail">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1000" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="RootLayout.Padding" Value="24,16,24,0" />
+                        <Setter Target="DetailLayout.ColumnSpacing" Value="24" />
+                        <Setter Target="DetailLayout.RowSpacing" Value="0" />
+                        <Setter Target="RailColumn.Width" Value="340" />
+                        <Setter Target="DetailsColumn.Width" Value="*" />
+                        <Setter Target="ProjectRail.Visibility" Value="Visible" />
+                        <Setter Target="CompactHeader.Visibility" Value="Collapsed" />
+                        <Setter Target="RightPane.(Grid.Column)" Value="1" />
+                        <Setter Target="RightPane.(Grid.Row)" Value="0" />
+                        <Setter Target="RightPane.(Grid.RowSpan)" Value="2" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <!-- Hero -->
-        <Grid ColumnSpacing="16">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <Grid Width="64" Height="64" VerticalAlignment="Top">
-                <FontIcon Glyph="&#xE7B8;" FontSize="26"
-                          Visibility="{x:Bind ViewModel.Card.FallbackIconVisibility, Mode=OneWay}" />
-                <Border CornerRadius="8" Visibility="{x:Bind ViewModel.Card.IconVisibility, Mode=OneWay}">
-                    <Image Source="{x:Bind ViewModel.Card.Icon, Mode=OneWay}" Stretch="UniformToFill" />
-                </Border>
-            </Grid>
-            <StackPanel Grid.Column="1" Spacing="4">
-                <StackPanel Orientation="Horizontal" Spacing="10">
-                    <TextBlock Text="{x:Bind ViewModel.Card.Title, Mode=OneWay}"
-                               Style="{StaticResource TitleTextBlockStyle}"
-                               TextTrimming="CharacterEllipsis" />
-                    <Border VerticalAlignment="Center"
-                            Padding="8,2"
-                            CornerRadius="10"
-                            Background="{ThemeResource ControlFillColorSecondaryBrush}">
-                        <TextBlock Text="{x:Bind ViewModel.SourceName}"
-                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                    </Border>
-                </StackPanel>
-                <TextBlock Text="{x:Bind ViewModel.Card.Summary, Mode=OneWay}"
-                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                           TextWrapping="Wrap"
-                           MaxLines="2"
-                           TextTrimming="CharacterEllipsis" />
-                <StackPanel Orientation="Horizontal" Spacing="14">
-                    <TextBlock Text="{x:Bind ViewModel.Card.Author, Mode=OneWay}"
-                               Visibility="{x:Bind ViewModel.Card.AuthorVisibility, Mode=OneWay}"
-                               Style="{StaticResource CaptionTextBlockStyle}"
-                               Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
-                    <StackPanel Orientation="Horizontal" Spacing="4">
-                        <FontIcon Glyph="&#xE896;" FontSize="11"
-                                  Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
-                        <TextBlock Text="{x:Bind ViewModel.Card.DownloadsText, Mode=OneWay}"
-                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                   Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
-                    </StackPanel>
-                </StackPanel>
-            </StackPanel>
-            <HyperlinkButton x:Uid="ShopOpenWebsite"
-                             Grid.Column="2"
-                             VerticalAlignment="Top"
-                             Click="OnOpenWebsite"
-                             Visibility="{x:Bind HasUrl(ViewModel.WebsiteUrl), Mode=OneWay}" />
-        </Grid>
-
-        <!-- Overview / Versions switch -->
-        <SelectorBar x:Name="TabBar" Grid.Row="1" SelectionChanged="OnTabChanged">
-            <SelectorBarItem x:Name="OverviewTab" x:Uid="ShopOverviewTab" IsSelected="True" />
-            <SelectorBarItem x:Name="VersionsTab" x:Uid="ShopVersionsTab" />
-        </SelectorBar>
-
-        <!-- Overview -->
-        <Grid Grid.Row="2" x:Name="OverviewPanel" RowSpacing="12">
+        <!-- Wide detail layout: project actions and media stay in the compact
+             left rail while long-form content gets the flexible right pane. -->
+        <Grid x:Name="DetailLayout" RowSpacing="12">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <FlipView Height="260"
-                      CornerRadius="8"
-                      ItemsSource="{x:Bind ViewModel.Gallery, Mode=OneWay}"
-                      Visibility="{x:Bind BoolToVisibility(ViewModel.HasGallery), Mode=OneWay}">
-                <FlipView.ItemTemplate>
-                    <DataTemplate x:DataType="models:ShopGalleryItem">
-                        <Grid>
-                            <Image Source="{x:Bind Image}" Stretch="Uniform" />
-                            <Border VerticalAlignment="Bottom"
-                                    Padding="12,6"
-                                    Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}"
-                                    Visibility="{x:Bind TitleVisibility}">
-                                <TextBlock Text="{x:Bind Title}"
-                                           Style="{StaticResource CaptionTextBlockStyle}" />
-                            </Border>
-                        </Grid>
-                    </DataTemplate>
-                </FlipView.ItemTemplate>
-            </FlipView>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="RailColumn" Width="*" />
+                <ColumnDefinition x:Name="DetailsColumn" Width="0" />
+            </Grid.ColumnDefinitions>
 
-            <Grid Grid.Row="1">
-                <ProgressRing Width="40" Height="40"
-                              IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" />
-                <WebView2 x:Name="BodyView"
-                          Visibility="{x:Bind InvertBoolToVisibility(ViewModel.IsLoading), Mode=OneWay}" />
-            </Grid>
-        </Grid>
-
-        <!-- Versions -->
-        <Grid Grid.Row="2" x:Name="VersionsPanel" Visibility="Collapsed">
-            <ListView ItemsSource="{x:Bind ViewModel.Versions, Mode=OneWay}"
-                      SelectionMode="None">
-                <ListView.ItemContainerStyle>
-                    <Style TargetType="ListViewItem">
-                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                    </Style>
-                </ListView.ItemContainerStyle>
-                <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="models:ShopVersionItem">
-                        <Grid ColumnSpacing="12"
-                              Padding="0,8"
-                              BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                              BorderThickness="0,0,0,1">
+            <Border x:Name="ProjectRail"
+                    Grid.RowSpan="2"
+                    Visibility="Collapsed"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Padding="20" Spacing="16">
+                        <Grid ColumnSpacing="14">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <Border VerticalAlignment="Center"
-                                    Padding="8,2"
-                                    CornerRadius="10"
-                                    Background="{ThemeResource ControlFillColorSecondaryBrush}"
-                                    Visibility="{x:Bind ChannelVisibility}">
-                                <TextBlock Text="{x:Bind ChannelText}"
-                                           Style="{StaticResource CaptionTextBlockStyle}" />
-                            </Border>
-                            <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <TextBlock Text="{x:Bind Name}"
-                                               Style="{StaticResource BodyStrongTextBlockStyle}"
-                                               TextTrimming="CharacterEllipsis" />
-                                    <TextBlock Text="{x:Bind VersionNumber}"
-                                               VerticalAlignment="Bottom"
-                                               Style="{StaticResource CaptionTextBlockStyle}"
-                                               Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <TextBlock Text="{x:Bind GameVersionsText}"
+                            <Grid Width="72" Height="72" VerticalAlignment="Top">
+                                <FontIcon Glyph="&#xE7B8;"
+                                          FontSize="28"
+                                          Visibility="{x:Bind ViewModel.Card.FallbackIconVisibility, Mode=OneWay}" />
+                                <Border CornerRadius="10"
+                                        Visibility="{x:Bind ViewModel.Card.IconVisibility, Mode=OneWay}">
+                                    <Image Source="{x:Bind ViewModel.Card.Icon, Mode=OneWay}"
+                                           Stretch="UniformToFill" />
+                                </Border>
+                            </Grid>
+                            <StackPanel Grid.Column="1" Spacing="6" VerticalAlignment="Center">
+                                <TextBlock Text="{x:Bind ViewModel.Card.Title, Mode=OneWay}"
+                                           Style="{StaticResource TitleTextBlockStyle}"
+                                           TextWrapping="Wrap"
+                                           MaxLines="2"
+                                           TextTrimming="CharacterEllipsis" />
+                                <Border HorizontalAlignment="Left"
+                                        Padding="8,2"
+                                        CornerRadius="10"
+                                        Background="{ThemeResource ControlFillColorSecondaryBrush}">
+                                    <TextBlock Text="{x:Bind ViewModel.SourceName}"
                                                Style="{StaticResource CaptionTextBlockStyle}"
                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                    <TextBlock Text="{x:Bind InfoLine}"
-                                               Style="{StaticResource CaptionTextBlockStyle}"
-                                               Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
-                                </StackPanel>
+                                </Border>
                             </StackPanel>
-                            <Button x:Uid="ShopInstallButton"
-                                    Grid.Column="2"
-                                    VerticalAlignment="Center"
-                                    Style="{StaticResource AccentButtonStyle}"
-                                    Click="OnInstallClick"
-                                    Tag="{x:Bind}" />
                         </Grid>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-            <ProgressRing Width="40" Height="40"
-                          IsActive="{x:Bind ViewModel.IsVersionsLoading, Mode=OneWay}" />
-            <TextBlock x:Uid="ShopNoVersions"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center"
-                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                       Visibility="{x:Bind ShowNoVersions(ViewModel.IsVersionsLoading, ViewModel.Versions.Count), Mode=OneWay}" />
+
+                        <TextBlock Text="{x:Bind ViewModel.Card.Summary, Mode=OneWay}"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   TextWrapping="Wrap" />
+
+                        <StackPanel Orientation="Horizontal" Spacing="16">
+                            <StackPanel Orientation="Horizontal"
+                                        Spacing="5"
+                                        Visibility="{x:Bind ViewModel.Card.AuthorVisibility, Mode=OneWay}">
+                                <FontIcon Glyph="&#xE77B;"
+                                          FontSize="12"
+                                          Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                                <TextBlock Text="{x:Bind ViewModel.Card.Author, Mode=OneWay}"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                <FontIcon Glyph="&#xE896;"
+                                          FontSize="12"
+                                          Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                                <TextBlock Text="{x:Bind ViewModel.Card.DownloadsText, Mode=OneWay}"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Button x:Name="InstallLatestButton"
+                                x:Uid="ShopInstallLatestButton"
+                                AutomationProperties.AutomationId="ShopInstallLatest"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                Style="{StaticResource AccentButtonStyle}"
+                                IsEnabled="{x:Bind ViewModel.CanInstallLatest, Mode=OneWay}"
+                                Click="OnInstallClick"
+                                Tag="{x:Bind ViewModel.LatestRelease, Mode=OneWay}" />
+
+                        <HyperlinkButton x:Uid="ShopOpenWebsite"
+                                         HorizontalAlignment="Left"
+                                         Padding="0"
+                                         Click="OnOpenWebsite"
+                                         Visibility="{x:Bind HasUrl(ViewModel.WebsiteUrl), Mode=OneWay}" />
+
+                        <FlipView Height="210"
+                                  CornerRadius="8"
+                                  ItemsSource="{x:Bind ViewModel.Gallery, Mode=OneWay}"
+                                  Visibility="{x:Bind BoolToVisibility(ViewModel.HasGallery), Mode=OneWay}">
+                            <FlipView.ItemTemplate>
+                                <DataTemplate x:DataType="models:ShopGalleryItem">
+                                    <Grid Background="{ThemeResource ControlFillColorSecondaryBrush}">
+                                        <Image Source="{x:Bind Image}" Stretch="Uniform" />
+                                        <Border VerticalAlignment="Bottom"
+                                                Padding="12,6"
+                                                Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}"
+                                                Visibility="{x:Bind TitleVisibility}">
+                                            <TextBlock Text="{x:Bind Title}"
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       TextTrimming="CharacterEllipsis" />
+                                        </Border>
+                                    </Grid>
+                                </DataTemplate>
+                            </FlipView.ItemTemplate>
+                        </FlipView>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <!-- A short summary replaces the tall rail when the window is narrow,
+                 leaving most of the height available for Details and Versions. -->
+            <Grid x:Name="CompactHeader" RowSpacing="12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8">
+                    <Grid Padding="12" ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="56" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="170" />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Width="56" Height="56" VerticalAlignment="Top">
+                        <FontIcon Glyph="&#xE7B8;"
+                                  FontSize="23"
+                                  Visibility="{x:Bind ViewModel.Card.FallbackIconVisibility, Mode=OneWay}" />
+                        <Border CornerRadius="8"
+                                Visibility="{x:Bind ViewModel.Card.IconVisibility, Mode=OneWay}">
+                            <Image Source="{x:Bind ViewModel.Card.Icon, Mode=OneWay}"
+                                   Stretch="UniformToFill" />
+                        </Border>
+                    </Grid>
+
+                    <StackPanel Grid.Column="1" Spacing="3">
+                        <Grid ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{x:Bind ViewModel.Card.Title, Mode=OneWay}"
+                                       Style="{StaticResource SubtitleTextBlockStyle}"
+                                       TextTrimming="CharacterEllipsis" />
+                            <TextBlock Grid.Column="1"
+                                       Text="{x:Bind ViewModel.SourceName}"
+                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                       Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                        </Grid>
+                        <TextBlock Text="{x:Bind ViewModel.Card.Summary, Mode=OneWay}"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   TextWrapping="Wrap"
+                                   MaxLines="2"
+                                   TextTrimming="CharacterEllipsis" />
+                        <StackPanel Orientation="Horizontal" Spacing="14">
+                            <TextBlock Text="{x:Bind ViewModel.Card.Author, Mode=OneWay}"
+                                       Visibility="{x:Bind ViewModel.Card.AuthorVisibility, Mode=OneWay}"
+                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                       Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <FontIcon Glyph="&#xE896;"
+                                          FontSize="11"
+                                          Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                                <TextBlock Text="{x:Bind ViewModel.Card.DownloadsText, Mode=OneWay}"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Spacing="8">
+                        <Button x:Uid="ShopInstallLatestButton"
+                                AutomationProperties.AutomationId="ShopInstallLatestCompact"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                Style="{StaticResource AccentButtonStyle}"
+                                IsEnabled="{x:Bind ViewModel.CanInstallLatest, Mode=OneWay}"
+                                Click="OnInstallClick"
+                                Tag="{x:Bind ViewModel.LatestRelease, Mode=OneWay}" />
+                        <HyperlinkButton x:Uid="ShopOpenWebsite"
+                                         HorizontalAlignment="Center"
+                                         Padding="0"
+                                         Click="OnOpenWebsite"
+                                         Visibility="{x:Bind HasUrl(ViewModel.WebsiteUrl), Mode=OneWay}" />
+                    </StackPanel>
+                    </Grid>
+                </Border>
+
+                <FlipView Grid.Row="1"
+                          Height="150"
+                          CornerRadius="8"
+                          ItemsSource="{x:Bind ViewModel.Gallery, Mode=OneWay}"
+                          Visibility="{x:Bind BoolToVisibility(ViewModel.HasGallery), Mode=OneWay}">
+                    <FlipView.ItemTemplate>
+                        <DataTemplate x:DataType="models:ShopGalleryItem">
+                            <Grid Background="{ThemeResource ControlFillColorSecondaryBrush}">
+                                <Image Source="{x:Bind Image}" Stretch="Uniform" />
+                            </Grid>
+                        </DataTemplate>
+                    </FlipView.ItemTemplate>
+                </FlipView>
+            </Grid>
+
+            <Grid x:Name="RightPane"
+                  Grid.Row="1"
+                  RowSpacing="8"
+                  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <SelectorBar x:Name="TabBar" SelectionChanged="OnTabChanged">
+                    <SelectorBarItem x:Name="OverviewTab" x:Uid="ShopOverviewTab" IsSelected="True" />
+                    <SelectorBarItem x:Name="VersionsTab" x:Uid="ShopVersionsTab" />
+                </SelectorBar>
+
+                <!-- Details -->
+                <Grid Grid.Row="1" x:Name="OverviewPanel">
+                    <ProgressRing Width="40"
+                                  Height="40"
+                                  IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" />
+                    <WebView2 x:Name="BodyView"
+                              Visibility="{x:Bind BodyVisibility(ViewModel.IsLoading, ViewModel.BodyHtml), Mode=OneWay}" />
+                </Grid>
+
+                <!-- Versions -->
+                <Grid Grid.Row="1" x:Name="VersionsPanel" Visibility="Collapsed">
+                    <ListView ItemsSource="{x:Bind ViewModel.Versions, Mode=OneWay}"
+                              SelectionMode="None">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:ShopVersionItem">
+                                <Grid ColumnSpacing="12"
+                                      Padding="0,10"
+                                      BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                      BorderThickness="0,0,0,1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border VerticalAlignment="Center"
+                                            Padding="8,2"
+                                            CornerRadius="10"
+                                            Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                                            Visibility="{x:Bind ChannelVisibility}">
+                                        <TextBlock Text="{x:Bind ChannelText}"
+                                                   Style="{StaticResource CaptionTextBlockStyle}" />
+                                    </Border>
+                                    <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBlock Text="{x:Bind Name}"
+                                                       Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                       TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Text="{x:Bind VersionNumber}"
+                                                       VerticalAlignment="Bottom"
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Spacing="10">
+                                            <TextBlock Text="{x:Bind GameVersionsText}"
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                            <TextBlock Text="{x:Bind InfoLine}"
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <Button x:Uid="ShopInstallButton"
+                                            Grid.Column="2"
+                                            VerticalAlignment="Center"
+                                            Style="{StaticResource AccentButtonStyle}"
+                                            Click="OnInstallClick"
+                                            Tag="{x:Bind}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <ProgressRing Width="40"
+                                  Height="40"
+                                  IsActive="{x:Bind ViewModel.IsVersionsLoading, Mode=OneWay}" />
+                    <TextBlock x:Uid="ShopNoVersions"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               Visibility="{x:Bind ShowNoVersions(ViewModel.IsVersionsLoading, ViewModel.Versions.Count), Mode=OneWay}" />
+                </Grid>
+            </Grid>
         </Grid>
 
         <!-- Install progress / status -->
-        <StackPanel Grid.Row="3" Spacing="8" Margin="0,0,0,12">
+        <StackPanel Grid.Row="1" Spacing="8" Margin="0,0,0,12">
             <ProgressBar Value="{x:Bind ProgressPercent(ViewModel.InstallProgress), Mode=OneWay}"
                          Maximum="100"
                          Visibility="{x:Bind BoolToVisibility(ViewModel.IsInstalling), Mode=OneWay}" />

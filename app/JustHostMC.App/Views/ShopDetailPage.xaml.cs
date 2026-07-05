@@ -143,8 +143,8 @@ public sealed partial class ShopDetailPage : Page
     public Visibility BoolToVisibility(bool value) =>
         value ? Visibility.Visible : Visibility.Collapsed;
 
-    public Visibility InvertBoolToVisibility(bool value) =>
-        value ? Visibility.Collapsed : Visibility.Visible;
+    public Visibility BodyVisibility(bool loading, string body) =>
+        !loading && body.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
 
     public Visibility HasUrl(string url) =>
         url.Length > 0 ? Visibility.Visible : Visibility.Collapsed;

@@ -590,10 +590,11 @@
   <data name="ShopSortNewest.Content" xml:space="preserve"><value>Newest</value></data>
   <data name="ShopSortUpdated.Content" xml:space="preserve"><value>Recently updated</value></data>
   <data name="ShopSearchEmpty.Text" xml:space="preserve"><value>No results. Try different keywords or relax the version/loader filters.</value></data>
-  <data name="ShopOverviewTab.Text" xml:space="preserve"><value>Overview</value></data>
+  <data name="ShopOverviewTab.Text" xml:space="preserve"><value>Details</value></data>
   <data name="ShopVersionsTab.Text" xml:space="preserve"><value>Versions</value></data>
   <data name="ShopOpenWebsite.Content" xml:space="preserve"><value>Open website</value></data>
   <data name="ShopInstallButton.Content" xml:space="preserve"><value>Install</value></data>
+  <data name="ShopInstallLatestButton.Content" xml:space="preserve"><value>Install latest release</value></data>
   <data name="ShopNoVersions.Text" xml:space="preserve"><value>No compatible versions for this server. Relax the filters to see more.</value></data>
   <data name="Shop_DependencyPromptTitle" xml:space="preserve"><value>Required dependencies</value></data>
   <data name="Shop_DependencyPromptBody" xml:space="preserve"><value>This version needs the following mods. They will be installed together (uncheck any you already have).</value></data>

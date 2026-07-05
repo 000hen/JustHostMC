@@ -49,6 +49,11 @@ public sealed partial class ShopDetailViewModel : ObservableObject
     public ObservableCollection<ShopGalleryItem> Gallery { get; } = new();
 
     [ObservableProperty]
+    public partial ShopVersionItem? LatestRelease { get; private set; }
+
+    public bool CanInstallLatest => LatestRelease is not null && !IsInstalling;
+
+    [ObservableProperty]
     public partial string BodyHtml { get; private set; } = "";
 
     [ObservableProperty]
@@ -131,6 +136,11 @@ public sealed partial class ShopDetailViewModel : ObservableObject
                 Versions.Clear();
                 foreach (var version in list.Versions)
                     Versions.Add(new ShopVersionItem(version));
+                LatestRelease = Versions
+                    .Where(version => version.Version.Channel == ShopChannel.Release)
+                    .OrderByDescending(version => version.Version.Date, StringComparer.Ordinal)
+                    .FirstOrDefault();
+                OnPropertyChanged(nameof(CanInstallLatest));
             });
         }
         catch
@@ -165,6 +175,7 @@ public sealed partial class ShopDetailViewModel : ObservableObject
         await RunOnUIAsync(() =>
         {
             IsInstalling = true;
+            OnPropertyChanged(nameof(CanInstallLatest));
             InstallSucceeded = false;
             InstallProgress = 0;
             StatusMessage = "";
@@ -206,7 +217,11 @@ public sealed partial class ShopDetailViewModel : ObservableObject
         }
         finally
         {
-            await RunOnUIAsync(() => IsInstalling = false);
+            await RunOnUIAsync(() =>
+            {
+                IsInstalling = false;
+                OnPropertyChanged(nameof(CanInstallLatest));
+            });
         }
     }
 

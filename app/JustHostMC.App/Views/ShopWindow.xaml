@@ -14,55 +14,73 @@
 
     <Grid x:Name="Root"
           Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState x:Name="CompactWindow">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="SearchBox.Width" Value="220" />
+                        <Setter Target="CommandBarGrid.Padding" Value="12,4" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="WideWindow">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="900" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="SearchBox.Width" Value="360" />
+                        <Setter Target="CommandBarGrid.Padding" Value="16,8" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <TitleBar x:Name="ShopTitleBar">
+        <TitleBar x:Name="ShopTitleBar"
+                  IsBackButtonVisible="False"
+                  IsBackButtonEnabled="False"
+                  BackRequested="OnTitleBarBackRequested">
             <TitleBar.IconSource>
                 <ImageIconSource ImageSource="ms-appx:///Assets/StoreLogo.png" />
             </TitleBar.IconSource>
+            <TitleBar.Content>
+                <AutoSuggestBox x:Name="SearchBox"
+                                x:Uid="ShopSearchBox"
+                                AutomationProperties.AutomationId="ShopSearch"
+                                Width="420"
+                                MinWidth="180"
+                                MaxWidth="420"
+                                VerticalAlignment="Center"
+                                QueryIcon="Find"
+                                TextChanged="OnSearchTextChanged"
+                                QuerySubmitted="OnSearchSubmitted" />
+            </TitleBar.Content>
         </TitleBar>
 
-        <Grid Grid.Row="1"
-              Padding="16,8,16,8"
+        <Grid x:Name="CommandBarGrid"
+              Grid.Row="1"
+              Padding="12,4"
               ColumnSpacing="12">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <Button x:Name="BackButton"
-                    x:Uid="ShopBackButton"
-                    AutomationProperties.AutomationId="ShopBack"
-                    Width="40"
-                    IsEnabled="False"
-                    Click="OnBackClick">
-                <FontIcon Glyph="&#xE72B;" FontSize="14" />
-            </Button>
-
             <SelectorBar x:Name="ShopSelector"
-                         Grid.Column="1"
                          VerticalAlignment="Center"
                          SelectionChanged="OnShopSelectionChanged" />
 
-            <AutoSuggestBox x:Name="SearchBox"
-                            x:Uid="ShopSearchBox"
-                            AutomationProperties.AutomationId="ShopSearch"
-                            Grid.Column="2"
-                            MaxWidth="420"
-                            VerticalAlignment="Center"
-                            QueryIcon="Find"
-                            TextChanged="OnSearchTextChanged"
-                            QuerySubmitted="OnSearchSubmitted" />
-
-            <StackPanel Grid.Column="3"
+            <StackPanel x:Name="FilterStack"
+                        Grid.Column="1"
                         Orientation="Horizontal"
                         VerticalAlignment="Center"
+                        HorizontalAlignment="Right"
                         Spacing="8">
                 <ToggleButton x:Name="VersionFilterToggle"
                               AutomationProperties.AutomationId="ShopVersionFilter"

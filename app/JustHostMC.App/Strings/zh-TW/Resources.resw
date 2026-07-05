@@ -575,10 +575,11 @@
   <data name="ShopSortNewest.Content" xml:space="preserve"><value>最新發布</value></data>
   <data name="ShopSortUpdated.Content" xml:space="preserve"><value>最近更新</value></data>
   <data name="ShopSearchEmpty.Text" xml:space="preserve"><value>沒有結果。請換個關鍵字，或放寬版本／載入器篩選。</value></data>
-  <data name="ShopOverviewTab.Text" xml:space="preserve"><value>總覽</value></data>
+  <data name="ShopOverviewTab.Text" xml:space="preserve"><value>詳細資料</value></data>
   <data name="ShopVersionsTab.Text" xml:space="preserve"><value>版本</value></data>
   <data name="ShopOpenWebsite.Content" xml:space="preserve"><value>開啟網站</value></data>
   <data name="ShopInstallButton.Content" xml:space="preserve"><value>安裝</value></data>
+  <data name="ShopInstallLatestButton.Content" xml:space="preserve"><value>安裝最新正式版</value></data>
   <data name="ShopNoVersions.Text" xml:space="preserve"><value>沒有與此伺服器相容的版本，放寬篩選即可看到更多。</value></data>
   <data name="Shop_DependencyPromptTitle" xml:space="preserve"><value>必要相依模組</value></data>
   <data name="Shop_DependencyPromptBody" xml:space="preserve"><value>此版本需要下列模組，將一併安裝（已擁有的可取消勾選）。</value></data>

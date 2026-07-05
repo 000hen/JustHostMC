@@ -25,6 +25,7 @@ public static class ShopBodyRenderer
         var secondary = darkTheme ? "#9e9e9e" : "#5c5c5c";
         var accent = darkTheme ? "#4cc2ff" : "#0067c0";
         var codeBg = darkTheme ? "#2b2b2b" : "#f3f3f3";
+        var pageBg = darkTheme ? "#202020" : "#f3f3f3";
 
         return $$"""
             <!DOCTYPE html>
@@ -34,7 +35,7 @@ public static class ShopBodyRenderer
             <meta http-equiv="Content-Security-Policy"
                   content="default-src 'none'; img-src https: http: data:; style-src 'unsafe-inline'; media-src https:">
             <style>
-              html, body { background: transparent; margin: 0; }
+              html, body { background: {{pageBg}}; margin: 0; min-height: 100%; }
               body {
                 font-family: 'Segoe UI Variable Text', 'Segoe UI', sans-serif;
                 font-size: 14px; line-height: 1.55; color: {{fg}};

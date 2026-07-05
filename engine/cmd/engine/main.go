@@ -18,6 +18,7 @@ import (
 	"github.com/000hen/justhostmc/engine/internal/backup"
 	"github.com/000hen/justhostmc/engine/internal/console"
 	grpcsvc "github.com/000hen/justhostmc/engine/internal/grpc"
+	"github.com/000hen/justhostmc/engine/internal/httpcache"
 	"github.com/000hen/justhostmc/engine/internal/isolation"
 	"github.com/000hen/justhostmc/engine/internal/jre"
 	"github.com/000hen/justhostmc/engine/internal/logging"
@@ -36,6 +37,11 @@ const (
 	// readyLine is printed to stdout once the engine is listening.
 	readyLine = "MCMANAGER_READY"
 )
+
+// defaultCurseForgeKey is an optional build-time CurseForge API key, injected
+// with: -ldflags "-X main.defaultCurseForgeKey=<key>". The repo ships none;
+// a user key set in Settings always wins over this default.
+var defaultCurseForgeKey string
 
 func main() {
 	// Logs go to stderr so they never collide with the ready handshake on stdout.
@@ -116,6 +122,30 @@ func main() {
 	backend, activeMode := selectBackend(context.Background(), settingsStore)
 	log.Printf("isolation backend: %s", activeMode)
 
+	// Mod shops: sandboxed Lua scripts that browse/search/download mods from
+	// online sources (Modrinth, CurseForge, ...). Shop HTTP traffic goes
+	// through a disk-backed ETag cache. Keyed sources resolve their API key
+	// from the user's settings first, then the baked-in build default.
+	host.SetHTTPCache(httpcache.New(paths.HTTPCache(), 0))
+	bakedShopKeys := map[string]string{"curseforge": defaultCurseForgeKey}
+	shopKey := func(shopID string) string {
+		if s, err := settingsStore.Load(); err == nil {
+			if k := s.ShopKeys[shopID]; k != "" {
+				return k
+			}
+		}
+		return bakedShopKeys[shopID]
+	}
+	shopGrants := scripting.NewGrantStore(filepath.Join(paths.Base, "shop-grants.json"))
+	shops := scripting.NewShopSet(host, shopGrants, shopKey)
+	if err := scripting.LoadBuiltinShops(shops); err != nil {
+		log.Fatalf("load builtin shops: %v", err)
+	}
+	shopsDir := filepath.Join(paths.Base, "shops")
+	if err := scripting.LoadUserShops(shops, shopsDir); err != nil {
+		log.Printf("load user shops: %v", err)
+	}
+
 	serverService := grpcsvc.NewServerService(grpcsvc.ServerServiceConfig{
 		Store:     registry,
 		Providers: providers,
@@ -137,10 +167,11 @@ func main() {
 	})
 
 	settingsService := grpcsvc.NewSettingsService(grpcsvc.SettingsServiceConfig{
-		Store:      settingsStore,
-		LogsRoot:   paths.LogsRoot(),
-		ActiveMode: string(activeMode),
-		CloseLogs:  closeLogs,
+		Store:         settingsStore,
+		LogsRoot:      paths.LogsRoot(),
+		ActiveMode:    string(activeMode),
+		CloseLogs:     closeLogs,
+		BakedShopKeys: bakedShopKeys,
 	})
 	// The startup pass ran before history was restored; continue periodically.
 	go runLogJanitor(settingsStore, paths.LogsRoot(), closeLogs)
@@ -173,6 +204,7 @@ func main() {
 	}
 	defer scripts.Shutdown()
 
+	modService := grpcsvc.NewModService(registry, paths, parsers)
 	srv := grpcsvc.NewServer(grpcsvc.Config{
 		Providers:       providers,
 		ServerService:   serverService,
@@ -181,11 +213,12 @@ func main() {
 		SettingsService: settingsService,
 		PlayerService:   playerService,
 		MetricsService:  grpcsvc.NewMetricsService(serverService),
-		ModService:      grpcsvc.NewModService(registry, paths, parsers),
+		ModService:      modService,
 		ConfigService:   grpcsvc.NewConfigService(registry, paths),
 		ProviderService: grpcsvc.NewProviderService(providers, grants, providersDir),
 		ScriptService:   grpcsvc.NewScriptService(scripts, scriptGrants, scriptsEnabled, scriptsDir),
 		ParserService:   grpcsvc.NewParserService(parsers, parserGrants, parsersDir),
+		ShopService:     grpcsvc.NewShopService(shops, shopGrants, shopsDir, registry, modService),
 	})
 	log.Printf("engine data dir: %s", paths.Base)
 

@@ -38,3 +38,4 @@ func (p Paths) ClientAssetsCache() string  { return filepath.Join(p.Base, "clien
 func (p Paths) LogsRoot() string           { return filepath.Join(p.Base, "logs") }
 func (p Paths) BackupsRoot() string        { return filepath.Join(p.Base, "backups") }
 func (p Paths) ScriptsRoot() string        { return filepath.Join(p.Base, "scripts") }
+func (p Paths) HTTPCache() string          { return filepath.Join(p.Base, "httpcache") }

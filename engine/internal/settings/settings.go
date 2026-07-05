@@ -19,6 +19,9 @@ type Settings struct {
 	KeepLogDays      int   `json:"keep_log_days"`       // delete logs older than this many days (0 = no age limit)
 	MaxLogTotalBytes int64 `json:"max_log_total_bytes"` // cap on total log bytes (0 = no size limit)
 	UseDocker        bool  `json:"use_docker"`          // opt-in: run servers in Docker when available (PROMPT §10.7)
+	// ShopKeys holds user-supplied API keys per mod-shop script id (e.g.
+	// "curseforge"). A user key overrides any baked-in build default.
+	ShopKeys map[string]string `json:"shop_keys,omitempty"`
 }
 
 // Defaults returns the settings used when nothing has been saved yet: keep two

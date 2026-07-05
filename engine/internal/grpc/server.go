@@ -30,6 +30,7 @@ type Config struct {
 	ProviderService mcmanagerv1.ProviderServiceServer
 	ParserService   mcmanagerv1.ParserServiceServer
 	ScriptService   mcmanagerv1.ScriptServiceServer
+	ShopService     mcmanagerv1.ShopServiceServer
 }
 
 // NewServer builds a gRPC server with the given services registered.
@@ -70,6 +71,9 @@ func NewServer(cfg Config) *grpc.Server {
 	}
 	if cfg.ScriptService != nil {
 		mcmanagerv1.RegisterScriptServiceServer(srv, cfg.ScriptService)
+	}
+	if cfg.ShopService != nil {
+		mcmanagerv1.RegisterShopServiceServer(srv, cfg.ShopService)
 	}
 	return srv
 }

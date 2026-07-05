@@ -9,6 +9,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -412,9 +413,32 @@ public sealed partial class ServerPage : Page {
         var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.Current.MainWindow);
         WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
 
-        var file = await picker.PickSingleFileAsync();
-        if (file is not null)
+        var files = await picker.PickMultipleFilesAsync();
+        foreach (var file in files)
             await Mods.UploadAsync(file);
+    }
+
+    private async void OnExportModsClick(object sender, RoutedEventArgs e) {
+        var picker = new FileSavePicker();
+        picker.FileTypeChoices.Add("ZIP", new List<string> { ".zip" });
+        picker.SuggestedFileName = $"{Server.Name}-mods";
+        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.Current.MainWindow);
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+        var file = await picker.PickSaveFileAsync();
+        if (file is not null)
+            await Mods.ExportAllAsync(file.Path);
+    }
+
+    private void OnBrowseShopClick(object sender, RoutedEventArgs e) {
+        var context = new ShopContext(
+            Server.Id,
+            Server.McVersion,
+            Server.ProviderId,
+            Mods.Kind,
+            Mods.InstalledFileNames,
+            () => _ = Mods.RefreshAsync());
+        new ShopWindow(context).Activate();
     }
 
     private async void OnRemoveModConfirm(object sender, RoutedEventArgs e) {

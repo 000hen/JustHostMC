@@ -2,6 +2,7 @@ package settings
 
 import (
 	"path/filepath"
+	"reflect"
 	"testing"
 )
 
@@ -11,7 +12,7 @@ func TestLoadMissingReturnsDefaults(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Load: %v", err)
 	}
-	if got != Defaults() {
+	if !reflect.DeepEqual(got, Defaults()) {
 		t.Errorf("Load on missing file = %+v, want defaults %+v", got, Defaults())
 	}
 }
@@ -26,7 +27,7 @@ func TestSaveThenLoadRoundTrips(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Load: %v", err)
 	}
-	if got != want {
+	if !reflect.DeepEqual(got, want) {
 		t.Errorf("Load = %+v, want %+v", got, want)
 	}
 }

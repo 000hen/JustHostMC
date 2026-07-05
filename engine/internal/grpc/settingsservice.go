@@ -2,6 +2,9 @@ package grpcsvc
 
 import (
 	"context"
+	"maps"
+	"slices"
+	"strings"
 	"time"
 
 	mcmanagerv1 "github.com/000hen/justhostmc/engine/gen/mcmanager/v1"
@@ -18,6 +21,10 @@ type SettingsServiceConfig struct {
 	LogsRoot   string
 	ActiveMode string // the isolation backend chosen at startup, for reporting
 	CloseLogs  func() // close open log files before purging
+	// BakedShopKeys are build-time default shop API keys (shop id -> key),
+	// e.g. a CurseForge key injected via -ldflags. Reported as
+	// has_builtin_key; never returned to the client.
+	BakedShopKeys map[string]string
 	// Detector reports live Docker availability; defaults to the real probe when nil
 	// (injectable for tests).
 	Detector func(context.Context) isolation.Availability
@@ -103,6 +110,58 @@ func (s *SettingsService) GetBackendInfo(ctx context.Context, _ *mcmanagerv1.Emp
 		DockerVersion:   avail.Version,
 		UseDocker:       v.UseDocker,
 	}, nil
+}
+
+// GetShopKeys reports, per shop id, whether a user key override and/or a
+// baked-in build default exist. Key material itself never leaves the engine.
+func (s *SettingsService) GetShopKeys(_ context.Context, _ *mcmanagerv1.Empty) (*mcmanagerv1.ShopKeyList, error) {
+	v, err := s.cfg.Store.Load()
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "load settings: %v", err)
+	}
+	ids := map[string]bool{}
+	for id := range v.ShopKeys {
+		ids[id] = true
+	}
+	for id, key := range s.cfg.BakedShopKeys {
+		if key != "" {
+			ids[id] = true
+		}
+	}
+	out := &mcmanagerv1.ShopKeyList{}
+	for _, id := range slices.Sorted(maps.Keys(ids)) {
+		out.Keys = append(out.Keys, &mcmanagerv1.ShopKeyInfo{
+			ShopId:        id,
+			HasUserKey:    v.ShopKeys[id] != "",
+			HasBuiltinKey: s.cfg.BakedShopKeys[id] != "",
+		})
+	}
+	return out, nil
+}
+
+// SetShopKey persists (or clears, with an empty api_key) the user's key
+// override for one shop.
+func (s *SettingsService) SetShopKey(_ context.Context, req *mcmanagerv1.ShopKey) (*mcmanagerv1.Empty, error) {
+	if strings.TrimSpace(req.ShopId) == "" {
+		return nil, status.Error(codes.InvalidArgument, "shop_id is required")
+	}
+	v, err := s.cfg.Store.Load()
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "load settings: %v", err)
+	}
+	key := strings.TrimSpace(req.ApiKey)
+	if key == "" {
+		delete(v.ShopKeys, req.ShopId)
+	} else {
+		if v.ShopKeys == nil {
+			v.ShopKeys = map[string]string{}
+		}
+		v.ShopKeys[req.ShopId] = key
+	}
+	if err := s.cfg.Store.Save(v); err != nil {
+		return nil, status.Errorf(codes.Internal, "save settings: %v", err)
+	}
+	return &mcmanagerv1.Empty{}, nil
 }
 
 // SetUseDocker persists the Docker opt-in. It takes effect on the next engine

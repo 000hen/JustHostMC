@@ -67,6 +67,30 @@
                 </StackPanel>
             </Border>
 
+            <!-- Mod shop: CurseForge API key -->
+            <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                    CornerRadius="8" Padding="16">
+                <StackPanel Spacing="8">
+                    <TextBlock x:Uid="SettingsShopHeader" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    <TextBlock x:Uid="SettingsShopHint" TextWrapping="Wrap"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               Style="{StaticResource CaptionTextBlockStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.CurseForgeKeyStatus, Mode=OneWay}" TextWrapping="Wrap"
+                               Style="{StaticResource CaptionTextBlockStyle}" />
+                    <Grid ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <PasswordBox x:Uid="SettingsCurseForgeKey"
+                                     AutomationProperties.AutomationId="SettingsCurseForgeKey"
+                                     Password="{x:Bind ViewModel.CurseForgeKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button x:Uid="SettingsShopKeySaveButton" Grid.Column="1" VerticalAlignment="Bottom"
+                                Command="{x:Bind ViewModel.SaveCurseForgeKeyCommand}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
             <!-- Destructive: remove all data -->
             <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
                     CornerRadius="8" Padding="16">

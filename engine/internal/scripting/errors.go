@@ -14,4 +14,12 @@ var (
 	ErrScriptInvalid = errors.New("invalid script")
 	// ErrProviderIDConflict means a user provider's id collides with a built-in.
 	ErrProviderIDConflict = errors.New("provider id conflicts with a built-in provider")
+	// ErrShopKeyMissing means a shop script requires an API key and none is
+	// configured (neither a user override nor a baked-in default).
+	ErrShopKeyMissing = errors.New("shop API key not configured")
+	// ErrShopNotDistributable means the mod author disallows third-party
+	// downloads, so the source refuses to hand out a file URL.
+	ErrShopNotDistributable = errors.New("file is not distributable")
+	// ErrShopNotFound means the source does not know the project/version id.
+	ErrShopNotFound = errors.New("shop project not found")
 )

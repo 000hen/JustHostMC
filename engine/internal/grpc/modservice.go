@@ -12,6 +12,7 @@ import (
 
 	mcmanagerv1 "github.com/000hen/justhostmc/engine/gen/mcmanager/v1"
 	"github.com/000hen/justhostmc/engine/internal/appdata"
+	"github.com/000hen/justhostmc/engine/internal/backup"
 	"github.com/000hen/justhostmc/engine/internal/scripting"
 	"github.com/000hen/justhostmc/engine/internal/store"
 	"google.golang.org/grpc"
@@ -233,6 +234,34 @@ func (s *ModService) Upload(stream grpc.ClientStreamingServer[mcmanagerv1.Upload
 	}
 	committed = true
 	return stream.SendAndClose(&mcmanagerv1.ModFile{Name: name, SizeBytes: written})
+}
+
+// ExportAll zips the server's whole plugins/mods folder to req.DestPath (a
+// user-picked absolute .zip path). Read-only on the server dir, so a running
+// server is fine.
+func (s *ModService) ExportAll(_ context.Context, req *mcmanagerv1.ExportModsRequest) (*mcmanagerv1.Empty, error) {
+	rec, ok := s.store.Get(req.ServerId)
+	if !ok {
+		return nil, status.Error(codes.NotFound, "server not found")
+	}
+	subdir, _, ok := modLayout(rec.ModLayout)
+	if !ok {
+		return nil, errorStatus(codes.FailedPrecondition, mcmanagerv1.ErrorCode_MOD_UNSUPPORTED,
+			"this server type has no plugins/mods folder", nil)
+	}
+	dest := req.DestPath
+	if !filepath.IsAbs(dest) || !strings.EqualFold(filepath.Ext(dest), ".zip") {
+		return nil, status.Error(codes.InvalidArgument, "dest_path must be an absolute .zip path")
+	}
+	dir := filepath.Join(s.paths.ServerDir(req.ServerId), subdir)
+	if _, err := os.Stat(dir); err != nil {
+		return nil, errorStatus(codes.FailedPrecondition, mcmanagerv1.ErrorCode_MOD_EXPORT_FAILED,
+			"nothing to export", nil)
+	}
+	if err := backup.Archive(dir, dest); err != nil {
+		return nil, errorStatus(codes.Internal, mcmanagerv1.ErrorCode_MOD_EXPORT_FAILED, err.Error(), nil)
+	}
+	return &mcmanagerv1.Empty{}, nil
 }
 
 // writableDir validates that the server exists, supports plugins/mods, and is

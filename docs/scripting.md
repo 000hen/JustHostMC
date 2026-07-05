@@ -520,19 +520,70 @@ Contract details:
   `jhmc.toml_decode` (mods.toml), `jhmc.yaml_decode` (plugin.yml).
 - A parser may also declare `network` to enrich results from an online API.
 
-## 9. Extending: fetching data from online services
+## 9. Shop scripts (mod browsing/downloading)
 
-The host API is deliberately composable so future features — e.g. **browsing or
-fetching mods from the Modrinth API** — are scripts, not engine changes:
+Shop scripts power the app's **Mod Shop** window: browsing, searching, and
+installing mods/plugins from an online source. Built-ins live in
+`engine/internal/scripting/builtin_shops/` (`modrinth.lua`, `curseforge.lua`);
+user shops are imported via `ShopService.Import` and stored under
+`<data>/shops/`. Grants persist in `shop-grants.json`.
+
+A shop script declares the usual `meta` table (plus `needs_key = true` when
+the source requires an API key) and five globals, each taking one ctx table
+and returning one table:
+
+```lua
+meta = {
+  id = "myshop", name = "My Shop", version = "1.0.0",
+  needs_key = false, -- true => engine refuses calls until a key is configured
+  permissions = { { kind = "network", reason = "Query the shop API" } },
+}
+
+function home(ctx)         -- ctx: mc_version, loader, kind ("mod"|"plugin"), config
+  return { sections = { { title_key = "shop.home.popular", projects = { ... } } } }
+end
+function search(ctx)       -- + query, sort ("relevance"|"downloads"|"follows"|"newest"|"updated"), offset, limit
+  return { projects = { ... }, total = 123 }
+end
+function detail(ctx)       -- ctx.project_id
+  return { project = {...}, body = "...", body_format = "markdown"|"html",
+           gallery = {{url=,title=,description=}}, links = {website=,source=,issues=,wiki=,discord=},
+           game_versions = {...}, loaders = {...}, license = "", updated = "" }
+end
+function versions(ctx)     -- ctx: project_id, mc_version, loader
+  return { versions = { { id=, name=, version_number=, channel="release",
+           game_versions={...}, loaders={...}, date=, downloads=, filename=, size=,
+           dependencies={{project_id=, title=, required=true}} } } }
+end
+function resolve_file(ctx) -- ctx: project_id, version_id ("" = latest compatible), mc_version, loader
+  return { url=, filename=, size=, sha1=|sha512= } -- engine downloads + verifies
+end
+```
+
+A project table carries `project_id, slug, title, summary, icon_url, author,
+downloads, follows, categories, project_type`. Keyed sources read
+`ctx.config.api_key` (user settings override a build-time default). Raise
+`error("... not found")` / `error("... not distributable")` to surface the
+typed `SHOP_PROJECT_NOT_FOUND` / `SHOP_FILE_NOT_DISTRIBUTABLE` errors.
+
+Use `jhmc.http_cache{ url=, headers=, ttl= }` for GETs: it is a disk-backed
+ETag cache (`If-None-Match`/304), so repeated detail views cost a cheap
+revalidation; `ttl` seconds within which no request is made at all.
+
+## 10. Extending: fetching data from online services
+
+The host API is deliberately composable so future features are scripts, not
+engine changes:
 
 - `jhmc.http{ url=..., method=..., headers=..., body=... }` (permission
   `network`) talks to any REST API, with response headers and non-2xx statuses
-  observable for pagination/rate-limit handling.
+  observable for pagination/rate-limit handling; `jhmc.http_cache` adds the
+  disk ETag cache.
 - `jhmc.json_decode` / `jhmc.toml_decode` / `jhmc.yaml_decode` parse whatever
   the service returns; `jhmc.download` fetches files with checksum verification
   into the server dir; `jhmc.store` remembers cursors/ETags between runs.
 - The permission model already covers this shape (`network` + `fs_server`), and
-  the three script subsystems (providers -> `Registry`, automation -> `Manager`,
-  parsers -> `ParserSet`) show the pattern for wiring a fourth kind of script
-  end-to-end: proto service -> `scripting` set + `GrantStore` -> gRPC service ->
-  UI section on the Scripts page.
+  the four script subsystems (providers -> `Registry`, automation -> `Manager`,
+  parsers -> `ParserSet`, shops -> `ShopSet`) show the pattern for wiring
+  another kind of script end-to-end: proto service -> `scripting` set +
+  `GrantStore` -> gRPC service -> UI.

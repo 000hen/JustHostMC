@@ -62,6 +62,14 @@ public sealed partial class ModsViewModel : ObservableObject
 
     public bool AcceptsLiteMod { get; private set; }
 
+    /// <summary>The folder kind reported by the engine (plugins vs mods),
+    /// used as the shop's project-type pre-filter.</summary>
+    public ModKind Kind { get; private set; } = ModKind.Mod;
+
+    /// <summary>Installed jar filenames, for the shop's already-installed checks.</summary>
+    public IReadOnlyCollection<string> InstalledFileNames() =>
+        Files.Select(f => f.Name).ToArray();
+
     public bool ShowOperationProgress => IsBusy && !IsLoading;
 
     [ObservableProperty]
@@ -130,6 +138,7 @@ public sealed partial class ModsViewModel : ObservableObject
             await RunOnUIAsync(() =>
             {
                 Supported = list.Supported;
+                Kind = list.Kind;
                 AcceptsLiteMod = list.Kind == ModKind.Mod;
                 KindLabel = _localizer.Get(list.Kind == ModKind.Mod ? "Mods_KindMods" : "Mods_KindPlugins");
                 Files.Clear();
@@ -256,6 +265,31 @@ public sealed partial class ModsViewModel : ObservableObject
 
     private void RecomputeCanModify() =>
         CanModify = Supported && _serverStopped && !IsBusy && !IsLoading;
+
+    /// <summary>Zips the whole plugins/mods folder to a user-picked .zip.
+    /// Read-only on the server dir, so it works while the server runs.</summary>
+    public async Task ExportAllAsync(string destPath)
+    {
+        RunOnUI(() => { IsBusy = true; StatusMessage = ""; });
+        try
+        {
+            var daemon = await App.Current.DaemonReady;
+            await daemon.Mods.ExportAllAsync(new ExportModsRequest
+            {
+                ServerId = _serverId,
+                DestPath = destPath,
+            }, deadline: DateTime.UtcNow.AddMinutes(2));
+            RunOnUI(() => StatusMessage = _localizer.Get("Mods_ExportDone"));
+        }
+        catch (RpcException)
+        {
+            RunOnUI(() => StatusMessage = _localizer.Get("Mods_ExportFailed"));
+        }
+        finally
+        {
+            RunOnUI(() => IsBusy = false);
+        }
+    }
 
     private static string MapErrorKey(RpcException ex) => ex.StatusCode switch
     {

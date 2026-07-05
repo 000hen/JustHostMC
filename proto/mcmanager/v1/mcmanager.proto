@@ -88,6 +88,10 @@ enum ErrorCode {
   BACKUP_NOT_FOUND = 7; // the requested backup id does not exist
   SERVER_RUNNING = 8; // operation requires the server to be stopped first
   MOD_UNSUPPORTED = 9; // this server type has no plugins/mods folder (e.g. Vanilla)
+  SHOP_KEY_MISSING = 10; // the shop requires an API key and none is configured
+  SHOP_FILE_NOT_DISTRIBUTABLE = 11; // the author disallows third-party downloads
+  SHOP_PROJECT_NOT_FOUND = 12; // unknown project/version id at the source
+  MOD_EXPORT_FAILED = 13; // zipping/writing the mods export archive failed
 }
 
 message ErrorDetail {
@@ -495,6 +499,192 @@ message RemoveModRequest {
   string name = 2;
 }
 
+message ExportModsRequest {
+  string server_id = 1;
+  string dest_path = 2; // absolute path of the .zip archive to write
+}
+
+// -- Mod shop: browse/search/install from online sources (Lua shop scripts) ----
+
+// ShopInfo describes an installed shop script (built-in or user-imported).
+message ShopInfo {
+  string id = 1; // stable shop id, e.g. "modrinth"
+  string name = 2;
+  string website = 3;
+  string description = 4;
+  string version = 5;
+  string author = 6;
+  bool builtin = 7;
+  repeated Permission permissions = 8; // declared/requested permissions
+  repeated PermissionKind granted = 9; // currently-granted subset
+  bool needs_key = 10; // shop requires a per-shop API key (see SettingsService)
+  bool ready = 11;     // false when needs_key and no key is configured
+}
+message ShopList {
+  repeated ShopInfo shops = 1;
+}
+message ImportShopRequest {
+  string lua_source = 1;
+}
+
+// ShopProject is one browse/search result card.
+message ShopProject {
+  string shop_id = 1;
+  string project_id = 2;
+  string slug = 3;
+  string title = 4;
+  string summary = 5;
+  string icon_url = 6;
+  string author = 7;
+  int64 downloads = 8;
+  int64 follows = 9; // Modrinth follows / CurseForge thumbs-up; 0 when unknown
+  repeated string categories = 10;
+  string project_type = 11; // "mod" | "plugin" | ...
+}
+
+// ShopPage is the common paging envelope for project lists.
+message ShopPage {
+  repeated ShopProject projects = 1;
+  int64 total = 2; // total hits when the source reports it; 0 = unknown
+  int32 offset = 3;
+}
+
+message ShopHomeRequest {
+  string shop_id = 1;
+  string mc_version = 2; // pre-filter; empty = no version filter
+  string loader = 3;     // loader id ("fabric", "paper", ...); empty = none
+  ModKind kind = 4;
+}
+message ShopHomeSection {
+  LocalizedMessage title = 1; // e.g. key "shop.home.popular"
+  repeated ShopProject projects = 2;
+}
+message ShopHomeReply {
+  repeated ShopHomeSection sections = 1;
+}
+
+enum ShopSort {
+  SHOP_SORT_UNSPECIFIED = 0;
+  SHOP_SORT_RELEVANCE = 1;
+  SHOP_SORT_DOWNLOADS = 2;
+  SHOP_SORT_FOLLOWS = 3;
+  SHOP_SORT_NEWEST = 4;
+  SHOP_SORT_UPDATED = 5;
+}
+
+message ShopSearchRequest {
+  string shop_id = 1;
+  string query = 2;
+  string mc_version = 3; // empty = no version filter
+  string loader = 4;     // empty = no loader filter
+  ModKind kind = 5;
+  ShopSort sort = 6;
+  int32 offset = 7;
+  int32 limit = 8; // clamped engine-side to the source's max page size
+  repeated string categories = 9; // source category ids/slugs; any selected category may match
+}
+
+message ShopProjectRequest {
+  string shop_id = 1;
+  string project_id = 2;
+}
+
+enum ShopBodyFormat {
+  SHOP_BODY_FORMAT_UNSPECIFIED = 0;
+  SHOP_BODY_MARKDOWN = 1; // Modrinth
+  SHOP_BODY_HTML = 2;     // CurseForge
+}
+
+message ShopGalleryImage {
+  string url = 1;
+  string title = 2;
+  string description = 3;
+}
+message ShopLinks {
+  string website = 1;
+  string source = 2;
+  string issues = 3;
+  string wiki = 4;
+  string discord = 5;
+}
+message ShopProjectDetail {
+  ShopProject project = 1;
+  string body = 2; // full description, format per body_format
+  ShopBodyFormat body_format = 3;
+  repeated ShopGalleryImage gallery = 4;
+  ShopLinks links = 5;
+  repeated string game_versions = 6;
+  repeated string loaders = 7;
+  string license = 8;
+  string updated = 9; // RFC3339 UTC
+}
+
+message ShopVersionsRequest {
+  string shop_id = 1;
+  string project_id = 2;
+  string mc_version = 3; // empty = all
+  string loader = 4;     // empty = all
+}
+
+enum ShopChannel {
+  SHOP_CHANNEL_UNSPECIFIED = 0;
+  SHOP_CHANNEL_RELEASE = 1;
+  SHOP_CHANNEL_BETA = 2;
+  SHOP_CHANNEL_ALPHA = 3;
+}
+
+message ShopDependency {
+  string project_id = 1;
+  string title = 2; // resolved display name (may be empty)
+  bool required = 3;
+}
+
+message ShopVersion {
+  string id = 1;
+  string name = 2;
+  string version_number = 3;
+  ShopChannel channel = 4;
+  repeated string game_versions = 5;
+  repeated string loaders = 6;
+  string date = 7; // RFC3339 UTC
+  int64 downloads = 8;
+  string filename = 9;
+  int64 size_bytes = 10;
+  repeated ShopDependency dependencies = 11;
+}
+message ShopVersionList {
+  repeated ShopVersion versions = 1;
+}
+
+message ShopDependencyInstall {
+  string project_id = 1;
+  string version_id = 2; // empty = latest compatible, resolved by the script
+}
+message ShopInstallRequest {
+  string shop_id = 1;
+  string server_id = 2;
+  string project_id = 3;
+  string version_id = 4;
+  repeated ShopDependencyInstall dependencies = 5; // extra downloads confirmed by the user
+}
+
+// -- Settings: per-shop API keys ------------------------------------------------
+
+// ShopKey sets (or clears, with empty api_key) the user override for one shop.
+message ShopKey {
+  string shop_id = 1;
+  string api_key = 2;
+}
+// ShopKeyInfo reports key presence without ever exposing the key itself.
+message ShopKeyInfo {
+  string shop_id = 1;
+  bool has_user_key = 2;
+  bool has_builtin_key = 3; // a baked-in default key exists in this build
+}
+message ShopKeyList {
+  repeated ShopKeyInfo keys = 1;
+}
+
 // -- Services -----------------------------------------------------------------
 
 service EngineService {
@@ -529,6 +719,8 @@ service SettingsService {
   rpc PurgeLogs(Empty) returns (PurgeResult); // apply the policy immediately
   rpc GetBackendInfo(Empty) returns (BackendInfo);
   rpc SetUseDocker(UseDocker) returns (Empty); // opt in/out; takes effect on next launch
+  rpc GetShopKeys(Empty) returns (ShopKeyList); // key presence per shop (never the key itself)
+  rpc SetShopKey(ShopKey) returns (Empty); // set/clear the user override for one shop
 }
 
 service PlayerService {
@@ -547,6 +739,7 @@ service ModService {
   rpc List(ServerId) returns (ModList);
   rpc Upload(stream UploadModRequest) returns (ModFile); // first message = init, then raw chunks
   rpc Remove(RemoveModRequest) returns (Empty);
+  rpc ExportAll(ExportModsRequest) returns (Empty); // zip the mods|plugins folder to dest_path
 }
 
 service ConfigService {
@@ -572,6 +765,21 @@ service ParserService {
   rpc Import(ImportParserRequest) returns (ParserInfo);
   rpc Remove(ProviderRef) returns (Empty);
   rpc SetPermissions(SetPermissionsRequest) returns (ParserInfo);
+}
+
+// ShopService drives the Lua "shop" scripts that browse/search/download
+// mods/plugins from online sources (Modrinth, CurseForge, ...) and executes
+// installs into a server's mods|plugins folder.
+service ShopService {
+  rpc List(Empty) returns (ShopList);
+  rpc Home(ShopHomeRequest) returns (ShopHomeReply); // landing-page sections (trending/popular)
+  rpc Search(ShopSearchRequest) returns (ShopPage);
+  rpc GetProject(ShopProjectRequest) returns (ShopProjectDetail);
+  rpc GetVersions(ShopVersionsRequest) returns (ShopVersionList);
+  rpc Install(ShopInstallRequest) returns (stream InstallProgress); // last message implies done
+  rpc Import(ImportShopRequest) returns (ShopInfo);
+  rpc Remove(ProviderRef) returns (Empty);
+  rpc SetPermissions(SetPermissionsRequest) returns (ShopInfo);
 }
 
 // ScriptService manages automation/control scripts that drive running servers

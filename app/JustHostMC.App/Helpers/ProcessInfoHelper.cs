@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using Windows.ApplicationModel;
 
 namespace JustHostMC.App.Helpers;
 
@@ -7,6 +8,8 @@ public static partial class ProcessInfoHelper
 {
     private static readonly FileVersionInfo? _fileVersionInfo;
     private static readonly Process _process;
+    private static readonly string? _packageDisplayName;
+    private static readonly Version? _packageVersion;
     public static string GitBranch { get; }
     public static string GitSha { get; }
 
@@ -14,6 +17,18 @@ public static partial class ProcessInfoHelper
     {
         _process = Process.GetCurrentProcess();
         _fileVersionInfo = _process.MainModule?.FileVersionInfo;
+
+        try
+        {
+            var package = Package.Current;
+            _packageDisplayName = package.DisplayName;
+            var version = package.Id.Version;
+            _packageVersion = new Version(version.Major, version.Minor, version.Build, version.Revision);
+        }
+        catch
+        {
+            // Package.Current is unavailable for unpackaged development builds.
+        }
         
         string gitBranch = "";
         string gitSha = "";
@@ -34,9 +49,11 @@ public static partial class ProcessInfoHelper
     /// <summary>
     /// Returns the full version string including the Git SHA and branch if available.
     /// </summary>
-    public static string FullVersion => (!string.IsNullOrEmpty(GitBranch) && !string.IsNullOrEmpty(GitSha))
-        ? $"v{Version}+{GitSha} ({GitBranch})"
-        : $"v{Version}";
+    public static string FullVersion => _packageVersion is not null
+        ? VersionWithPrefix
+        : (!string.IsNullOrEmpty(GitBranch) && !string.IsNullOrEmpty(GitSha))
+            ? $"v{Version}+{GitSha} ({GitBranch})"
+            : VersionWithPrefix;
 
     /// <summary>
     /// Returns the version string.
@@ -53,7 +70,9 @@ public static partial class ProcessInfoHelper
     /// <summary>
     /// Retrieves the product name. If not available, it returns 'Unknown Product'.
     /// </summary>
-    public static string ProductName => _fileVersionInfo?.ProductName ?? "Unknown Product";
+    public static string ProductName => !string.IsNullOrWhiteSpace(_packageDisplayName)
+        ? _packageDisplayName
+        : _fileVersionInfo?.ProductName ?? "JustHostMC";
 
     /// <summary>
     /// Combines the product name and version into a single string. The version includes a prefix.
@@ -67,9 +86,9 @@ public static partial class ProcessInfoHelper
 
     public static Version? GetVersion()
     {
-        return _fileVersionInfo is null
+        return _packageVersion ?? (_fileVersionInfo is null
             ? null
-            : new Version(_fileVersionInfo.FileMajorPart, _fileVersionInfo.FileMinorPart, _fileVersionInfo.FileBuildPart, _fileVersionInfo.FilePrivatePart);
+            : new Version(_fileVersionInfo.FileMajorPart, _fileVersionInfo.FileMinorPart, _fileVersionInfo.FileBuildPart, _fileVersionInfo.FilePrivatePart));
     }
 
     /// <summary>

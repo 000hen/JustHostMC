@@ -94,6 +94,7 @@ public sealed partial class ShopWindow : Window
         Title = title;
         ShopTitleBar.Title = title;
         ExtendsContentIntoTitleBar = true;
+        AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
         SetTitleBar(ShopTitleBar);
         InstallMinimumWindowSizeHook();
         ResizeToContent(1320, 840);

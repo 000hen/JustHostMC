@@ -171,12 +171,12 @@
                 </ScrollViewer>
             </Border>
 
-            <!-- A short summary replaces the tall rail when the window is narrow,
-                 leaving most of the height available for Details and Versions. -->
-            <Grid x:Name="CompactHeader" RowSpacing="12">
+            <!-- In compact mode this project card is pinned above the active
+                 scroll surface. The gallery stays out of the sticky region. -->
+            <Grid x:Name="CompactHeader" Grid.Row="0" RowSpacing="0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="0" />
                 </Grid.RowDefinitions>
 
                 <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
@@ -212,6 +212,7 @@
                                        TextTrimming="CharacterEllipsis" />
                             <TextBlock Grid.Column="1"
                                        Text="{x:Bind ViewModel.SourceName}"
+                                       Visibility="Collapsed"
                                        Style="{StaticResource CaptionTextBlockStyle}"
                                        Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
                         </Grid>
@@ -236,7 +237,9 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <StackPanel Grid.Column="2" Spacing="8">
+                    <StackPanel Grid.Column="2"
+                                Spacing="8"
+                                VerticalAlignment="Center">
                         <Button x:Uid="ShopInstallLatestButton"
                                 AutomationProperties.AutomationId="ShopInstallLatestCompact"
                                 HorizontalAlignment="Stretch"
@@ -258,7 +261,7 @@
                           Height="150"
                           CornerRadius="8"
                           ItemsSource="{x:Bind ViewModel.Gallery, Mode=OneWay}"
-                          Visibility="{x:Bind BoolToVisibility(ViewModel.HasGallery), Mode=OneWay}">
+                          Visibility="Collapsed">
                     <FlipView.ItemTemplate>
                         <DataTemplate x:DataType="models:ShopGalleryItem">
                             <Grid Background="{ThemeResource ControlFillColorSecondaryBrush}">
@@ -267,6 +270,7 @@
                         </DataTemplate>
                     </FlipView.ItemTemplate>
                 </FlipView>
+
             </Grid>
 
             <Grid x:Name="RightPane"

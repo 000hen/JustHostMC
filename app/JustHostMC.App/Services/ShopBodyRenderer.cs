@@ -9,8 +9,11 @@ namespace JustHostMC.App.Services;
 /// and inline styles are allowed.</summary>
 public static class ShopBodyRenderer
 {
+    // Inline HTML stays enabled: Modrinth bodies routinely embed <img>/<center>
+    // markup. The CSP meta tag is the sandbox — scripts, frames, and fetch are
+    // blocked regardless of what the markdown carries.
     private static readonly MarkdownPipeline Pipeline =
-        new MarkdownPipelineBuilder().UseAdvancedExtensions().DisableHtml().Build();
+        new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
 
     public static string ToHtml(string body, ShopBodyFormat format, bool darkTheme)
     {

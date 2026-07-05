@@ -73,7 +73,7 @@
         </Grid>
 
         <!-- Overview / Versions switch -->
-        <SelectorBar x:Name="TabBar" SelectionChanged="OnTabChanged">
+        <SelectorBar x:Name="TabBar" Grid.Row="1" SelectionChanged="OnTabChanged">
             <SelectorBarItem x:Name="OverviewTab" x:Uid="ShopOverviewTab" IsSelected="True" />
             <SelectorBarItem x:Name="VersionsTab" x:Uid="ShopVersionsTab" />
         </SelectorBar>

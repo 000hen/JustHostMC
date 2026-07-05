@@ -53,7 +53,7 @@
                 <AutoSuggestBox x:Name="SearchBox"
                                 x:Uid="ShopSearchBox"
                                 AutomationProperties.AutomationId="ShopSearch"
-                                Width="420"
+                                Width="320"
                                 MinWidth="180"
                                 MaxWidth="420"
                                 VerticalAlignment="Center"

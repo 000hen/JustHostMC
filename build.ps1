@@ -157,11 +157,18 @@ if (-not $SkipEngine) {
             -Arguments @('build', './...') `
             -WorkingDirectory $EngineDir
 
+        # Optional baked-in CurseForge API key (never committed): set
+        # JHMC_CURSEFORGE_API_KEY in the environment before building.
+        $ldflags = '-s -w -buildid='
+        if ($env:JHMC_CURSEFORGE_API_KEY) {
+            $ldflags += " -X main.defaultCurseForgeKey=$($env:JHMC_CURSEFORGE_API_KEY)"
+        }
+
         Invoke-External `
             -Description 'go build (engine.exe)' `
             -Command 'go' `
             -Arguments @('build', '-trimpath', '-buildvcs=false', '-mod=readonly',
-                         '-ldflags="-s -w -buildid="',
+                         "-ldflags=`"$ldflags`"",
                          '-o', "`"$EngineExe`"", './cmd/engine') `
             -WorkingDirectory $EngineDir `
             -Environment @{ CGO_ENABLED = '0' }

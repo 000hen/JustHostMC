@@ -137,16 +137,23 @@ both sides, then implement the Go `*Service` and call it from a C# ViewModel.
 - `internal/scripting/` — the Lua core: `host.go` runs sandboxed gopher-lua
   (`base/table/string/math` only; no `os`/`io`/`require`; fs confined to the
   server dir) and exposes the permission-gated `jhmc.*` host API (`hostfuncs.go`:
-  http/json/toml/yaml/zip/fs/store/...). Three script subsystems build on it:
+  http/json/toml/yaml/zip/fs/store/...). Four script subsystems build on it:
   **providers** (`Registry`, `LuaProvider`, `builtin/*.lua` — vanilla, paper,
   spigot, fabric), **automation** (the `automation/` subpackage: `Manager` +
   the `server.*`/`on_*`/`schedule` runtime, via the exported surface in
   `export.go`), and **mod-metadata parsers** (`ParserSet`, `LuaParser`,
   `builtin_parsers/*.lua` — fabric/quilt/forge/neoforge/forge-legacy/bukkit; they
-  enrich `ModService.List` with icon/name/authors/version, cached per jar).
+  enrich `ModService.List` with icon/name/authors/version, cached per jar), and
+  **mod shops** (`ShopSet`, `LuaShop`, `builtin_shops/*.lua` — modrinth,
+  curseforge; the home/search/detail/versions/resolve_file contract behind
+  `ShopService` and the app's Mod Shop window. Shop HTTP goes through
+  `internal/httpcache` via `jhmc.http_cache` (disk ETag cache); keyed sources
+  declare `needs_key` and read `ctx.config.api_key`, resolved from settings
+  `shop_keys` then the `-X main.defaultCurseForgeKey` build default —
+  `build.ps1` injects env `JHMC_CURSEFORGE_API_KEY`).
   `GrantStore` (`grants.go`) persists per-script permission decisions
-  (`grants.json`, `script-grants.json`, `parser-grants.json`).
-  `ProviderService`/`ScriptService`/`ParserService` are wired in
+  (`grants.json`, `script-grants.json`, `parser-grants.json`, `shop-grants.json`).
+  `ProviderService`/`ScriptService`/`ParserService`/`ShopService` are wired in
   `internal/grpc/`. **Adding a server type is "drop a `.lua` in `builtin/` or
   import one at runtime" — not a Go provider; same for parsers in
   `builtin_parsers/`.** See [`docs/scripting.md`](docs/scripting.md) for the

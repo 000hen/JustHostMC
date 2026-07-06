@@ -16,7 +16,9 @@ function parse(ctx)
   if raw == nil then return nil end
   raw = raw:gsub("^\239\187\191", "")
   local ok, m = pcall(jhmc.json_decode, raw)
-  if not ok or type(m) ~= "table" or type(m.name) ~= "string" then return nil end
+  if not ok or type(m) ~= "table" or type(m.name) ~= "string" then
+    error("invalid litemod.json: " .. tostring(m))
+  end
 
   local authors = {}
   if type(m.author) == "string" and m.author ~= "" then authors[1] = m.author end
@@ -31,6 +33,7 @@ function parse(ctx)
 
   return {
     loader = "liteloader",
+    game_version = m.mcversion,
     mod_id = m.name,
     name = m.name,
     version = version,

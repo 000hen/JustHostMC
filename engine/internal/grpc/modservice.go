@@ -45,7 +45,7 @@ type ModService struct {
 // server dir). *scripting.ParserSet satisfies it; matched=false means no
 // installed parser recognized the jar.
 type ModParser interface {
-	ParseJar(ctx context.Context, serverDir, jarRel string) (scripting.ModMeta, string, bool)
+	ParseJar(ctx context.Context, serverDir, jarRel string) (scripting.ModMeta, string, bool, error)
 }
 
 // NewModService builds a ModService over the registry and data paths. parser
@@ -102,6 +102,7 @@ func (s *ModService) List(ctx context.Context, req *mcmanagerv1.ServerId) (*mcma
 			continue
 		}
 		meta := s.jarMetadata(ctx, req.Id, subdir, e.Name(), info.Size(), info.ModTime().UnixNano(), fresh)
+		meta = modCompatibility(meta, rec.ProviderID, rec.McVersion, kind)
 		list.Files = append(list.Files, &mcmanagerv1.ModFile{
 			Name:      e.Name(),
 			SizeBytes: info.Size(),
@@ -131,18 +132,22 @@ func (s *ModService) jarMetadata(ctx context.Context, serverID, subdir, name str
 
 	meta := &mcmanagerv1.ModMetadata{}
 	if s.parser != nil {
-		if m, parserID, matched := s.parser.ParseJar(ctx, s.paths.ServerDir(serverID), subdir+"/"+name); matched {
+		m, parserID, matched, err := s.parser.ParseJar(ctx, s.paths.ServerDir(serverID), subdir+"/"+name)
+		if err != nil {
+			meta.ParseError = err.Error()
+		} else if matched {
 			meta = &mcmanagerv1.ModMetadata{
-				Parsed:      true,
-				ParserId:    parserID,
-				Loader:      m.Loader,
-				ModId:       m.ModID,
-				Name:        m.Name,
-				Version:     m.Version,
-				Authors:     m.Authors,
-				Description: m.Description,
-				Website:     m.Website,
-				Icon:        m.Icon,
+				Parsed:                 true,
+				ParserId:               parserID,
+				Loader:                 m.Loader,
+				GameVersionRequirement: m.GameVersion,
+				ModId:                  m.ModID,
+				Name:                   m.Name,
+				Version:                m.Version,
+				Authors:                m.Authors,
+				Description:            m.Description,
+				Website:                m.Website,
+				Icon:                   m.Icon,
 			}
 		}
 	}

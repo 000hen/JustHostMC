@@ -17,7 +17,9 @@ function parse(ctx)
   if raw == nil then return nil end
   raw = raw:gsub("^\239\187\191", "")
   local ok, m = pcall(jhmc.json_decode, raw)
-  if not ok or type(m) ~= "table" or type(m.quilt_loader) ~= "table" then return nil end
+  if not ok or type(m) ~= "table" or type(m.quilt_loader) ~= "table" then
+    error("invalid quilt.mod.json: " .. tostring(m))
+  end
 
   local ql = m.quilt_loader
   local md = type(ql.metadata) == "table" and ql.metadata or {}
@@ -60,8 +62,33 @@ function parse(ctx)
     icon = jhmc.zip_read(ctx.jar, (icon_path:gsub("^/", "")))
   end
 
+  local function version_text(value)
+    if type(value) == "string" then return value end
+    if type(value) ~= "table" then return nil end
+    local versions = {}
+    for _, constraint in ipairs(value) do
+      if type(constraint) == "string" then versions[#versions + 1] = constraint end
+    end
+    if #versions > 0 then return table.concat(versions, " || ") end
+    return nil
+  end
+
+  local game_version
+  if type(ql.depends) == "table" then
+    game_version = version_text(ql.depends.minecraft)
+    if game_version == nil then
+      for _, dependency in ipairs(ql.depends) do
+        if type(dependency) == "table" and dependency.id == "minecraft" then
+          game_version = version_text(dependency.versions or dependency.version)
+          break
+        end
+      end
+    end
+  end
+
   return {
     loader = "quilt",
+    game_version = game_version,
     mod_id = ql.id,
     name = md.name or ql.id,
     version = ql.version,

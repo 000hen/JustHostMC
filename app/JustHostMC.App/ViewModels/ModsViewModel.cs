@@ -236,7 +236,7 @@ public sealed partial class ModsViewModel : ObservableObject
     /// <summary>Builds a list item, decoding the parsed jar icon (if any) into a
     /// BitmapImage. Must run on the UI thread (BitmapImage is a UI object); the
     /// async decode fills the image in place while the list already shows.</summary>
-    private static ModFileItem CreateItem(ModFile file)
+    private ModFileItem CreateItem(ModFile file)
     {
         ImageSource? icon = null;
         if (file.Metadata is { Parsed: true } meta && meta.Icon.Length > 0)
@@ -245,7 +245,7 @@ public sealed partial class ModsViewModel : ObservableObject
             _ = LoadIconAsync(bitmap, meta.Icon);
             icon = bitmap;
         }
-        return new ModFileItem(file.Name, file.SizeBytes, file.Metadata, icon);
+        return new ModFileItem(file.Name, file.SizeBytes, file.Metadata, icon, _localizer);
     }
 
     private static async Task LoadIconAsync(BitmapImage bitmap, ByteString bytes)

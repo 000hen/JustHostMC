@@ -11,6 +11,7 @@ import (
 // jar, regardless of the descriptor format it was read from.
 type ModMeta struct {
 	Loader      string // "fabric" | "quilt" | "forge" | "neoforge" | "forge-legacy" | "liteloader" | "bukkit" | "paper"
+	GameVersion string // declared Minecraft version/range; empty when the descriptor does not say
 	ModID       string
 	Name        string
 	Version     string
@@ -97,6 +98,7 @@ func (inv *invocation) parseMod(src, jarRel string) (ModMeta, bool, error) {
 
 	m := ModMeta{
 		Loader:      strField(tbl, "loader"),
+		GameVersion: strField(tbl, "game_version"),
 		ModID:       strField(tbl, "mod_id"),
 		Name:        strField(tbl, "name"),
 		Version:     strField(tbl, "version"),

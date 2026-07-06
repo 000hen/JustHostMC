@@ -104,18 +104,25 @@ func (ps *ParserSet) EffectiveGrants(id string) GrantSet {
 
 // ParseJar runs the installed parsers against one jar in registration order;
 // the first parser that matches wins. A single broken parser is logged and
-// skipped so it can never break mod listing. matched=false means no parser
-// recognized the jar.
-func (ps *ParserSet) ParseJar(ctx context.Context, serverDir, jarRel string) (ModMeta, string, bool) {
+// skipped so it can never break mod listing. Errors from built-in parsers are
+// returned only when no later parser recognizes the jar, allowing the caller to
+// show a failed row without losing the rest of the list. Errors from optional
+// user parsers remain log-only because a broken extension must not condemn an
+// otherwise valid, unrecognized archive.
+func (ps *ParserSet) ParseJar(ctx context.Context, serverDir, jarRel string) (ModMeta, string, bool, error) {
+	var firstBuiltinErr error
 	for _, p := range ps.List() {
 		meta, matched, err := p.Parse(ctx, serverDir, jarRel)
 		if err != nil {
 			log.Printf("mod parser %q: %s: %v", p.meta.ID, jarRel, err)
+			if p.builtin && firstBuiltinErr == nil {
+				firstBuiltinErr = fmt.Errorf("%s: %w", p.meta.ID, err)
+			}
 			continue
 		}
 		if matched {
-			return meta, p.meta.ID, true
+			return meta, p.meta.ID, true, nil
 		}
 	}
-	return ModMeta{}, "", false
+	return ModMeta{}, "", false, firstBuiltinErr
 }

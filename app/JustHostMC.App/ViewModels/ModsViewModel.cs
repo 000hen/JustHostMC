@@ -24,7 +24,6 @@ namespace JustHostMC.App.ViewModels;
 public sealed partial class ModsViewModel : ObservableObject
 {
     private const int ChunkSize = 64 * 1024;
-    private const int UiBatchSize = 24;
 
     private readonly string _serverId;
     private readonly DispatcherQueue _dispatcher;
@@ -55,7 +54,10 @@ public sealed partial class ModsViewModel : ObservableObject
     public partial bool IsBusy { get; private set; }
 
     [ObservableProperty]
-    public partial bool IsLoading { get; private set; } = true;
+    public partial bool IsInitialLoading { get; private set; } = true;
+
+    [ObservableProperty]
+    public partial bool IsRefreshing { get; private set; }
 
     [ObservableProperty]
     public partial string KindLabel { get; private set; } = "";
@@ -70,7 +72,7 @@ public sealed partial class ModsViewModel : ObservableObject
     public IReadOnlyCollection<string> InstalledFileNames() =>
         Files.Select(f => f.Name).ToArray();
 
-    public bool ShowOperationProgress => IsBusy && !IsLoading;
+    public bool ShowOperationProgress => !IsInitialLoading && (IsBusy || IsRefreshing);
 
     [ObservableProperty]
     public partial string StatusMessage { get; private set; } = "";
@@ -83,7 +85,13 @@ public sealed partial class ModsViewModel : ObservableObject
         RecomputeCanModify();
     }
 
-    partial void OnIsLoadingChanged(bool value)
+    partial void OnIsInitialLoadingChanged(bool value)
+    {
+        OnPropertyChanged(nameof(ShowOperationProgress));
+        RecomputeCanModify();
+    }
+
+    partial void OnIsRefreshingChanged(bool value)
     {
         OnPropertyChanged(nameof(ShowOperationProgress));
         RecomputeCanModify();
@@ -120,9 +128,11 @@ public sealed partial class ModsViewModel : ObservableObject
 
     private async Task RefreshCoreAsync()
     {
+        var isInitialLoad = !_loaded;
         await RunOnUIAsync(() =>
         {
-            IsLoading = true;
+            IsInitialLoading = isInitialLoad;
+            IsRefreshing = !isInitialLoad;
             StatusMessage = "";
         });
 
@@ -141,23 +151,9 @@ public sealed partial class ModsViewModel : ObservableObject
                 Kind = list.Kind;
                 AcceptsLiteMod = list.Kind == ModKind.Mod;
                 KindLabel = _localizer.Get(list.Kind == ModKind.Mod ? "Mods_KindMods" : "Mods_KindPlugins");
-                Files.Clear();
+                ApplyFileDiff(files);
+                _loaded = true;
             });
-
-            // Creating BitmapImage instances and notifying ObservableCollection
-            // must happen on the UI thread. Apply bounded batches so rendering and
-            // input can run between chunks of a large mod list.
-            for (var offset = 0; offset < files.Length; offset += UiBatchSize)
-            {
-                var batch = files.Skip(offset).Take(UiBatchSize).ToArray();
-                await RunOnUIAsync(() =>
-                {
-                    foreach (var file in batch)
-                        Files.Add(CreateItem(file));
-                }).ConfigureAwait(false);
-            }
-
-            await RunOnUIAsync(() => _loaded = true).ConfigureAwait(false);
         }
         catch (RpcException)
         {
@@ -171,8 +167,69 @@ public sealed partial class ModsViewModel : ObservableObject
         }
         finally
         {
-            await RunOnUIAsync(() => IsLoading = false).ConfigureAwait(false);
+            await RunOnUIAsync(() =>
+            {
+                IsInitialLoading = false;
+                IsRefreshing = false;
+            }).ConfigureAwait(false);
         }
+    }
+
+    /// <summary>Reconciles the fetched snapshot with the observable collection.
+    /// Existing rows stay in place, while additions, removals, moves, and changed
+    /// metadata produce only their corresponding collection notifications.</summary>
+    private void ApplyFileDiff(IReadOnlyList<ModFile> files)
+    {
+        var desiredNames = files.Select(file => file.Name)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        for (var index = Files.Count - 1; index >= 0; index--)
+        {
+            if (!desiredNames.Contains(Files[index].Name))
+                Files.RemoveAt(index);
+        }
+
+        for (var desiredIndex = 0; desiredIndex < files.Count; desiredIndex++)
+        {
+            var file = files[desiredIndex];
+            var existingIndex = -1;
+            for (var index = desiredIndex; index < Files.Count; index++)
+            {
+                if (string.Equals(Files[index].Name, file.Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    existingIndex = index;
+                    break;
+                }
+            }
+
+            if (existingIndex < 0)
+            {
+                Files.Insert(desiredIndex, CreateItem(file));
+                continue;
+            }
+
+            if (existingIndex != desiredIndex)
+                Files.Move(existingIndex, desiredIndex);
+            if (!Matches(Files[desiredIndex], file))
+                Files[desiredIndex] = CreateItem(file);
+        }
+    }
+
+    private static bool Matches(ModFileItem item, ModFile file)
+    {
+        var metadata = file.Metadata;
+        var hasMetadata = metadata is { Parsed: true };
+        return item.Name == file.Name
+            && item.SizeBytes == file.SizeBytes
+            && item.HasMetadata == hasMetadata
+            && (!hasMetadata ||
+                (item.DisplayName == metadata!.Name
+                 && item.ModId == metadata.ModId
+                 && item.Version == metadata.Version
+                 && item.Description == metadata.Description
+                 && item.Website == metadata.Website
+                 && item.Loader == metadata.Loader
+                 && item.Authors == string.Join(", ", metadata.Authors.Where(author => author.Length > 0))));
     }
 
     /// <summary>Streams a chosen jar to the engine, then refreshes.</summary>
@@ -264,7 +321,7 @@ public sealed partial class ModsViewModel : ObservableObject
     }
 
     private void RecomputeCanModify() =>
-        CanModify = Supported && _serverStopped && !IsBusy && !IsLoading;
+        CanModify = Supported && _serverStopped && !IsBusy && !IsInitialLoading && !IsRefreshing;
 
     /// <summary>Zips the whole plugins/mods folder to a user-picked .zip.
     /// Read-only on the server dir, so it works while the server runs.</summary>

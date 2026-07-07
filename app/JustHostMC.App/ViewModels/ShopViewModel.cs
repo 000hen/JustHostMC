@@ -31,7 +31,7 @@ public sealed partial class ShopViewModel : ObservableObject
         Context = context;
         _dispatcher = dispatcher;
         _localizer = localizer;
-        SearchResults = new ShopSearchResults(LoadSearchPageAsync);
+        SearchResults = new ShopSearchResults(LoadSearchPageAsync, PageSize);
     }
 
     public ShopContext Context { get; }
@@ -320,13 +320,17 @@ public sealed partial class ShopCategoryFilter : ObservableObject
 public sealed class ShopSearchResults : ObservableCollection<ShopProjectItem>, ISupportIncrementalLoading
 {
     private readonly Func<int, Task<IReadOnlyList<ShopProjectItem>>> _loadPage;
+    private readonly int _pageSize;
+    private readonly HashSet<string> _projectIds = new(StringComparer.Ordinal);
     private bool _exhausted;
     private int _generation;
     private int _loadingGeneration = -1;
+    private int _nextOffset;
 
-    public ShopSearchResults(Func<int, Task<IReadOnlyList<ShopProjectItem>>> loadPage)
+    public ShopSearchResults(Func<int, Task<IReadOnlyList<ShopProjectItem>>> loadPage, int pageSize)
     {
         _loadPage = loadPage;
+        _pageSize = pageSize;
     }
 
     public bool HasMoreItems => !_exhausted;
@@ -335,6 +339,8 @@ public sealed class ShopSearchResults : ObservableCollection<ShopProjectItem>, I
     {
         _generation++;
         Clear();
+        _projectIds.Clear();
+        _nextOffset = 0;
         _exhausted = false;
     }
 
@@ -348,14 +354,35 @@ public sealed class ShopSearchResults : ObservableCollection<ShopProjectItem>, I
             _loadingGeneration = generation;
             try
             {
-                var page = await _loadPage(Count);
+                // The provider offset is independent from the number of rows in the
+                // collection. A provider can return overlapping rows while its index
+                // changes; using Count would then request that overlap forever once
+                // duplicate rows are filtered out.
+                var page = await _loadPage(_nextOffset);
                 if (generation != _generation)
                     return new LoadMoreItemsResult { Count = 0 };
-                if (page.Count == 0)
-                    _exhausted = true;
+
+                _nextOffset += page.Count;
+                uint added = 0;
                 foreach (var item in page)
+                {
+                    var project = item.Project;
+                    var key = project.ProjectId.Length > 0
+                        ? $"{project.ShopId}\n{project.ProjectId}"
+                        : $"{project.ShopId}\n{project.Slug}\n{project.Title}";
+                    if (!_projectIds.Add(key))
+                        continue;
+
                     Add(item);
-                return new LoadMoreItemsResult { Count = (uint)page.Count };
+                    added++;
+                }
+
+                // A short page is the provider's final page. A full page with no new
+                // identities means the provider repeated a page; stop rather than
+                // creating an endless scroll/request loop.
+                if (page.Count == 0 || page.Count < _pageSize || added == 0)
+                    _exhausted = true;
+                return new LoadMoreItemsResult { Count = added };
             }
             finally
             {

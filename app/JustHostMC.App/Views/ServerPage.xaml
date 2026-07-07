@@ -9,6 +9,108 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
+    <Page.Resources>
+        <DataTemplate x:Key="ModFileSkeletonTemplate">
+            <Grid Padding="8" MinHeight="68" ColumnSpacing="12"
+                  Opacity="0.65"
+                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                  BorderThickness="0,0,0,1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Width="32" Height="32" CornerRadius="4"
+                        VerticalAlignment="Center"
+                        Background="{ThemeResource ControlFillColorSecondaryBrush}" />
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="7">
+                    <Border Width="190" Height="13" HorizontalAlignment="Left" CornerRadius="4"
+                            Background="{ThemeResource ControlFillColorSecondaryBrush}" />
+                    <Border Width="310" MaxWidth="310" Height="10" HorizontalAlignment="Left" CornerRadius="3"
+                            Background="{ThemeResource ControlFillColorSecondaryBrush}" />
+                </StackPanel>
+                <Border Grid.Column="2" Width="58" Height="10" CornerRadius="3"
+                        VerticalAlignment="Center"
+                        Background="{ThemeResource ControlFillColorSecondaryBrush}" />
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ModFileRowTemplate" x:DataType="models:ModFileItem">
+            <Grid Padding="8" ColumnSpacing="12"
+                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                  BorderThickness="0,0,0,1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Column="0" Width="32" Height="32" VerticalAlignment="Center">
+                    <FontIcon Glyph="&#xE7B8;" FontSize="16"
+                              Visibility="{x:Bind FallbackIconVisibility}" />
+                    <Border CornerRadius="4" Visibility="{x:Bind IconVisibility}">
+                        <Image Source="{x:Bind Icon}" Stretch="UniformToFill" />
+                    </Border>
+                </Grid>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{x:Bind Title}" TextTrimming="CharacterEllipsis"
+                                   Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        <TextBlock Text="{x:Bind Name}" VerticalAlignment="Bottom"
+                                   Visibility="{x:Bind FileNameVisibility}"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                   TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                    <TextBlock Text="{x:Bind InfoLine}" Visibility="{x:Bind InfoLineVisibility}"
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{x:Bind Description}" Visibility="{x:Bind DescriptionVisibility}"
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" />
+                    <StackPanel Orientation="Horizontal" Spacing="6"
+                                Visibility="{x:Bind CompatibilityWarningVisibility}">
+                        <FontIcon Glyph="&#xE7BA;" FontSize="12"
+                                  Foreground="{ThemeResource SystemFillColorCautionBrush}" />
+                        <TextBlock Text="{x:Bind CompatibilityWarning}"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="6"
+                                Visibility="{x:Bind ParseErrorVisibility}">
+                        <FontIcon Glyph="&#xE783;" FontSize="12"
+                                  Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                        <TextBlock Text="{x:Bind ParseError}"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                    <HyperlinkButton x:Uid="ModsWebsiteLink" NavigateUri="{x:Bind WebsiteUri}"
+                                     Visibility="{x:Bind WebsiteVisibility}"
+                                     Padding="0" FontSize="12" />
+                </StackPanel>
+                <TextBlock Grid.Column="2" Text="{x:Bind SizeText}" VerticalAlignment="Center"
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                <Button Grid.Column="3" x:Uid="ModsRemoveButton">
+                    <FontIcon Glyph="&#xE74D;" FontSize="14" />
+                    <Button.Flyout>
+                        <Flyout>
+                            <StackPanel Spacing="8" MaxWidth="240">
+                                <TextBlock x:Uid="ModsRemoveConfirmText" TextWrapping="Wrap" />
+                                <Button x:Uid="ModsRemoveConfirmButton" HorizontalAlignment="Right"
+                                        Click="OnRemoveModConfirm" Tag="{x:Bind}" />
+                            </StackPanel>
+                        </Flyout>
+                    </Button.Flyout>
+                </Button>
+            </Grid>
+        </DataTemplate>
+    </Page.Resources>
+
     <Grid x:Name="RootGrid" SizeChanged="OnPageSizeChanged">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -759,21 +861,21 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" VerticalAlignment="Center"
-                                        Visibility="{x:Bind Mods.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}">
+                                        Visibility="{x:Bind Mods.IsInitialLoading, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}">
                                 <TextBlock Text="{x:Bind Mods.KindLabel, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" />
                                 <TextBlock x:Uid="ModsStoppedHint" Style="{StaticResource CaptionTextBlockStyle}"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                        Visibility="{x:Bind Mods.CanModify, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
                             </StackPanel>
                             <StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="7"
-                                        Visibility="{x:Bind Mods.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVis}}">
+                                        Visibility="{x:Bind Mods.IsInitialLoading, Mode=OneWay, Converter={StaticResource BoolToVis}}">
                                 <Border Width="150" Height="14" HorizontalAlignment="Left" CornerRadius="4"
                                         Background="{ThemeResource ControlFillColorSecondaryBrush}" />
                                 <Border Width="235" Height="10" HorizontalAlignment="Left" CornerRadius="3"
                                         Opacity="0.7" Background="{ThemeResource ControlFillColorSecondaryBrush}" />
                             </StackPanel>
                             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8"
-                                        Visibility="{x:Bind Mods.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}">
+                                        Visibility="{x:Bind Mods.IsInitialLoading, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}">
                                 <Button AutomationProperties.AutomationId="ModsExportAll"
                                         Click="OnExportModsClick"
                                         IsEnabled="{x:Bind Mods.Supported, Mode=OneWay}">
@@ -801,7 +903,7 @@
                                 </Button>
                             </StackPanel>
                             <Border Grid.Column="1" Width="264" Height="32" CornerRadius="4"
-                                    Visibility="{x:Bind Mods.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVis}}"
+                                    Visibility="{x:Bind Mods.IsInitialLoading, Mode=OneWay, Converter={StaticResource BoolToVis}}"
                                     Background="{ThemeResource ControlFillColorSecondaryBrush}" />
                         </Grid>
 
@@ -813,113 +915,19 @@
                                  Visibility="{x:Bind Mods.ShowOperationProgress, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
 
                         <ItemsControl ItemsSource="{x:Bind Mods.LoadingRows, Mode=OneWay}"
+                                      ItemTemplate="{StaticResource ModFileSkeletonTemplate}"
                                       IsHitTestVisible="False"
-                                      Visibility="{x:Bind Mods.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVis}}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid Padding="8" MinHeight="68" ColumnSpacing="12"
-                                          Opacity="0.65"
-                                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                          BorderThickness="0,0,0,1">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <Border Grid.Column="0" Width="32" Height="32" CornerRadius="4"
-                                                VerticalAlignment="Center"
-                                                Background="{ThemeResource ControlFillColorSecondaryBrush}" />
-                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="7">
-                                            <Border Width="190" Height="13" HorizontalAlignment="Left" CornerRadius="4"
-                                                    Background="{ThemeResource ControlFillColorSecondaryBrush}" />
-                                            <Border Width="310" MaxWidth="310" Height="10" HorizontalAlignment="Left" CornerRadius="3"
-                                                    Background="{ThemeResource ControlFillColorSecondaryBrush}" />
-                                        </StackPanel>
-                                        <Border Grid.Column="2" Width="58" Height="10" CornerRadius="3"
-                                                VerticalAlignment="Center"
-                                                Background="{ThemeResource ControlFillColorSecondaryBrush}" />
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                                      Visibility="{x:Bind Mods.IsInitialLoading, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
 
                         <ItemsControl ItemsSource="{x:Bind Mods.Files, Mode=OneWay}"
-                                      Visibility="{x:Bind Mods.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid Padding="8" ColumnSpacing="12"
-                                      BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <Grid Grid.Column="0" Width="32" Height="32" VerticalAlignment="Center">
-                                            <FontIcon Glyph="&#xE7B8;" FontSize="16"
-                                                  Visibility="{Binding FallbackIconVisibility}" />
-                                            <Border CornerRadius="4" Visibility="{Binding IconVisibility}">
-                                                <Image Source="{Binding Icon}" Stretch="UniformToFill" />
-                                            </Border>
-                                        </Grid>
-                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                                <TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis"
-                                                       Style="{StaticResource BodyStrongTextBlockStyle}" />
-                                                <TextBlock Text="{Binding Name}" VerticalAlignment="Bottom"
-                                                       Visibility="{Binding FileNameVisibility}"
-                                                       Style="{StaticResource CaptionTextBlockStyle}"
-                                                       Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-                                                       TextTrimming="CharacterEllipsis" />
-                                            </StackPanel>
-                                            <TextBlock Text="{Binding InfoLine}" Visibility="{Binding InfoLineVisibility}"
-                                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                   TextTrimming="CharacterEllipsis" />
-                                            <TextBlock Text="{Binding Description}" Visibility="{Binding DescriptionVisibility}"
-                                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                   TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" />
-                                            <StackPanel Orientation="Horizontal" Spacing="6"
-                                                        Visibility="{Binding CompatibilityWarningVisibility}">
-                                                <FontIcon Glyph="&#xE7BA;" FontSize="12"
-                                                          Foreground="{ThemeResource SystemFillColorCautionBrush}" />
-                                                <TextBlock Text="{Binding CompatibilityWarning}"
-                                                           Style="{StaticResource CaptionTextBlockStyle}"
-                                                           Foreground="{ThemeResource SystemFillColorCautionBrush}"
-                                                           TextWrapping="Wrap" />
-                                            </StackPanel>
-                                            <StackPanel Orientation="Horizontal" Spacing="6"
-                                                        Visibility="{Binding ParseErrorVisibility}">
-                                                <FontIcon Glyph="&#xE783;" FontSize="12"
-                                                          Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
-                                                <TextBlock Text="{Binding ParseError}"
-                                                           Style="{StaticResource CaptionTextBlockStyle}"
-                                                           Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-                                                           TextWrapping="Wrap" />
-                                            </StackPanel>
-                                            <HyperlinkButton x:Uid="ModsWebsiteLink" NavigateUri="{Binding WebsiteUri}"
-                                                         Visibility="{Binding WebsiteVisibility}"
-                                                         Padding="0" FontSize="12" />
-                                        </StackPanel>
-                                        <TextBlock Grid.Column="2" Text="{Binding SizeText}" VerticalAlignment="Center"
-                                               Style="{StaticResource CaptionTextBlockStyle}"
-                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                        <Button Grid.Column="3" x:Uid="ModsRemoveButton">
-                                            <FontIcon Glyph="&#xE74D;" FontSize="14" />
-                                            <Button.Flyout>
-                                                <Flyout>
-                                                    <StackPanel Spacing="8" MaxWidth="240">
-                                                        <TextBlock x:Uid="ModsRemoveConfirmText" TextWrapping="Wrap" />
-                                                        <Button x:Uid="ModsRemoveConfirmButton" HorizontalAlignment="Right"
-                                                            Click="OnRemoveModConfirm" Tag="{Binding}" />
-                                                    </StackPanel>
-                                                </Flyout>
-                                            </Button.Flyout>
-                                        </Button>
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
+                                      ItemTemplate="{StaticResource ModFileRowTemplate}"
+                                      Visibility="{x:Bind Mods.IsInitialLoading, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}">
+                            <ItemsControl.ItemContainerTransitions>
+                                <TransitionCollection>
+                                    <AddDeleteThemeTransition />
+                                    <ReorderThemeTransition />
+                                </TransitionCollection>
+                            </ItemsControl.ItemContainerTransitions>
                         </ItemsControl>
 
                         <TextBlock Text="{x:Bind Mods.StatusMessage, Mode=OneWay}" TextWrapping="Wrap"

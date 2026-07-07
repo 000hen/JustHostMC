@@ -30,7 +30,9 @@ function parse(ctx)
     raw = raw:gsub("\r\n", "\n"):gsub("\n\n", "\\n"):gsub("\n", "")
   end
   local ok, t = pcall(jhmc.json_decode, raw)
-  if not ok or type(t) ~= "table" then return nil end
+  if not ok or type(t) ~= "table" then
+    error("invalid legacy mod metadata: " .. tostring(t))
+  end
 
   -- mcmod.info is either a plain array of mods or {"modList": [...]}.
   local mod
@@ -41,7 +43,7 @@ function parse(ctx)
   elseif type(t.modid) == "string" then
     mod = t
   else
-    return nil
+    error("invalid legacy mod metadata: missing mod entry")
   end
 
   local authors = {}
@@ -74,6 +76,7 @@ function parse(ctx)
 
   return {
     loader = "forge-legacy",
+    game_version = mod.mcversion,
     mod_id = mod.modid,
     name = mod.name or mod.modid,
     version = version,

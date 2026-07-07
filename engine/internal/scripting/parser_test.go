@@ -2,6 +2,7 @@ package scripting
 
 import (
 	"context"
+	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -26,7 +27,11 @@ func parseFixture(t *testing.T, ps *ParserSet, entries map[string]string) (ModMe
 	t.Helper()
 	dir := t.TempDir()
 	writeTestJar(t, filepath.Join(dir, "mods", "test.jar"), entries)
-	return ps.ParseJar(context.Background(), dir, "mods/test.jar")
+	meta, parserID, matched, err := ps.ParseJar(context.Background(), dir, "mods/test.jar")
+	if err != nil {
+		t.Fatalf("ParseJar: %v", err)
+	}
+	return meta, parserID, matched
 }
 
 func TestParseFabric(t *testing.T) {
@@ -36,6 +41,7 @@ func TestParseFabric(t *testing.T) {
 			"id": "examplemod", "name": "Example Mod", "version": "2.0.1",
 			"authors": ["Alice", {"name": "Bob"}],
 			"description": "Does example things.",
+			"depends": {"minecraft": ">=1.20 <1.21"},
 			"contact": {"homepage": "https://example.com"},
 			"icon": "assets/examplemod/icon.png"
 		}`,
@@ -48,7 +54,8 @@ func TestParseFabric(t *testing.T) {
 		t.Errorf("parserID = %q", parserID)
 	}
 	want := ModMeta{
-		Loader: "fabric", ModID: "examplemod", Name: "Example Mod", Version: "2.0.1",
+		Loader: "fabric", GameVersion: ">=1.20 <1.21",
+		ModID: "examplemod", Name: "Example Mod", Version: "2.0.1",
 		Authors: []string{"Alice", "Bob"}, Description: "Does example things.",
 		Website: "https://example.com", Icon: []byte(fakeIcon),
 	}
@@ -95,6 +102,7 @@ func TestParseQuilt(t *testing.T) {
 		"quilt.mod.json": `{
 			"quilt_loader": {
 				"id": "qmod", "version": "3.1",
+				"depends": [{"id": "minecraft", "versions": "~1.20.1"}],
 				"metadata": {
 					"name": "Quilt Mod",
 					"description": "Quilted.",
@@ -113,7 +121,7 @@ func TestParseQuilt(t *testing.T) {
 		t.Errorf("parserID = %q", parserID)
 	}
 	if meta.Loader != "quilt" || meta.ModID != "qmod" || meta.Name != "Quilt Mod" ||
-		meta.Version != "3.1" || meta.Website != "https://quilt.example" ||
+		meta.Version != "3.1" || meta.GameVersion != "~1.20.1" || meta.Website != "https://quilt.example" ||
 		len(meta.Authors) != 1 || meta.Authors[0] != "Carol" || len(meta.Icon) == 0 {
 		t.Errorf("meta = %+v", meta)
 	}
@@ -154,6 +162,10 @@ description = "Forged."
 authors = "Dave, Erin"
 displayURL = "https://forge.example"
 logoFile = "logo.png"
+[[dependencies.forgemod]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.20.1,1.21)"
 `,
 		"logo.png": fakeIcon,
 	})
@@ -164,7 +176,8 @@ logoFile = "logo.png"
 		t.Errorf("parserID = %q", parserID)
 	}
 	if meta.Loader != "forge" || meta.ModID != "forgemod" || meta.Name != "Forge Mod" ||
-		meta.Version != "4.5.6" || !reflect.DeepEqual(meta.Authors, []string{"Dave", "Erin"}) ||
+		meta.Version != "4.5.6" || meta.GameVersion != "[1.20.1,1.21)" ||
+		!reflect.DeepEqual(meta.Authors, []string{"Dave", "Erin"}) ||
 		meta.Website != "https://forge.example" || len(meta.Icon) == 0 {
 		t.Errorf("meta = %+v", meta)
 	}
@@ -211,13 +224,17 @@ modId = "neomod"
 version = "1.0.0"
 displayName = "Neo Mod"
 authors = "Frank"
+[[dependencies.neomod]]
+modId = "minecraft"
+versionRange = "[1.21,1.22)"
 `,
 	})
 	if !ok {
 		t.Fatal("neoforge jar not matched")
 	}
 	if parserID != "parser-neoforge" || meta.Loader != "neoforge" || meta.ModID != "neomod" ||
-		meta.Name != "Neo Mod" || !reflect.DeepEqual(meta.Authors, []string{"Frank"}) {
+		meta.Name != "Neo Mod" || meta.GameVersion != "[1.21,1.22)" ||
+		!reflect.DeepEqual(meta.Authors, []string{"Frank"}) {
 		t.Errorf("parserID=%q meta = %+v", parserID, meta)
 	}
 }
@@ -241,7 +258,7 @@ func TestParseForgeLegacy(t *testing.T) {
 	ps := newBuiltinParserSet(t)
 	meta, parserID, ok := parseFixture(t, ps, map[string]string{
 		"mcmod.info": `[{
-			"modid": "legacymod", "name": "Legacy Mod", "version": "0.9",
+			"modid": "legacymod", "name": "Legacy Mod", "version": "0.9", "mcversion": "1.12.2",
 			"description": "Old but gold.",
 			"authorList": ["Grace"],
 			"url": "https://legacy.example",
@@ -253,7 +270,7 @@ func TestParseForgeLegacy(t *testing.T) {
 		t.Fatal("legacy forge jar not matched")
 	}
 	if parserID != "parser-forge-legacy" || meta.Loader != "forge-legacy" ||
-		meta.ModID != "legacymod" || meta.Name != "Legacy Mod" ||
+		meta.ModID != "legacymod" || meta.Name != "Legacy Mod" || meta.GameVersion != "1.12.2" ||
 		!reflect.DeepEqual(meta.Authors, []string{"Grace"}) || len(meta.Icon) == 0 {
 		t.Errorf("parserID=%q meta = %+v", parserID, meta)
 	}
@@ -298,7 +315,8 @@ func TestParseLiteLoader(t *testing.T) {
 		t.Fatalf("ok=%v parserID=%q meta=%+v", ok, parserID, meta)
 	}
 	want := ModMeta{
-		Loader: "liteloader", ModID: "ArmorsHUDRevived", Name: "ArmorsHUDRevived",
+		Loader: "liteloader", GameVersion: "1.12.r2",
+		ModID: "ArmorsHUDRevived", Name: "ArmorsHUDRevived",
 		Version: "1.12.r2:143", Authors: []string{"Shadow_Hawk"},
 		Description: "Armor HUD", Website: "https://example.test/lite",
 	}
@@ -317,13 +335,15 @@ main: com.example.Main
 description: Edits worlds.
 authors: [sk89q, wizjany]
 website: https://worldedit.example
+api-version: 1.18
 `,
 	})
 	if !ok {
 		t.Fatal("bukkit jar not matched")
 	}
 	if parserID != "parser-bukkit" || meta.Loader != "bukkit" || meta.Name != "WorldEdit" ||
-		meta.Version != "7.2" || !reflect.DeepEqual(meta.Authors, []string{"sk89q", "wizjany"}) ||
+		meta.Version != "7.2" || meta.GameVersion != ">=1.18" ||
+		!reflect.DeepEqual(meta.Authors, []string{"sk89q", "wizjany"}) ||
 		meta.Website != "https://worldedit.example" {
 		t.Errorf("parserID=%q meta = %+v", parserID, meta)
 	}
@@ -336,6 +356,7 @@ func TestParsePaperPlugin(t *testing.T) {
 name: PaperThing
 version: 1.5
 author: Heidi
+api-version: '1.20'
 `,
 	})
 	if !ok {
@@ -343,6 +364,7 @@ author: Heidi
 	}
 	// An unquoted YAML number stringifies via Lua tostring ("1.5").
 	if meta.Loader != "paper" || meta.Name != "PaperThing" || meta.Version != "1.5" ||
+		meta.GameVersion != ">=1.20" ||
 		!reflect.DeepEqual(meta.Authors, []string{"Heidi"}) {
 		t.Errorf("meta = %+v", meta)
 	}
@@ -353,6 +375,60 @@ func TestParseJarNoMatch(t *testing.T) {
 	_, _, ok := parseFixture(t, ps, map[string]string{"just/a/Class.class": "bytes"})
 	if ok {
 		t.Fatal("jar with no descriptor should not match")
+	}
+}
+
+func TestParseJarCandidatesReturnsAllMatches(t *testing.T) {
+	ps := newBuiltinParserSet(t)
+	dir := t.TempDir()
+	writeTestJar(t, filepath.Join(dir, "mods", "hybrid.jar"), map[string]string{
+		"plugin.yml":      "name: HybridPlugin\nversion: '1'\n",
+		"fabric.mod.json": `{"id":"hybridmod","version":"2"}`,
+	})
+
+	candidates, err := ps.ParseJarCandidates(context.Background(), dir, "mods/hybrid.jar")
+	if err != nil {
+		t.Fatalf("ParseJarCandidates: %v", err)
+	}
+	if len(candidates) != 2 {
+		t.Fatalf("candidates = %d, want 2: %+v", len(candidates), candidates)
+	}
+	if candidates[0].ParserID != "parser-bukkit" || candidates[0].Meta.Loader != "bukkit" ||
+		candidates[1].ParserID != "parser-fabric" || candidates[1].Meta.Loader != "fabric" {
+		t.Fatalf("candidates = %+v", candidates)
+	}
+
+	meta, parserID, matched, err := ps.ParseJar(context.Background(), dir, "mods/hybrid.jar")
+	if err != nil || !matched || parserID != "parser-bukkit" || meta.Loader != "bukkit" {
+		t.Fatalf("ParseJar legacy result: meta=%+v parserID=%q matched=%v err=%v", meta, parserID, matched, err)
+	}
+}
+
+func TestParseJarReportsCorruptArchive(t *testing.T) {
+	ps := newBuiltinParserSet(t)
+	dir := t.TempDir()
+	path := filepath.Join(dir, "mods", "broken.jar")
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, []byte("not a zip archive"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	_, _, matched, err := ps.ParseJar(context.Background(), dir, "mods/broken.jar")
+	if matched || err == nil {
+		t.Fatalf("matched=%v err=%v, want a per-file parse error", matched, err)
+	}
+}
+
+func TestParseJarReportsMalformedKnownDescriptor(t *testing.T) {
+	ps := newBuiltinParserSet(t)
+	dir := t.TempDir()
+	writeTestJar(t, filepath.Join(dir, "mods", "broken.jar"), map[string]string{
+		"fabric.mod.json": `{not json}`,
+	})
+	_, _, matched, err := ps.ParseJar(context.Background(), dir, "mods/broken.jar")
+	if matched || err == nil || !strings.Contains(err.Error(), "parser-fabric") {
+		t.Fatalf("matched=%v err=%v, want malformed Fabric descriptor error", matched, err)
 	}
 }
 

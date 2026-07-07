@@ -15,15 +15,15 @@ import (
 	"github.com/000hen/justhostmc/engine/internal/store"
 )
 
-// countingParser wraps a ParserSet and counts ParseJar calls (for cache tests).
+// countingParser wraps a ParserSet and counts parse calls (for cache tests).
 type countingParser struct {
 	inner *scripting.ParserSet
 	calls atomic.Int64
 }
 
-func (c *countingParser) ParseJar(ctx context.Context, serverDir, jarRel string) (scripting.ModMeta, string, bool) {
+func (c *countingParser) ParseJarCandidates(ctx context.Context, serverDir, jarRel string) ([]scripting.ModParseCandidate, error) {
 	c.calls.Add(1)
-	return c.inner.ParseJar(ctx, serverDir, jarRel)
+	return c.inner.ParseJarCandidates(ctx, serverDir, jarRel)
 }
 
 func writeJar(t *testing.T, path string, entries map[string]string) {
@@ -57,7 +57,7 @@ func newMetadataTestService(t *testing.T) (*ModService, *countingParser, appdata
 	t.Helper()
 	st := store.NewMemory()
 	paths := appdata.Paths{Base: t.TempDir()}
-	_ = st.Put(&store.Server{ID: "s1", ProviderID: "fabric", ModLayout: "mods", Status: mcmanagerv1.ServerStatus_STOPPED})
+	_ = st.Put(&store.Server{ID: "s1", ProviderID: "fabric", ModLayout: "mods", McVersion: "1.20.1", Status: mcmanagerv1.ServerStatus_STOPPED})
 
 	ps := scripting.NewParserSet(scripting.NewHost(nil, nil, nil), nil)
 	if err := scripting.LoadBuiltinParsers(ps); err != nil {
@@ -70,17 +70,21 @@ func newMetadataTestService(t *testing.T) (*ModService, *countingParser, appdata
 func TestListPopulatesMetadata(t *testing.T) {
 	svc, _, paths := newMetadataTestService(t)
 	writeJar(t, filepath.Join(paths.ServerDir("s1"), "mods", "example.jar"), map[string]string{
-		"fabric.mod.json": `{"id":"example","name":"Example","version":"1.2","authors":["Alice"],"description":"d","contact":{"homepage":"https://e.x"},"icon":"icon.png"}`,
+		"fabric.mod.json": `{"id":"example","name":"Example","version":"1.2","authors":["Alice"],"description":"d","contact":{"homepage":"https://e.x"},"icon":"icon.png","depends":{"minecraft":">=1.20 <1.21"}}`,
 		"icon.png":        "PNGBYTES",
 	})
 	// A jar no parser understands lists with Parsed=false.
 	writeJar(t, filepath.Join(paths.ServerDir("s1"), "mods", "opaque.jar"), map[string]string{"a.class": "x"})
+	// A corrupt jar is retained as a failed row rather than failing the whole list.
+	if err := os.WriteFile(filepath.Join(paths.ServerDir("s1"), "mods", "broken.jar"), []byte("not a zip"), 0o644); err != nil {
+		t.Fatal(err)
+	}
 
 	list, err := svc.List(context.Background(), &mcmanagerv1.ServerId{Id: "s1"})
 	if err != nil {
 		t.Fatalf("List: %v", err)
 	}
-	if len(list.Files) != 2 {
+	if len(list.Files) != 3 {
 		t.Fatalf("files = %d", len(list.Files))
 	}
 	byName := map[string]*mcmanagerv1.ModFile{}
@@ -90,12 +94,102 @@ func TestListPopulatesMetadata(t *testing.T) {
 	m := byName["example.jar"].Metadata
 	if m == nil || !m.Parsed || m.ParserId != "parser-fabric" || m.Loader != "fabric" ||
 		m.ModId != "example" || m.Name != "Example" || m.Version != "1.2" ||
+		m.GameVersionRequirement != ">=1.20 <1.21" || m.LoaderMismatch || m.GameVersionMismatch ||
 		len(m.Authors) != 1 || m.Authors[0] != "Alice" || m.Website != "https://e.x" ||
 		string(m.Icon) != "PNGBYTES" {
 		t.Errorf("example.jar metadata = %+v", m)
 	}
 	if om := byName["opaque.jar"].Metadata; om == nil || om.Parsed {
 		t.Errorf("opaque.jar metadata = %+v, want Parsed=false", om)
+	}
+	if bm := byName["broken.jar"].Metadata; bm == nil || bm.Parsed || bm.ParseError == "" {
+		t.Errorf("broken.jar metadata = %+v, want a per-file parse error", bm)
+	}
+}
+
+func TestListMarksTypeAndVersionMismatches(t *testing.T) {
+	svc, _, paths := newMetadataTestService(t)
+	writeJar(t, filepath.Join(paths.ServerDir("s1"), "mods", "wrong.jar"), map[string]string{
+		"META-INF/mods.toml": `
+[[mods]]
+modId = "wrong"
+version = "1"
+[[dependencies.wrong]]
+modId = "minecraft"
+versionRange = "[1.19,1.20)"
+`,
+	})
+
+	list, err := svc.List(context.Background(), &mcmanagerv1.ServerId{Id: "s1"})
+	if err != nil {
+		t.Fatalf("List: %v", err)
+	}
+	meta := list.Files[0].Metadata
+	if meta == nil || !meta.LoaderMismatch || !meta.GameVersionMismatch {
+		t.Fatalf("compatibility metadata = %+v", meta)
+	}
+}
+
+func TestListSelectsServerCompatibleHybridMetadata(t *testing.T) {
+	svc, _, paths := newMetadataTestService(t)
+	writeJar(t, filepath.Join(paths.ServerDir("s1"), "mods", "hybrid.jar"), map[string]string{
+		"plugin.yml":      "name: HybridPlugin\nversion: '1'\napi-version: 1.20\n",
+		"fabric.mod.json": `{"id":"hybridmod","name":"Hybrid Mod","version":"2","depends":{"minecraft":">=1.20 <1.21"}}`,
+	})
+
+	list, err := svc.List(context.Background(), &mcmanagerv1.ServerId{Id: "s1"})
+	if err != nil {
+		t.Fatalf("List: %v", err)
+	}
+	meta := list.Files[0].Metadata
+	if meta == nil || meta.ParserId != "parser-fabric" || meta.Loader != "fabric" ||
+		meta.ModId != "hybridmod" || meta.LoaderMismatch || meta.GameVersionMismatch {
+		t.Fatalf("hybrid metadata = %+v, want Fabric candidate selected without warnings", meta)
+	}
+}
+
+func TestListReranksCachedHybridMetadataWhenServerProviderChanges(t *testing.T) {
+	st := store.NewMemory()
+	paths := appdata.Paths{Base: t.TempDir()}
+	_ = st.Put(&store.Server{ID: "s1", ProviderID: "fabric", ModLayout: "mods", McVersion: "1.20.1", Status: mcmanagerv1.ServerStatus_STOPPED})
+
+	ps := scripting.NewParserSet(scripting.NewHost(nil, nil, nil), nil)
+	if err := scripting.LoadBuiltinParsers(ps); err != nil {
+		t.Fatalf("LoadBuiltinParsers: %v", err)
+	}
+	parser := &countingParser{inner: ps}
+	svc := NewModService(st, paths, parser)
+
+	writeJar(t, filepath.Join(paths.ServerDir("s1"), "mods", "dual.jar"), map[string]string{
+		"fabric.mod.json": `{"id":"dual-fabric","version":"1","depends":{"minecraft":">=1.20 <1.21"}}`,
+		"META-INF/mods.toml": `
+[[mods]]
+modId = "dualforge"
+version = "1"
+[[dependencies.dualforge]]
+modId = "minecraft"
+versionRange = "[1.20,1.21)"
+`,
+	})
+
+	first, err := svc.List(context.Background(), &mcmanagerv1.ServerId{Id: "s1"})
+	if err != nil {
+		t.Fatalf("List fabric: %v", err)
+	}
+	if got := first.Files[0].Metadata; got.ParserId != "parser-fabric" || got.LoaderMismatch {
+		t.Fatalf("fabric selection = %+v", got)
+	}
+
+	_ = st.Put(&store.Server{ID: "s1", ProviderID: "forge", ModLayout: "mods", McVersion: "1.20.1", Status: mcmanagerv1.ServerStatus_STOPPED})
+	second, err := svc.List(context.Background(), &mcmanagerv1.ServerId{Id: "s1"})
+	if err != nil {
+		t.Fatalf("List forge: %v", err)
+	}
+	if got := second.Files[0].Metadata; got.ParserId != "parser-forge" || got.Loader != "forge" || got.LoaderMismatch {
+		t.Fatalf("forge selection = %+v", got)
+	}
+	if got := parser.calls.Load(); got != 1 {
+		t.Fatalf("parse calls = %d, want 1; cached candidates should be reranked", got)
 	}
 }
 

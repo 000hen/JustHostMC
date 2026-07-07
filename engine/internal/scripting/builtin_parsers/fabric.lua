@@ -18,7 +18,9 @@ function parse(ctx)
   -- JSON descriptors produced by some Windows tooling start with a UTF-8 BOM.
   raw = raw:gsub("^\239\187\191", "")
   local ok, m = pcall(jhmc.json_decode, raw)
-  if not ok or type(m) ~= "table" then return nil end
+  if not ok or type(m) ~= "table" then
+    error("invalid fabric.mod.json: " .. tostring(m))
+  end
 
   local authors = {}
   local function append_people(people)
@@ -63,8 +65,23 @@ function parse(ctx)
     icon = jhmc.zip_read(ctx.jar, (icon_path:gsub("^/", "")))
   end
 
+  local game_version
+  if type(m.depends) == "table" then
+    local minecraft = m.depends.minecraft
+    if type(minecraft) == "string" then
+      game_version = minecraft
+    elseif type(minecraft) == "table" then
+      local versions = {}
+      for _, constraint in ipairs(minecraft) do
+        if type(constraint) == "string" then versions[#versions + 1] = constraint end
+      end
+      if #versions > 0 then game_version = table.concat(versions, " || ") end
+    end
+  end
+
   return {
     loader = "fabric",
+    game_version = game_version,
     mod_id = m.id,
     name = m.name or m.id,
     version = m.version,

@@ -367,6 +367,10 @@
   <data name="Mods_KindMods" xml:space="preserve"><value>Mods</value></data>
   <data name="Mods_StoppedRequired" xml:space="preserve"><value>Stop the server before changing plugins or mods.</value></data>
   <data name="Mods_OperationFailed" xml:space="preserve"><value>The operation failed. Please try again.</value></data>
+  <data name="Mods_TypeMismatch" xml:space="preserve"><value>Built for {loader}; this mod/plugin does not match the server type.</value></data>
+  <data name="Mods_VersionMismatch" xml:space="preserve"><value>Requires Minecraft {version}; this mod/plugin does not match the server version.</value></data>
+  <data name="Mods_TypeAndVersionMismatch" xml:space="preserve"><value>Built for {loader} and Minecraft {version}; neither matches this server.</value></data>
+  <data name="Mods_ParseFailed" xml:space="preserve"><value>Could not read this JAR's metadata: {error}</value></data>
   <data name="ServerOpenInstanceFolderMenuItem.Text" xml:space="preserve">
     <value>Open instance folder</value>
   </data>

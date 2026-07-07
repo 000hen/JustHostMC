@@ -70,6 +70,24 @@
                                Style="{StaticResource CaptionTextBlockStyle}"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" />
+                    <StackPanel Orientation="Horizontal" Spacing="6"
+                                Visibility="{x:Bind CompatibilityWarningVisibility}">
+                        <FontIcon Glyph="&#xE7BA;" FontSize="12"
+                                  Foreground="{ThemeResource SystemFillColorCautionBrush}" />
+                        <TextBlock Text="{x:Bind CompatibilityWarning}"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="6"
+                                Visibility="{x:Bind ParseErrorVisibility}">
+                        <FontIcon Glyph="&#xE783;" FontSize="12"
+                                  Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                        <TextBlock Text="{x:Bind ParseError}"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
                     <HyperlinkButton x:Uid="ModsWebsiteLink" NavigateUri="{x:Bind WebsiteUri}"
                                      Visibility="{x:Bind WebsiteVisibility}"
                                      Padding="0" FontSize="12" />

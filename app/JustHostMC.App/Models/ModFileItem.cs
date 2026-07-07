@@ -1,5 +1,6 @@
 using System.Linq;
 using McManager.Grpc;
+using JustHostMC.App.Services;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 
@@ -10,11 +11,16 @@ namespace JustHostMC.App.Models;
 /// installed parser recognized it.</summary>
 public sealed class ModFileItem
 {
-    public ModFileItem(string name, long sizeBytes, ModMetadata? metadata, ImageSource? icon)
+    public ModFileItem(string name, long sizeBytes, ModMetadata? metadata, ImageSource? icon,
+        ILocalizer localizer)
     {
         Name = name;
         SizeBytes = sizeBytes;
         Icon = icon;
+        if (metadata is not null && metadata.ParseError.Length > 0)
+        {
+            ParseError = localizer.Get("Mods_ParseFailed", ("error", metadata.ParseError));
+        }
         if (metadata is { Parsed: true })
         {
             HasMetadata = true;
@@ -25,6 +31,15 @@ public sealed class ModFileItem
             Website = metadata.Website;
             Loader = metadata.Loader;
             Authors = string.Join(", ", metadata.Authors.Where(a => a.Length > 0));
+            CompatibilityWarning = (metadata.LoaderMismatch, metadata.GameVersionMismatch) switch
+            {
+                (true, true) => localizer.Get("Mods_TypeAndVersionMismatch",
+                    ("loader", Loader), ("version", metadata.GameVersionRequirement)),
+                (true, false) => localizer.Get("Mods_TypeMismatch", ("loader", Loader)),
+                (false, true) => localizer.Get("Mods_VersionMismatch",
+                    ("version", metadata.GameVersionRequirement)),
+                _ => "",
+            };
         }
     }
 
@@ -39,6 +54,8 @@ public sealed class ModFileItem
     public string Website { get; } = "";
     public string Loader { get; } = "";
     public string Authors { get; } = "";
+    public string CompatibilityWarning { get; } = "";
+    public string ParseError { get; } = "";
 
     /// <summary>Decoded jar icon; null when the jar has none (a glyph shows instead).</summary>
     public ImageSource? Icon { get; }
@@ -56,6 +73,12 @@ public sealed class ModFileItem
     public Visibility InfoLineVisibility => InfoLine.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
     public Visibility DescriptionVisibility => Description.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
     public Visibility WebsiteVisibility => WebsiteUri is null ? Visibility.Collapsed : Visibility.Visible;
+    public Visibility CompatibilityWarningVisibility => CompatibilityWarning.Length > 0
+        ? Visibility.Visible
+        : Visibility.Collapsed;
+    public Visibility ParseErrorVisibility => ParseError.Length > 0
+        ? Visibility.Visible
+        : Visibility.Collapsed;
 
     /// <summary>Website as a Uri for HyperlinkButton.NavigateUri; null when absent
     /// or not an absolute http(s) URL.</summary>

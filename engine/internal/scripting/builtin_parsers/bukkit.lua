@@ -21,7 +21,9 @@ function parse(ctx)
     loader = "paper"
   end
   local ok, m = pcall(jhmc.yaml_decode, raw)
-  if not ok or type(m) ~= "table" or m.name == nil then return nil end
+  if not ok or type(m) ~= "table" or m.name == nil then
+    error("invalid plugin descriptor: " .. tostring(m))
+  end
 
   local authors = {}
   if type(m.authors) == "table" then
@@ -32,8 +34,14 @@ function parse(ctx)
     authors[1] = m.author
   end
 
+  local api_version = m["api-version"]
+  if type(api_version) == "number" then api_version = tostring(api_version) end
+
   return {
     loader = loader,
+    -- Bukkit's api-version is the oldest API generation the plugin requires;
+    -- newer Paper/Spigot servers remain compatible with older declarations.
+    game_version = type(api_version) == "string" and ">=" .. api_version or nil,
     mod_id = m.name,
     name = m.name,
     version = tostring(m.version or ""),

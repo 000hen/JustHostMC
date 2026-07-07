@@ -117,6 +117,7 @@
          single-project WinUI build and otherwise drops every non-default locale. -->
     <AppxBundleAutoResourcePackageQualifiers>Scale|DXFeatureLevel</AppxBundleAutoResourcePackageQualifiers>
     <AppxDefaultResourceQualifiers>Language=en-US;zh-TW</AppxDefaultResourceQualifiers>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <!-- Embed Git info -->

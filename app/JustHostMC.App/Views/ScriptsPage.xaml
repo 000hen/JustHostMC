@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="JustHostMC.App.Views.ScriptsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -34,95 +34,48 @@
             <controls:ScriptSectionExpander
                 Margin="0,20,0,0"
                 AddScriptsClick="OnImportProviderClick"
-                ShowInFolderClick="OnShowProvidersFolderClick">
+                ShowInFolderClick="OnShowProvidersFolderClick"
+                ScriptToggled="OnScriptToggled"
+                ScriptRemoved="OnRemoveScript"
+                ItemsSource="{x:Bind ViewModel.Providers}">
                 <controls:ScriptSectionExpander.HeaderContent>
                     <TextBlock x:Uid="ScriptsProvidersHeader" Style="{StaticResource SubtitleTextBlockStyle}" />
                 </controls:ScriptSectionExpander.HeaderContent>
-                <controls:ScriptSectionExpander.SectionContent>
-                    <StackPanel Spacing="8">
-                        <TextBlock
-                            x:Uid="ScriptsProvidersEmpty"
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                            Visibility="{x:Bind ViewModel.Providers.Count, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
-
-                        <ItemsControl
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            ItemsSource="{x:Bind ViewModel.Providers, Mode=OneWay}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="models:ProviderItem">
-                                    <controls:ScriptEntryCard Item="{x:Bind}" RemoveClick="OnRemoveProviderClick" />
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </controls:ScriptSectionExpander.SectionContent>
             </controls:ScriptSectionExpander>
 
             <!--  Mod/plugin metadata parsers  -->
-            <controls:ScriptSectionExpander AddScriptsClick="OnImportParserClick" ShowInFolderClick="OnShowParsersFolderClick">
+            <controls:ScriptSectionExpander
+                AddScriptsClick="OnImportParserClick"
+                ShowInFolderClick="OnShowParsersFolderClick"
+                ScriptToggled="OnScriptToggled"
+                ScriptRemoved="OnRemoveScript"
+                ItemsSource="{x:Bind ViewModel.Parsers}">
                 <controls:ScriptSectionExpander.HeaderContent>
                     <TextBlock x:Uid="ScriptsParsersHeader" Style="{StaticResource SubtitleTextBlockStyle}" />
                 </controls:ScriptSectionExpander.HeaderContent>
-                <controls:ScriptSectionExpander.SectionContent>
-                    <StackPanel Spacing="8">
-                        <TextBlock
-                            x:Uid="ScriptsParsersEmpty"
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                            Visibility="{x:Bind ViewModel.Parsers.Count, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
-
-                        <ItemsControl
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            ItemsSource="{x:Bind ViewModel.Parsers, Mode=OneWay}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="models:ParserItem">
-                                    <controls:ScriptEntryCard Item="{x:Bind}" RemoveClick="OnRemoveParserClick" />
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </controls:ScriptSectionExpander.SectionContent>
             </controls:ScriptSectionExpander>
 
             <!--  Automation scripts  -->
-            <controls:ScriptSectionExpander AddScriptsClick="OnImportScriptClick" ShowInFolderClick="OnShowAutomationFolderClick">
+            <controls:ScriptSectionExpander
+                AddScriptsClick="OnImportScriptClick"
+                ShowInFolderClick="OnShowAutomationFolderClick"
+                ScriptToggled="OnScriptToggled"
+                ScriptRemoved="OnRemoveScript"
+                ItemsSource="{x:Bind ViewModel.Scripts}">
                 <controls:ScriptSectionExpander.HeaderContent>
                     <TextBlock x:Uid="ScriptsAutomationHeader" Style="{StaticResource SubtitleTextBlockStyle}" />
                 </controls:ScriptSectionExpander.HeaderContent>
-                <controls:ScriptSectionExpander.SectionContent>
-                    <StackPanel Spacing="8">
-                        <Button
-                            x:Uid="ScriptsAllLogsButton"
-                            HorizontalAlignment="Right"
-                            Click="OnShowAllLogsClick">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon FontSize="14" Glyph="&#xE9D9;" />
-                                <TextBlock x:Uid="ScriptsAllLogsButtonLabel" />
-                            </StackPanel>
-                        </Button>
-
-                        <TextBlock
-                            x:Uid="ScriptsAutomationEmpty"
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                            Visibility="{x:Bind ViewModel.Scripts.Count, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
-
-                        <ItemsControl
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            ItemsSource="{x:Bind ViewModel.Scripts, Mode=OneWay}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="models:ScriptItem">
-                                    <controls:ScriptEntryCard
-                                        EnabledToggled="OnScriptToggled"
-                                        Item="{x:Bind}"
-                                        RemoveClick="OnRemoveScriptClick" />
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-
-                    </StackPanel>
-                </controls:ScriptSectionExpander.SectionContent>
+                <controls:ScriptSectionExpander.HeaderAdditionalButtons>
+                    <Button
+                        x:Uid="ScriptsAllLogsButton"
+                        HorizontalAlignment="Right"
+                        Click="OnShowAllLogsClick">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon FontSize="14" Glyph="&#xE9D9;" />
+                            <TextBlock x:Uid="ScriptsAllLogsButtonLabel" />
+                        </StackPanel>
+                    </Button>
+                </controls:ScriptSectionExpander.HeaderAdditionalButtons>
             </controls:ScriptSectionExpander>
         </StackPanel>
     </ScrollViewer>

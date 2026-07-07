@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <UserControl
     x:Class="JustHostMC.App.Controls.ScriptEntryCard"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -71,12 +71,12 @@
                         <StackPanel Spacing="12">
                             <TextBlock
                                 x:Name="RemoveConfirmText"
-                                TextWrapping="Wrap"
-                                MaxWidth="250" />
+                                MaxWidth="250"
+                                TextWrapping="Wrap" />
                             <Button
                                 x:Name="RemoveConfirmButton"
-                                Click="OnRemoveConfirmClick"
-                                HorizontalAlignment="Right" />
+                                HorizontalAlignment="Right"
+                                Click="OnRemoveConfirmClick" />
                         </StackPanel>
                     </Flyout>
                 </Button.Flyout>
@@ -86,9 +86,9 @@
             <Expander
                 Grid.Row="1"
                 Grid.ColumnSpan="3"
+                Margin="0,8,0,0"
                 HorizontalAlignment="Stretch"
                 HorizontalContentAlignment="Stretch"
-                Margin="0,8,0,0"
                 Visibility="{Binding Item.SupportsLogs, ElementName=Root, Converter={StaticResource BoolToVis}}">
                 <Expander.Header>
                     <TextBlock x:Uid="ScriptsScriptLogsHeader" Style="{StaticResource BodyStrongTextBlockStyle}" />

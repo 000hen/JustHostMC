@@ -11,23 +11,21 @@ namespace JustHostMC.App.Controls.Server;
 public sealed partial class ServerPlayersPanel : UserControl {
     private readonly ILocalizer _localizer = new LocalizationService();
 
-    public static readonly DependencyProperty PlayersProperty = DependencyProperty.Register(
-        nameof(Players),
-        typeof(PlayersViewModel),
-        typeof(ServerPlayersPanel),
-        new PropertyMetadata(null, OnViewModelChanged));
+    public static readonly DependencyProperty PlayersProperty =
+        DependencyProperty.Register(
+            nameof(Players), typeof(PlayersViewModel),
+            typeof(ServerPlayersPanel),
+            new PropertyMetadata(null, OnViewModelChanged));
 
-    public static readonly DependencyProperty ServerProperty = DependencyProperty.Register(
-        nameof(Server),
-        typeof(ServerItem),
-        typeof(ServerPlayersPanel),
-        new PropertyMetadata(null, OnViewModelChanged));
+    public static readonly DependencyProperty ServerProperty =
+        DependencyProperty.Register(
+            nameof(Server), typeof(ServerItem), typeof(ServerPlayersPanel),
+            new PropertyMetadata(null, OnViewModelChanged));
 
-    public static readonly DependencyProperty ConsoleProperty = DependencyProperty.Register(
-        nameof(Console),
-        typeof(ConsoleViewModel),
-        typeof(ServerPlayersPanel),
-        new PropertyMetadata(null));
+    public static readonly DependencyProperty ConsoleProperty =
+        DependencyProperty.Register(nameof(Console), typeof(ConsoleViewModel),
+                                    typeof(ServerPlayersPanel),
+                                    new PropertyMetadata(null));
 
     public PlayersViewModel Players {
         get => (PlayersViewModel)GetValue(PlayersProperty);
@@ -48,51 +46,71 @@ public sealed partial class ServerPlayersPanel : UserControl {
         InitializeComponent();
     }
 
-    private static void OnViewModelChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+    private static void OnViewModelChanged(
+        DependencyObject d, DependencyPropertyChangedEventArgs e) {
         var panel = (ServerPlayersPanel)d;
         panel.Bindings.Update();
     }
 
-    private string PlayersHeader(int count) => _localizer.Get("Players_Header", ("count", count.ToString()));
+    private string PlayersHeader(int count) =>
+        _localizer.Get("Players_Header", ("count", count.ToString()));
 
-    private Visibility HasNoPlayers(int count) => count == 0 ? Visibility.Visible : Visibility.Collapsed;
+    private Visibility HasNoPlayers(int count) => count == 0
+                                                      ? Visibility.Visible
+                                                      : Visibility.Collapsed;
 
-    private void OnPlayerOpClick(object sender, RoutedEventArgs e) => SendPlayerCommand(sender, "op {0}");
-    private void OnPlayerDeopClick(object sender, RoutedEventArgs e) => SendPlayerCommand(sender, "deop {0}");
-    private void OnPlayerKickClick(object sender, RoutedEventArgs e) => SendPlayerCommand(sender, "kick {0}");
-    private void OnPlayerBanClick(object sender, RoutedEventArgs e) => SendPlayerCommand(sender, "ban {0}");
-    private async void OnPlayerRawClick(object sender, RoutedEventArgs e) => await ShowPlayerDataDialogAsync(sender);
-    private async void OnPlayerInventoryClick(object sender, RoutedEventArgs e) => await ShowPlayerInventoryDialogAsync(sender);
+    private void OnPlayerOpClick(object sender, RoutedEventArgs e) =>
+        SendPlayerCommand(sender, "op {0}");
+    private void OnPlayerDeopClick(object sender, RoutedEventArgs e) =>
+        SendPlayerCommand(sender, "deop {0}");
+    private void OnPlayerKickClick(object sender, RoutedEventArgs e) =>
+        SendPlayerCommand(sender, "kick {0}");
+    private void OnPlayerBanClick(object sender, RoutedEventArgs e) =>
+        SendPlayerCommand(sender, "ban {0}");
+    private async void OnPlayerRawClick(object sender, RoutedEventArgs e) =>
+        await ShowPlayerDataDialogAsync(sender);
+    private async void OnPlayerInventoryClick(object sender,
+                                              RoutedEventArgs e) =>
+        await ShowPlayerInventoryDialogAsync(sender);
 
     private async Task ShowPlayerDataDialogAsync(object sender) {
-        if (GetPlayer(sender) is not { } player || Server == null)
+        if (GetPlayer(sender) is not {} player || Server == null)
             return;
 
-        var view = new PlayerDataDialog(Server.Id, player);
+        var view    = new PlayerDataDialog(Server.Id, player);
         var content = new PlayerDialogBase(player, view);
-        var dialog = CreatePlayerDialog(_localizer.Get("PlayerDataDialog_ActionName"), player, content);
+        var dialog  = CreatePlayerDialog(
+            _localizer.Get("PlayerDataDialog_ActionName"), player, content);
         view.OnHeaderUpdated = content.UpdateHeader;
         await dialog.ShowAsync();
     }
 
     private async Task ShowPlayerInventoryDialogAsync(object sender) {
-        if (GetPlayer(sender) is not { } player || Server == null)
+        if (GetPlayer(sender) is not {} player || Server == null)
             return;
 
-        var view = new PlayerInventoryDialog(Server.Id, player);
+        var view    = new PlayerInventoryDialog(Server.Id, player);
         var content = new PlayerDialogBase(player, view);
-        var dialog = CreatePlayerDialog(_localizer.Get("PlayerInventoryDialog_ActionName"), player, content);
+        var dialog  = CreatePlayerDialog(
+            _localizer.Get("PlayerInventoryDialog_ActionName"), player,
+            content);
         view.OnHeaderUpdated = content.UpdateHeader;
         await dialog.ShowAsync();
     }
 
-    private ContentDialog CreatePlayerDialog(string actionName, PlayerItem player, PlayerDialogBase content) {
+    private ContentDialog CreatePlayerDialog(string actionName,
+                                             PlayerItem player,
+                                             PlayerDialogBase content) {
         var dialog = new ContentDialog {
             XamlRoot = XamlRoot,
-            Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
-            Title = string.Format(_localizer.Get("PlayerDialogBase_TitleFormat"), actionName, player.Name),
+            Style    = Application.Current
+                           .Resources["DefaultContentDialogStyle"] as Style,
+            Title =
+                string.Format(_localizer.Get("PlayerDialogBase_TitleFormat"),
+                              actionName, player.Name),
             Content = content,
-            CloseButtonText = _localizer.Get("PlayerDialogBase_CloseButtonText"),
+            CloseButtonText =
+                _localizer.Get("PlayerDialogBase_CloseButtonText"),
             DefaultButton = ContentDialogButton.Close,
         };
         ContentDialogSizing.Apply(dialog, useWideLayout: true);
@@ -103,15 +121,17 @@ public sealed partial class ServerPlayersPanel : UserControl {
         if (Server == null)
             return;
 
-        var isStopped = Server.Status is ServerStatus.Stopped or ServerStatus.Crashed;
+        var isStopped =
+            Server.Status is ServerStatus.Stopped or ServerStatus.Crashed;
         var content = new BanListDialog(Server.Id, isStopped);
-        var dialog = new ContentDialog {
+        var dialog  = new ContentDialog {
             XamlRoot = XamlRoot,
-            Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
-            Title = _localizer.Get("BanListDialog_Title"),
-            Content = content,
+            Style    = Application.Current
+                           .Resources["DefaultContentDialogStyle"] as Style,
+            Title    = _localizer.Get("BanListDialog_Title"),
+            Content  = content,
             CloseButtonText = _localizer.Get("BanListDialog_CloseButtonText"),
-            DefaultButton = ContentDialogButton.Close,
+            DefaultButton   = ContentDialogButton.Close,
         };
         dialog.Opened += async (_, _) => await content.LoadAsync();
         ContentDialogSizing.Apply(dialog, useWideLayout: true);
@@ -132,14 +152,14 @@ public sealed partial class ServerPlayersPanel : UserControl {
     }
 
     private static PlayerItem? GetPlayer(object sender) => sender switch {
-        FrameworkElement { Tag: PlayerItem taggedPlayer } => taggedPlayer,
-        FrameworkElement { DataContext: PlayerItem dataPlayer } => dataPlayer,
-        _ => null,
+        FrameworkElement { Tag : PlayerItem taggedPlayer } => taggedPlayer,
+        FrameworkElement { DataContext : PlayerItem dataPlayer } => dataPlayer,
+        _                                                        => null,
     };
 
     private static string? GetPlayerName(object sender) => sender switch {
-        FrameworkElement { Tag: string taggedName } => taggedName,
-        FrameworkElement { DataContext: string dataName } => dataName,
-        _ => null,
+        FrameworkElement { Tag : string taggedName }       => taggedName,
+        FrameworkElement { DataContext : string dataName } => dataName,
+        _                                                  => null,
     };
 }

@@ -25,7 +25,7 @@ public sealed partial class ScriptsPage : Page {
 
     public ScriptsPage() {
         NavigationCacheMode = NavigationCacheMode.Required;
-        ViewModel = new ScriptsViewModel(DispatcherQueue, _localizer);
+        ViewModel           = new ScriptsViewModel(DispatcherQueue, _localizer);
         InitializeComponent();
         Loaded += async (_, _) => await ViewModel.EnsureLoadedAsync();
     }
@@ -45,14 +45,14 @@ public sealed partial class ScriptsPage : Page {
         }
 
         // Optional bundled jar.
-        var jarFile = await PickJarFileAsync();
+        var jarFile      = await PickJarFileAsync();
         byte[]? jarBytes = null;
-        string? jarName = null;
+        string? jarName  = null;
         if (jarFile is not null) {
             try {
                 var buffer = await FileIO.ReadBufferAsync(jarFile);
-                jarBytes = buffer.ToArray();
-                jarName = jarFile.Name;
+                jarBytes   = buffer.ToArray();
+                jarName    = jarFile.Name;
             } catch (Exception ex)
                 when (ex is IOException or UnauthorizedAccessException) {
                 ViewModel.SetStatus(_localizer.Get("Scripts_ReadFailed"));
@@ -136,7 +136,7 @@ public sealed partial class ScriptsPage : Page {
             var folder = Path.Combine(ResolveDataRoot(), folderName);
             Directory.CreateDirectory(folder);
             Process.Start(new ProcessStartInfo {
-                FileName = folder,
+                FileName        = folder,
                 UseShellExecute = true,
             });
         } catch (Exception ex)
@@ -163,14 +163,14 @@ public sealed partial class ScriptsPage : Page {
     private async Task<IReadOnlyList<PermissionKind>?> RequestConsentAsync(
         string scriptName, string luaSource) {
         var permissions = LuaPermissions.Parse(luaSource);
-        var content = new PermissionConsentDialog(permissions, _localizer);
-        var dialog = new ContentDialog {
+        var content     = new PermissionConsentDialog(permissions, _localizer);
+        var dialog      = new ContentDialog {
             XamlRoot = XamlRoot,
-            Style = Application.Current
+            Style    = Application.Current
                            .Resources["DefaultContentDialogStyle"] as Style,
-            Title = _localizer.Get("PermissionConsentTitleNamed",
+            Title    = _localizer.Get("PermissionConsentTitleNamed",
                                       ("name", scriptName)),
-            Content = content,
+            Content  = content,
             PrimaryButtonText =
                 _localizer.Get("PermissionConsentDialog_PrimaryButtonText"),
             CloseButtonText =
@@ -185,11 +185,11 @@ public sealed partial class ScriptsPage : Page {
     }
 
     private async void OnRemoveScript(object sender, RoutedEventArgs e) {
-        if (sender is ScriptEntryCard { Item: ScriptItem item })
+        if (sender is ScriptEntryCard { Item : ScriptItem item })
             await ViewModel.RemoveScriptAsync(item);
-        else if (sender is ScriptEntryCard { Item: ProviderItem provider })
+        else if (sender is ScriptEntryCard { Item : ProviderItem provider })
             await ViewModel.RemoveProviderAsync(provider);
-        else if (sender is ScriptEntryCard { Item: ParserItem parser })
+        else if (sender is ScriptEntryCard { Item : ParserItem parser })
             await ViewModel.RemoveParserAsync(parser);
     }
 
@@ -198,12 +198,10 @@ public sealed partial class ScriptsPage : Page {
         // during template realization, so ignore events that match the known
         // state to avoid a load-time storm of (and a possible refresh loop
         // from) redundant RPCs.
-        if (sender is ScriptEntryCard { Item: ScriptItem item } card &&
+        if (sender is ScriptEntryCard { Item : ScriptItem item } card &&
             card.ScriptEnabled != item.Enabled)
             await ViewModel.SetScriptEnabledAsync(item, card.ScriptEnabled);
     }
-
-
 
     private static async Task<StorageFile?> PickLuaFileAsync() {
         var picker = new FileOpenPicker();

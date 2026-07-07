@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="JustHostMC.App.Views.ScriptsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -34,10 +34,10 @@
             <controls:ScriptSectionExpander
                 Margin="0,20,0,0"
                 AddScriptsClick="OnImportProviderClick"
-                ShowInFolderClick="OnShowProvidersFolderClick"
-                ScriptToggled="OnScriptToggled"
+                ItemsSource="{x:Bind ViewModel.Providers}"
                 ScriptRemoved="OnRemoveScript"
-                ItemsSource="{x:Bind ViewModel.Providers}">
+                ScriptToggled="OnScriptToggled"
+                ShowInFolderClick="OnShowProvidersFolderClick">
                 <controls:ScriptSectionExpander.HeaderContent>
                     <TextBlock x:Uid="ScriptsProvidersHeader" Style="{StaticResource SubtitleTextBlockStyle}" />
                 </controls:ScriptSectionExpander.HeaderContent>
@@ -46,10 +46,10 @@
             <!--  Mod/plugin metadata parsers  -->
             <controls:ScriptSectionExpander
                 AddScriptsClick="OnImportParserClick"
-                ShowInFolderClick="OnShowParsersFolderClick"
-                ScriptToggled="OnScriptToggled"
+                ItemsSource="{x:Bind ViewModel.Parsers}"
                 ScriptRemoved="OnRemoveScript"
-                ItemsSource="{x:Bind ViewModel.Parsers}">
+                ScriptToggled="OnScriptToggled"
+                ShowInFolderClick="OnShowParsersFolderClick">
                 <controls:ScriptSectionExpander.HeaderContent>
                     <TextBlock x:Uid="ScriptsParsersHeader" Style="{StaticResource SubtitleTextBlockStyle}" />
                 </controls:ScriptSectionExpander.HeaderContent>
@@ -58,10 +58,10 @@
             <!--  Automation scripts  -->
             <controls:ScriptSectionExpander
                 AddScriptsClick="OnImportScriptClick"
-                ShowInFolderClick="OnShowAutomationFolderClick"
-                ScriptToggled="OnScriptToggled"
+                ItemsSource="{x:Bind ViewModel.Scripts}"
                 ScriptRemoved="OnRemoveScript"
-                ItemsSource="{x:Bind ViewModel.Scripts}">
+                ScriptToggled="OnScriptToggled"
+                ShowInFolderClick="OnShowAutomationFolderClick">
                 <controls:ScriptSectionExpander.HeaderContent>
                     <TextBlock x:Uid="ScriptsAutomationHeader" Style="{StaticResource SubtitleTextBlockStyle}" />
                 </controls:ScriptSectionExpander.HeaderContent>

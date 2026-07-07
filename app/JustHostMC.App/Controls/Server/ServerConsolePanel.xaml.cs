@@ -8,11 +8,11 @@ using Windows.System;
 namespace JustHostMC.App.Controls.Server;
 
 public sealed partial class ServerConsolePanel : UserControl {
-    public static readonly DependencyProperty ConsoleProperty = DependencyProperty.Register(
-        nameof(Console),
-        typeof(ConsoleViewModel),
-        typeof(ServerConsolePanel),
-        new PropertyMetadata(null, OnConsoleChanged));
+    public static readonly DependencyProperty ConsoleProperty =
+        DependencyProperty.Register(
+            nameof(Console), typeof(ConsoleViewModel),
+            typeof(ServerConsolePanel),
+            new PropertyMetadata(null, OnConsoleChanged));
 
     public ConsoleViewModel Console {
         get => (ConsoleViewModel)GetValue(ConsoleProperty);
@@ -23,7 +23,8 @@ public sealed partial class ServerConsolePanel : UserControl {
         InitializeComponent();
     }
 
-    private static void OnConsoleChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+    private static void OnConsoleChanged(DependencyObject d,
+                                         DependencyPropertyChangedEventArgs e) {
         var panel = (ServerConsolePanel)d;
 
         if (e.OldValue is ConsoleViewModel oldConsole) {
@@ -36,14 +37,17 @@ public sealed partial class ServerConsolePanel : UserControl {
         }
     }
 
-    private void OnConsoleLinesChanged(object? sender, NotifyCollectionChangedEventArgs e) {
+    private void OnConsoleLinesChanged(object? sender,
+                                       NotifyCollectionChangedEventArgs e) {
         DispatcherQueue.TryEnqueue(() => {
-            ConsoleLogScroller.ChangeView(null, ConsoleLogScroller.ScrollableHeight, null);
+            ConsoleLogScroller.ChangeView(
+                null, ConsoleLogScroller.ScrollableHeight, null);
         });
     }
 
     private void OnCommandKeyDown(object sender, KeyRoutedEventArgs e) {
-        if (e.Key == VirtualKey.Enter && Console?.SendCommand.CanExecute(null) == true) {
+        if (e.Key == VirtualKey.Enter &&
+            Console?.SendCommand.CanExecute(null) == true) {
             Console.SendCommand.Execute(null);
             e.Handled = true;
         }

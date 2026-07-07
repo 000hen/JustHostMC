@@ -8,9 +8,7 @@ using JustHostMC.App.ViewModels;
 using McManager.Grpc;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
-
 
 namespace JustHostMC.App.Views;
 
@@ -19,32 +17,32 @@ namespace JustHostMC.App.Views;
 /// Players, Performance, and Plugins/Mods detail panels.</summary>
 public sealed partial class ServerPage : Page {
     private readonly ILocalizer _localizer = new LocalizationService();
-    private NavShellViewModel _shell = null!;
-    private MainViewModel _main = null!;
+    private NavShellViewModel _shell       = null!;
+    private MainViewModel _main            = null!;
 
     public ServerPage() => InitializeComponent();
 
-    public ServerItem Server { get; private set; } = null!;
-    public ConsoleViewModel Console { get; private set; } = null!;
-    public PlayersViewModel Players { get; private set; } = null!;
-    public MetricsViewModel Metrics { get; private set; } = null!;
-    public ModsViewModel Mods { get; private set; } = null!;
+    public ServerItem Server { get; private set; }            = null!;
+    public ConsoleViewModel Console { get; private set; }     = null!;
+    public PlayersViewModel Players { get; private set; }     = null!;
+    public MetricsViewModel Metrics { get; private set; }     = null!;
+    public ModsViewModel Mods { get; private set; }           = null!;
     public ServerConfigViewModel Config { get; private set; } = null!;
 
     protected override void OnNavigatedTo(NavigationEventArgs e) {
         var args = (ServerPageArgs)e.Parameter;
-        Server = args.Server;
-        _shell = args.Shell;
-        _main = args.Shell.Main;
+        Server   = args.Server;
+        _shell   = args.Shell;
+        _main    = args.Shell.Main;
 
         // Reuse cached VMs (keeps gRPC streams alive across page visits).
         var cache = _shell.GetOrCreateServerCache(Server.Id, Server.Name,
                                                   DispatcherQueue, _localizer);
-        Console = cache.Console;
-        Players = cache.Players;
-        Metrics = cache.Metrics;
-        Mods = cache.Mods;
-        Config = cache.Config;
+        Console   = cache.Console;
+        Players   = cache.Players;
+        Metrics   = cache.Metrics;
+        Mods      = cache.Mods;
+        Config    = cache.Config;
 
         Server.PropertyChanged += OnServerPropertyChanged;
         Mods.SetServerStopped(IsStopped(Server.Status));
@@ -104,58 +102,12 @@ public sealed partial class ServerPage : Page {
     // ── Header state button
     // ───────────────────────────────────────────────────
 
-    private void OnPageSizeChanged(object sender, SizeChangedEventArgs e) =>
-        UpdateResponsiveLayout(e.NewSize.Width);
-
-    private void UpdateResponsiveLayout(double width) {
-        var wide = width >= 900;
-        var medium = !wide && width >= 620;
-
-        MetaWide.Visibility = Show(wide);
-        MetaMedium.Visibility = Show(medium);
-        MetaNarrow.Visibility = Show(!wide && !medium);
-    }
-
     private void OnStateButtonClick(object sender, RoutedEventArgs e) {
         if (Server.CanStart)
             _main.StartServerCommand.Execute(Server);
         else if (Server.CanStop)
             _main.StopServerCommand.Execute(Server);
     }
-
-    private Brush StateBrush(ServerStatus s) =>
-        (Brush)Application.Current.Resources[s switch {
-            ServerStatus.Running => "SystemFillColorCriticalBrush",
-            ServerStatus.Starting or ServerStatus.Stopping or
-                ServerStatus.Installing => "ControlFillColorDisabledBrush",
-            _ => "SystemFillColorSuccessBrush",
-        }];
-
-    private Brush StateForeground(ServerStatus s) =>
-        (Brush)Application.Current
-            .Resources[s is ServerStatus.Starting or
-                               ServerStatus.Stopping or ServerStatus.Installing
-                           ? "TextFillColorDisabledBrush"
-                           : "TextOnAccentFillColorPrimaryBrush"];
-
-    private bool StateEnabled(ServerStatus s) =>
-        s is ServerStatus.Stopped or ServerStatus.Crashed or
-        ServerStatus.Running;
-
-    private string PortText(int port) => _localizer.Get("Server_PortLabel",
-                                                        ("port",
-                                                         port.ToString()));
-
-    private string PortValueText(int port) => port >
-                                              0 ? port.ToString()
-        : _localizer.Get("Server_PortAutoValue");
-
-    private string MemoryText(int memoryMb) => memoryMb >
-                                               0 ? _localizer
-                                                   .Get("Server_MemoryValue",
-                                                        ("memory",
-                                                         memoryMb.ToString()))
-        : _localizer.Get("Server_ValueUnknown");
 
     private string PlayersHeader(int count) =>
         _localizer.Get("Players_Header", ("count", count.ToString()));
@@ -173,11 +125,11 @@ public sealed partial class ServerPage : Page {
     private void OnSectionChanged(SelectorBar sender,
                                   SelectorBarSelectionChangedEventArgs args) {
         var tag = sender.SelectedItem?.Tag as string ?? "console";
-        ConsolePanel.Visibility = Show(tag == "console");
-        PlayersPanel.Visibility = Show(tag == "players");
-        ConfigPanel.Visibility = Show(tag == "config");
+        ConsolePanel.Visibility     = Show(tag == "console");
+        PlayersPanel.Visibility     = Show(tag == "players");
+        ConfigPanel.Visibility      = Show(tag == "config");
         PerformancePanel.Visibility = Show(tag == "performance");
-        ModsPanel.Visibility = Show(tag == "mods");
+        ModsPanel.Visibility        = Show(tag == "mods");
 
         if (tag == "config" && Config is not null) {
             Config.PrepareInitialLoad();
@@ -203,14 +155,14 @@ public sealed partial class ServerPage : Page {
     private async void OnBackupsClick(object sender, RoutedEventArgs e) {
         var content = new BackupsDialog(Server.Id, Server.Name,
                                         Server.IsRunning, DispatcherQueue);
-        var dialog = new ContentDialog {
+        var dialog  = new ContentDialog {
             XamlRoot = XamlRoot,
-            Style = Application.Current
+            Style    = Application.Current
                            .Resources["DefaultContentDialogStyle"] as Style,
-            Title = Server.Name,
-            Content = content,
+            Title    = Server.Name,
+            Content  = content,
             CloseButtonText = _localizer.Get("BackupsDialog_CloseButtonText"),
-            DefaultButton = ContentDialogButton.Close,
+            DefaultButton   = ContentDialogButton.Close,
         };
         dialog.Opened += async (_, _) => await content.LoadAsync();
         ContentDialogSizing.Apply(dialog, useWideLayout: true);
@@ -225,17 +177,17 @@ public sealed partial class ServerPage : Page {
 
     private async Task ShowEditDialogAsync() {
         var content = new ServerDialog(_main, ServerDialogMode.Edit, Server);
-        var dialog = new ContentDialog {
+        var dialog  = new ContentDialog {
             XamlRoot = XamlRoot,
-            Style = Application.Current
+            Style    = Application.Current
                            .Resources["DefaultContentDialogStyle"] as Style,
-            Title = _localizer.Get("EditServerDialog_Title"),
-            Content = content,
+            Title    = _localizer.Get("EditServerDialog_Title"),
+            Content  = content,
             PrimaryButtonText =
                 _localizer.Get("EditServerDialog_PrimaryButtonText"),
             CloseButtonText =
                 _localizer.Get("EditServerDialog_CloseButtonText"),
-            DefaultButton = ContentDialogButton.Primary,
+            DefaultButton          = ContentDialogButton.Primary,
             IsPrimaryButtonEnabled = content.CanSubmit,
         };
         content.CanSubmitChanged += (_, _) => dialog.IsPrimaryButtonEnabled =
@@ -248,18 +200,18 @@ public sealed partial class ServerPage : Page {
 
     private async Task ShowRenameDialogAsync() {
         var nameBox = new TextBox {
-            Text = Server.Name,
-            Header = _localizer.Get("EditServerName_Header"),
-            SelectionStart = 0,
+            Text            = Server.Name,
+            Header          = _localizer.Get("EditServerName_Header"),
+            SelectionStart  = 0,
             SelectionLength = Server.Name.Length,
         };
         var dialog = new ContentDialog {
-            XamlRoot = XamlRoot,
-            Title = _localizer.Get("RenameServerDialog_Title"),
-            Content = nameBox,
+            XamlRoot          = XamlRoot,
+            Title             = _localizer.Get("RenameServerDialog_Title"),
+            Content           = nameBox,
             PrimaryButtonText = _localizer.Get("Common_Save"),
-            CloseButtonText = _localizer.Get("Common_Cancel"),
-            DefaultButton = ContentDialogButton.Primary,
+            CloseButtonText   = _localizer.Get("Common_Cancel"),
+            DefaultButton     = ContentDialogButton.Primary,
         };
         if (await dialog.ShowAsync() == ContentDialogResult.Primary)
             await _main.RenameServerAsync(Server, nameBox.Text);
@@ -270,18 +222,18 @@ public sealed partial class ServerPage : Page {
         var folder = ResolveInstanceFolder();
         if (folder is null) {
             var dialog = new ContentDialog {
-                XamlRoot = XamlRoot,
-                Title = _localizer.Get("ServerFolder_NotFoundTitle"),
-                Content = _localizer.Get("ServerFolder_NotFoundBody"),
+                XamlRoot        = XamlRoot,
+                Title           = _localizer.Get("ServerFolder_NotFoundTitle"),
+                Content         = _localizer.Get("ServerFolder_NotFoundBody"),
                 CloseButtonText = "OK",
-                DefaultButton = ContentDialogButton.Close,
+                DefaultButton   = ContentDialogButton.Close,
             };
             await dialog.ShowAsync();
             return;
         }
 
         Process.Start(new ProcessStartInfo {
-            FileName = folder,
+            FileName        = folder,
             UseShellExecute = true,
         });
     }
@@ -326,12 +278,12 @@ public sealed partial class ServerPage : Page {
 
     private async void OnDeleteClick(object sender, RoutedEventArgs e) {
         var confirm = new ContentDialog {
-            XamlRoot = XamlRoot,
-            Title = _localizer.Get("ServerDelete_Title"),
-            Content = _localizer.Get("ServerDelete_Body"),
+            XamlRoot          = XamlRoot,
+            Title             = _localizer.Get("ServerDelete_Title"),
+            Content           = _localizer.Get("ServerDelete_Body"),
             PrimaryButtonText = _localizer.Get("ServerDelete_Confirm"),
-            CloseButtonText = _localizer.Get("Common_Cancel"),
-            DefaultButton = ContentDialogButton.Close,
+            CloseButtonText   = _localizer.Get("Common_Cancel"),
+            DefaultButton     = ContentDialogButton.Close,
         };
         if (await confirm.ShowAsync() != ContentDialogResult.Primary)
             return;

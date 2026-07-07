@@ -11,8 +11,8 @@ public sealed partial class BoolToVisibilityConverter : IValueConverter {
                           string language) {
         var flag = value switch {
             bool b => b,
-            int i => i > 0,
-            _ => value is not null,
+            int i  => i > 0,
+            _      => value is not null,
         };
         if (parameter is string s &&
             string.Equals(s, "invert", StringComparison.OrdinalIgnoreCase))

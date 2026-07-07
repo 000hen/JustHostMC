@@ -1,4 +1,3 @@
-using JustHostMC.Core;
 using McManager.Grpc;
 using Xunit;
 

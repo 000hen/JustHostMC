@@ -5,11 +5,11 @@ using Microsoft.UI.Xaml.Controls;
 namespace JustHostMC.App.Controls.Server;
 
 public sealed partial class ServerPerformancePanel : UserControl {
-    public static readonly DependencyProperty MetricsProperty = DependencyProperty.Register(
-        nameof(Metrics),
-        typeof(MetricsViewModel),
-        typeof(ServerPerformancePanel),
-        new PropertyMetadata(null, OnMetricsChanged));
+    public static readonly DependencyProperty MetricsProperty =
+        DependencyProperty.Register(
+            nameof(Metrics), typeof(MetricsViewModel),
+            typeof(ServerPerformancePanel),
+            new PropertyMetadata(null, OnMetricsChanged));
 
     public MetricsViewModel Metrics {
         get => (MetricsViewModel)GetValue(MetricsProperty);
@@ -20,7 +20,8 @@ public sealed partial class ServerPerformancePanel : UserControl {
         InitializeComponent();
     }
 
-    private static void OnMetricsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+    private static void OnMetricsChanged(DependencyObject d,
+                                         DependencyPropertyChangedEventArgs e) {
         var panel = (ServerPerformancePanel)d;
         panel.Bindings.Update();
     }

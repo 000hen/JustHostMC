@@ -1,12 +1,13 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <UserControl
     x:Class="JustHostMC.App.Controls.ScriptSectionExpander"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:models="using:JustHostMC.App.Models"
-        xmlns:controls="using:JustHostMC.App.Controls"
+    xmlns:controls="using:JustHostMC.App.Controls"
     xmlns:converters="using:JustHostMC.App.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:JustHostMC.App.Models"
     x:Name="Root"
     HorizontalAlignment="Stretch"
     HorizontalContentAlignment="Stretch"
@@ -51,10 +52,10 @@
 
         <StackPanel Spacing="8">
             <TextBlock
-                Margin="0,10,0,0"
                 x:Uid="ScriptsAutomationEmpty"
-                TextAlignment="Center"
+                Margin="0,10,0,0"
                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                TextAlignment="Center"
                 Visibility="{x:Bind IsEmpty, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
 
             <ItemsControl
@@ -66,13 +67,13 @@
                         <StackPanel Orientation="Vertical" Spacing="8" />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
-                
+
                 <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="models:ScriptEntryItem">
                         <controls:ScriptEntryCard
                             EnabledToggled="OnScriptToggled"
-                            RemoveClick="OnScriptRemoved"
-                            Item="{x:Bind}" />
+                            Item="{x:Bind}"
+                            RemoveClick="OnScriptRemoved" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

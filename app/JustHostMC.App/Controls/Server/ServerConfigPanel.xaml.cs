@@ -5,11 +5,11 @@ using Microsoft.UI.Xaml.Controls;
 namespace JustHostMC.App.Controls.Server;
 
 public sealed partial class ServerConfigPanel : UserControl {
-    public static readonly DependencyProperty ConfigProperty = DependencyProperty.Register(
-        nameof(Config),
-        typeof(ServerConfigViewModel),
-        typeof(ServerConfigPanel),
-        new PropertyMetadata(null, OnConfigChanged));
+    public static readonly DependencyProperty ConfigProperty =
+        DependencyProperty.Register(
+            nameof(Config), typeof(ServerConfigViewModel),
+            typeof(ServerConfigPanel),
+            new PropertyMetadata(null, OnConfigChanged));
 
     public ServerConfigViewModel Config {
         get => (ServerConfigViewModel)GetValue(ConfigProperty);
@@ -20,12 +20,14 @@ public sealed partial class ServerConfigPanel : UserControl {
         InitializeComponent();
     }
 
-    private static void OnConfigChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+    private static void OnConfigChanged(DependencyObject d,
+                                        DependencyPropertyChangedEventArgs e) {
         var panel = (ServerConfigPanel)d;
         panel.Bindings.Update();
     }
 
-    private async void OnSaveModifiedConfigClick(object sender, RoutedEventArgs e) {
+    private async void OnSaveModifiedConfigClick(object sender,
+                                                 RoutedEventArgs e) {
         if (Config != null) {
             await Config.SaveModifiedAsync();
         }

@@ -22,15 +22,15 @@ public sealed partial class ScriptSectionExpander : UserControl {
 
     public static readonly DependencyProperty ItemsSourceProperty =
         DependencyProperty.Register(
-            nameof(ItemsSource),
-            typeof(IEnumerable),
+            nameof(ItemsSource), typeof(IEnumerable),
             typeof(ScriptSectionExpander),
             new PropertyMetadata(null, OnItemsSourceChanged));
 
-    private static void OnItemsSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+    private static void OnItemsSourceChanged(
+        DependencyObject d, DependencyPropertyChangedEventArgs e) {
         var self = (ScriptSectionExpander)d;
         self.UpdateIsEmpty();
-        
+
         if (e.OldValue is INotifyCollectionChanged oldCollection) {
             oldCollection.CollectionChanged -= self.OnCollectionChanged;
         }
@@ -39,7 +39,8 @@ public sealed partial class ScriptSectionExpander : UserControl {
         }
     }
 
-    private void OnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
+    private void OnCollectionChanged(object? sender,
+                                     NotifyCollectionChangedEventArgs e) {
         if (DispatcherQueue.HasThreadAccess) {
             UpdateIsEmpty();
         } else {
@@ -48,7 +49,7 @@ public sealed partial class ScriptSectionExpander : UserControl {
     }
 
     private void UpdateIsEmpty() {
-        var items = ItemsSource;
+        var items   = ItemsSource;
         var isEmpty = items == null || !items.Cast<object>().Any();
         SetValue(IsEmptyProperty, isEmpty);
     }

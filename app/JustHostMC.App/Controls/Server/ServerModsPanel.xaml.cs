@@ -8,17 +8,15 @@ using Windows.Storage.Pickers;
 namespace JustHostMC.App.Controls.Server;
 
 public sealed partial class ServerModsPanel : UserControl {
-    public static readonly DependencyProperty ModsProperty = DependencyProperty.Register(
-        nameof(Mods),
-        typeof(ModsViewModel),
-        typeof(ServerModsPanel),
-        new PropertyMetadata(null, OnViewModelChanged));
+    public static readonly DependencyProperty ModsProperty =
+        DependencyProperty.Register(
+            nameof(Mods), typeof(ModsViewModel), typeof(ServerModsPanel),
+            new PropertyMetadata(null, OnViewModelChanged));
 
-    public static readonly DependencyProperty ServerProperty = DependencyProperty.Register(
-        nameof(Server),
-        typeof(ServerItem),
-        typeof(ServerModsPanel),
-        new PropertyMetadata(null, OnViewModelChanged));
+    public static readonly DependencyProperty ServerProperty =
+        DependencyProperty.Register(
+            nameof(Server), typeof(ServerItem), typeof(ServerModsPanel),
+            new PropertyMetadata(null, OnViewModelChanged));
 
     public ModsViewModel Mods {
         get => (ModsViewModel)GetValue(ModsProperty);
@@ -34,7 +32,8 @@ public sealed partial class ServerModsPanel : UserControl {
         InitializeComponent();
     }
 
-    private static void OnViewModelChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+    private static void OnViewModelChanged(
+        DependencyObject d, DependencyPropertyChangedEventArgs e) {
         var panel = (ServerModsPanel)d;
         panel.Bindings.Update();
     }
@@ -47,12 +46,12 @@ public sealed partial class ServerModsPanel : UserControl {
         picker.FileTypeFilter.Add(".jar");
         if (Mods.AcceptsLiteMod)
             picker.FileTypeFilter.Add(".litemod");
-        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.Current.MainWindow);
+        var hwnd =
+            WinRT.Interop.WindowNative.GetWindowHandle(App.Current.MainWindow);
         WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
 
         var files = await picker.PickMultipleFilesAsync();
-        foreach (var file in files)
-            await Mods.UploadAsync(file);
+        foreach (var file in files) await Mods.UploadAsync(file);
     }
 
     private async void OnExportModsClick(object sender, RoutedEventArgs e) {
@@ -62,7 +61,8 @@ public sealed partial class ServerModsPanel : UserControl {
         var picker = new FileSavePicker();
         picker.FileTypeChoices.Add("ZIP", new List<string> { ".zip" });
         picker.SuggestedFileName = $"{Server.Name}-mods";
-        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.Current.MainWindow);
+        var hwnd =
+            WinRT.Interop.WindowNative.GetWindowHandle(App.Current.MainWindow);
         WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
 
         var file = await picker.PickSaveFileAsync();
@@ -84,7 +84,7 @@ public sealed partial class ServerModsPanel : UserControl {
         if (Mods == null)
             return;
 
-        if (sender is FrameworkElement { Tag: ModFileItem item })
+        if (sender is FrameworkElement { Tag : ModFileItem item })
             await Mods.RemoveAsync(item);
     }
 }

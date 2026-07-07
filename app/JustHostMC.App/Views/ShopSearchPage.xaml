@@ -72,6 +72,16 @@
                               IsItemClickEnabled="True"
                               ItemClick="OnItemClick"
                               IncrementalLoadingTrigger="Edge">
+                        <ListView.Footer>
+                            <Grid Height="52"
+                                  Visibility="{x:Bind ShowLoadMoreIndicator(ViewModel.IsSearchLoading, ViewModel.SearchResults.Count), Mode=OneWay}">
+                                <ProgressRing Width="24"
+                                              Height="24"
+                                              IsActive="{x:Bind ViewModel.IsSearchLoading, Mode=OneWay}"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" />
+                            </Grid>
+                        </ListView.Footer>
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />

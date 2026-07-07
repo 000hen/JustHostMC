@@ -118,6 +118,9 @@ public sealed partial class ShopSearchPage : Page
     public Visibility ShowSkeleton(bool loading, int resultCount) =>
         loading && resultCount == 0 ? Visibility.Visible : Visibility.Collapsed;
 
+    public Visibility ShowLoadMoreIndicator(bool loading, int resultCount) =>
+        loading && resultCount > 0 ? Visibility.Visible : Visibility.Collapsed;
+
     public Visibility BoolToVisibility(bool value) =>
         value ? Visibility.Visible : Visibility.Collapsed;
 }

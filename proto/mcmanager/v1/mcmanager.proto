@@ -471,6 +471,10 @@ message ModMetadata {
   string description = 8;
   string website = 9;
   bytes icon = 10;              // raw image bytes (png/jpg), optional
+  string game_version_requirement = 11; // descriptor constraint, e.g. ">=1.20 <1.21" or "[1.20.1,1.21)"
+  bool loader_mismatch = 12;     // parsed loader/type is incompatible with the server provider
+  bool game_version_mismatch = 13; // declared Minecraft constraint excludes the server version
+  string parse_error = 14;       // per-file parser/archive failure; does not fail the containing ModList
 }
 
 message ModFile {

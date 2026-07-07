@@ -102,20 +102,46 @@ func (ps *ParserSet) EffectiveGrants(id string) GrantSet {
 	return nil
 }
 
-// ParseJar runs the installed parsers against one jar in registration order;
-// the first parser that matches wins. A single broken parser is logged and
-// skipped so it can never break mod listing. matched=false means no parser
-// recognized the jar.
-func (ps *ParserSet) ParseJar(ctx context.Context, serverDir, jarRel string) (ModMeta, string, bool) {
+// ParseJarCandidates runs every installed parser against one jar in
+// registration order and returns all successful matches. A single broken parser
+// is logged and skipped so it can never break mod listing. Errors from built-in
+// parsers are returned only when no parser recognizes the jar, allowing the
+// caller to show a failed row without losing the rest of the list. Errors from
+// optional user parsers remain log-only because a broken extension must not
+// condemn an otherwise valid, unrecognized archive.
+func (ps *ParserSet) ParseJarCandidates(ctx context.Context, serverDir, jarRel string) ([]ModParseCandidate, error) {
+	var firstBuiltinErr error
+	var candidates []ModParseCandidate
 	for _, p := range ps.List() {
 		meta, matched, err := p.Parse(ctx, serverDir, jarRel)
 		if err != nil {
 			log.Printf("[WARN] mod parser %q: %s: %v", p.meta.ID, jarRel, err)
+			if p.builtin && firstBuiltinErr == nil {
+				firstBuiltinErr = fmt.Errorf("%s: %w", p.meta.ID, err)
+			}
 			continue
 		}
 		if matched {
-			return meta, p.meta.ID, true
+			candidates = append(candidates, ModParseCandidate{Meta: meta, ParserID: p.meta.ID})
 		}
 	}
-	return ModMeta{}, "", false
+	if len(candidates) > 0 {
+		return candidates, nil
+	}
+	return nil, firstBuiltinErr
+}
+
+// ParseJar preserves the legacy "first match wins" parser contract for callers
+// that do not have server context. Prefer ParseJarCandidates when the caller can
+// rank candidates against a concrete server provider/version.
+func (ps *ParserSet) ParseJar(ctx context.Context, serverDir, jarRel string) (ModMeta, string, bool, error) {
+	candidates, err := ps.ParseJarCandidates(ctx, serverDir, jarRel)
+	if err != nil {
+		return ModMeta{}, "", false, err
+	}
+	if len(candidates) == 0 {
+		return ModMeta{}, "", false, nil
+	}
+	first := candidates[0]
+	return first.Meta, first.ParserID, true, nil
 }

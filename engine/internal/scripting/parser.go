@@ -11,6 +11,7 @@ import (
 // jar, regardless of the descriptor format it was read from.
 type ModMeta struct {
 	Loader      string // "fabric" | "quilt" | "forge" | "neoforge" | "forge-legacy" | "liteloader" | "bukkit" | "paper"
+	GameVersion string // declared Minecraft version/range; empty when the descriptor does not say
 	ModID       string
 	Name        string
 	Version     string
@@ -18,6 +19,15 @@ type ModMeta struct {
 	Description string
 	Website     string
 	Icon        []byte // raw image bytes (png/jpg), optional
+}
+
+// ModParseCandidate is one successful parser result for a jar. Some jars carry
+// more than one descriptor (for example a hybrid mod/plugin), so callers that
+// know the target server should rank all candidates instead of accepting the
+// first match blindly.
+type ModParseCandidate struct {
+	Meta     ModMeta
+	ParserID string
 }
 
 // LuaParser adapts one sandboxed Lua parser script (with a global parse(ctx)
@@ -97,6 +107,7 @@ func (inv *invocation) parseMod(src, jarRel string) (ModMeta, bool, error) {
 
 	m := ModMeta{
 		Loader:      strField(tbl, "loader"),
+		GameVersion: strField(tbl, "game_version"),
 		ModID:       strField(tbl, "mod_id"),
 		Name:        strField(tbl, "name"),
 		Version:     strField(tbl, "version"),

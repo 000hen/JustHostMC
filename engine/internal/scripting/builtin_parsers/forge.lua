@@ -15,8 +15,12 @@ function parse(ctx)
   local raw = jhmc.zip_read(ctx.jar, "META-INF/mods.toml")
   if raw == nil then return nil end
   local ok, t = pcall(jhmc.toml_decode, raw)
-  if not ok or type(t) ~= "table" then return nil end
-  if type(t.mods) ~= "table" or type(t.mods[1]) ~= "table" then return nil end
+  if not ok or type(t) ~= "table" then
+    error("invalid META-INF/mods.toml: " .. tostring(t))
+  end
+  if type(t.mods) ~= "table" or type(t.mods[1]) ~= "table" then
+    error("invalid META-INF/mods.toml: missing [[mods]] entry")
+  end
   local mod = t.mods[1]
 
   -- authors/logoFile/displayURL may sit at the top level or on the mod entry.
@@ -54,8 +58,22 @@ function parse(ctx)
     version = nil
   end
 
+  local game_version
+  if type(t.dependencies) == "table" then
+    local dependencies = t.dependencies[mod.modId]
+    if type(dependencies) == "table" then
+      for _, dependency in ipairs(dependencies) do
+        if type(dependency) == "table" and dependency.modId == "minecraft" then
+          game_version = dependency.versionRange
+          break
+        end
+      end
+    end
+  end
+
   return {
     loader = "forge",
+    game_version = game_version,
     mod_id = mod.modId,
     name = mod.displayName or mod.modId,
     version = version,

@@ -109,13 +109,6 @@ public sealed partial class ServerPage : Page {
             _main.StopServerCommand.Execute(Server);
     }
 
-    private string PlayersHeader(int count) =>
-        _localizer.Get("Players_Header", ("count", count.ToString()));
-
-    private Visibility HasNoPlayers(int count) => count == 0
-                                                      ? Visibility.Visible
-                                                      : Visibility.Collapsed;
-
     private static bool IsStopped(ServerStatus s) =>
         s is ServerStatus.Stopped or ServerStatus.Crashed;
 

@@ -139,12 +139,45 @@ if (Test-Command 'go') {
     $script:failures++
 }
 
+# -- 1.1 clang-format ----------------------------------------------------------
+if (Test-Command 'clang-format') {
+    $cfVer = Get-ToolVersion 'clang-format' '--version'
+    Write-Status 'clang-format' 'OK' $cfVer -Level OK
+} else {
+    Write-Host ''
+    Write-Status 'clang-format' 'FAIL' 'Not found' -Level FAIL
+    Write-Host '    clang-format is required for C# formatting.' -ForegroundColor DarkGray
+    Write-Host '    Install options:' -ForegroundColor DarkGray
+    Write-Host '      * winget:     winget install LLVM.LLVM' -ForegroundColor Yellow
+    Write-Host '      * scoop:      scoop install llvm' -ForegroundColor Yellow
+    Write-Host ''
+    $script:failures++
+}
+
 # -- 2. .NET SDK ---------------------------------------------------------------
 if (Test-Command 'dotnet') {
     $dotnetVer = Get-ToolVersion 'dotnet' '--version'
     Write-Status '.NET SDK' 'OK' "v$dotnetVer" -Level OK
 } else {
     Write-Status '.NET SDK' 'FAIL' 'Not found - download from https://dotnet.microsoft.com/download' -Level FAIL
+    $script:failures++
+}
+
+# -- 2.1 xstyler ---------------------------------------------------------------
+try {
+    $xsVer = dotnet tool run xstyler --version 2>&1 | Out-String
+    if ($LASTEXITCODE -eq 0) {
+        Write-Status 'xstyler' 'OK' $xsVer.Trim() -Level OK
+    } else {
+        throw "Not installed"
+    }
+} catch {
+    Write-Host ''
+    Write-Status 'xstyler' 'FAIL' 'Not found' -Level FAIL
+    Write-Host '    xstyler is required for XAML formatting.' -ForegroundColor DarkGray
+    Write-Host '    Install options:' -ForegroundColor DarkGray
+    Write-Host '      * local tool: dotnet tool restore' -ForegroundColor Yellow
+    Write-Host ''
     $script:failures++
 }
 

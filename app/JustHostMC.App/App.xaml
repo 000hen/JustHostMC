@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <Application
     x:Class="JustHostMC.App.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -13,7 +13,7 @@
                  x:Bind's {StaticResource} converter lookup only searches the binding
                  root element's Resources and Application.Resources - it does NOT walk
                  inner element .Resources, so a converter in e.g. <Grid.Resources>
-                 throws "Cannot find a resource with the given key" at load time. -->
+                 throws "Cannot find a resource with the given key" at load time.-->
             <conv:BoolToVisibilityConverter x:Key="BoolToVis" />
             <x:Double x:Key="ContentDialogMinWidth">560</x:Double>
             <x:Double x:Key="ContentDialogMaxWidth">960</x:Double>

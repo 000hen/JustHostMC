@@ -9,15 +9,14 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace JustHostMC.App.Views;
 
-/// <summary>One requested permission row with an allow/deny toggle, bound in the
-/// consent dialog.</summary>
-public sealed partial class ConsentRow : ObservableObject
-{
-    public ConsentRow(Permission permission, ILocalizer localizer, bool allowed)
-    {
-        Kind = permission.Kind;
-        Label = PermissionLabels.Label(permission.Kind, localizer);
-        Reason = permission.Reason;
+/// <summary>One requested permission row with an allow/deny toggle, bound in
+/// the consent dialog.</summary>
+public sealed partial class ConsentRow : ObservableObject {
+    public ConsentRow(Permission permission, ILocalizer localizer,
+                      bool allowed) {
+        Kind    = permission.Kind;
+        Label   = PermissionLabels.Label(permission.Kind, localizer);
+        Reason  = permission.Reason;
         Allowed = allowed;
     }
 
@@ -26,22 +25,25 @@ public sealed partial class ConsentRow : ObservableObject
     public string Reason { get; }
 
     [ObservableProperty]
-    public partial bool Allowed { get; set; }
+    public partial bool Allowed {
+        get; set;
+    }
 }
 
-/// <summary>Consent dialog: shows each requested permission with its reason and an
-/// allow/deny toggle. On primary, <see cref="Granted"/> holds the allowed kinds.</summary>
-public sealed partial class PermissionConsentDialog : UserControl
-{
+/// <summary>Consent dialog: shows each requested permission with its reason and
+/// an allow/deny toggle. On primary, <see cref="Granted"/> holds the allowed
+/// kinds.</summary>
+public sealed partial class PermissionConsentDialog : UserControl {
     public ObservableCollection<ConsentRow> Rows { get; } = new();
 
-    public PermissionConsentDialog(IEnumerable<Permission> permissions, ILocalizer localizer)
-    {
-        // Populate before InitializeComponent so the OneTime x:Bind to Rows.Count
-        // (used to toggle the "no permissions" hint) sees the final count.
-        foreach (var p in permissions)
-        {
-            // Default-allow each requested permission; the user can deny individually.
+    public PermissionConsentDialog(IEnumerable<Permission> permissions,
+                                   ILocalizer localizer) {
+        // Populate before InitializeComponent so the OneTime x:Bind to
+        // Rows.Count (used to toggle the "no permissions" hint) sees the final
+        // count.
+        foreach (var p in permissions) {
+            // Default-allow each requested permission; the user can deny
+            // individually.
             Rows.Add(new ConsentRow(p, localizer, allowed: true));
         }
 

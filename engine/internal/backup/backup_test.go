@@ -33,10 +33,10 @@ func readFile(t *testing.T, path string) string {
 func TestArchiveRestoreRoundTrip(t *testing.T) {
 	src := t.TempDir()
 	files := map[string]string{
-		"server.properties":   "server-port=25565\n",
-		"world/level.dat":     "\x00\x01binary\x02",
-		"world/region/r.0.0":  "regiondata",
-		"logs/latest.log":     "[INFO] started",
+		"server.properties":  "server-port=25565\n",
+		"world/level.dat":    "\x00\x01binary\x02",
+		"world/region/r.0.0": "regiondata",
+		"logs/latest.log":    "[INFO] started",
 	}
 	writeTree(t, src, files)
 

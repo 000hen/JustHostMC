@@ -4,22 +4,25 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace JustHostMC.App.Views;
 
-public sealed partial class PlayerDialogBase : UserControl
-{
+public sealed partial class PlayerDialogBase : UserControl {
     public UIElement InnerContent { get; }
 
-    public PlayerDialogBase(PlayerItem player, UIElement innerContent)
-    {
+    public PlayerDialogBase(PlayerItem player, UIElement innerContent) {
         InnerContent = innerContent;
         InitializeComponent();
 
         HeaderText.Text = player.Name;
-        UuidText.Text = string.IsNullOrWhiteSpace(player.Uuid) ? "UUID unknown until the server writes usercache.json." : player.Uuid;
+        UuidText.Text =
+            string.IsNullOrWhiteSpace(player.Uuid)
+                ? "UUID unknown until the server writes usercache.json."
+                : player.Uuid;
     }
 
-    public void UpdateHeader(string name, string uuid)
-    {
+    public void UpdateHeader(string name, string uuid) {
         HeaderText.Text = name;
-        UuidText.Text = string.IsNullOrWhiteSpace(uuid) ? "UUID unknown until the server writes usercache.json." : uuid;
+        UuidText.Text =
+            string.IsNullOrWhiteSpace(uuid)
+                ? "UUID unknown until the server writes usercache.json."
+                : uuid;
     }
 }

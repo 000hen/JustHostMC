@@ -21,10 +21,10 @@ const defaultSaveTimeout = 30 * time.Second
 
 // BackupServiceConfig wires the BackupService to its collaborators.
 type BackupServiceConfig struct {
-	Manager *backup.Manager
-	Store   store.Store
-	Paths   appdata.Paths
-	Console *console.Hub  // for safe-online save-off/flush/save-on; may be nil in tests
+	Manager     *backup.Manager
+	Store       store.Store
+	Paths       appdata.Paths
+	Console     *console.Hub // for safe-online save-off/flush/save-on; may be nil in tests
 	SaveTimeout time.Duration
 }
 

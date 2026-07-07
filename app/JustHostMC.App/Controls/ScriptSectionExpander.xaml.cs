@@ -3,9 +3,9 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace JustHostMC.App.Controls;
 
-/// <summary>An expandable script section with standard folder and add actions.</summary>
-public sealed partial class ScriptSectionExpander : UserControl
-{
+/// <summary>An expandable script section with standard folder and add
+/// actions.</summary>
+public sealed partial class ScriptSectionExpander : UserControl {
     public static readonly DependencyProperty HeaderContentProperty =
         Register<object?>(nameof(HeaderContent), null);
 
@@ -21,20 +21,17 @@ public sealed partial class ScriptSectionExpander : UserControl
 
     public event RoutedEventHandler? AddScriptsClick;
 
-    public object? HeaderContent
-    {
+    public object? HeaderContent {
         get => GetValue(HeaderContentProperty);
         set => SetValue(HeaderContentProperty, value);
     }
 
-    public object? SectionContent
-    {
+    public object? SectionContent {
         get => GetValue(SectionContentProperty);
         set => SetValue(SectionContentProperty, value);
     }
 
-    public bool IsExpanded
-    {
+    public bool IsExpanded {
         get => (bool)GetValue(IsExpandedProperty);
         set => SetValue(IsExpandedProperty, value);
     }
@@ -45,7 +42,9 @@ public sealed partial class ScriptSectionExpander : UserControl
     private void OnAddScriptsClick(object sender, RoutedEventArgs e) =>
         AddScriptsClick?.Invoke(this, e);
 
-    private static DependencyProperty Register<T>(string name, T defaultValue) =>
-        DependencyProperty.Register(name, typeof(T), typeof(ScriptSectionExpander),
-            new PropertyMetadata(defaultValue));
+    private static DependencyProperty Register<T>(string name,
+                                                  T defaultValue) =>
+        DependencyProperty.Register(name, typeof(T),
+                                    typeof(ScriptSectionExpander),
+                                    new PropertyMetadata(defaultValue));
 }

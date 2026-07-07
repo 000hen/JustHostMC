@@ -61,8 +61,8 @@ func TestPurgeDeletesByAge(t *testing.T) {
 	root := t.TempDir()
 	old := filepath.Join(root, "srv1", "console-old.log")
 	fresh := filepath.Join(root, "srv1", "console-new.log")
-	writeLog(t, old, 100, 10*24*time.Hour)  // 10 days old
-	writeLog(t, fresh, 100, 1*time.Hour)    // 1 hour old
+	writeLog(t, old, 100, 10*24*time.Hour) // 10 days old
+	writeLog(t, fresh, 100, 1*time.Hour)   // 1 hour old
 
 	removed, freed, err := Purge(root, Policy{KeepDays: 7}, time.Now())
 	if err != nil {

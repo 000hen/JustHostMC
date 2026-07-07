@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	winio "github.com/Microsoft/go-winio"
 	mcmanagerv1 "github.com/000hen/justhostmc/engine/gen/mcmanager/v1"
+	winio "github.com/Microsoft/go-winio"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )

@@ -1,20 +1,22 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <UserControl
     x:Class="JustHostMC.App.Views.BackupsDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:conv="using:JustHostMC.App.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:conv="using:JustHostMC.App.Converters"
     mc:Ignorable="d">
 
-    <ScrollViewer MaxHeight="700"
-                  HorizontalScrollBarVisibility="Disabled"
-                  VerticalScrollBarVisibility="Auto">
-        <Grid x:Name="BackupsRoot"
-              DataContext="{x:Bind ViewModel}"
-              HorizontalAlignment="Stretch"
-              RowSpacing="16">
+    <ScrollViewer
+        MaxHeight="700"
+        HorizontalScrollBarVisibility="Disabled"
+        VerticalScrollBarVisibility="Auto">
+        <Grid
+            x:Name="BackupsRoot"
+            HorizontalAlignment="Stretch"
+            DataContext="{x:Bind ViewModel}"
+            RowSpacing="16">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -22,7 +24,10 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <Grid Grid.Row="0" RowSpacing="10" ColumnSpacing="8">
+            <Grid
+                Grid.Row="0"
+                ColumnSpacing="8"
+                RowSpacing="10">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -33,59 +38,66 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <Button Grid.Row="0"
-                        Grid.Column="0"
-                        MinWidth="154"
-                        Style="{StaticResource AccentButtonStyle}"
-                        Command="{x:Bind ViewModel.CreateBackupCommand}"
-                        IsEnabled="{x:Bind ViewModel.CanRunActions, Mode=OneWay}">
+                <Button
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    MinWidth="154"
+                    Command="{x:Bind ViewModel.CreateBackupCommand}"
+                    IsEnabled="{x:Bind ViewModel.CanRunActions, Mode=OneWay}"
+                    Style="{StaticResource AccentButtonStyle}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE710;" FontSize="14" />
+                        <FontIcon FontSize="14" Glyph="&#xE710;" />
                         <TextBlock x:Uid="BackupCreateButtonLabel" />
                     </StackPanel>
                 </Button>
 
-                <Button Grid.Row="0"
-                        Grid.Column="1"
-                        MinWidth="44"
-                        Click="OnOpenBackupFolderClick"
-                        IsEnabled="{x:Bind ViewModel.CanRunActions, Mode=OneWay}">
+                <Button
+                    Grid.Row="0"
+                    Grid.Column="1"
+                    MinWidth="44"
+                    Click="OnOpenBackupFolderClick"
+                    IsEnabled="{x:Bind ViewModel.CanRunActions, Mode=OneWay}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE8B7;" FontSize="14" />
+                        <FontIcon FontSize="14" Glyph="&#xE8B7;" />
                         <TextBlock x:Uid="BackupOpenFolderButtonLabel" />
                     </StackPanel>
                 </Button>
 
-                <CheckBox Grid.Row="1"
-                          Grid.ColumnSpan="3"
-                          IsChecked="{x:Bind ViewModel.SafeOnline, Mode=TwoWay}"
-                          Visibility="{x:Bind ViewModel.ServerRunning, Converter={StaticResource BoolToVis}}">
+                <CheckBox
+                    Grid.Row="1"
+                    Grid.ColumnSpan="3"
+                    IsChecked="{x:Bind ViewModel.SafeOnline, Mode=TwoWay}"
+                    Visibility="{x:Bind ViewModel.ServerRunning, Converter={StaticResource BoolToVis}}">
                     <TextBlock x:Uid="BackupSafeOnlineLabel" TextWrapping="WrapWholeWords" />
                 </CheckBox>
             </Grid>
-            <ProgressBar Grid.Row="1"
-                         IsIndeterminate="True"
-                         Visibility="{x:Bind ViewModel.IsBusy, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+            <ProgressBar
+                Grid.Row="1"
+                IsIndeterminate="True"
+                Visibility="{x:Bind ViewModel.IsBusy, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
 
-            <Border Grid.Row="2"
-                    MinHeight="320"
-                    MaxHeight="420"
-                    CornerRadius="8"
-                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                    BorderThickness="1">
+            <Border
+                Grid.Row="2"
+                MinHeight="320"
+                MaxHeight="420"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
                 <Grid>
-                    <TextBlock x:Uid="BackupsEmptyHint"
-                               Margin="24"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               TextAlignment="Center"
-                               TextWrapping="WrapWholeWords"
-                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                               Visibility="{x:Bind ViewModel.Backups.Count, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
-                    <ListView ItemsSource="{x:Bind ViewModel.Backups, Mode=OneWay}"
-                              SelectionMode="None"
-                              Background="Transparent">
+                    <TextBlock
+                        x:Uid="BackupsEmptyHint"
+                        Margin="24"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        TextAlignment="Center"
+                        TextWrapping="WrapWholeWords"
+                        Visibility="{x:Bind ViewModel.Backups.Count, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
+                    <ListView
+                        Background="Transparent"
+                        ItemsSource="{x:Bind ViewModel.Backups, Mode=OneWay}"
+                        SelectionMode="None">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -93,58 +105,69 @@
                         </ListView.ItemContainerStyle>
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <Grid Padding="12" ColumnSpacing="12"
-                                      BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
-                                      BorderThickness="0,0,0,1">
+                                <Grid
+                                    Padding="12"
+                                    BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                    BorderThickness="0,0,0,1"
+                                    ColumnSpacing="12">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
 
-                                    <StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="4">
-                                        <TextBlock Text="{Binding CreatedText}"
-                                                   Style="{StaticResource BodyStrongTextBlockStyle}"
-                                                   TextTrimming="CharacterEllipsis" />
+                                    <StackPanel
+                                        Grid.Column="0"
+                                        VerticalAlignment="Center"
+                                        Spacing="4">
+                                        <TextBlock
+                                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                                            Text="{Binding CreatedText}"
+                                            TextTrimming="CharacterEllipsis" />
                                         <Grid ColumnSpacing="10">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto" />
                                                 <ColumnDefinition Width="*" />
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0"
-                                                       Text="{Binding SizeText}"
-                                                       Style="{StaticResource CaptionTextBlockStyle}"
-                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                            <TextBlock Grid.Column="1"
-                                                       Text="{Binding Id}"
-                                                       Style="{StaticResource CaptionTextBlockStyle}"
-                                                       TextTrimming="CharacterEllipsis"
-                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                            <TextBlock
+                                                Grid.Column="0"
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                Style="{StaticResource CaptionTextBlockStyle}"
+                                                Text="{Binding SizeText}" />
+                                            <TextBlock
+                                                Grid.Column="1"
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                Style="{StaticResource CaptionTextBlockStyle}"
+                                                Text="{Binding Id}"
+                                                TextTrimming="CharacterEllipsis" />
                                         </Grid>
                                     </StackPanel>
 
-                                    <Button x:Uid="BackupActionsButton"
-                                            Grid.Column="1"
-                                            HorizontalAlignment="Right"
-                                            VerticalAlignment="Center"
-                                            MinWidth="92"
-                                            Tag="{Binding}">
+                                    <Button
+                                        x:Uid="BackupActionsButton"
+                                        Grid.Column="1"
+                                        MinWidth="92"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Center"
+                                        Tag="{Binding}">
                                         <StackPanel Orientation="Horizontal" Spacing="6">
                                             <TextBlock x:Uid="BackupActionsButtonLabel" />
-                                            <FontIcon Glyph="&#xE70D;" FontSize="12" />
+                                            <FontIcon FontSize="12" Glyph="&#xE70D;" />
                                         </StackPanel>
                                         <Button.Flyout>
                                             <MenuFlyout>
-                                                <MenuFlyoutItem x:Uid="BackupExportAction"
-                                                                Click="OnExportBackupClick"
-                                                                Tag="{Binding}">
+                                                <MenuFlyoutItem
+                                                    x:Uid="BackupExportAction"
+                                                    Click="OnExportBackupClick"
+                                                    Tag="{Binding}">
                                                     <MenuFlyoutItem.Icon>
                                                         <FontIcon Glyph="&#xE896;" />
                                                     </MenuFlyoutItem.Icon>
                                                 </MenuFlyoutItem>
 
-                                                <MenuFlyoutItem x:Uid="BackupRestoreAction"
-                                                                Click="OnRestoreBackupConfirmClick"
-                                                                Tag="{Binding}">
+                                                <MenuFlyoutItem
+                                                    x:Uid="BackupRestoreAction"
+                                                    Click="OnRestoreBackupConfirmClick"
+                                                    Tag="{Binding}">
                                                     <MenuFlyoutItem.Icon>
                                                         <FontIcon Glyph="&#xE72C;" />
                                                     </MenuFlyoutItem.Icon>
@@ -152,9 +175,10 @@
 
                                                 <MenuFlyoutSeparator />
 
-                                                <MenuFlyoutItem x:Uid="BackupDeleteAction"
-                                                                Click="OnDeleteBackupConfirmClick"
-                                                                Tag="{Binding}">
+                                                <MenuFlyoutItem
+                                                    x:Uid="BackupDeleteAction"
+                                                    Click="OnDeleteBackupConfirmClick"
+                                                    Tag="{Binding}">
                                                     <MenuFlyoutItem.Icon>
                                                         <FontIcon Glyph="&#xE74D;" />
                                                     </MenuFlyoutItem.Icon>
@@ -169,10 +193,11 @@
                 </Grid>
             </Border>
 
-            <TextBlock Grid.Row="3"
-                       Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
-                       TextWrapping="WrapWholeWords"
-                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+            <TextBlock
+                Grid.Row="3"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
+                TextWrapping="WrapWholeWords" />
         </Grid>
     </ScrollViewer>
 </UserControl>

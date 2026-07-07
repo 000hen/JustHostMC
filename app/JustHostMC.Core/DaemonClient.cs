@@ -7,8 +7,7 @@ namespace JustHostMC.Core;
 /// <summary>
 /// Typed gRPC client for the engine over a Windows named pipe channel.
 /// </summary>
-public sealed class DaemonClient : IAsyncDisposable
-{
+public sealed class DaemonClient : IAsyncDisposable {
     private readonly GrpcChannel _channel;
 
     public EngineService.EngineServiceClient Engine { get; }
@@ -26,63 +25,55 @@ public sealed class DaemonClient : IAsyncDisposable
     public ShopService.ShopServiceClient Shop { get; }
 
     public DaemonClient(EngineConnection connection)
-        : this(connection.PipeName)
-    {
-    }
+        : this(connection.PipeName) {}
 
-    public DaemonClient(string pipeName)
-    {
+    public DaemonClient(string pipeName) {
         var connectionFactory = new NamedPipeConnectionFactory(pipeName);
-        var socketsHandler = new SocketsHttpHandler
-        {
+        var socketsHandler    = new SocketsHttpHandler {
             ConnectCallback = connectionFactory.ConnectAsync,
         };
 
-        _channel = GrpcChannel.ForAddress("http://localhost", new GrpcChannelOptions
-        {
-            HttpHandler = socketsHandler,
-        });
+        _channel =
+            GrpcChannel.ForAddress("http://localhost", new GrpcChannelOptions {
+                HttpHandler = socketsHandler,
+            });
 
-        Engine = new EngineService.EngineServiceClient(_channel);
-        Servers = new ServerService.ServerServiceClient(_channel);
-        Console = new ConsoleService.ConsoleServiceClient(_channel);
-        Backups = new BackupService.BackupServiceClient(_channel);
-        Settings = new SettingsService.SettingsServiceClient(_channel);
-        Players = new PlayerService.PlayerServiceClient(_channel);
-        Metrics = new MetricsService.MetricsServiceClient(_channel);
-        Mods = new ModService.ModServiceClient(_channel);
-        Config = new ConfigService.ConfigServiceClient(_channel);
+        Engine    = new EngineService.EngineServiceClient(_channel);
+        Servers   = new ServerService.ServerServiceClient(_channel);
+        Console   = new ConsoleService.ConsoleServiceClient(_channel);
+        Backups   = new BackupService.BackupServiceClient(_channel);
+        Settings  = new SettingsService.SettingsServiceClient(_channel);
+        Players   = new PlayerService.PlayerServiceClient(_channel);
+        Metrics   = new MetricsService.MetricsServiceClient(_channel);
+        Mods      = new ModService.ModServiceClient(_channel);
+        Config    = new ConfigService.ConfigServiceClient(_channel);
         Providers = new ProviderService.ProviderServiceClient(_channel);
-        Scripts = new ScriptService.ScriptServiceClient(_channel);
-        Parsers = new ParserService.ParserServiceClient(_channel);
-        Shop = new ShopService.ShopServiceClient(_channel);
+        Scripts   = new ScriptService.ScriptServiceClient(_channel);
+        Parsers   = new ParserService.ParserServiceClient(_channel);
+        Shop      = new ShopService.ShopServiceClient(_channel);
     }
 
-    public async ValueTask DisposeAsync() => await _channel.ShutdownAsync().ConfigureAwait(false);
+    public async ValueTask DisposeAsync() =>
+        await _channel.ShutdownAsync().ConfigureAwait(false);
 
     /// <summary>
-    /// Connects to the engine's named pipe, returning a <see cref="Stream"/> that
-    /// <see cref="SocketsHttpHandler"/> uses as the HTTP/2 transport.
+    /// Connects to the engine's named pipe, returning a <see cref="Stream"/>
+    /// that <see cref="SocketsHttpHandler"/> uses as the HTTP/2 transport.
     /// </summary>
-    private sealed class NamedPipeConnectionFactory(string pipeName)
-    {
+    private sealed class NamedPipeConnectionFactory(string pipeName) {
         public async ValueTask<Stream> ConnectAsync(
             SocketsHttpConnectionContext context,
-            CancellationToken cancellationToken)
-        {
+            CancellationToken cancellationToken) {
             var pipe = new NamedPipeClientStream(
-                serverName: ".",
-                pipeName: pipeName,
+                serverName: ".", pipeName: pipeName,
                 direction: PipeDirection.InOut,
                 options: PipeOptions.WriteThrough | PipeOptions.Asynchronous);
 
-            try
-            {
-                await pipe.ConnectAsync(cancellationToken).ConfigureAwait(false);
+            try {
+                await pipe.ConnectAsync(cancellationToken)
+                    .ConfigureAwait(false);
                 return pipe;
-            }
-            catch
-            {
+            } catch {
                 await pipe.DisposeAsync().ConfigureAwait(false);
                 throw;
             }

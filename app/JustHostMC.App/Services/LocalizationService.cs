@@ -3,34 +3,26 @@ using Microsoft.Windows.ApplicationModel.Resources;
 namespace JustHostMC.App.Services;
 
 /// <summary>
-/// <see cref="ILocalizer"/> backed by the Windows App SDK resource system, which
-/// resolves strings against the user's language with English as the fallback.
+/// <see cref="ILocalizer"/> backed by the Windows App SDK resource system,
+/// which resolves strings against the user's language with English as the
+/// fallback.
 /// </summary>
-public sealed class LocalizationService : ILocalizer
-{
+public sealed class LocalizationService : ILocalizer {
     private readonly ResourceLoader _loader = new();
 
-    public string Get(string key)
-    {
-        try
-        {
+    public string Get(string key) {
+        try {
             return _loader.GetString(NormalizeKey(key));
-        }
-        catch
-        {
+        } catch {
             return key;
         }
     }
 
-    public string Get(string key, params (string Name, string Value)[] args)
-    {
+    public string Get(string key, params(string Name, string Value)[] args) {
         string format;
-        try
-        {
+        try {
             format = _loader.GetString(NormalizeKey(key));
-        }
-        catch
-        {
+        } catch {
             format = key;
         }
         foreach (var (name, value) in args)

@@ -1,4 +1,4 @@
-﻿<UserControl
+<UserControl
     x:Class="JustHostMC.App.Controls.Server.ServerModsPanel"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -257,8 +257,6 @@
                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                 TextWrapping="Wrap"
                 Visibility="{x:Bind Mods.Supported, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
-
-            <ProgressBar IsIndeterminate="True" Visibility="{x:Bind Mods.ShowOperationProgress, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
 
             <ItemsControl
                 IsHitTestVisible="False"

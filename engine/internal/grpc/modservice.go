@@ -35,17 +35,25 @@ type ModService struct {
 
 	// metaCache memoizes parsed jar metadata keyed by
 	// serverID|name|size|mtimeUnixNano, so repeated List calls don't re-parse
-	// unchanged jars. Re-uploading a jar changes its mtime, which
-	// self-invalidates the old entry (stale keys are dropped per server).
+	// unchanged jars. It stores every parser candidate, not the final
+	// compatibility-ranked metadata, so server version/provider changes update
+	// warnings without re-reading every jar. Re-uploading a jar changes its
+	// mtime, which self-invalidates the old entry (stale keys are dropped per
+	// server).
 	metaMu    sync.Mutex
-	metaCache map[string]map[string]*mcmanagerv1.ModMetadata // server id -> key -> metadata
+	metaCache map[string]map[string]*modMetadataParseResult // server id -> key -> parser result
 }
 
-// ModParser extracts embedded metadata from one jar (path relative to the
-// server dir). *scripting.ParserSet satisfies it; matched=false means no
-// installed parser recognized the jar.
+// ModParser extracts embedded metadata candidates from one jar (path relative
+// to the server dir). *scripting.ParserSet satisfies it; an empty candidate
+// slice means no installed parser recognized the jar.
 type ModParser interface {
-	ParseJar(ctx context.Context, serverDir, jarRel string) (scripting.ModMeta, string, bool, error)
+	ParseJarCandidates(ctx context.Context, serverDir, jarRel string) ([]scripting.ModParseCandidate, error)
+}
+
+type modMetadataParseResult struct {
+	candidates []*mcmanagerv1.ModMetadata
+	parseError string
 }
 
 // NewModService builds a ModService over the registry and data paths. parser
@@ -55,7 +63,7 @@ func NewModService(st store.Store, paths appdata.Paths, parser ModParser) *ModSe
 		store:     st,
 		paths:     paths,
 		parser:    parser,
-		metaCache: map[string]map[string]*mcmanagerv1.ModMetadata{},
+		metaCache: map[string]map[string]*modMetadataParseResult{},
 	}
 }
 
@@ -92,7 +100,7 @@ func (s *ModService) List(ctx context.Context, req *mcmanagerv1.ServerId) (*mcma
 	}
 
 	list := &mcmanagerv1.ModList{ServerId: req.Id, Kind: kind, Supported: true}
-	fresh := map[string]*mcmanagerv1.ModMetadata{}
+	fresh := map[string]*modMetadataParseResult{}
 	for _, e := range entries {
 		if e.IsDir() || !supportedModFile(e.Name(), kind) {
 			continue
@@ -101,8 +109,8 @@ func (s *ModService) List(ctx context.Context, req *mcmanagerv1.ServerId) (*mcma
 		if err != nil {
 			continue
 		}
-		meta := s.jarMetadata(ctx, req.Id, subdir, e.Name(), info.Size(), info.ModTime().UnixNano(), fresh)
-		meta = modCompatibility(meta, rec.ProviderID, rec.McVersion, kind)
+		parsed := s.jarMetadata(ctx, req.Id, subdir, e.Name(), info.Size(), info.ModTime().UnixNano(), fresh)
+		meta := selectModMetadata(parsed, rec.ProviderID, rec.McVersion, kind)
 		list.Files = append(list.Files, &mcmanagerv1.ModFile{
 			Name:      e.Name(),
 			SizeBytes: info.Size(),
@@ -120,7 +128,7 @@ func (s *ModService) List(ctx context.Context, req *mcmanagerv1.ServerId) (*mcma
 
 // jarMetadata returns the (possibly cached) parsed metadata for one jar and
 // records it in fresh under its cache key.
-func (s *ModService) jarMetadata(ctx context.Context, serverID, subdir, name string, size, mtime int64, fresh map[string]*mcmanagerv1.ModMetadata) *mcmanagerv1.ModMetadata {
+func (s *ModService) jarMetadata(ctx context.Context, serverID, subdir, name string, size, mtime int64, fresh map[string]*modMetadataParseResult) *modMetadataParseResult {
 	key := fmt.Sprintf("%s|%d|%d", name, size, mtime)
 	s.metaMu.Lock()
 	cached, ok := s.metaCache[serverID][key]
@@ -130,29 +138,117 @@ func (s *ModService) jarMetadata(ctx context.Context, serverID, subdir, name str
 		return cached
 	}
 
-	meta := &mcmanagerv1.ModMetadata{}
+	parsed := &modMetadataParseResult{}
 	if s.parser != nil {
-		m, parserID, matched, err := s.parser.ParseJar(ctx, s.paths.ServerDir(serverID), subdir+"/"+name)
+		candidates, err := s.parser.ParseJarCandidates(ctx, s.paths.ServerDir(serverID), subdir+"/"+name)
 		if err != nil {
-			meta.ParseError = err.Error()
-		} else if matched {
-			meta = &mcmanagerv1.ModMetadata{
-				Parsed:                 true,
-				ParserId:               parserID,
-				Loader:                 m.Loader,
-				GameVersionRequirement: m.GameVersion,
-				ModId:                  m.ModID,
-				Name:                   m.Name,
-				Version:                m.Version,
-				Authors:                m.Authors,
-				Description:            m.Description,
-				Website:                m.Website,
-				Icon:                   m.Icon,
-			}
+			parsed.parseError = err.Error()
+		}
+		for _, c := range candidates {
+			parsed.candidates = append(parsed.candidates, metadataFromModMeta(c.Meta, c.ParserID))
 		}
 	}
-	fresh[key] = meta
-	return meta
+	fresh[key] = parsed
+	return parsed
+}
+
+func metadataFromModMeta(m scripting.ModMeta, parserID string) *mcmanagerv1.ModMetadata {
+	return &mcmanagerv1.ModMetadata{
+		Parsed:                 true,
+		ParserId:               parserID,
+		Loader:                 m.Loader,
+		GameVersionRequirement: m.GameVersion,
+		ModId:                  m.ModID,
+		Name:                   m.Name,
+		Version:                m.Version,
+		Authors:                append([]string(nil), m.Authors...),
+		Description:            m.Description,
+		Website:                m.Website,
+		Icon:                   append([]byte(nil), m.Icon...),
+	}
+}
+
+func selectModMetadata(parsed *modMetadataParseResult, providerID, mcVersion string, kind mcmanagerv1.ModKind) *mcmanagerv1.ModMetadata {
+	if parsed == nil {
+		return &mcmanagerv1.ModMetadata{}
+	}
+	if len(parsed.candidates) == 0 {
+		return &mcmanagerv1.ModMetadata{ParseError: parsed.parseError}
+	}
+
+	best := parsed.candidates[0]
+	bestRank := modMetadataRank(best, providerID, mcVersion, kind, 0)
+	for i, candidate := range parsed.candidates[1:] {
+		rank := modMetadataRank(candidate, providerID, mcVersion, kind, i+1)
+		if rank.less(bestRank) {
+			best = candidate
+			bestRank = rank
+		}
+	}
+	return modCompatibility(best, providerID, mcVersion, kind)
+}
+
+type modMetadataCandidateRank struct {
+	loader  int
+	version int
+	order   int
+}
+
+func (r modMetadataCandidateRank) less(other modMetadataCandidateRank) bool {
+	if r.loader != other.loader {
+		return r.loader < other.loader
+	}
+	if r.version != other.version {
+		return r.version < other.version
+	}
+	return r.order < other.order
+}
+
+func modMetadataRank(meta *mcmanagerv1.ModMetadata, providerID, mcVersion string, kind mcmanagerv1.ModKind, order int) modMetadataCandidateRank {
+	return modMetadataCandidateRank{
+		loader:  loaderMatchRank(meta.GetLoader(), providerID, kind),
+		version: versionMatchRank(mcVersion, meta.GetGameVersionRequirement()),
+		order:   order,
+	}
+}
+
+func loaderMatchRank(loader, providerID string, kind mcmanagerv1.ModKind) int {
+	loader = strings.ToLower(strings.TrimSpace(loader))
+	providerID = strings.ToLower(strings.TrimSpace(providerID))
+	if loader == "" {
+		return 2 // unknown; better than a definite mismatch but worse than a declared match
+	}
+	if loaderExactlyMatchesProvider(loader, providerID, kind) {
+		return 0
+	}
+	if loaderMatchesServer(loader, providerID, kind) {
+		return 1
+	}
+	return 3
+}
+
+func loaderExactlyMatchesProvider(loader, providerID string, kind mcmanagerv1.ModKind) bool {
+	if providerID == "" {
+		return false
+	}
+	if kind == mcmanagerv1.ModKind_MOD && providerID == "forge" {
+		return loader == "forge"
+	}
+	return loader == providerID
+}
+
+func versionMatchRank(mcVersion, requirement string) int {
+	if strings.TrimSpace(requirement) == "" {
+		return 1
+	}
+	matches, known := minecraftVersionMatches(mcVersion, requirement)
+	if !known {
+		return 1
+	}
+	if matches {
+		return 0
+	}
+	return 2
 }
 
 // Remove deletes one jar by name. The server must be stopped.

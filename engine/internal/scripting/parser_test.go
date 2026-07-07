@@ -378,6 +378,32 @@ func TestParseJarNoMatch(t *testing.T) {
 	}
 }
 
+func TestParseJarCandidatesReturnsAllMatches(t *testing.T) {
+	ps := newBuiltinParserSet(t)
+	dir := t.TempDir()
+	writeTestJar(t, filepath.Join(dir, "mods", "hybrid.jar"), map[string]string{
+		"plugin.yml":      "name: HybridPlugin\nversion: '1'\n",
+		"fabric.mod.json": `{"id":"hybridmod","version":"2"}`,
+	})
+
+	candidates, err := ps.ParseJarCandidates(context.Background(), dir, "mods/hybrid.jar")
+	if err != nil {
+		t.Fatalf("ParseJarCandidates: %v", err)
+	}
+	if len(candidates) != 2 {
+		t.Fatalf("candidates = %d, want 2: %+v", len(candidates), candidates)
+	}
+	if candidates[0].ParserID != "parser-bukkit" || candidates[0].Meta.Loader != "bukkit" ||
+		candidates[1].ParserID != "parser-fabric" || candidates[1].Meta.Loader != "fabric" {
+		t.Fatalf("candidates = %+v", candidates)
+	}
+
+	meta, parserID, matched, err := ps.ParseJar(context.Background(), dir, "mods/hybrid.jar")
+	if err != nil || !matched || parserID != "parser-bukkit" || meta.Loader != "bukkit" {
+		t.Fatalf("ParseJar legacy result: meta=%+v parserID=%q matched=%v err=%v", meta, parserID, matched, err)
+	}
+}
+
 func TestParseJarReportsCorruptArchive(t *testing.T) {
 	ps := newBuiltinParserSet(t)
 	dir := t.TempDir()

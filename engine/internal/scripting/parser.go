@@ -21,6 +21,15 @@ type ModMeta struct {
 	Icon        []byte // raw image bytes (png/jpg), optional
 }
 
+// ModParseCandidate is one successful parser result for a jar. Some jars carry
+// more than one descriptor (for example a hybrid mod/plugin), so callers that
+// know the target server should rank all candidates instead of accepting the
+// first match blindly.
+type ModParseCandidate struct {
+	Meta     ModMeta
+	ParserID string
+}
+
 // LuaParser adapts one sandboxed Lua parser script (with a global parse(ctx)
 // function) to the engine. It is the parser analog of LuaProvider.
 type LuaParser struct {

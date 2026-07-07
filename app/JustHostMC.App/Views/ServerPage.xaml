@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="JustHostMC.App.Views.ServerPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -62,7 +62,6 @@
             <Grid
                 Padding="8"
                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                BorderThickness="0,0,0,1"
                 ColumnSpacing="12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -72,11 +71,12 @@
                 </Grid.ColumnDefinitions>
                 <Grid
                     Grid.Column="0"
-                    Width="32"
-                    Height="32"
+                    Width="48"
+                    Height="48"
+                    Margin="0,0,8,0"
                     VerticalAlignment="Center">
                     <FontIcon
-                        FontSize="16"
+                        FontSize="32"
                         Glyph="&#xE7B8;"
                         Visibility="{x:Bind FallbackIconVisibility}" />
                     <Border CornerRadius="4" Visibility="{x:Bind IconVisibility}">
@@ -1323,17 +1323,10 @@
                             ItemsSource="{x:Bind Mods.LoadingRows, Mode=OneWay}"
                             Visibility="{x:Bind Mods.IsInitialLoading, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
 
-                        <ItemsControl
+                        <ListView
                             ItemTemplate="{StaticResource ModFileRowTemplate}"
                             ItemsSource="{x:Bind Mods.Files, Mode=OneWay}"
-                            Visibility="{x:Bind Mods.IsInitialLoading, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}">
-                            <ItemsControl.ItemContainerTransitions>
-                                <TransitionCollection>
-                                    <AddDeleteThemeTransition />
-                                    <ReorderThemeTransition />
-                                </TransitionCollection>
-                            </ItemsControl.ItemContainerTransitions>
-                        </ItemsControl>
+                            Visibility="{x:Bind Mods.IsInitialLoading, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
 
                         <TextBlock
                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"

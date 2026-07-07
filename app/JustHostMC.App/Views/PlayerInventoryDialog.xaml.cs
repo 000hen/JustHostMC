@@ -1,6 +1,5 @@
 using System.Collections.ObjectModel;
 using Grpc.Core;
-using JustHostMC.App.Controls;
 using JustHostMC.App.Models;
 using JustHostMC.App.Services;
 using McManager.Grpc;

@@ -1,3 +1,6 @@
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Diagnostics;
 using JustHostMC.App.Controls;
 using JustHostMC.App.Models;
 using JustHostMC.App.Services;
@@ -8,14 +11,6 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
-using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Windows.Storage.Pickers;
 using Windows.System;
 

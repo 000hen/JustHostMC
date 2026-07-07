@@ -1,6 +1,5 @@
-using System.Linq;
-using McManager.Grpc;
 using JustHostMC.App.Services;
+using McManager.Grpc;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 

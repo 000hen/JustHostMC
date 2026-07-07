@@ -1,3 +1,5 @@
+using System.Collections.ObjectModel;
+using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Google.Protobuf;
 using Grpc.Core;
@@ -5,8 +7,6 @@ using JustHostMC.App.Models;
 using JustHostMC.App.Services;
 using McManager.Grpc;
 using Microsoft.UI.Dispatching;
-using System.Collections.ObjectModel;
-using System.Globalization;
 
 namespace JustHostMC.App.ViewModels;
 

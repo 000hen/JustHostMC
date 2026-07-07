@@ -1,4 +1,3 @@
-using System.Linq;
 using JustHostMC.App.Services;
 using McManager.Grpc;
 

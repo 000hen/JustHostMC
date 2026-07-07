@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using McManager.Grpc;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media.Imaging;

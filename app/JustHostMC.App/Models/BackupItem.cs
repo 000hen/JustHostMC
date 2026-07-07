@@ -1,4 +1,3 @@
-using System;
 using McManager.Grpc;
 
 namespace JustHostMC.App.Models;

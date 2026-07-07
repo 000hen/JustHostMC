@@ -1,5 +1,5 @@
-using McManager.Grpc;
 using JustHostMC.App.Services;
+using McManager.Grpc;
 
 namespace JustHostMC.App.Models;
 

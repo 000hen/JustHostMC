@@ -1,5 +1,4 @@
-using System;
-using System.Linq;
+using System.Runtime.InteropServices;
 using JustHostMC.App.Models;
 using JustHostMC.App.Services;
 using JustHostMC.App.ViewModels;
@@ -10,7 +9,6 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
-using System.Runtime.InteropServices;
 using Windows.Graphics;
 
 namespace JustHostMC.App.Views;

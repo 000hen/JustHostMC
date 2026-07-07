@@ -1,16 +1,10 @@
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Grpc.Core;
 using JustHostMC.App.Models;
 using JustHostMC.App.Services;
 using McManager.Grpc;
 using Microsoft.UI.Dispatching;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace JustHostMC.App.ViewModels;
 

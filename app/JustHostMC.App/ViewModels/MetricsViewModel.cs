@@ -1,7 +1,4 @@
-using System;
 using System.Collections.ObjectModel;
-using System.Threading;
-using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Grpc.Core;
 using McManager.Grpc;

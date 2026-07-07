@@ -1,0 +1,96 @@
+<UserControl
+    x:Class="JustHostMC.App.Controls.Server.ServerPerformancePanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:JustHostMC.App.Controls"
+    mc:Ignorable="d">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid ColumnSpacing="12" RowSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Border
+                Grid.Row="0"
+                Grid.Column="0"
+                Padding="16"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
+                <StackPanel Spacing="8">
+                    <TextBlock
+                        x:Uid="MetricsCpu"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}" />
+                    <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="{x:Bind Metrics.CpuText, Mode=OneWay}" />
+                    <controls:Sparkline
+                        Height="56"
+                        StrokeBrush="{ThemeResource AccentFillColorDefaultBrush}"
+                        Values="{x:Bind Metrics.CpuSeries, Mode=OneWay}" />
+                </StackPanel>
+            </Border>
+
+            <Border
+                Grid.Row="0"
+                Grid.Column="1"
+                Padding="16"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
+                <StackPanel Spacing="8">
+                    <TextBlock
+                        x:Uid="MetricsMemory"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}" />
+                    <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="{x:Bind Metrics.MemText, Mode=OneWay}" />
+                    <controls:Sparkline
+                        Height="56"
+                        StrokeBrush="{ThemeResource SystemFillColorSuccessBrush}"
+                        Values="{x:Bind Metrics.MemSeries, Mode=OneWay}" />
+                </StackPanel>
+            </Border>
+
+            <Border
+                Grid.Row="0"
+                Grid.Column="2"
+                Padding="16"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
+                <StackPanel Spacing="8">
+                    <TextBlock
+                        x:Uid="MetricsNetwork"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}" />
+                    <TextBlock
+                        Style="{StaticResource SubtitleTextBlockStyle}"
+                        Text="{x:Bind Metrics.NetText, Mode=OneWay}"
+                        Visibility="{x:Bind Metrics.NetworkAvailable, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                    <controls:Sparkline
+                        Height="56"
+                        StrokeBrush="{ThemeResource SystemFillColorCautionBrush}"
+                        Values="{x:Bind Metrics.NetSeries, Mode=OneWay}"
+                        Visibility="{x:Bind Metrics.NetworkAvailable, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                    <TextBlock
+                        x:Uid="MetricsNetworkUnavailable"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        TextWrapping="Wrap"
+                        Visibility="{x:Bind Metrics.NetworkAvailable, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
+                </StackPanel>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

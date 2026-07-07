@@ -926,7 +926,7 @@
                         HorizontalScrollMode="Disabled"
                         VerticalScrollBarVisibility="Auto">
                         <StackPanel
-                            Padding="0,0,0,76"
+                            Padding="0,0,0,60"
                             HorizontalAlignment="Stretch"
                             Spacing="8">
                             <TextBlock

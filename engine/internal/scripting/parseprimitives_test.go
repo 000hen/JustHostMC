@@ -108,8 +108,8 @@ end`
 func TestZipReadAndEntries(t *testing.T) {
 	dir := t.TempDir()
 	writeTestJar(t, filepath.Join(dir, "mods", "example.jar"), map[string]string{
-		"fabric.mod.json":  `{"id":"example"}`,
-		"assets/icon.png":  "\x89PNG fake bytes",
+		"fabric.mod.json":   `{"id":"example"}`,
+		"assets/icon.png":   "\x89PNG fake bytes",
 		"META-INF/MANIFEST": "x",
 	})
 	inv := &invocation{

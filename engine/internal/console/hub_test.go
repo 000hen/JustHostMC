@@ -19,10 +19,10 @@ func newFakeInstance() *fakeInstance {
 	return &fakeInstance{out: make(chan string), done: make(chan struct{})}
 }
 
-func (f *fakeInstance) ID() string                { return "fake" }
-func (f *fakeInstance) Output() <-chan string     { return f.out }
-func (f *fakeInstance) Done() <-chan struct{}     { return f.done }
-func (f *fakeInstance) ExitErr() error            { return nil }
+func (f *fakeInstance) ID() string            { return "fake" }
+func (f *fakeInstance) Output() <-chan string { return f.out }
+func (f *fakeInstance) Done() <-chan struct{} { return f.done }
+func (f *fakeInstance) ExitErr() error        { return nil }
 func (f *fakeInstance) WriteStdin(line string) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()

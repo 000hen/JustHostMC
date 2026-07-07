@@ -38,7 +38,7 @@ type Manager struct {
 type Option func(*Manager)
 
 func WithHTTPClient(c *http.Client) Option { return func(m *Manager) { m.client = c } }
-func WithAPIBase(u string) Option         { return func(m *Manager) { m.apiBase = u } }
+func WithAPIBase(u string) Option          { return func(m *Manager) { m.apiBase = u } }
 
 // NewManager builds a JRE manager caching under cacheDir.
 func NewManager(cacheDir string, opts ...Option) *Manager {

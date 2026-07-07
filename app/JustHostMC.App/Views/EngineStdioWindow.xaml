@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <Window
     x:Class="JustHostMC.App.Views.EngineStdioWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -13,8 +13,7 @@
         <MicaBackdrop Kind="BaseAlt" />
     </Window.SystemBackdrop>
 
-    <Grid x:Name="Root"
-          Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid x:Name="Root" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -26,19 +25,20 @@
             </TitleBar.IconSource>
         </TitleBar>
 
-        <controls:AdaptiveFilterLayout x:Name="MonitorLayout"
-                                       Grid.Row="1"
-                                       CompactPadding="12,8,12,8"
-                                       WidePadding="12,8,12,8"
-                                       RowSpacing="8"
-                                       HeaderSpacing="10"
-                                       CompactColumnSpacing="0"
-                                       WideColumnSpacing="10"
-                                       WideMinWidth="900"
-                                       WideFilterWidth="250"
-                                       CompactFilterMaxHeight="560"
-                                       FilterRailCornerRadius="8"
-                                       CompactFilterOpening="OnCompactFilterOpening">
+        <controls:AdaptiveFilterLayout
+            x:Name="MonitorLayout"
+            Grid.Row="1"
+            CompactColumnSpacing="0"
+            CompactFilterMaxHeight="560"
+            CompactFilterOpening="OnCompactFilterOpening"
+            CompactPadding="12,8,12,8"
+            FilterRailCornerRadius="8"
+            HeaderSpacing="10"
+            RowSpacing="8"
+            WideColumnSpacing="10"
+            WideFilterWidth="250"
+            WideMinWidth="900"
+            WidePadding="12,8,12,8">
             <controls:AdaptiveFilterLayout.HeaderContent>
                 <Grid ColumnSpacing="10">
                     <Grid.ColumnDefinitions>
@@ -47,51 +47,56 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <ToggleButton x:Uid="EngineMonitorStopButton"
-                                      Checked="OnPauseChanged"
-                                      Unchecked="OnPauseChanged" />
+                        <ToggleButton
+                            x:Uid="EngineMonitorStopButton"
+                            Checked="OnPauseChanged"
+                            Unchecked="OnPauseChanged" />
                         <Button x:Uid="EngineMonitorClearButton" Click="OnClearClick">
                             <StackPanel Orientation="Horizontal" Spacing="6">
-                                <FontIcon Glyph="&#xE74D;" FontSize="14" />
+                                <FontIcon FontSize="14" Glyph="&#xE74D;" />
                                 <TextBlock x:Uid="EngineMonitorClearButtonLabel" />
                             </StackPanel>
                         </Button>
                         <Button x:Uid="EngineMonitorCopyButton" Click="OnCopyClick">
                             <StackPanel Orientation="Horizontal" Spacing="6">
-                                <FontIcon Glyph="&#xE8C8;" FontSize="14" />
+                                <FontIcon FontSize="14" Glyph="&#xE8C8;" />
                                 <TextBlock x:Uid="EngineMonitorCopyButtonLabel" />
                             </StackPanel>
                         </Button>
                     </StackPanel>
 
-                    <CheckBox x:Uid="EngineMonitorAutoScrollCheckBox"
-                              x:Name="AutoScrollCheckBox"
-                              Grid.Column="1"
-                              Margin="4,0"
-                              HorizontalAlignment="Left"
-                              IsChecked="True" />
+                    <CheckBox
+                        x:Name="AutoScrollCheckBox"
+                        x:Uid="EngineMonitorAutoScrollCheckBox"
+                        Grid.Column="1"
+                        Margin="4,0"
+                        HorizontalAlignment="Left"
+                        IsChecked="True" />
                 </Grid>
             </controls:AdaptiveFilterLayout.HeaderContent>
 
             <controls:AdaptiveFilterLayout.MainContent>
-                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                        BorderThickness="1"
-                        CornerRadius="8">
+                <Border
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8">
                     <Grid>
-                        <TextBlock x:Uid="EngineMonitorEmptyText"
-                                   x:Name="EmptyText"
-                                   Margin="24"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   TextAlignment="Center"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <TextBlock
+                            x:Name="EmptyText"
+                            x:Uid="EngineMonitorEmptyText"
+                            Margin="24"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            TextAlignment="Center" />
 
-                        <ListView x:Name="LogListView"
-                                  Padding="2"
-                                  ItemsSource="{x:Bind VisibleEntries}"
-                                  SelectionMode="None"
-                                  Background="Transparent">
+                        <ListView
+                            x:Name="LogListView"
+                            Padding="2"
+                            Background="Transparent"
+                            ItemsSource="{x:Bind VisibleEntries}"
+                            SelectionMode="None">
                             <ListView.ItemContainerTransitions>
                                 <TransitionCollection />
                             </ListView.ItemContainerTransitions>
@@ -108,33 +113,39 @@
                                 <DataTemplate x:DataType="local:EngineStdioDisplayEntry">
                                     <StackPanel Padding="9,5" Spacing="1">
                                         <StackPanel Orientation="Horizontal" Spacing="6">
-                                            <TextBlock Text="{x:Bind LevelLabel}"
-                                                       FontFamily="Consolas"
-                                                       FontSize="12"
-                                                       FontWeight="SemiBold" />
-                                            <TextBlock Text="|"
-                                                       FontFamily="Consolas"
-                                                       FontSize="12"
-                                                       Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
-                                            <TextBlock Text="{x:Bind StreamLabel}"
-                                                       FontFamily="Consolas"
-                                                       FontSize="12"
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                            <TextBlock Text="|"
-                                                       FontFamily="Consolas"
-                                                       FontSize="12"
-                                                       Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
-                                            <TextBlock Text="{x:Bind TimestampText}"
-                                                       FontFamily="Consolas"
-                                                       FontSize="12"
-                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                            <TextBlock
+                                                FontFamily="Consolas"
+                                                FontSize="12"
+                                                FontWeight="SemiBold"
+                                                Text="{x:Bind LevelLabel}" />
+                                            <TextBlock
+                                                FontFamily="Consolas"
+                                                FontSize="12"
+                                                Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                                Text="|" />
+                                            <TextBlock
+                                                FontFamily="Consolas"
+                                                FontSize="12"
+                                                FontWeight="SemiBold"
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                Text="{x:Bind StreamLabel}" />
+                                            <TextBlock
+                                                FontFamily="Consolas"
+                                                FontSize="12"
+                                                Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                                Text="|" />
+                                            <TextBlock
+                                                FontFamily="Consolas"
+                                                FontSize="12"
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                Text="{x:Bind TimestampText}" />
                                         </StackPanel>
-                                        <TextBlock Text="{x:Bind Message}"
-                                                   FontFamily="Consolas"
-                                                   FontSize="12"
-                                                   IsTextSelectionEnabled="True"
-                                                   TextWrapping="Wrap" />
+                                        <TextBlock
+                                            FontFamily="Consolas"
+                                            FontSize="12"
+                                            IsTextSelectionEnabled="True"
+                                            Text="{x:Bind Message}"
+                                            TextWrapping="Wrap" />
                                     </StackPanel>
                                 </DataTemplate>
                             </ListView.ItemTemplate>
@@ -145,38 +156,37 @@
 
             <controls:AdaptiveFilterLayout.CompactFilterContent>
                 <StackPanel Width="270" Spacing="12">
-                    <TextBlock x:Uid="EngineMonitorFiltersLabel"
-                               Style="{StaticResource SubtitleTextBlockStyle}" />
-                    <TextBox x:Uid="EngineMonitorSearchBox"
-                             x:Name="CompactSearchBox"
-                             TextChanged="OnSearchTextChanged" />
+                    <TextBlock x:Uid="EngineMonitorFiltersLabel" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBox
+                        x:Name="CompactSearchBox"
+                        x:Uid="EngineMonitorSearchBox"
+                        TextChanged="OnSearchTextChanged" />
 
-                    <Rectangle Height="1"
-                               Fill="{ThemeResource DividerStrokeColorDefaultBrush}" />
-                    <TextBlock x:Uid="EngineMonitorStreamsHeading"
-                               Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    <Rectangle Height="1" Fill="{ThemeResource DividerStrokeColorDefaultBrush}" />
+                    <TextBlock x:Uid="EngineMonitorStreamsHeading" Style="{StaticResource BodyStrongTextBlockStyle}" />
                     <StackPanel Spacing="2">
-                        <CheckBox x:Name="CompactStdOutCheckBox"
-                                  Content="STDOUT"
-                                  IsChecked="True"
-                                  Checked="OnFilterChanged"
-                                  Unchecked="OnFilterChanged" />
-                        <CheckBox x:Name="CompactStdErrCheckBox"
-                                  Content="STDERR"
-                                  IsChecked="True"
-                                  Checked="OnFilterChanged"
-                                  Unchecked="OnFilterChanged" />
-                        <CheckBox x:Name="CompactStdInCheckBox"
-                                  Content="STDIN"
-                                  IsChecked="True"
-                                  Checked="OnFilterChanged"
-                                  Unchecked="OnFilterChanged" />
+                        <CheckBox
+                            x:Name="CompactStdOutCheckBox"
+                            Checked="OnFilterChanged"
+                            Content="STDOUT"
+                            IsChecked="True"
+                            Unchecked="OnFilterChanged" />
+                        <CheckBox
+                            x:Name="CompactStdErrCheckBox"
+                            Checked="OnFilterChanged"
+                            Content="STDERR"
+                            IsChecked="True"
+                            Unchecked="OnFilterChanged" />
+                        <CheckBox
+                            x:Name="CompactStdInCheckBox"
+                            Checked="OnFilterChanged"
+                            Content="STDIN"
+                            IsChecked="True"
+                            Unchecked="OnFilterChanged" />
                     </StackPanel>
 
-                    <Rectangle Height="1"
-                               Fill="{ThemeResource DividerStrokeColorDefaultBrush}" />
-                    <TextBlock x:Uid="EngineMonitorLevelsHeading"
-                               Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    <Rectangle Height="1" Fill="{ThemeResource DividerStrokeColorDefaultBrush}" />
+                    <TextBlock x:Uid="EngineMonitorLevelsHeading" Style="{StaticResource BodyStrongTextBlockStyle}" />
                     <Grid RowSpacing="2">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
@@ -186,75 +196,79 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <CheckBox x:Name="CompactDebugCheckBox"
-                                  Content="DEBUG"
-                                  IsChecked="True"
-                                  Checked="OnFilterChanged"
-                                  Unchecked="OnFilterChanged" />
-                        <CheckBox x:Name="CompactInfoCheckBox"
-                                  Grid.Column="1"
-                                  Content="INFO"
-                                  IsChecked="True"
-                                  Checked="OnFilterChanged"
-                                  Unchecked="OnFilterChanged" />
-                        <CheckBox x:Name="CompactWarningCheckBox"
-                                  Grid.Row="1"
-                                  Content="WARN"
-                                  IsChecked="True"
-                                  Checked="OnFilterChanged"
-                                  Unchecked="OnFilterChanged" />
-                        <CheckBox x:Name="CompactErrorCheckBox"
-                                  Grid.Row="1"
-                                  Grid.Column="1"
-                                  Content="ERROR"
-                                  IsChecked="True"
-                                  Checked="OnFilterChanged"
-                                  Unchecked="OnFilterChanged" />
+                        <CheckBox
+                            x:Name="CompactDebugCheckBox"
+                            Checked="OnFilterChanged"
+                            Content="DEBUG"
+                            IsChecked="True"
+                            Unchecked="OnFilterChanged" />
+                        <CheckBox
+                            x:Name="CompactInfoCheckBox"
+                            Grid.Column="1"
+                            Checked="OnFilterChanged"
+                            Content="INFO"
+                            IsChecked="True"
+                            Unchecked="OnFilterChanged" />
+                        <CheckBox
+                            x:Name="CompactWarningCheckBox"
+                            Grid.Row="1"
+                            Checked="OnFilterChanged"
+                            Content="WARN"
+                            IsChecked="True"
+                            Unchecked="OnFilterChanged" />
+                        <CheckBox
+                            x:Name="CompactErrorCheckBox"
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            Checked="OnFilterChanged"
+                            Content="ERROR"
+                            IsChecked="True"
+                            Unchecked="OnFilterChanged" />
                     </Grid>
-                    <TextBlock x:Uid="EngineMonitorStdinHint"
-                               Style="{StaticResource CaptionTextBlockStyle}"
-                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                               TextWrapping="Wrap" />
+                    <TextBlock
+                        x:Uid="EngineMonitorStdinHint"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        TextWrapping="Wrap" />
                 </StackPanel>
             </controls:AdaptiveFilterLayout.CompactFilterContent>
 
             <controls:AdaptiveFilterLayout.WideFilterContent>
                 <StackPanel Padding="14" Spacing="12">
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE71C;" FontSize="14" />
-                        <TextBlock x:Uid="EngineMonitorFiltersLabel"
-                                   Style="{StaticResource SubtitleTextBlockStyle}" />
+                        <FontIcon FontSize="14" Glyph="&#xE71C;" />
+                        <TextBlock x:Uid="EngineMonitorFiltersLabel" Style="{StaticResource SubtitleTextBlockStyle}" />
                     </StackPanel>
-                    <TextBox x:Uid="EngineMonitorSearchBox"
-                             x:Name="WideSearchBox"
-                             TextChanged="OnSearchTextChanged" />
+                    <TextBox
+                        x:Name="WideSearchBox"
+                        x:Uid="EngineMonitorSearchBox"
+                        TextChanged="OnSearchTextChanged" />
 
-                    <Rectangle Height="1"
-                               Fill="{ThemeResource DividerStrokeColorDefaultBrush}" />
-                    <TextBlock x:Uid="EngineMonitorStreamsHeading"
-                               Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    <Rectangle Height="1" Fill="{ThemeResource DividerStrokeColorDefaultBrush}" />
+                    <TextBlock x:Uid="EngineMonitorStreamsHeading" Style="{StaticResource BodyStrongTextBlockStyle}" />
                     <StackPanel Spacing="2">
-                        <CheckBox x:Name="WideStdOutCheckBox"
-                                  Content="STDOUT"
-                                  IsChecked="True"
-                                  Checked="OnFilterChanged"
-                                  Unchecked="OnFilterChanged" />
-                        <CheckBox x:Name="WideStdErrCheckBox"
-                                  Content="STDERR"
-                                  IsChecked="True"
-                                  Checked="OnFilterChanged"
-                                  Unchecked="OnFilterChanged" />
-                        <CheckBox x:Name="WideStdInCheckBox"
-                                  Content="STDIN"
-                                  IsChecked="True"
-                                  Checked="OnFilterChanged"
-                                  Unchecked="OnFilterChanged" />
+                        <CheckBox
+                            x:Name="WideStdOutCheckBox"
+                            Checked="OnFilterChanged"
+                            Content="STDOUT"
+                            IsChecked="True"
+                            Unchecked="OnFilterChanged" />
+                        <CheckBox
+                            x:Name="WideStdErrCheckBox"
+                            Checked="OnFilterChanged"
+                            Content="STDERR"
+                            IsChecked="True"
+                            Unchecked="OnFilterChanged" />
+                        <CheckBox
+                            x:Name="WideStdInCheckBox"
+                            Checked="OnFilterChanged"
+                            Content="STDIN"
+                            IsChecked="True"
+                            Unchecked="OnFilterChanged" />
                     </StackPanel>
 
-                    <Rectangle Height="1"
-                               Fill="{ThemeResource DividerStrokeColorDefaultBrush}" />
-                    <TextBlock x:Uid="EngineMonitorLevelsHeading"
-                               Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    <Rectangle Height="1" Fill="{ThemeResource DividerStrokeColorDefaultBrush}" />
+                    <TextBlock x:Uid="EngineMonitorLevelsHeading" Style="{StaticResource BodyStrongTextBlockStyle}" />
                     <Grid RowSpacing="2">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
@@ -264,43 +278,49 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <CheckBox x:Name="WideDebugCheckBox"
-                                  Content="DEBUG"
-                                  IsChecked="True"
-                                  Checked="OnFilterChanged"
-                                  Unchecked="OnFilterChanged" />
-                        <CheckBox x:Name="WideInfoCheckBox"
-                                  Grid.Column="1"
-                                  Content="INFO"
-                                  IsChecked="True"
-                                  Checked="OnFilterChanged"
-                                  Unchecked="OnFilterChanged" />
-                        <CheckBox x:Name="WideWarningCheckBox"
-                                  Grid.Row="1"
-                                  Content="WARN"
-                                  IsChecked="True"
-                                  Checked="OnFilterChanged"
-                                  Unchecked="OnFilterChanged" />
-                        <CheckBox x:Name="WideErrorCheckBox"
-                                  Grid.Row="1"
-                                  Grid.Column="1"
-                                  Content="ERROR"
-                                  IsChecked="True"
-                                  Checked="OnFilterChanged"
-                                  Unchecked="OnFilterChanged" />
+                        <CheckBox
+                            x:Name="WideDebugCheckBox"
+                            Checked="OnFilterChanged"
+                            Content="DEBUG"
+                            IsChecked="True"
+                            Unchecked="OnFilterChanged" />
+                        <CheckBox
+                            x:Name="WideInfoCheckBox"
+                            Grid.Column="1"
+                            Checked="OnFilterChanged"
+                            Content="INFO"
+                            IsChecked="True"
+                            Unchecked="OnFilterChanged" />
+                        <CheckBox
+                            x:Name="WideWarningCheckBox"
+                            Grid.Row="1"
+                            Checked="OnFilterChanged"
+                            Content="WARN"
+                            IsChecked="True"
+                            Unchecked="OnFilterChanged" />
+                        <CheckBox
+                            x:Name="WideErrorCheckBox"
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            Checked="OnFilterChanged"
+                            Content="ERROR"
+                            IsChecked="True"
+                            Unchecked="OnFilterChanged" />
                     </Grid>
-                    <TextBlock x:Uid="EngineMonitorStdinHint"
-                               Style="{StaticResource CaptionTextBlockStyle}"
-                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                               TextWrapping="Wrap" />
+                    <TextBlock
+                        x:Uid="EngineMonitorStdinHint"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        TextWrapping="Wrap" />
                 </StackPanel>
             </controls:AdaptiveFilterLayout.WideFilterContent>
 
             <controls:AdaptiveFilterLayout.FooterContent>
-                <TextBlock x:Name="StatusText"
-                           Margin="4,0"
-                           Style="{StaticResource CaptionTextBlockStyle}"
-                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                <TextBlock
+                    x:Name="StatusText"
+                    Margin="4,0"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Style="{StaticResource CaptionTextBlockStyle}" />
             </controls:AdaptiveFilterLayout.FooterContent>
         </controls:AdaptiveFilterLayout>
     </Grid>

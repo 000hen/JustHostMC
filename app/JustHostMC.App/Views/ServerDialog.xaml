@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <UserControl
     x:Class="JustHostMC.App.Views.ServerDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -7,60 +7,70 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                  HorizontalScrollBarVisibility="Disabled"
-                  MaxHeight="480">
-        <StackPanel Spacing="24" MinWidth="420">
-            <TextBox x:Uid="CreateServerName"
-                     x:Name="NameBox"
-                     TextChanged="OnTextChanged" />
+    <ScrollViewer
+        MaxHeight="480"
+        HorizontalScrollBarVisibility="Disabled"
+        VerticalScrollBarVisibility="Auto">
+        <StackPanel MinWidth="420" Spacing="24">
+            <TextBox
+                x:Name="NameBox"
+                x:Uid="CreateServerName"
+                TextChanged="OnTextChanged" />
 
             <StackPanel x:Name="CreateTypePanel" Spacing="8">
-                <ComboBox x:Uid="CreateServerType"
-                          x:Name="TypeBox"
-                          HorizontalAlignment="Stretch"
-                          DisplayMemberPath="Display"
-                          SelectionChanged="OnTypeChanged" />
+                <ComboBox
+                    x:Name="TypeBox"
+                    x:Uid="CreateServerType"
+                    HorizontalAlignment="Stretch"
+                    DisplayMemberPath="Display"
+                    SelectionChanged="OnTypeChanged" />
 
-                <Border x:Name="ProviderDetailsPanel"
-                        Visibility="Collapsed"
-                        CornerRadius="8"
-                        Padding="12"
-                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                        BorderThickness="1">
+                <Border
+                    x:Name="ProviderDetailsPanel"
+                    Padding="12"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Visibility="Collapsed">
                     <StackPanel Spacing="4">
-                        <TextBlock x:Name="ProviderNameText"
-                                   Style="{StaticResource BodyStrongTextBlockStyle}"
-                                   TextWrapping="Wrap" />
-                        <TextBlock x:Name="ProviderDescriptionText"
-                                   TextWrapping="Wrap"
-                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                   Visibility="Collapsed" />
-                        <TextBlock x:Name="ProviderAuthorText"
-                                   TextWrapping="Wrap"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                   Visibility="Collapsed" />
-                        <HyperlinkButton x:Name="ProviderWebsiteLink"
-                                         x:Uid="CreateServerProviderWebsite"
-                                         Padding="0"
-                                         Visibility="Collapsed" />
+                        <TextBlock
+                            x:Name="ProviderNameText"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            TextWrapping="Wrap" />
+                        <TextBlock
+                            x:Name="ProviderDescriptionText"
+                            Style="{StaticResource CaptionTextBlockStyle}"
+                            TextWrapping="Wrap"
+                            Visibility="Collapsed" />
+                        <TextBlock
+                            x:Name="ProviderAuthorText"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Style="{StaticResource CaptionTextBlockStyle}"
+                            TextWrapping="Wrap"
+                            Visibility="Collapsed" />
+                        <HyperlinkButton
+                            x:Name="ProviderWebsiteLink"
+                            x:Uid="CreateServerProviderWebsite"
+                            Padding="0"
+                            Visibility="Collapsed" />
                     </StackPanel>
                 </Border>
             </StackPanel>
 
-            <TextBox x:Uid="EditServerType"
-                     x:Name="EditTypeBox"
-                     IsReadOnly="True"
-                     Visibility="Collapsed" />
+            <TextBox
+                x:Name="EditTypeBox"
+                x:Uid="EditServerType"
+                IsReadOnly="True"
+                Visibility="Collapsed" />
 
-            <InfoBar x:Uid="EditServerStoppedNotice"
-                     x:Name="LaunchLockedInfo"
-                     Severity="Informational"
-                     IsOpen="False"
-                     IsClosable="False"
-                     Visibility="Collapsed" />
+            <InfoBar
+                x:Name="LaunchLockedInfo"
+                x:Uid="EditServerStoppedNotice"
+                IsClosable="False"
+                IsOpen="False"
+                Severity="Informational"
+                Visibility="Collapsed" />
 
             <StackPanel Spacing="8">
                 <Grid ColumnSpacing="8">
@@ -68,73 +78,81 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <ComboBox x:Uid="CreateServerVersion"
-                              x:Name="VersionBox"
-                              HorizontalAlignment="Stretch"
-                              SelectionChanged="OnVersionSelectionChanged"
-                              IsTextSearchEnabled="True"
-                              IsEditable="True" />
-                    <ProgressRing x:Name="VersionLoading"
-                                  Grid.Column="1"
-                                  IsActive="True"
-                                  Width="20"
-                                  Height="20"
-                                  VerticalAlignment="Center" />
+                    <ComboBox
+                        x:Name="VersionBox"
+                        x:Uid="CreateServerVersion"
+                        HorizontalAlignment="Stretch"
+                        IsEditable="True"
+                        IsTextSearchEnabled="True"
+                        SelectionChanged="OnVersionSelectionChanged" />
+                    <ProgressRing
+                        x:Name="VersionLoading"
+                        Grid.Column="1"
+                        Width="20"
+                        Height="20"
+                        VerticalAlignment="Center"
+                        IsActive="True" />
                 </Grid>
-                <TextBlock x:Uid="CreateServerVersionHint"
-                           x:Name="VersionHint"
-                           TextWrapping="Wrap"
-                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                           Style="{StaticResource CaptionTextBlockStyle}" />
-                <InfoBar x:Name="VersionErrorBar"
-                         x:Uid="CreateServerVersionError"
-                         Severity="Error"
-                         IsOpen="False"
-                         IsClosable="True"
-                         Margin="0,4,0,0" />
+                <TextBlock
+                    x:Name="VersionHint"
+                    x:Uid="CreateServerVersionHint"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Style="{StaticResource CaptionTextBlockStyle}"
+                    TextWrapping="Wrap" />
+                <InfoBar
+                    x:Name="VersionErrorBar"
+                    x:Uid="CreateServerVersionError"
+                    Margin="0,4,0,0"
+                    IsClosable="True"
+                    IsOpen="False"
+                    Severity="Error" />
             </StackPanel>
 
             <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                 <Expander.Header>
-                    <TextBlock x:Uid="CreateServerAdvancedHeader"
-                               Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    <TextBlock x:Uid="CreateServerAdvancedHeader" Style="{StaticResource BodyStrongTextBlockStyle}" />
                 </Expander.Header>
                 <Expander.Content>
                     <StackPanel Spacing="16">
                         <StackPanel Spacing="4">
-                            <NumberBox x:Uid="CreateServerMemory"
-                                       x:Name="MemoryBox"
-                                       Value="2048"
-                                       Minimum="512"
-                                       Maximum="32768"
-                                       SpinButtonPlacementMode="Inline"
-                                       SmallChange="512"
-                                       LargeChange="1024"
-                                       ValueChanged="OnNumberChanged" />
-                            <TextBlock x:Uid="CreateServerMemoryHint"
-                                       TextWrapping="Wrap"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                       Style="{StaticResource CaptionTextBlockStyle}" />
+                            <NumberBox
+                                x:Name="MemoryBox"
+                                x:Uid="CreateServerMemory"
+                                LargeChange="1024"
+                                Maximum="32768"
+                                Minimum="512"
+                                SmallChange="512"
+                                SpinButtonPlacementMode="Inline"
+                                Value="2048"
+                                ValueChanged="OnNumberChanged" />
+                            <TextBlock
+                                x:Uid="CreateServerMemoryHint"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                TextWrapping="Wrap" />
                         </StackPanel>
 
                         <StackPanel Spacing="4">
-                            <TextBox x:Uid="CreateServerCustomJavaArgs"
-                                     x:Name="CustomJavaArgsBox"
-                                     AcceptsReturn="False"
-                                     TextWrapping="NoWrap"
-                                     TextChanged="OnTextChanged" />
+                            <TextBox
+                                x:Name="CustomJavaArgsBox"
+                                x:Uid="CreateServerCustomJavaArgs"
+                                AcceptsReturn="False"
+                                TextChanged="OnTextChanged"
+                                TextWrapping="NoWrap" />
 
-                            <NumberBox x:Uid="CreateServerPort"
-                                       x:Name="PortBox"
-                                       Value="0"
-                                       Minimum="0"
-                                       Maximum="65535"
-                                       SpinButtonPlacementMode="Inline"
-                                       ValueChanged="OnNumberChanged" />
-                            <TextBlock x:Uid="CreateServerPortHint"
-                                       TextWrapping="Wrap"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                       Style="{StaticResource CaptionTextBlockStyle}" />
+                            <NumberBox
+                                x:Name="PortBox"
+                                x:Uid="CreateServerPort"
+                                Maximum="65535"
+                                Minimum="0"
+                                SpinButtonPlacementMode="Inline"
+                                Value="0"
+                                ValueChanged="OnNumberChanged" />
+                            <TextBlock
+                                x:Uid="CreateServerPortHint"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                TextWrapping="Wrap" />
                         </StackPanel>
                     </StackPanel>
                 </Expander.Content>

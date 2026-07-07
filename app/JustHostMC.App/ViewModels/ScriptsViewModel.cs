@@ -17,27 +17,30 @@ namespace JustHostMC.App.ViewModels;
 /// The runtime automation engine ships separately, so every call degrades
 /// gracefully (status messages) if the engine returns an error.
 /// </summary>
-public sealed partial class ScriptsViewModel : ObservableObject, IAsyncDisposable {
+public sealed partial class ScriptsViewModel : ObservableObject,
+                                               IAsyncDisposable {
     private const int MaxLogLinesPerSession = 2000;
-    private const int MaxPerScriptLogLines = 500;
-    private const int MaxLineLength = 2000;
+    private const int MaxPerScriptLogLines  = 500;
+    private const int MaxLineLength         = 2000;
 
     private readonly DispatcherQueue _dispatcher;
     private readonly ILocalizer _localizer;
-    private readonly Dictionary<string, List<string>> _logsByScript = new(StringComparer.Ordinal);
-    private readonly Dictionary<string, ScriptLogSession> _logSessionsById = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, List<string>> _logsByScript =
+        new(StringComparer.Ordinal);
+    private readonly Dictionary<string, ScriptLogSession> _logSessionsById =
+        new(StringComparer.Ordinal);
 
     private CancellationTokenSource? _logCts;
     private bool _loaded;
 
     public ScriptsViewModel(DispatcherQueue dispatcher, ILocalizer localizer) {
         _dispatcher = dispatcher;
-        _localizer = localizer;
+        _localizer  = localizer;
     }
 
     public ObservableCollection<ProviderItem> Providers { get; } = new();
-    public ObservableCollection<ScriptItem> Scripts { get; } = new();
-    public ObservableCollection<ParserItem> Parsers { get; } = new();
+    public ObservableCollection<ScriptItem> Scripts { get; }     = new();
+    public ObservableCollection<ParserItem> Parsers { get; }     = new();
 
     /// <summary>
     /// Application logging sessions in reverse chronological order. The current
@@ -46,19 +49,25 @@ public sealed partial class ScriptsViewModel : ObservableObject, IAsyncDisposabl
     public ObservableCollection<ScriptLogSession> LogSessions { get; } = new();
 
     [ObservableProperty]
-    public partial bool IsBusy { get; private set; }
+    public partial bool IsBusy {
+        get; private set;
+    }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasStatusMessage))]
-    public partial string StatusMessage { get; private set; } = "";
+    public partial string StatusMessage {
+        get; private set;
+    } = "";
 
     public bool HasStatusMessage => !string.IsNullOrWhiteSpace(StatusMessage);
 
-    /// <summary>Sets a localized status message (used by the page for picker/IO errors).
-    /// Marshals to the UI thread.</summary>
-    public void SetStatus(string message) => RunOnUI(() => StatusMessage = message);
+    /// <summary>Sets a localized status message (used by the page for picker/IO
+    /// errors). Marshals to the UI thread.</summary>
+    public void SetStatus(string message) =>
+        RunOnUI(() => StatusMessage = message);
 
-    /// <summary>Loads providers + scripts once, then starts the log stream.</summary>
+    /// <summary>Loads providers + scripts once, then starts the log
+    /// stream.</summary>
     public async Task EnsureLoadedAsync() {
         if (_loaded)
             return;
@@ -79,7 +88,8 @@ public sealed partial class ScriptsViewModel : ObservableObject, IAsyncDisposabl
         }
     }
 
-    private async Task RefreshProvidersAsync(JustHostMC.Core.DaemonClient daemon) {
+    private async Task
+    RefreshProvidersAsync(JustHostMC.Core.DaemonClient daemon) {
         try {
             var list = await daemon.Providers.ListAsync(new Empty());
             RunOnUI(() => {
@@ -92,7 +102,8 @@ public sealed partial class ScriptsViewModel : ObservableObject, IAsyncDisposabl
         }
     }
 
-    private async Task RefreshScriptsAsync(JustHostMC.Core.DaemonClient daemon) {
+    private async Task
+    RefreshScriptsAsync(JustHostMC.Core.DaemonClient daemon) {
         try {
             var list = await daemon.Scripts.ListAsync(new Empty());
             RunOnUI(() => {
@@ -100,8 +111,7 @@ public sealed partial class ScriptsViewModel : ObservableObject, IAsyncDisposabl
                 foreach (var s in list.Scripts) {
                     var item = new ScriptItem(s, _localizer);
                     if (_logsByScript.TryGetValue(item.Id, out var lines)) {
-                        foreach (var line in lines)
-                            item.LogLines.Add(line);
+                        foreach (var line in lines) item.LogLines.Add(line);
                     }
                     Scripts.Add(item);
                 }
@@ -111,7 +121,8 @@ public sealed partial class ScriptsViewModel : ObservableObject, IAsyncDisposabl
         }
     }
 
-    private async Task RefreshParsersAsync(JustHostMC.Core.DaemonClient daemon) {
+    private async Task
+    RefreshParsersAsync(JustHostMC.Core.DaemonClient daemon) {
         try {
             var list = await daemon.Parsers.ListAsync(new Empty());
             RunOnUI(() => {
@@ -124,21 +135,27 @@ public sealed partial class ScriptsViewModel : ObservableObject, IAsyncDisposabl
         }
     }
 
-    /// <summary>Imports a provider script (+ optional jar) with the granted permissions.</summary>
-    public async Task ImportProviderAsync(
-        string luaSource, byte[]? jar, string? jarFilename, IReadOnlyList<PermissionKind> granted) {
-        RunOnUI(() => { IsBusy = true; StatusMessage = ""; });
+    /// <summary>Imports a provider script (+ optional jar) with the granted
+    /// permissions.</summary>
+    public async Task
+    ImportProviderAsync(string luaSource, byte[]? jar, string? jarFilename,
+                        IReadOnlyList<PermissionKind> granted) {
+        RunOnUI(() => {
+            IsBusy        = true;
+            StatusMessage = "";
+        });
         try {
             var daemon = await App.Current.DaemonReady;
-            var req = new ImportProviderRequest { LuaSource = luaSource };
-            if (jar is { Length: > 0 }) {
-                req.Jar = ByteString.CopyFrom(jar);
+            var req    = new ImportProviderRequest { LuaSource = luaSource };
+            if (jar is { Length : > 0 }) {
+                req.Jar         = ByteString.CopyFrom(jar);
                 req.JarFilename = jarFilename ?? "";
             }
             var info = await daemon.Providers.ImportAsync(req);
 
-            // Persist the user's consent choices (the imported provider defaults to
-            // requesting everything; narrow it to what the user allowed).
+            // Persist the user's consent choices (the imported provider
+            // defaults to requesting everything; narrow it to what the user
+            // allowed).
             await SetProviderPermissionsAsync(daemon, info.Id, granted);
             await RefreshProvidersAsync(daemon);
         } catch (RpcException ex) {
@@ -148,12 +165,18 @@ public sealed partial class ScriptsViewModel : ObservableObject, IAsyncDisposabl
         }
     }
 
-    /// <summary>Imports an automation script with the granted permissions.</summary>
-    public async Task ImportScriptAsync(string luaSource, IReadOnlyList<PermissionKind> granted) {
-        RunOnUI(() => { IsBusy = true; StatusMessage = ""; });
+    /// <summary>Imports an automation script with the granted
+    /// permissions.</summary>
+    public async Task ImportScriptAsync(string luaSource,
+                                        IReadOnlyList<PermissionKind> granted) {
+        RunOnUI(() => {
+            IsBusy        = true;
+            StatusMessage = "";
+        });
         try {
             var daemon = await App.Current.DaemonReady;
-            var info = await daemon.Scripts.ImportAsync(new ImportScriptRequest { LuaSource = luaSource });
+            var info   = await daemon.Scripts.ImportAsync(
+                new ImportScriptRequest { LuaSource = luaSource });
             await SetScriptPermissionsAsync(daemon, info.Id, granted);
             await RefreshScriptsAsync(daemon);
         } catch (RpcException ex) {
@@ -163,12 +186,18 @@ public sealed partial class ScriptsViewModel : ObservableObject, IAsyncDisposabl
         }
     }
 
-    /// <summary>Imports a mod-metadata parser script with the granted permissions.</summary>
-    public async Task ImportParserAsync(string luaSource, IReadOnlyList<PermissionKind> granted) {
-        RunOnUI(() => { IsBusy = true; StatusMessage = ""; });
+    /// <summary>Imports a mod-metadata parser script with the granted
+    /// permissions.</summary>
+    public async Task ImportParserAsync(string luaSource,
+                                        IReadOnlyList<PermissionKind> granted) {
+        RunOnUI(() => {
+            IsBusy        = true;
+            StatusMessage = "";
+        });
         try {
             var daemon = await App.Current.DaemonReady;
-            var info = await daemon.Parsers.ImportAsync(new ImportParserRequest { LuaSource = luaSource });
+            var info   = await daemon.Parsers.ImportAsync(
+                new ImportParserRequest { LuaSource = luaSource });
             await SetParserPermissionsAsync(daemon, info.Id, granted);
             await RefreshParsersAsync(daemon);
         } catch (RpcException ex) {
@@ -181,9 +210,11 @@ public sealed partial class ScriptsViewModel : ObservableObject, IAsyncDisposabl
     public async Task SetScriptEnabledAsync(ScriptItem item, bool enabled) {
         try {
             var daemon = await App.Current.DaemonReady;
-            await daemon.Scripts.SetEnabledAsync(new SetScriptEnabledRequest { Id = item.Id, Enabled = enabled });
-            // Record the new known state so the page handler treats later identical
-            // Toggled events as no-ops.
+            await daemon.Scripts.SetEnabledAsync(new SetScriptEnabledRequest {
+                Id = item.Id, Enabled = enabled
+            });
+            // Record the new known state so the page handler treats later
+            // identical Toggled events as no-ops.
             item.Enabled = enabled;
         } catch (RpcException ex) {
             RunOnUI(() => StatusMessage = _localizer.Get(MapErrorKey(ex)));
@@ -195,7 +226,8 @@ public sealed partial class ScriptsViewModel : ObservableObject, IAsyncDisposabl
     public async Task RemoveProviderAsync(ProviderItem item) {
         try {
             var daemon = await App.Current.DaemonReady;
-            await daemon.Providers.RemoveAsync(new ProviderRef { Id = item.Id });
+            await daemon.Providers.RemoveAsync(
+                new ProviderRef { Id = item.Id });
             await RefreshProvidersAsync(daemon);
         } catch (RpcException ex) {
             RunOnUI(() => StatusMessage = _localizer.Get(MapErrorKey(ex)));
@@ -222,22 +254,25 @@ public sealed partial class ScriptsViewModel : ObservableObject, IAsyncDisposabl
         }
     }
 
-    private static async Task SetParserPermissionsAsync(
-        JustHostMC.Core.DaemonClient daemon, string id, IReadOnlyList<PermissionKind> granted) {
+    private static async Task
+    SetParserPermissionsAsync(JustHostMC.Core.DaemonClient daemon, string id,
+                              IReadOnlyList<PermissionKind> granted) {
         var req = new SetPermissionsRequest { Id = id };
         req.Granted.AddRange(granted);
         await daemon.Parsers.SetPermissionsAsync(req);
     }
 
-    private static async Task SetProviderPermissionsAsync(
-        JustHostMC.Core.DaemonClient daemon, string id, IReadOnlyList<PermissionKind> granted) {
+    private static async Task
+    SetProviderPermissionsAsync(JustHostMC.Core.DaemonClient daemon, string id,
+                                IReadOnlyList<PermissionKind> granted) {
         var req = new SetPermissionsRequest { Id = id };
         req.Granted.AddRange(granted);
         await daemon.Providers.SetPermissionsAsync(req);
     }
 
-    private static async Task SetScriptPermissionsAsync(
-        JustHostMC.Core.DaemonClient daemon, string id, IReadOnlyList<PermissionKind> granted) {
+    private static async Task
+    SetScriptPermissionsAsync(JustHostMC.Core.DaemonClient daemon, string id,
+                              IReadOnlyList<PermissionKind> granted) {
         var req = new SetPermissionsRequest { Id = id };
         req.Granted.AddRange(granted);
         await daemon.Scripts.SetPermissionsAsync(req);
@@ -245,59 +280,55 @@ public sealed partial class ScriptsViewModel : ObservableObject, IAsyncDisposabl
 
     private void StartLogStream() {
         _logCts = new CancellationTokenSource();
-        _ = LogLoopAsync(_logCts.Token);
+        _       = LogLoopAsync(_logCts.Token);
     }
 
     private async Task LogLoopAsync(CancellationToken token) {
         try {
             var daemon = await App.Current.DaemonReady;
-            using var call = daemon.Scripts.StreamLog(new Empty(), cancellationToken: token);
-            await foreach (var ev in call.ResponseStream.ReadAllAsync(token).ConfigureAwait(false)) {
+            using var call =
+                daemon.Scripts.StreamLog(new Empty(), cancellationToken: token);
+            await foreach (var ev in call.ResponseStream.ReadAllAsync(token)
+                               .ConfigureAwait(false)) {
                 var timestamp = ParseLogTimestamp(ev.Timestamp);
-                var hasSessionMetadata = !string.IsNullOrWhiteSpace(ev.SessionId);
+                var hasSessionMetadata =
+                    !string.IsNullOrWhiteSpace(ev.SessionId);
                 var sessionId = hasSessionMetadata ? ev.SessionId : "current";
                 var sessionStartedAt = ParseLogTimestamp(
                     hasSessionMetadata ? ev.SessionStartedAt : ev.Timestamp);
                 var isCurrentSession = ev.CurrentSession || !hasSessionMetadata;
-                RunOnUI(() => AppendLogLine(
-                    ev.ScriptId,
-                    ev.Line,
-                    timestamp,
-                    sessionId,
-                    sessionStartedAt,
-                    isCurrentSession));
+                RunOnUI(() => AppendLogLine(ev.ScriptId, ev.Line, timestamp,
+                                            sessionId, sessionStartedAt,
+                                            isCurrentSession));
             }
         } catch (OperationCanceledException) {
         } catch (RpcException) {
-            // The runtime automation engine may not be available yet; the rest of
-            // the page (import/list/remove) still works.
+            // The runtime automation engine may not be available yet; the rest
+            // of the page (import/list/remove) still works.
         }
     }
 
-    private void AppendLogLine(
-        string scriptId,
-        string line,
-        DateTimeOffset timestamp,
-        string sessionId,
-        DateTimeOffset sessionStartedAt,
-        bool isCurrentSession) {
+    private void AppendLogLine(string scriptId, string line,
+                               DateTimeOffset timestamp, string sessionId,
+                               DateTimeOffset sessionStartedAt,
+                               bool isCurrentSession) {
         if (line.Length > MaxLineLength)
             line = line[..MaxLineLength] + "…";
 
-        var scriptName = Scripts.FirstOrDefault(item => item.Id == scriptId)?.Name;
+        var scriptName =
+            Scripts.FirstOrDefault(item => item.Id == scriptId)?.Name;
         if (string.IsNullOrEmpty(scriptName)) {
             scriptName = string.IsNullOrEmpty(scriptId)
-                ? _localizer.Get("Scripts_SystemLogName")
-                : scriptId;
+                             ? _localizer.Get("Scripts_SystemLogName")
+                             : scriptId;
         }
         var displayId = string.IsNullOrEmpty(scriptId) ? "—" : scriptId;
-        var session = GetOrCreateLogSession(sessionId, sessionStartedAt, isCurrentSession);
-        session.Entries.Insert(0, new ScriptLogEntry(
-            displayId,
-            scriptName,
-            line,
-            timestamp,
-            _localizer.Get("Scripts_LogEntryFallbackTitle")));
+        var session   = GetOrCreateLogSession(sessionId, sessionStartedAt,
+                                              isCurrentSession);
+        session.Entries.Insert(
+            0, new ScriptLogEntry(
+                   displayId, scriptName, line, timestamp,
+                   _localizer.Get("Scripts_LogEntryFallbackTitle")));
         while (session.Entries.Count > MaxLogLinesPerSession)
             session.Entries.RemoveAt(session.Entries.Count - 1);
 
@@ -308,7 +339,7 @@ public sealed partial class ScriptsViewModel : ObservableObject, IAsyncDisposabl
             return;
 
         if (!_logsByScript.TryGetValue(scriptId, out var scriptLines)) {
-            scriptLines = new List<string>();
+            scriptLines             = new List<string>();
             _logsByScript[scriptId] = scriptLines;
         }
         scriptLines.Insert(0, line);
@@ -324,43 +355,40 @@ public sealed partial class ScriptsViewModel : ObservableObject, IAsyncDisposabl
             script.LogLines.RemoveAt(script.LogLines.Count - 1);
     }
 
-    private ScriptLogSession GetOrCreateLogSession(
-        string sessionId,
-        DateTimeOffset startedAt,
-        bool isCurrentSession) {
+    private ScriptLogSession GetOrCreateLogSession(string sessionId,
+                                                   DateTimeOffset startedAt,
+                                                   bool isCurrentSession) {
         if (_logSessionsById.TryGetValue(sessionId, out var existing))
             return existing;
 
         var session = new ScriptLogSession(
-            sessionId,
-            startedAt,
-            _localizer.Get(isCurrentSession
-                ? "Scripts_CurrentSessionTitle"
-                : "Scripts_PreviousSessionTitle"));
+            sessionId, startedAt,
+            _localizer.Get(isCurrentSession ? "Scripts_CurrentSessionTitle"
+                                            : "Scripts_PreviousSessionTitle"));
         _logSessionsById[sessionId] = session;
 
         var index = 0;
-        while (index < LogSessions.Count && LogSessions[index].StartedAt > startedAt)
+        while (index < LogSessions.Count &&
+               LogSessions[index].StartedAt > startedAt)
             index++;
         LogSessions.Insert(index, session);
         return session;
     }
 
     private static DateTimeOffset ParseLogTimestamp(string value) =>
-        DateTimeOffset.TryParse(
-            value,
-            CultureInfo.InvariantCulture,
-            DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
-            out var timestamp)
+        DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture,
+                                DateTimeStyles.AssumeUniversal |
+                                    DateTimeStyles.AdjustToUniversal,
+                                out var timestamp)
             ? timestamp
             : DateTimeOffset.UtcNow;
 
     private static string MapErrorKey(RpcException ex) => ex.StatusCode switch {
-        StatusCode.InvalidArgument => "Scripts_ImportInvalid",
-        StatusCode.AlreadyExists => "Scripts_AlreadyExists",
+        StatusCode.InvalidArgument    => "Scripts_ImportInvalid",
+        StatusCode.AlreadyExists      => "Scripts_AlreadyExists",
         StatusCode.FailedPrecondition => "Scripts_BuiltinProtected",
-        StatusCode.Unimplemented => "Scripts_NotAvailable",
-        _ => "Scripts_OperationFailed",
+        StatusCode.Unimplemented      => "Scripts_NotAvailable",
+        _                             => "Scripts_OperationFailed",
     };
 
     private void RunOnUI(Action action) {

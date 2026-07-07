@@ -6,24 +6,22 @@ using McManager.Grpc;
 
 namespace JustHostMC.App.Models;
 
-/// <summary>Editable server.properties or gamerule row with type metadata.</summary>
-public sealed partial class ConfigEntryItem : ObservableObject
-{
+/// <summary>Editable server.properties or gamerule row with type
+/// metadata.</summary>
+public sealed partial class ConfigEntryItem : ObservableObject {
     private readonly string _originalValue;
 
-    public ConfigEntryItem(ConfigEntry entry, ILocalizer localizer)
-    {
-        Key = entry.Key;
-        DisplayName = ResolveDisplayName(localizer, entry.Key);
+    public ConfigEntryItem(ConfigEntry entry, ILocalizer localizer) {
+        Key            = entry.Key;
+        DisplayName    = ResolveDisplayName(localizer, entry.Key);
         _originalValue = entry.Value;
-        Value = entry.Value;
-        Type = entry.Type;
-        TypeText = ResolveTypeText(localizer, entry.Type);
-        Supported = entry.Supported;
-        SinceVersion = entry.SinceVersion;
-        Description = entry.Description;
-        foreach (var choice in entry.Choices)
-            Choices.Add(choice);
+        Value          = entry.Value;
+        Type           = entry.Type;
+        TypeText       = ResolveTypeText(localizer, entry.Type);
+        Supported      = entry.Supported;
+        SinceVersion   = entry.SinceVersion;
+        Description    = entry.Description;
+        foreach (var choice in entry.Choices) Choices.Add(choice);
     }
 
     public string Key { get; }
@@ -40,77 +38,68 @@ public sealed partial class ConfigEntryItem : ObservableObject
     [NotifyPropertyChangedFor(nameof(IsModified))]
     public partial string Value { get; set; }
 
-    public bool IsModified => !string.Equals(Value, _originalValue, System.StringComparison.Ordinal);
+    public bool IsModified =>
+        !string.Equals(Value, _originalValue, System.StringComparison.Ordinal);
 
     public void DiscardChanges() => Value = _originalValue;
 
     public bool HasChoices => Choices.Count > 0;
 
-    public ConfigUpdate ToUpdate() => new()
-    {
-        Key = Key,
+    public ConfigUpdate ToUpdate() => new() {
+        Key   = Key,
         Value = Value ?? "",
     };
 
-    private static string ResolveDisplayName(ILocalizer localizer, string key)
-    {
+    private static string ResolveDisplayName(ILocalizer localizer, string key) {
         var localized = SafeGet(localizer, "ConfigName_" + ResourceKey(key));
-        return string.IsNullOrWhiteSpace(localized) ? HumanizeKey(key) : localized;
+        return string.IsNullOrWhiteSpace(localized) ? HumanizeKey(key)
+                                                    : localized;
     }
 
-    private static string ResolveTypeText(ILocalizer localizer, ConfigValueType type)
-    {
-        var key = type switch
-        {
+    private static string ResolveTypeText(ILocalizer localizer,
+                                          ConfigValueType type) {
+        var key = type switch {
             ConfigValueType.ConfigBoolean => "ConfigType_Boolean",
             ConfigValueType.ConfigInteger => "ConfigType_Integer",
-            ConfigValueType.ConfigEnum => "ConfigType_Choice",
-            _ => "ConfigType_Text",
+            ConfigValueType.ConfigEnum    => "ConfigType_Choice",
+            _                             => "ConfigType_Text",
         };
         var localized = SafeGet(localizer, key);
         if (!string.IsNullOrWhiteSpace(localized))
             return localized;
-        return type switch
-        {
+        return type switch {
             ConfigValueType.ConfigBoolean => "Boolean",
             ConfigValueType.ConfigInteger => "Integer",
-            ConfigValueType.ConfigEnum => "Choice",
-            _ => "Text",
+            ConfigValueType.ConfigEnum    => "Choice",
+            _                             => "Text",
         };
     }
 
-    private static string SafeGet(ILocalizer localizer, string key)
-    {
-        try
-        {
+    private static string SafeGet(ILocalizer localizer, string key) {
+        try {
             return localizer.Get(key);
-        }
-        catch
-        {
+        } catch {
             return "";
         }
     }
 
-    private static string ResourceKey(string key)
-    {
+    private static string ResourceKey(string key) {
         var b = new StringBuilder(key.Length);
-        foreach (var ch in key)
-            b.Append(char.IsLetterOrDigit(ch) ? ch : '_');
+        foreach (var ch in key) b.Append(char.IsLetterOrDigit(ch) ? ch : '_');
         return b.ToString();
     }
 
-    private static string HumanizeKey(string key)
-    {
-        key = key.Replace('.', ' ').Replace('-', ' ').Replace('_', ' ');
+    private static string HumanizeKey(string key) {
+        key   = key.Replace('.', ' ').Replace('-', ' ').Replace('_', ' ');
         var b = new StringBuilder(key.Length + 8);
-        for (var i = 0; i < key.Length; i++)
-        {
+        for (var i = 0; i < key.Length; i++) {
             var ch = key[i];
             if (i > 0 && char.IsUpper(ch) && char.IsLower(key[i - 1]))
                 b.Append(' ');
             b.Append(ch);
         }
         var text = b.ToString().Trim();
-        return text.Length == 0 ? key : char.ToUpperInvariant(text[0]) + text[1..];
+        return text.Length == 0 ? key
+                                : char.ToUpperInvariant(text[0]) + text[1..];
     }
 }

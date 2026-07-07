@@ -1,0 +1,12 @@
+---
+Language: CSharp
+BasedOnStyle: Google
+IndentWidth: 4
+AccessModifierOffset: -4
+ColumnLimit: 80
+FixNamespaceComments: true
+AlignArrayOfStructures: Right
+AlignConsecutiveAssignments: true
+AlignConsecutiveMacros: true
+AlignConsecutiveBitFields: true
+EmptyLineBeforeAccessModifier: Always

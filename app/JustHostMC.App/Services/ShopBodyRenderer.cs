@@ -7,26 +7,26 @@ namespace JustHostMC.App.Services;
 /// CurseForge HTML) into a self-contained, script-free HTML document for
 /// WebView2. A CSP meta tag blocks scripts/frames/fetch; only remote images
 /// and inline styles are allowed.</summary>
-public static class ShopBodyRenderer
-{
+public static class ShopBodyRenderer {
     // Inline HTML stays enabled: Modrinth bodies routinely embed <img>/<center>
     // markup. The CSP meta tag is the sandbox — scripts, frames, and fetch are
     // blocked regardless of what the markdown carries.
     private static readonly MarkdownPipeline Pipeline =
         new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
 
-    public static string ToHtml(string body, ShopBodyFormat format, bool darkTheme)
-    {
+    public static string ToHtml(string body, ShopBodyFormat format,
+                                bool darkTheme) {
         var content = format == ShopBodyFormat.ShopBodyMarkdown
-            ? Markdown.ToHtml(body, Pipeline)
-            : body;
+                          ? Markdown.ToHtml(body, Pipeline)
+                          : body;
 
-        var fg = darkTheme ? "#e8e8e8" : "#1a1a1a";
+        var fg        = darkTheme ? "#e8e8e8" : "#1a1a1a";
         var secondary = darkTheme ? "#9e9e9e" : "#5c5c5c";
-        var accent = darkTheme ? "#4cc2ff" : "#0067c0";
-        var codeBg = darkTheme ? "#2b2b2b" : "#f3f3f3";
-        var pageBg = darkTheme ? "#202020" : "#f3f3f3";
+        var accent    = darkTheme ? "#4cc2ff" : "#0067c0";
+        var codeBg    = darkTheme ? "#2b2b2b" : "#f3f3f3";
+        var pageBg    = darkTheme ? "#202020" : "#f3f3f3";
 
+        // clang-format off
         return $$"""
             <!DOCTYPE html>
             <html>
@@ -57,5 +57,6 @@ public static class ShopBodyRenderer
             <body>{{content}}</body>
             </html>
             """;
+        // clang-format on
     }
 }

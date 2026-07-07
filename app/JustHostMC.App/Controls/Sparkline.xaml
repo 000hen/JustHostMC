@@ -1,15 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <UserControl
     x:Class="JustHostMC.App.Controls.Sparkline"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    SizeChanged="OnSizeChanged">
+    SizeChanged="OnSizeChanged"
+    mc:Ignorable="d">
 
-    <Grid Background="{ThemeResource ControlFillColorDefaultBrush}" CornerRadius="4"
-          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
-        <Polyline x:Name="Line" StrokeThickness="1.5" StrokeLineJoin="Round" />
+    <Grid
+        Background="{ThemeResource ControlFillColorDefaultBrush}"
+        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+        BorderThickness="1"
+        CornerRadius="4">
+        <Polyline
+            x:Name="Line"
+            StrokeLineJoin="Round"
+            StrokeThickness="1.5" />
     </Grid>
 </UserControl>

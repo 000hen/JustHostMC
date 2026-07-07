@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="JustHostMC.App.Views.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -7,161 +7,239 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <ScrollViewer Padding="24" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+    <ScrollViewer
+        Padding="24"
+        HorizontalScrollBarVisibility="Disabled"
+        VerticalScrollBarVisibility="Auto">
         <StackPanel Spacing="16">
 
             <TextBlock x:Uid="SettingsTitle" Style="{StaticResource TitleTextBlockStyle}" />
 
             <TextBlock x:Uid="SettingsRetentionHeader" Style="{StaticResource BodyStrongTextBlockStyle}" />
-            <TextBlock x:Uid="SettingsRetentionHint" TextWrapping="Wrap"
-                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                       Style="{StaticResource CaptionTextBlockStyle}" />
+            <TextBlock
+                x:Uid="SettingsRetentionHint"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                Style="{StaticResource CaptionTextBlockStyle}"
+                TextWrapping="Wrap" />
 
-            <NumberBox x:Uid="SettingsKeepDays" Value="{x:Bind ViewModel.KeepDays, Mode=TwoWay}"
-                       Minimum="0" SpinButtonPlacementMode="Inline" HorizontalAlignment="Left" />
-            <NumberBox x:Uid="SettingsMaxSize" Value="{x:Bind ViewModel.MaxTotalMb, Mode=TwoWay}"
-                       Minimum="0" SpinButtonPlacementMode="Inline" HorizontalAlignment="Left" />
+            <NumberBox
+                x:Uid="SettingsKeepDays"
+                HorizontalAlignment="Left"
+                Minimum="0"
+                SpinButtonPlacementMode="Inline"
+                Value="{x:Bind ViewModel.KeepDays, Mode=TwoWay}" />
+            <NumberBox
+                x:Uid="SettingsMaxSize"
+                HorizontalAlignment="Left"
+                Minimum="0"
+                SpinButtonPlacementMode="Inline"
+                Value="{x:Bind ViewModel.MaxTotalMb, Mode=TwoWay}" />
 
-            <Grid ColumnSpacing="12" HorizontalAlignment="Left">
+            <Grid HorizontalAlignment="Left" ColumnSpacing="12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <Button x:Uid="SettingsSaveButton" Grid.Column="0" Style="{StaticResource AccentButtonStyle}"
-                        Command="{x:Bind ViewModel.SaveCommand}" />
-                <Button x:Uid="SettingsPurgeButton" Grid.Column="1"
-                        Command="{x:Bind ViewModel.PurgeNowCommand}" />
-                <ProgressRing Grid.Column="2" HorizontalAlignment="Left" Width="20" Height="20"
-                              IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}"
-                              Visibility="{x:Bind ViewModel.IsBusy, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                <Button
+                    x:Uid="SettingsSaveButton"
+                    Grid.Column="0"
+                    Command="{x:Bind ViewModel.SaveCommand}"
+                    Style="{StaticResource AccentButtonStyle}" />
+                <Button
+                    x:Uid="SettingsPurgeButton"
+                    Grid.Column="1"
+                    Command="{x:Bind ViewModel.PurgeNowCommand}" />
+                <ProgressRing
+                    Grid.Column="2"
+                    Width="20"
+                    Height="20"
+                    HorizontalAlignment="Left"
+                    IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.IsBusy, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
             </Grid>
 
-            <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" TextWrapping="Wrap"
-                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+            <TextBlock
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
+                TextWrapping="Wrap" />
 
-            <!-- Server isolation backend (Docker opt-in) -->
-            <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                    CornerRadius="8" Padding="16">
+            <!--  Server isolation backend (Docker opt-in)  -->
+            <Border
+                Padding="16"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
                 <StackPanel Spacing="8">
                     <TextBlock x:Uid="SettingsBackendHeader" Style="{StaticResource BodyStrongTextBlockStyle}" />
                     <TextBlock Text="{x:Bind ViewModel.ActiveModeText, Mode=OneWay}" TextWrapping="Wrap" />
-                    <TextBlock Text="{x:Bind ViewModel.DockerStatusText, Mode=OneWay}" TextWrapping="Wrap"
-                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                               Style="{StaticResource CaptionTextBlockStyle}" />
+                    <TextBlock
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Text="{x:Bind ViewModel.DockerStatusText, Mode=OneWay}"
+                        TextWrapping="Wrap" />
                     <ToggleSwitch x:Uid="SettingsUseDocker" IsOn="{x:Bind ViewModel.UseDocker, Mode=TwoWay}" />
                 </StackPanel>
             </Border>
 
-            <!-- Engine diagnostics -->
-            <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                    CornerRadius="8" Padding="16">
+            <!--  Engine diagnostics  -->
+            <Border
+                Padding="16"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
                 <StackPanel Spacing="8">
                     <TextBlock x:Uid="SettingsEngineMonitorHeader" Style="{StaticResource BodyStrongTextBlockStyle}" />
-                    <TextBlock x:Uid="SettingsEngineMonitorHint" TextWrapping="Wrap"
-                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                               Style="{StaticResource CaptionTextBlockStyle}" />
-                    <Button x:Uid="SettingsEngineMonitorButton"
-                            HorizontalAlignment="Left"
-                            Click="OnOpenEngineMonitorClick" />
+                    <TextBlock
+                        x:Uid="SettingsEngineMonitorHint"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        TextWrapping="Wrap" />
+                    <Button
+                        x:Uid="SettingsEngineMonitorButton"
+                        HorizontalAlignment="Left"
+                        Click="OnOpenEngineMonitorClick" />
                 </StackPanel>
             </Border>
 
-            <!-- Mod shop: CurseForge API key -->
-            <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                    CornerRadius="8" Padding="16">
+            <!--  Mod shop: CurseForge API key  -->
+            <Border
+                Padding="16"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
                 <StackPanel Spacing="8">
                     <TextBlock x:Uid="SettingsShopHeader" Style="{StaticResource BodyStrongTextBlockStyle}" />
-                    <TextBlock x:Uid="SettingsShopHint" TextWrapping="Wrap"
-                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                               Style="{StaticResource CaptionTextBlockStyle}" />
-                    <TextBlock Text="{x:Bind ViewModel.CurseForgeKeyStatus, Mode=OneWay}" TextWrapping="Wrap"
-                               Style="{StaticResource CaptionTextBlockStyle}" />
+                    <TextBlock
+                        x:Uid="SettingsShopHint"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        TextWrapping="Wrap" />
+                    <TextBlock
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Text="{x:Bind ViewModel.CurseForgeKeyStatus, Mode=OneWay}"
+                        TextWrapping="Wrap" />
                     <Grid ColumnSpacing="8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <PasswordBox x:Uid="SettingsCurseForgeKey"
-                                     AutomationProperties.AutomationId="SettingsCurseForgeKey"
-                                     Password="{x:Bind ViewModel.CurseForgeKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                        <Button x:Uid="SettingsShopKeySaveButton" Grid.Column="1" VerticalAlignment="Bottom"
-                                Command="{x:Bind ViewModel.SaveCurseForgeKeyCommand}" />
+                        <PasswordBox
+                            x:Uid="SettingsCurseForgeKey"
+                            AutomationProperties.AutomationId="SettingsCurseForgeKey"
+                            Password="{x:Bind ViewModel.CurseForgeKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button
+                            x:Uid="SettingsShopKeySaveButton"
+                            Grid.Column="1"
+                            VerticalAlignment="Bottom"
+                            Command="{x:Bind ViewModel.SaveCurseForgeKeyCommand}" />
                     </Grid>
                 </StackPanel>
             </Border>
 
-            <!-- Destructive: remove all data -->
-            <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                    CornerRadius="8" Padding="16">
+            <!--  Destructive: remove all data  -->
+            <Border
+                Padding="16"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
                 <StackPanel Spacing="8">
                     <TextBlock x:Uid="SettingsDataHeader" Style="{StaticResource BodyStrongTextBlockStyle}" />
-                    <TextBlock x:Uid="SettingsDataHint" TextWrapping="Wrap"
-                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                               Style="{StaticResource CaptionTextBlockStyle}" />
+                    <TextBlock
+                        x:Uid="SettingsDataHint"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        TextWrapping="Wrap" />
                     <Button x:Uid="SettingsRemoveDataButton" HorizontalAlignment="Left">
                         <Button.Flyout>
                             <Flyout>
-                                <StackPanel Spacing="8" MaxWidth="260">
+                                <StackPanel MaxWidth="260" Spacing="8">
                                     <TextBlock x:Uid="SettingsRemoveDataConfirmText" TextWrapping="Wrap" />
-                                    <Button x:Uid="SettingsRemoveDataConfirmButton" HorizontalAlignment="Right"
-                                            Command="{x:Bind ViewModel.RemoveAllDataCommand}" />
+                                    <Button
+                                        x:Uid="SettingsRemoveDataConfirmButton"
+                                        HorizontalAlignment="Right"
+                                        Command="{x:Bind ViewModel.RemoveAllDataCommand}" />
                                 </StackPanel>
                             </Flyout>
                         </Button.Flyout>
                     </Button>
                 </StackPanel>
             </Border>
-            
-            <!-- About -->
-            <TextBlock x:Uid="SettingsAboutHeader" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
-            <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" CornerRadius="8">
+
+            <!--  About  -->
+            <TextBlock
+                x:Uid="SettingsAboutHeader"
+                Margin="0,8,0,0"
+                Style="{StaticResource BodyStrongTextBlockStyle}" />
+            <Expander
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Stretch"
+                CornerRadius="8">
                 <Expander.Header>
                     <Grid MinHeight="56">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        
-                        <Image Source="ms-appx:///Assets/Square44x44Logo.png" Width="24" Height="24" Margin="0,0,16,0" VerticalAlignment="Center" />
-                        
-                        <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.AppName, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Center" Margin="0,0,16,0"/>
 
-                        <TextBlock Grid.Column="2" Text="{x:Bind ViewModel.AppVersionText, Mode=OneWay}" 
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center"/>
+                        <Image
+                            Width="24"
+                            Height="24"
+                            Margin="0,0,16,0"
+                            VerticalAlignment="Center"
+                            Source="ms-appx:///Assets/Square44x44Logo.png" />
+
+                        <TextBlock
+                            Grid.Column="1"
+                            Margin="0,0,16,0"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Text="{x:Bind ViewModel.AppName, Mode=OneWay}" />
+
+                        <TextBlock
+                            Grid.Column="2"
+                            VerticalAlignment="Center"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Text="{x:Bind ViewModel.AppVersionText, Mode=OneWay}" />
                     </Grid>
                 </Expander.Header>
                 <Expander.Content>
-                    <StackPanel Spacing="0" Margin="-16">
-                        <!-- Repository -->
+                    <StackPanel Margin="-16" Spacing="0">
+                        <!--  Repository  -->
                         <Grid Padding="16,12">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock x:Uid="SettingsAboutRepo" VerticalAlignment="Center"/>
+                            <TextBlock x:Uid="SettingsAboutRepo" VerticalAlignment="Center" />
                             <HyperlinkButton Grid.Column="1" NavigateUri="https://github.com/000hen/JustHostMC">
                                 <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <TextBlock Text="github.com/000hen/JustHostMC" VerticalAlignment="Center" />
-                                    <FontIcon Glyph="&#xE8A7;" FontSize="12" VerticalAlignment="Center" />
+                                    <TextBlock VerticalAlignment="Center" Text="github.com/000hen/JustHostMC" />
+                                    <FontIcon
+                                        VerticalAlignment="Center"
+                                        FontSize="12"
+                                        Glyph="&#xE8A7;" />
                                 </StackPanel>
                             </HyperlinkButton>
                         </Grid>
-                        
+
                         <MenuFlyoutSeparator Margin="0" />
-                        
-                        <!-- Issues -->
+
+                        <!--  Issues  -->
                         <Grid Padding="16,12">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock x:Uid="SettingsAboutIssues" VerticalAlignment="Center"/>
+                            <TextBlock x:Uid="SettingsAboutIssues" VerticalAlignment="Center" />
                             <HyperlinkButton Grid.Column="1" NavigateUri="https://github.com/000hen/JustHostMC/issues">
                                 <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <TextBlock Text="github.com/000hen/JustHostMC/issues" VerticalAlignment="Center" />
-                                    <FontIcon Glyph="&#xE8A7;" FontSize="12" VerticalAlignment="Center" />
+                                    <TextBlock VerticalAlignment="Center" Text="github.com/000hen/JustHostMC/issues" />
+                                    <FontIcon
+                                        VerticalAlignment="Center"
+                                        FontSize="12"
+                                        Glyph="&#xE8A7;" />
                                 </StackPanel>
                             </HyperlinkButton>
                         </Grid>

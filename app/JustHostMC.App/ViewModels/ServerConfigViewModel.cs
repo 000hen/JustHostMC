@@ -13,8 +13,7 @@ using Microsoft.UI.Dispatching;
 namespace JustHostMC.App.ViewModels;
 
 /// <summary>Loads and saves server.properties plus world gamerules.</summary>
-public sealed partial class ServerConfigViewModel : ObservableObject
-{
+public sealed partial class ServerConfigViewModel : ObservableObject {
     private readonly string _serverId;
     private readonly DispatcherQueue _dispatcher;
     private readonly ILocalizer _localizer;
@@ -22,32 +21,38 @@ public sealed partial class ServerConfigViewModel : ObservableObject
     private bool _loaded;
     private Task? _refreshTask;
 
-    public ServerConfigViewModel(string serverId, DispatcherQueue dispatcher, ILocalizer localizer)
-    {
-        _serverId = serverId;
+    public ServerConfigViewModel(string serverId, DispatcherQueue dispatcher,
+                                 ILocalizer localizer) {
+        _serverId   = serverId;
         _dispatcher = dispatcher;
-        _localizer = localizer;
+        _localizer  = localizer;
     }
 
     public ObservableCollection<ConfigEntryItem> Properties { get; } = new();
-    public ObservableCollection<ConfigEntryItem> GameRules { get; } = new();
+    public ObservableCollection<ConfigEntryItem> GameRules { get; }  = new();
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanSaveGameRules))]
     [NotifyPropertyChangedFor(nameof(CanSaveModifiedConfiguration))]
-    public partial bool CanModify { get; private set; }
+    public partial bool CanModify {
+        get; private set;
+    }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanSaveGameRules))]
     [NotifyPropertyChangedFor(nameof(CanSaveModifiedConfiguration))]
-    public partial bool GameRulesWorldExists { get; private set; }
+    public partial bool GameRulesWorldExists {
+        get; private set;
+    }
 
-    public bool CanSaveGameRules => CanModify && GameRulesWorldExists;
+    public bool CanSaveGameRules   => CanModify && GameRulesWorldExists;
     public bool PropertiesModified => Properties.Any(item => item.IsModified);
-    public bool GameRulesModified => GameRules.Any(item => item.IsModified);
-    public bool HasModifiedConfiguration => PropertiesModified || GameRulesModified;
+    public bool GameRulesModified  => GameRules.Any(item => item.IsModified);
+    public bool HasModifiedConfiguration =>
+        PropertiesModified || GameRulesModified;
     public bool CanDiscardChanges => !IsBusy && HasModifiedConfiguration;
-    public bool CanSaveModifiedConfiguration => !IsBusy && CanModify &&
+    public bool CanSaveModifiedConfiguration =>
+        !IsBusy && CanModify &&
         (PropertiesModified || (GameRulesWorldExists && GameRulesModified));
 
     [ObservableProperty]
@@ -63,32 +68,30 @@ public sealed partial class ServerConfigViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasGameRulesMessage))]
-    public partial string GameRulesMessage { get; private set; } = "";
+    public partial string GameRulesMessage {
+        get; private set;
+    } = "";
 
-    public bool HasGameRulesMessage => !string.IsNullOrWhiteSpace(GameRulesMessage);
+    public bool HasGameRulesMessage =>
+        !string.IsNullOrWhiteSpace(GameRulesMessage);
 
-    public void SetServerStopped(bool stopped)
-    {
+    public void SetServerStopped(bool stopped) {
         _serverStopped = stopped;
-        CanModify = stopped;
+        CanModify      = stopped;
     }
 
-    public void PrepareInitialLoad()
-    {
+    public void PrepareInitialLoad() {
         if (_loaded)
             return;
 
-        RunOnUI(() =>
-        {
-            IsBusy = true;
+        RunOnUI(() => {
+            IsBusy        = true;
             StatusMessage = "";
         });
     }
 
-    public async Task RefreshAsync()
-    {
-        if (_refreshTask is { IsCompleted: false })
-        {
+    public async Task RefreshAsync() {
+        if (_refreshTask is { IsCompleted : false }) {
             await _refreshTask;
             return;
         }
@@ -97,125 +100,105 @@ public sealed partial class ServerConfigViewModel : ObservableObject
         await _refreshTask;
     }
 
-    public async Task EnsureLoadedAsync()
-    {
+    public async Task EnsureLoadedAsync() {
         if (_loaded)
             return;
 
         await RefreshAsync();
     }
 
-    private async Task RefreshCoreAsync()
-    {
-        RunOnUI(() =>
-        {
-            IsBusy = true;
+    private async Task RefreshCoreAsync() {
+        RunOnUI(() => {
+            IsBusy        = true;
             StatusMessage = "";
         });
         await Task.Yield();
 
-        try
-        {
+        try {
             var daemon = await App.Current.DaemonReady;
-            var propsTask = daemon.Config.GetServerPropertiesAsync(new ServerId { Id = _serverId }).ResponseAsync;
-            var rulesTask = daemon.Config.GetGameRulesAsync(new ServerId { Id = _serverId }).ResponseAsync;
+            var propsTask =
+                daemon.Config
+                    .GetServerPropertiesAsync(new ServerId { Id = _serverId })
+                    .ResponseAsync;
+            var rulesTask =
+                daemon.Config.GetGameRulesAsync(new ServerId { Id = _serverId })
+                    .ResponseAsync;
             await Task.WhenAll(propsTask, rulesTask);
-            RunOnUI(() =>
-            {
+            RunOnUI(() => {
                 Replace(Properties, propsTask.Result.Entries, _localizer);
                 Replace(GameRules, rulesTask.Result.Entries, _localizer);
                 GameRulesWorldExists = rulesTask.Result.WorldExists;
-                GameRulesMessage = rulesTask.Result.Message;
-                _loaded = true;
+                GameRulesMessage     = rulesTask.Result.Message;
+                _loaded              = true;
                 OnPropertyChanged(nameof(IsInitialLoading));
             });
-        }
-        catch (RpcException)
-        {
+        } catch (RpcException) {
             RunOnUI(() => StatusMessage = _localizer.Get("Config_LoadFailed"));
-        }
-        finally
-        {
+        } finally {
             RunOnUI(() => IsBusy = false);
         }
     }
 
-    public async Task SavePropertiesAsync()
-    {
+    public async Task SavePropertiesAsync() {
         if (!_serverStopped)
             return;
 
-        RunOnUI(() =>
-        {
-            IsBusy = true;
+        RunOnUI(() => {
+            IsBusy        = true;
             StatusMessage = "";
         });
-        try
-        {
+        try {
             var daemon = await App.Current.DaemonReady;
-            var req = new UpdateServerPropertiesRequest { ServerId = _serverId };
-            foreach (var item in Properties)
-                req.Entries.Add(item.ToUpdate());
+            var req =
+                new UpdateServerPropertiesRequest { ServerId = _serverId };
+            foreach (var item in Properties) req.Entries.Add(item.ToUpdate());
             var saved = await daemon.Config.UpdateServerPropertiesAsync(req);
-            RunOnUI(() =>
-            {
+            RunOnUI(() => {
                 Replace(Properties, saved.Entries, _localizer);
                 StatusMessage = _localizer.Get("Config_Saved");
             });
-        }
-        catch (RpcException ex)
-        {
-            RunOnUI(() => StatusMessage = ex.Status.Detail.Length > 0
-                ? ex.Status.Detail
-                : _localizer.Get("Config_SaveFailed"));
-        }
-        finally
-        {
+        } catch (RpcException ex) {
+            RunOnUI(() => StatusMessage =
+                        ex.Status.Detail.Length > 0
+                            ? ex.Status.Detail
+                            : _localizer.Get("Config_SaveFailed"));
+        } finally {
             RunOnUI(() => IsBusy = false);
         }
     }
 
-    public async Task SaveGameRulesAsync()
-    {
+    public async Task SaveGameRulesAsync() {
         if (!CanSaveGameRules)
             return;
 
-        RunOnUI(() =>
-        {
-            IsBusy = true;
+        RunOnUI(() => {
+            IsBusy        = true;
             StatusMessage = "";
         });
-        try
-        {
+        try {
             var daemon = await App.Current.DaemonReady;
-            var req = new UpdateGameRulesRequest { ServerId = _serverId };
-            foreach (var item in GameRules)
-                req.Entries.Add(item.ToUpdate());
+            var req    = new UpdateGameRulesRequest { ServerId = _serverId };
+            foreach (var item in GameRules) req.Entries.Add(item.ToUpdate());
             var saved = await daemon.Config.UpdateGameRulesAsync(req);
-            RunOnUI(() =>
-            {
+            RunOnUI(() => {
                 Replace(GameRules, saved.Entries, _localizer);
                 GameRulesWorldExists = saved.WorldExists;
-                GameRulesMessage = saved.Message;
-                StatusMessage = _localizer.Get("Config_Saved");
+                GameRulesMessage     = saved.Message;
+                StatusMessage        = _localizer.Get("Config_Saved");
             });
-        }
-        catch (RpcException ex)
-        {
-            RunOnUI(() => StatusMessage = ex.Status.Detail.Length > 0
-                ? ex.Status.Detail
-                : _localizer.Get("Config_SaveFailed"));
-        }
-        finally
-        {
+        } catch (RpcException ex) {
+            RunOnUI(() => StatusMessage =
+                        ex.Status.Detail.Length > 0
+                            ? ex.Status.Detail
+                            : _localizer.Get("Config_SaveFailed"));
+        } finally {
             RunOnUI(() => IsBusy = false);
         }
     }
 
-    public async Task SaveModifiedAsync()
-    {
+    public async Task SaveModifiedAsync() {
         var saveProperties = PropertiesModified;
-        var saveGameRules = GameRulesModified && CanSaveGameRules;
+        var saveGameRules  = GameRulesModified && CanSaveGameRules;
 
         if (saveProperties)
             await SavePropertiesAsync();
@@ -223,8 +206,7 @@ public sealed partial class ServerConfigViewModel : ObservableObject
             await SaveGameRulesAsync();
     }
 
-    public void DiscardChanges()
-    {
+    public void DiscardChanges() {
         foreach (var item in Properties.Where(item => item.IsModified))
             item.DiscardChanges();
         foreach (var item in GameRules.Where(item => item.IsModified))
@@ -232,15 +214,14 @@ public sealed partial class ServerConfigViewModel : ObservableObject
         StatusMessage = "";
     }
 
-    private void Replace(ObservableCollection<ConfigEntryItem> target,
+    private void Replace(
+        ObservableCollection<ConfigEntryItem> target,
         Google.Protobuf.Collections.RepeatedField<ConfigEntry> entries,
-        ILocalizer localizer)
-    {
+        ILocalizer localizer) {
         foreach (var item in target)
             item.PropertyChanged -= OnEntryPropertyChanged;
         target.Clear();
-        foreach (var entry in entries)
-        {
+        foreach (var entry in entries) {
             var item = new ConfigEntryItem(entry, localizer);
             item.PropertyChanged += OnEntryPropertyChanged;
             target.Add(item);
@@ -248,14 +229,13 @@ public sealed partial class ServerConfigViewModel : ObservableObject
         NotifyModifiedStateChanged();
     }
 
-    private void OnEntryPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
+    private void OnEntryPropertyChanged(object? sender,
+                                        PropertyChangedEventArgs e) {
         if (e.PropertyName == nameof(ConfigEntryItem.IsModified))
             NotifyModifiedStateChanged();
     }
 
-    private void NotifyModifiedStateChanged()
-    {
+    private void NotifyModifiedStateChanged() {
         OnPropertyChanged(nameof(PropertiesModified));
         OnPropertyChanged(nameof(GameRulesModified));
         OnPropertyChanged(nameof(HasModifiedConfiguration));
@@ -263,8 +243,7 @@ public sealed partial class ServerConfigViewModel : ObservableObject
         OnPropertyChanged(nameof(CanSaveModifiedConfiguration));
     }
 
-    private void RunOnUI(Action action)
-    {
+    private void RunOnUI(Action action) {
         if (_dispatcher.HasThreadAccess)
             action();
         else

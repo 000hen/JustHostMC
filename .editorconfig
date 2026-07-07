@@ -1,0 +1,31 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.cs]
+indent_style = space
+indent_size = 4
+
+# C# / Roslyn style
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = false
+
+# Do not let dotnet format fight too hard with clang-format
+dotnet_diagnostic.IDE0055.severity = none
+
+# Useful semantic/style diagnostics
+dotnet_diagnostic.IDE0005.severity = warning
+dotnet_style_require_accessibility_modifiers = for_non_interface_members:warning
+csharp_style_namespace_declarations = file_scoped:suggestion
+
+[*.go]
+indent_style = tab
+indent_size = 4
+
+[*.xaml]
+indent_style = space
+indent_size = 4

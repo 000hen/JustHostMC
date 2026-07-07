@@ -3,14 +3,13 @@ using McManager.Grpc;
 
 namespace JustHostMC.App.Models;
 
-/// <summary>Display wrapper around a backup, with a human-readable size and date.</summary>
-public sealed class BackupItem
-{
-    public BackupItem(Backup proto)
-    {
-        Id = proto.Id;
-        ServerId = proto.ServerId;
-        SizeText = FormatSize(proto.SizeBytes);
+/// <summary>Display wrapper around a backup, with a human-readable size and
+/// date.</summary>
+public sealed class BackupItem {
+    public BackupItem(Backup proto) {
+        Id          = proto.Id;
+        ServerId    = proto.ServerId;
+        SizeText    = FormatSize(proto.SizeBytes);
         CreatedText = FormatDate(proto.CreatedAt);
     }
 
@@ -22,13 +21,11 @@ public sealed class BackupItem
     /// <summary>Reconstructs the proto needed to delete this backup.</summary>
     public Backup ToProto() => new() { Id = Id, ServerId = ServerId };
 
-    private static string FormatSize(long bytes)
-    {
+    private static string FormatSize(long bytes) {
         string[] units = { "B", "KB", "MB", "GB", "TB" };
-        double value = bytes;
-        var unit = 0;
-        while (value >= 1024 && unit < units.Length - 1)
-        {
+        double value   = bytes;
+        var unit       = 0;
+        while (value >= 1024 && unit < units.Length - 1) {
             value /= 1024;
             unit++;
         }

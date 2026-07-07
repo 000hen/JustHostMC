@@ -1,0 +1,27 @@
+{
+  "AttributesTolerance": 2,
+  "KeepFirstAttributeOnSameLine": false,
+  "MaxAttributeCharactersPerLine": 0,
+  "MaxAttributesPerLine": 1,
+  "AttributeIndentation": 0,
+  "AttributeIndentationStyle": 1,
+  "RemoveDesignTimeReferences": false,
+  "EnableAttributeReordering": true,
+  "OrderAttributesByName": true,
+  "PutEndingBracketOnNewLine": false,
+  "RemoveEndingTagOfEmptyElement": true,
+  "SpaceBeforeClosingSlash": true,
+  "IndentSize": 4,
+  "IndentWithTabs": false,
+  "AttributeOrderingRuleGroups": [
+    "x:Class",
+    "xmlns, xmlns:x",
+    "xmlns:*",
+    "x:Key, Key, x:Name, Name, x:Uid, Uid, Title",
+    "Grid.Row, Grid.RowSpan, Grid.Column, Grid.ColumnSpan, Canvas.Left, Canvas.Top, Canvas.Right, Canvas.Bottom",
+    "Width, Height, MinWidth, MinHeight, MaxWidth, MaxHeight",
+    "Margin, Padding, HorizontalAlignment, VerticalAlignment, HorizontalContentAlignment, VerticalContentAlignment, Panel.ZIndex",
+    "*:*, *",
+    "mc:Ignorable, d:IsDataSource, d:LayoutOverrides, d:IsStaticText"
+  ]
+}

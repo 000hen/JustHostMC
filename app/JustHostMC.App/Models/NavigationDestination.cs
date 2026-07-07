@@ -1,7 +1,6 @@
 namespace JustHostMC.App.Models;
 
-public enum NavigationDestination
-{
+public enum NavigationDestination {
     Home,
     AddServer,
     Scripts,

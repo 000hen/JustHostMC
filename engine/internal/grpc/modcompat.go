@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	mcmanagerv1 "github.com/000hen/justhostmc/engine/gen/mcmanager/v1"
+	"google.golang.org/protobuf/proto"
 )
 
 var versionConstraint = regexp.MustCompile(`^(>=|<=|>|<|=|~|\^)?\s*([0-9][0-9A-Za-z._+\-]*|\*)$`)
@@ -16,14 +17,12 @@ func modCompatibility(meta *mcmanagerv1.ModMetadata, providerID, mcVersion strin
 	if meta == nil || !meta.Parsed {
 		return meta
 	}
-	out := *meta
-	out.Authors = append([]string(nil), meta.Authors...)
-	out.Icon = append([]byte(nil), meta.Icon...)
+	out := proto.Clone(meta).(*mcmanagerv1.ModMetadata)
 	out.LoaderMismatch = !loaderMatchesServer(meta.Loader, providerID, kind)
 	if matches, known := minecraftVersionMatches(mcVersion, meta.GameVersionRequirement); known {
 		out.GameVersionMismatch = !matches
 	}
-	return &out
+	return out
 }
 
 func loaderMatchesServer(loader, providerID string, kind mcmanagerv1.ModKind) bool {

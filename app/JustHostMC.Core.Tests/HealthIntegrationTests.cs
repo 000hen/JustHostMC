@@ -49,6 +49,30 @@ public class HealthIntegrationTests
     }
 
     [Fact]
+    public async Task Health_IsLoggedByGoEngineInStdioHistory()
+    {
+        await using var host = EngineFixture.NewHost();
+        var connection = await host.StartAsync();
+        await using var client = new DaemonClient(connection);
+
+        await client.Engine.HealthAsync(
+            Empty, deadline: DateTime.UtcNow.AddSeconds(10));
+
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+        while (!host.GetStdioSnapshot().Any(IsHealthCompletion))
+            await Task.Delay(20, timeout.Token);
+
+        Assert.Contains(host.GetStdioSnapshot(), IsHealthCompletion);
+
+        static bool IsHealthCompletion(EngineStdioEntry entry)
+            => entry.Stream == EngineStdioStream.StdErr
+               && entry.Level == EngineDiagnosticLevel.Information
+               && entry.Message.Contains(
+                   "[INFO] grpc unary completed method=/mcmanager.v1.EngineService/Health code=OK",
+                   StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task StartAsync_Throws_WhenEngineMissing()
     {
         await using var host = new EngineHost(new EngineHostOptions

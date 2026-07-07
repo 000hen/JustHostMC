@@ -50,21 +50,21 @@ func main() {
 
 	pipeName := os.Getenv(pipeEnvVar)
 	if pipeName == "" {
-		log.Fatalf("%s is required: the app supplies a named-pipe name", pipeEnvVar)
+		log.Fatalf("[FATAL] %s is required: the app supplies a named-pipe name", pipeEnvVar)
 	}
 
 	lis, err := grpcsvc.ListenPipe(pipeName)
 	if err != nil {
-		log.Fatalf("listen pipe: %v", err)
+		log.Fatalf("[FATAL] listen pipe: %v", err)
 	}
 
 	paths := appdata.Default()
 	if err := os.MkdirAll(paths.Base, 0o755); err != nil {
-		log.Fatalf("create data dir: %v", err)
+		log.Fatalf("[FATAL] create data dir: %v", err)
 	}
 	registry, err := store.OpenSQLite(filepath.Join(paths.Base, "registry.db"))
 	if err != nil {
-		log.Fatalf("open registry: %v", err)
+		log.Fatalf("[FATAL] open registry: %v", err)
 	}
 	defer registry.Close()
 
@@ -75,22 +75,22 @@ func main() {
 	grants := scripting.NewGrantStore(filepath.Join(paths.Base, "grants.json"))
 	providers := scripting.NewRegistry(host, grants)
 	if err := scripting.LoadBuiltins(providers); err != nil {
-		log.Fatalf("load builtin providers: %v", err)
+		log.Fatalf("[FATAL] load builtin providers: %v", err)
 	}
 	providersDir := filepath.Join(paths.Base, "providers")
 	if err := scripting.LoadUserProviders(providers, providersDir); err != nil {
-		log.Printf("load user providers: %v", err)
+		log.Printf("[WARN] load user providers: %v", err)
 	}
 	// Mod/plugin metadata parsers: sandboxed Lua scripts that read a jar's
 	// embedded descriptor (fabric.mod.json, mods.toml, plugin.yml, ...).
 	parserGrants := scripting.NewGrantStore(filepath.Join(paths.Base, "parser-grants.json"))
 	parsers := scripting.NewParserSet(host, parserGrants)
 	if err := scripting.LoadBuiltinParsers(parsers); err != nil {
-		log.Fatalf("load builtin parsers: %v", err)
+		log.Fatalf("[FATAL] load builtin parsers: %v", err)
 	}
 	parsersDir := filepath.Join(paths.Base, "parsers")
 	if err := scripting.LoadUserParsers(parsers, parsersDir); err != nil {
-		log.Printf("load user parsers: %v", err)
+		log.Printf("[WARN] load user parsers: %v", err)
 	}
 	// Persist every console line to a daily-rotating per-server log file.
 	hub := console.NewHub()
@@ -111,7 +111,7 @@ func main() {
 	automationLogs, err := scriptlog.NewPersistentLogBuffer(
 		0, filepath.Join(paths.LogsRoot(), "automation"))
 	if err != nil {
-		log.Fatalf("open automation logs: %v", err)
+		log.Fatalf("[FATAL] open automation logs: %v", err)
 	}
 	closeLogs := func() {
 		sink.CloseAll()
@@ -120,7 +120,7 @@ func main() {
 	defer closeLogs()
 
 	backend, activeMode := selectBackend(context.Background(), settingsStore)
-	log.Printf("isolation backend: %s", activeMode)
+	log.Printf("[INFO] isolation backend: %s", activeMode)
 
 	// Mod shops: sandboxed Lua scripts that browse/search/download mods from
 	// online sources (Modrinth, CurseForge, ...). Shop HTTP traffic goes
@@ -139,11 +139,11 @@ func main() {
 	shopGrants := scripting.NewGrantStore(filepath.Join(paths.Base, "shop-grants.json"))
 	shops := scripting.NewShopSet(host, shopGrants, shopKey)
 	if err := scripting.LoadBuiltinShops(shops); err != nil {
-		log.Fatalf("load builtin shops: %v", err)
+		log.Fatalf("[FATAL] load builtin shops: %v", err)
 	}
 	shopsDir := filepath.Join(paths.Base, "shops")
 	if err := scripting.LoadUserShops(shops, shopsDir); err != nil {
-		log.Printf("load user shops: %v", err)
+		log.Printf("[WARN] load user shops: %v", err)
 	}
 
 	serverService := grpcsvc.NewServerService(grpcsvc.ServerServiceConfig{
@@ -195,11 +195,11 @@ func main() {
 	})
 	scriptsDir := paths.ScriptsRoot()
 	if err := automation.LoadUserScripts(scripts, scriptsDir); err != nil {
-		log.Printf("load automation scripts: %v", err)
+		log.Printf("[WARN] load automation scripts: %v", err)
 	}
 	for _, id := range scriptsEnabled.EnabledIDs() {
 		if err := scripts.Enable(id); err != nil {
-			log.Printf("enable automation %q: %v", id, err)
+			log.Printf("[WARN] enable automation %q: %v", id, err)
 		}
 	}
 	defer scripts.Shutdown()
@@ -220,17 +220,17 @@ func main() {
 		ParserService:   grpcsvc.NewParserService(parsers, parserGrants, parsersDir),
 		ShopService:     grpcsvc.NewShopService(shops, shopGrants, shopsDir, registry, modService),
 	})
-	log.Printf("engine data dir: %s", paths.Base)
+	log.Printf("[INFO] engine data dir: %s", paths.Base)
 
 	// Signal readiness to the parent process.
 	fmt.Println(readyLine)
 	_ = os.Stdout.Sync()
-	log.Printf("engine listening on pipe: %s", pipeName)
+	log.Printf("[INFO] engine listening on pipe: %s", pipeName)
 
 	go waitForShutdown(srv)
 
 	if err := srv.Serve(lis); err != nil {
-		log.Fatalf("serve: %v", err)
+		log.Fatalf("[FATAL] serve: %v", err)
 	}
 }
 
@@ -249,7 +249,7 @@ func selectBackend(ctx context.Context, settingsStore *settings.Store) (isolatio
 		return isolation.NewDockerBackend(), mode
 	}
 	if consent && !avail.Available {
-		log.Printf("docker requested but unavailable (%s); using on-machine backend", avail.Reason)
+		log.Printf("[WARN] docker requested but unavailable (%s); using on-machine backend", avail.Reason)
 	}
 	return isolation.NewJobObjectBackend(), mode
 }
@@ -272,7 +272,7 @@ func runLogJanitor(settingsStore *settings.Store, logsRoot string, closeLogs fun
 func applyLogRetention(settingsStore *settings.Store, logsRoot string, closeLogs func()) {
 	s, err := settingsStore.Load()
 	if err != nil {
-		log.Printf("log retention: load settings: %v", err)
+		log.Printf("[WARN] log retention: load settings: %v", err)
 		return
 	}
 	if closeLogs != nil {
@@ -280,10 +280,10 @@ func applyLogRetention(settingsStore *settings.Store, logsRoot string, closeLogs
 	}
 	removed, freed, err := logging.Purge(logsRoot, s.Policy(), time.Now())
 	if err != nil {
-		log.Printf("log retention: purge: %v", err)
+		log.Printf("[WARN] log retention: purge: %v", err)
 	}
 	if removed > 0 {
-		log.Printf("log retention: purged %d files (%d bytes freed)", removed, freed)
+		log.Printf("[INFO] log retention: purged %d files (%d bytes freed)", removed, freed)
 	}
 }
 
@@ -302,9 +302,9 @@ func waitForShutdown(srv interface{ GracefulStop() }) {
 
 	select {
 	case s := <-sig:
-		log.Printf("received signal %v; shutting down", s)
+		log.Printf("[INFO] received signal %v; shutting down", s)
 	case <-stdinClosed:
-		log.Println("stdin closed (parent exited); shutting down")
+		log.Println("[INFO] stdin closed (parent exited); shutting down")
 	}
 	srv.GracefulStop()
 }

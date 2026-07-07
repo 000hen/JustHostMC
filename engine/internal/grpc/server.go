@@ -1,6 +1,7 @@
 package grpcsvc
 
 import (
+	"log"
 	"net"
 
 	mcmanagerv1 "github.com/000hen/justhostmc/engine/gen/mcmanager/v1"
@@ -31,13 +32,24 @@ type Config struct {
 	ParserService   mcmanagerv1.ParserServiceServer
 	ScriptService   mcmanagerv1.ScriptServiceServer
 	ShopService     mcmanagerv1.ShopServiceServer
+	// Logger receives engine-side gRPC lifecycle and error diagnostics. When nil,
+	// the process-wide logger is used (stderr in the engine executable).
+	Logger *log.Logger
 }
 
 // NewServer builds a gRPC server with the given services registered.
-// No auth interceptors are installed — the named pipe transport provides
-// machine-local access control.
+// The named pipe transport provides machine-local access control. Observability
+// interceptors log every RPC in the Go process so failures are visible in the
+// engine monitor without relying on frontend exception handling.
 func NewServer(cfg Config) *grpc.Server {
-	srv := grpc.NewServer()
+	logger := cfg.Logger
+	if logger == nil {
+		logger = log.Default()
+	}
+	srv := grpc.NewServer(
+		grpc.UnaryInterceptor(logUnaryRPCs(logger)),
+		grpc.StreamInterceptor(logStreamRPCs(logger)),
+	)
 	mcmanagerv1.RegisterEngineServiceServer(srv, &EngineService{Providers: cfg.Providers})
 	if cfg.ServerService != nil {
 		mcmanagerv1.RegisterServerServiceServer(srv, cfg.ServerService)

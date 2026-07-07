@@ -70,6 +70,7 @@
   <data name="RefreshButton.ToolTipService.ToolTip" xml:space="preserve"><value>Refresh</value></data>
   <data name="CreateServerButtonLabel.Text" xml:space="preserve"><value>Create server</value></data>
   <data name="NoServersHint.Text" xml:space="preserve"><value>No servers yet. Select ?reate server??to add one.</value></data>
+  <data name="AdaptiveFilterLayoutFilterButtonLabel.Text" xml:space="preserve"><value>Filters</value></data>
 
   <!-- First-run on-machine notice -->
   <data name="OnMachineNotice.Title" xml:space="preserve"><value>Servers run on this PC</value></data>
@@ -200,7 +201,11 @@
 <data name="Settings_RemoveDataFailed" xml:space="preserve"><value>Could not remove all data.</value></data>
 
 <!-- Engine stdio monitor -->
-<data name="EngineMonitor_Title" xml:space="preserve"><value>Engine monitor</value></data>
+<data name="EngineMonitorStopButton.Content" xml:space="preserve"><value>Stop</value></data>
+<data name="EngineMonitorFiltersLabel.Text" xml:space="preserve"><value>Filters</value></data>
+<data name="EngineMonitorStreamsHeading.Text" xml:space="preserve"><value>Streams</value></data>
+<data name="EngineMonitorLevelsHeading.Text" xml:space="preserve"><value>Levels</value></data>
+<data name="EngineMonitor_Title" xml:space="preserve"><value>Engine debug monitor</value></data>
 <data name="EngineMonitorClearButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Clear engine output</value></data>
 <data name="EngineMonitorClearButtonLabel.Text" xml:space="preserve"><value>Clear</value></data>
 <data name="EngineMonitorCopyButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Copy visible engine output</value></data>

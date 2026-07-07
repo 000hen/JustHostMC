@@ -70,6 +70,7 @@
   <data name="RefreshButton.ToolTipService.ToolTip" xml:space="preserve"><value>重新整理</value></data>
   <data name="CreateServerButtonLabel.Text" xml:space="preserve"><value>建立伺服器</value></data>
   <data name="NoServersHint.Text" xml:space="preserve"><value>還沒有伺服器。選取「建立伺服器」來新增一個。</value></data>
+  <data name="AdaptiveFilterLayoutFilterButtonLabel.Text" xml:space="preserve"><value>篩選</value></data>
 
   <!-- First-run on-machine notice -->
   <data name="OnMachineNotice.Title" xml:space="preserve"><value>伺服器會在這台電腦上執行</value></data>
@@ -197,6 +198,10 @@
 <data name="Settings_RemoveDataFailed" xml:space="preserve"><value>無法移除所有資料。</value></data>
 
 <!-- Engine stdio monitor -->
+<data name="EngineMonitorStopButton.Content" xml:space="preserve"><value>停止</value></data>
+<data name="EngineMonitorFiltersLabel.Text" xml:space="preserve"><value>篩選條件</value></data>
+<data name="EngineMonitorStreamsHeading.Text" xml:space="preserve"><value>訊息來源</value></data>
+<data name="EngineMonitorLevelsHeading.Text" xml:space="preserve"><value>記錄層級</value></data>
 <data name="EngineMonitor_Title" xml:space="preserve"><value>引擎監視器</value></data>
 <data name="EngineMonitorClearButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>清除引擎輸出</value></data>
 <data name="EngineMonitorClearButtonLabel.Text" xml:space="preserve"><value>清除</value></data>

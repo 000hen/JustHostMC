@@ -115,7 +115,7 @@ func (ps *ParserSet) ParseJarCandidates(ctx context.Context, serverDir, jarRel s
 	for _, p := range ps.List() {
 		meta, matched, err := p.Parse(ctx, serverDir, jarRel)
 		if err != nil {
-			log.Printf("mod parser %q: %s: %v", p.meta.ID, jarRel, err)
+			log.Printf("[WARN] mod parser %q: %s: %v", p.meta.ID, jarRel, err)
 			if p.builtin && firstBuiltinErr == nil {
 				firstBuiltinErr = fmt.Errorf("%s: %w", p.meta.ID, err)
 			}

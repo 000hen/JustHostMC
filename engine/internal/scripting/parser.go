@@ -42,8 +42,8 @@ type LuaParser struct {
 
 // newLuaParser compiles source in a throwaway sandbox, validates its meta and
 // the presence of a parse() function, and returns the adapter.
-func newLuaParser(host *Host, source string, builtin bool) (*LuaParser, error) {
-	inv := &invocation{ctx: context.Background(), host: host}
+func newLuaParser(ctx context.Context, host *Host, source string, builtin bool) (*LuaParser, error) {
+	inv := &invocation{ctx: ctx, host: host}
 	L, err := inv.prepare(source)
 	if err != nil {
 		return nil, err

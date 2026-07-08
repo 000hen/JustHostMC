@@ -3,6 +3,8 @@
 package e2e
 
 import (
+	"context"
+
 	"testing"
 
 	"github.com/000hen/justhostmc/engine/internal/provider"
@@ -14,7 +16,7 @@ import (
 func vanillaProvider(t *testing.T) provider.Provider {
 	t.Helper()
 	reg := scripting.NewRegistry(scripting.NewHost(nil, nil, nil), nil)
-	if err := scripting.LoadBuiltins(reg); err != nil {
+	if err := scripting.LoadBuiltins(context.Background(), reg); err != nil {
 		t.Fatalf("load builtin providers: %v", err)
 	}
 	e, ok := reg.Get("vanilla")

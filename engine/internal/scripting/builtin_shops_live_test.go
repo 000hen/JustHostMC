@@ -15,7 +15,7 @@ func TestModrinthLive(t *testing.T) {
 		t.Skip("set JHMC_INTEGRATION=1 to run live-API tests")
 	}
 	ss := NewShopSet(NewHost(nil, nil, nil), nil, nil)
-	if err := LoadBuiltinShops(ss); err != nil {
+	if err := LoadBuiltinShops(context.Background(), ss); err != nil {
 		t.Fatal(err)
 	}
 	sh, _ := ss.Get("modrinth")

@@ -21,7 +21,7 @@ import (
 // declared metadata + permissions parse correctly (no network).
 func TestBuiltinVanillaMeta(t *testing.T) {
 	r := NewRegistry(NewHost(nil, nil, nil), nil)
-	if err := LoadBuiltins(r); err != nil {
+	if err := LoadBuiltins(context.Background(), r); err != nil {
 		t.Fatalf("LoadBuiltins: %v", err)
 	}
 	e, ok := r.Get("vanilla")
@@ -91,7 +91,7 @@ end
 func TestHostVersionsAndInstall(t *testing.T) {
 	srv := stubServer(t)
 	r := NewRegistry(NewHost(nil, nil, nil), nil)
-	e, err := r.AddSource(stubScript(srv.URL), true) // builtin → network auto-granted
+	e, err := r.AddSource(context.Background(), stubScript(srv.URL), true) // builtin → network auto-granted
 	if err != nil {
 		t.Fatalf("AddSource: %v", err)
 	}
@@ -130,7 +130,7 @@ func TestHostVersionsAndInstall(t *testing.T) {
 func TestUngrantedNetworkDenied(t *testing.T) {
 	srv := stubServer(t)
 	r := NewRegistry(NewHost(nil, nil, nil), nil)
-	e, err := r.AddSource(stubScript(srv.URL), false) // not builtin, no grants
+	e, err := r.AddSource(context.Background(), stubScript(srv.URL), false) // not builtin, no grants
 	if err != nil {
 		t.Fatalf("AddSource: %v", err)
 	}
@@ -143,7 +143,7 @@ func TestUngrantedNetworkDenied(t *testing.T) {
 func TestVersionNotFoundMapped(t *testing.T) {
 	srv := stubServer(t)
 	r := NewRegistry(NewHost(nil, nil, nil), nil)
-	e, _ := r.AddSource(stubScript(srv.URL), true)
+	e, _ := r.AddSource(context.Background(), stubScript(srv.URL), true)
 	_, err := e.Provider.Install(context.Background(), t.TempDir(), "9.9.9", nil)
 	if !errors.Is(err, provider.ErrVersionNotFound) {
 		t.Fatalf("Install err = %v, want ErrVersionNotFound", err)

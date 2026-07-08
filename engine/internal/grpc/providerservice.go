@@ -37,12 +37,12 @@ func (s *ProviderService) List(_ context.Context, _ *mcmanagerv1.Empty) (*mcmana
 	return &mcmanagerv1.ProviderList{Providers: out}, nil
 }
 
-func (s *ProviderService) Import(_ context.Context, req *mcmanagerv1.ImportProviderRequest) (*mcmanagerv1.ProviderInfo, error) {
+func (s *ProviderService) Import(ctx context.Context, req *mcmanagerv1.ImportProviderRequest) (*mcmanagerv1.ProviderInfo, error) {
 	if strings.TrimSpace(req.LuaSource) == "" {
 		return nil, errorStatus(codes.InvalidArgument, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, "provider script is empty", nil)
 	}
 	// Compile first so a bad script is rejected before anything is written.
-	e, err := s.registry.AddSource(req.LuaSource, false)
+	e, err := s.registry.AddSource(ctx, req.LuaSource, false)
 	if err != nil {
 		return nil, errorStatus(codes.InvalidArgument, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, err.Error(), nil)
 	}
@@ -64,7 +64,7 @@ func (s *ProviderService) Import(_ context.Context, req *mcmanagerv1.ImportProvi
 		}
 	}
 	// Re-register from the persisted dir so the script gains its asset dir.
-	e2, err := s.registry.AddProviderDir(pdir, false)
+	e2, err := s.registry.AddProviderDir(ctx, pdir, false)
 	if err != nil {
 		return nil, errorStatus(codes.Internal, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, err.Error(), nil)
 	}

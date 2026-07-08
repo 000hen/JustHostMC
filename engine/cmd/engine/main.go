@@ -44,6 +44,9 @@ const (
 var defaultCurseForgeKey string
 
 func main() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	// Logs go to stderr so they never collide with the ready handshake on stdout.
 	log.SetOutput(os.Stderr)
 	log.SetFlags(log.LstdFlags | log.Lmicroseconds)
@@ -74,22 +77,22 @@ func main() {
 	host := scripting.NewHost(nil, jreMgr.EnsureJRE, jreMgr.EnsureJDK)
 	grants := scripting.NewGrantStore(filepath.Join(paths.Base, "grants.json"))
 	providers := scripting.NewRegistry(host, grants)
-	if err := scripting.LoadBuiltins(providers); err != nil {
+	if err := scripting.LoadBuiltins(ctx, providers); err != nil {
 		log.Fatalf("[FATAL] load builtin providers: %v", err)
 	}
 	providersDir := filepath.Join(paths.Base, "providers")
-	if err := scripting.LoadUserProviders(providers, providersDir); err != nil {
+	if err := scripting.LoadUserProviders(ctx, providers, providersDir); err != nil {
 		log.Printf("[WARN] load user providers: %v", err)
 	}
 	// Mod/plugin metadata parsers: sandboxed Lua scripts that read a jar's
 	// embedded descriptor (fabric.mod.json, mods.toml, plugin.yml, ...).
 	parserGrants := scripting.NewGrantStore(filepath.Join(paths.Base, "parser-grants.json"))
 	parsers := scripting.NewParserSet(host, parserGrants)
-	if err := scripting.LoadBuiltinParsers(parsers); err != nil {
+	if err := scripting.LoadBuiltinParsers(ctx, parsers); err != nil {
 		log.Fatalf("[FATAL] load builtin parsers: %v", err)
 	}
 	parsersDir := filepath.Join(paths.Base, "parsers")
-	if err := scripting.LoadUserParsers(parsers, parsersDir); err != nil {
+	if err := scripting.LoadUserParsers(ctx, parsers, parsersDir); err != nil {
 		log.Printf("[WARN] load user parsers: %v", err)
 	}
 	// Persist every console line to a daily-rotating per-server log file.
@@ -119,7 +122,7 @@ func main() {
 	}
 	defer closeLogs()
 
-	backend, activeMode := selectBackend(context.Background(), settingsStore)
+	backend, activeMode := selectBackend(ctx, settingsStore)
 	log.Printf("[INFO] isolation backend: %s", activeMode)
 
 	// Mod shops: sandboxed Lua scripts that browse/search/download mods from
@@ -138,11 +141,11 @@ func main() {
 	}
 	shopGrants := scripting.NewGrantStore(filepath.Join(paths.Base, "shop-grants.json"))
 	shops := scripting.NewShopSet(host, shopGrants, shopKey)
-	if err := scripting.LoadBuiltinShops(shops); err != nil {
+	if err := scripting.LoadBuiltinShops(ctx, shops); err != nil {
 		log.Fatalf("[FATAL] load builtin shops: %v", err)
 	}
 	shopsDir := filepath.Join(paths.Base, "shops")
-	if err := scripting.LoadUserShops(shops, shopsDir); err != nil {
+	if err := scripting.LoadUserShops(ctx, shops, shopsDir); err != nil {
 		log.Printf("[WARN] load user shops: %v", err)
 	}
 
@@ -157,7 +160,7 @@ func main() {
 		OnExit:    eventBus.Reset,
 	})
 	// Reclaim state from the persisted registry after a restart.
-	serverService.Reconcile(context.Background())
+	serverService.Reconcile(ctx)
 
 	backupService := grpcsvc.NewBackupService(grpcsvc.BackupServiceConfig{
 		Manager: backup.NewManager(paths.BackupsRoot()),
@@ -194,7 +197,7 @@ func main() {
 		KV:      scriptdata.NewKVStore(filepath.Join(paths.Base, "script-data")),
 	})
 	scriptsDir := paths.ScriptsRoot()
-	if err := automation.LoadUserScripts(scripts, scriptsDir); err != nil {
+	if err := automation.LoadUserScripts(ctx, scripts, scriptsDir); err != nil {
 		log.Printf("[WARN] load automation scripts: %v", err)
 	}
 	for _, id := range scriptsEnabled.EnabledIDs() {
@@ -227,7 +230,7 @@ func main() {
 	_ = os.Stdout.Sync()
 	log.Printf("[INFO] engine listening on pipe: %s", pipeName)
 
-	go waitForShutdown(srv)
+	go waitForShutdown(srv, cancel)
 
 	if err := srv.Serve(lis); err != nil {
 		log.Fatalf("[FATAL] serve: %v", err)
@@ -290,7 +293,7 @@ func applyLogRetention(settingsStore *settings.Store, logsRoot string, closeLogs
 // waitForShutdown gracefully stops the server when the OS signals termination or
 // when the parent process goes away (our stdin reaches EOF). The latter guards
 // against leaking the engine if the app crashes without an explicit stop.
-func waitForShutdown(srv interface{ GracefulStop() }) {
+func waitForShutdown(srv interface{ GracefulStop() }, cancel context.CancelFunc) {
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
 
@@ -306,5 +309,6 @@ func waitForShutdown(srv interface{ GracefulStop() }) {
 	case <-stdinClosed:
 		log.Println("[INFO] stdin closed (parent exited); shutting down")
 	}
+	cancel()
 	srv.GracefulStop()
 }

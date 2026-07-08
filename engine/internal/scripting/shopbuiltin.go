@@ -1,6 +1,7 @@
 package scripting
 
 import (
+	"context"
 	"embed"
 	"fmt"
 	"strings"
@@ -13,7 +14,7 @@ import (
 var builtinShopsFS embed.FS
 
 // LoadBuiltinShops registers every embedded shop script as builtin.
-func LoadBuiltinShops(ss *ShopSet) error {
+func LoadBuiltinShops(ctx context.Context, ss *ShopSet) error {
 	entries, err := builtinShopsFS.ReadDir("builtin_shops")
 	if err != nil {
 		return err
@@ -26,7 +27,7 @@ func LoadBuiltinShops(ss *ShopSet) error {
 		if err != nil {
 			return fmt.Errorf("builtin shop %s: %w", e.Name(), err)
 		}
-		if _, err := ss.AddSource(string(src), true); err != nil {
+		if _, err := ss.AddSource(ctx, string(src), true); err != nil {
 			return fmt.Errorf("builtin shop %s: %w", e.Name(), err)
 		}
 	}

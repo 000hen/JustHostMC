@@ -136,7 +136,7 @@ on_log("srv1", function(line)
   if line == "ping" then server.send("srv1", "pong") end
 end)
 `
-	if _, err := m.AddSource(src, true); err != nil {
+	if _, err := m.AddSource(context.Background(), src, true); err != nil {
 		t.Fatalf("AddSource: %v", err)
 	}
 	if err := m.Enable("watcher"); err != nil {
@@ -165,7 +165,7 @@ events = 0
 on_start("srv1", function(id) log("start:" .. id) end)
 on_stop("srv1", function(id) log("stop:" .. id) end)
 `
-	if _, err := m.AddSource(src, true); err != nil {
+	if _, err := m.AddSource(context.Background(), src, true); err != nil {
 		t.Fatalf("AddSource: %v", err)
 	}
 	if err := m.Enable("lifecycle"); err != nil {
@@ -191,7 +191,7 @@ meta = { id = "ticker", name = "Ticker",
   } }
 schedule(0.01, function() server.start("srv1") end)
 `
-	if _, err := m.AddSource(src, true); err != nil {
+	if _, err := m.AddSource(context.Background(), src, true); err != nil {
 		t.Fatalf("AddSource: %v", err)
 	}
 	if err := m.Enable("ticker"); err != nil {
@@ -221,7 +221,7 @@ register = function()
   -- of the hook should raise; the script still loads.
 end
 `
-	if _, err := m.AddSource(src, false); err != nil {
+	if _, err := m.AddSource(context.Background(), src, false); err != nil {
 		t.Fatalf("AddSource: %v", err)
 	}
 	// Enable must not error even though the script declares perms it isn't granted.
@@ -254,7 +254,7 @@ schedule(0.01, function()
   end
 end)
 `
-	if _, err := m.AddSource(src, true); err != nil {
+	if _, err := m.AddSource(context.Background(), src, true); err != nil {
 		t.Fatalf("AddSource: %v", err)
 	}
 	if err := m.Enable("ctl"); err != nil {

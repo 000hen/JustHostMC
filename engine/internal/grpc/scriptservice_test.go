@@ -170,7 +170,7 @@ func TestScriptRemove(t *testing.T) {
 
 func TestScriptRemoveBuiltinRejected(t *testing.T) {
 	s, mgr, _ := newTestScriptService(t)
-	if _, err := mgr.AddSource(validScript, true); err != nil {
+	if _, err := mgr.AddSource(context.Background(), validScript, true); err != nil {
 		t.Fatalf("AddSource builtin: %v", err)
 	}
 	_, err := s.Remove(context.Background(), &mcmanagerv1.ProviderRef{Id: "auto1"})

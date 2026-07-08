@@ -69,7 +69,7 @@ func TestNeoForgeVersionsParsing(t *testing.T) {
 	transport := &stubRoundTripper{}
 	client := &http.Client{Transport: transport}
 	r := NewRegistry(NewHost(client, nil, nil), nil)
-	if err := LoadBuiltins(r); err != nil {
+	if err := LoadBuiltins(context.Background(), r); err != nil {
 		t.Fatalf("LoadBuiltins: %v", err)
 	}
 	e, ok := r.Get("neoforge")
@@ -104,7 +104,7 @@ func TestNeoForgeLegacyInstallerResolution(t *testing.T) {
 		return missingJava, nil
 	}
 	r := NewRegistry(NewHost(client, jre, nil), nil)
-	if err := LoadBuiltins(r); err != nil {
+	if err := LoadBuiltins(context.Background(), r); err != nil {
 		t.Fatalf("LoadBuiltins: %v", err)
 	}
 	e, ok := r.Get("neoforge")

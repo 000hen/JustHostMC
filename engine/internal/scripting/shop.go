@@ -141,8 +141,8 @@ type LuaShop struct {
 
 // newLuaShop compiles source in a throwaway sandbox and validates its meta
 // and required globals.
-func newLuaShop(host *Host, source string, builtin bool) (*LuaShop, error) {
-	inv := &invocation{ctx: context.Background(), host: host}
+func newLuaShop(ctx context.Context, host *Host, source string, builtin bool) (*LuaShop, error) {
+	inv := &invocation{ctx: ctx, host: host}
 	L, err := inv.prepare(source)
 	if err != nil {
 		return nil, err

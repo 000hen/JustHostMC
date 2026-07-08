@@ -22,7 +22,7 @@ import (
 func paperProvider(t *testing.T) provider.Provider {
 	t.Helper()
 	reg := scripting.NewRegistry(scripting.NewHost(nil, nil, nil), nil)
-	if err := scripting.LoadBuiltins(reg); err != nil {
+	if err := scripting.LoadBuiltins(context.Background(), reg); err != nil {
 		t.Fatalf("load builtin providers: %v", err)
 	}
 	e, ok := reg.Get("paper")

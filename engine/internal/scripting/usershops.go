@@ -1,6 +1,7 @@
 package scripting
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"strings"
@@ -9,7 +10,7 @@ import (
 // LoadUserShops registers every user-imported shop (loose *.lua file) under
 // dir. A missing dir is not an error; a single bad shop is reported via the
 // returned (first) error but does not stop the others from loading.
-func LoadUserShops(ss *ShopSet, dir string) error {
+func LoadUserShops(ctx context.Context, ss *ShopSet, dir string) error {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -24,7 +25,7 @@ func LoadUserShops(ss *ShopSet, dir string) error {
 		}
 		src, err := os.ReadFile(filepath.Join(dir, e.Name()))
 		if err == nil {
-			_, err = ss.AddSource(string(src), false)
+			_, err = ss.AddSource(ctx, string(src), false)
 		}
 		if err != nil && firstErr == nil {
 			firstErr = err

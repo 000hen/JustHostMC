@@ -24,7 +24,7 @@ func forgeProvider(t *testing.T, jreMgr *jre.Manager) provider.Provider {
 	t.Helper()
 	host := scripting.NewHost(nil, jreMgr.EnsureJRE, jreMgr.EnsureJRE)
 	reg := scripting.NewRegistry(host, nil)
-	if err := scripting.LoadBuiltins(reg); err != nil {
+	if err := scripting.LoadBuiltins(context.Background(), reg); err != nil {
 		t.Fatalf("load builtin providers: %v", err)
 	}
 	e, ok := reg.Get("forge")

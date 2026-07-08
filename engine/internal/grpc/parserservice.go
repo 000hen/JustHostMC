@@ -38,12 +38,12 @@ func (s *ParserService) List(_ context.Context, _ *mcmanagerv1.Empty) (*mcmanage
 	return &mcmanagerv1.ParserList{Parsers: out}, nil
 }
 
-func (s *ParserService) Import(_ context.Context, req *mcmanagerv1.ImportParserRequest) (*mcmanagerv1.ParserInfo, error) {
+func (s *ParserService) Import(ctx context.Context, req *mcmanagerv1.ImportParserRequest) (*mcmanagerv1.ParserInfo, error) {
 	if strings.TrimSpace(req.LuaSource) == "" {
 		return nil, errorStatus(codes.InvalidArgument, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, "parser script is empty", nil)
 	}
 	// Compile first so a bad script is rejected before anything is written.
-	p, err := s.parsers.AddSource(req.LuaSource, false)
+	p, err := s.parsers.AddSource(ctx, req.LuaSource, false)
 	if err != nil {
 		return nil, errorStatus(codes.InvalidArgument, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, err.Error(), nil)
 	}

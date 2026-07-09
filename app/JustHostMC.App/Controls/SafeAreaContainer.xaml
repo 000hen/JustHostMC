@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <UserControl
     x:Class="JustHostMC.App.Controls.SafeAreaContainer"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -17,9 +17,9 @@
 
         <ContentPresenter
             Grid.Column="1"
-            Content="{x:Bind InnerContent, Mode=OneWay}"
             HorizontalContentAlignment="Stretch"
-            VerticalContentAlignment="Stretch" />
+            VerticalContentAlignment="Stretch"
+            Content="{x:Bind InnerContent, Mode=OneWay}" />
 
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="SafeAreaStates">

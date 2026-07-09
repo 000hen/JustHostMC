@@ -32,9 +32,9 @@ public sealed partial class ServerSectionLayout : UserControl {
             new PropertyMetadata(null, OnHeaderPartChanged));
 
     public static readonly DependencyProperty BodyProperty =
-        DependencyProperty.Register(
-            nameof(Body), typeof(object), typeof(ServerSectionLayout),
-            new PropertyMetadata(null));
+        DependencyProperty.Register(nameof(Body), typeof(object),
+                                    typeof(ServerSectionLayout),
+                                    new PropertyMetadata(null));
 
     public string IconGlyph {
         get => (string)GetValue(IconGlyphProperty);
@@ -65,8 +65,8 @@ public sealed partial class ServerSectionLayout : UserControl {
         InitializeComponent();
     }
 
-    private static void OnHeaderPartChanged(DependencyObject d,
-                                            DependencyPropertyChangedEventArgs e) {
+    private static void OnHeaderPartChanged(
+        DependencyObject d, DependencyPropertyChangedEventArgs e) {
         var layout = (ServerSectionLayout)d;
         layout.UpdateHeaderVisibility();
     }
@@ -77,9 +77,13 @@ public sealed partial class ServerSectionLayout : UserControl {
         var hasDescription = !string.IsNullOrEmpty(Description);
         var hasContent     = HeaderContent is not null;
 
-        HeaderRow.Visibility       = (hasTitle || hasContent) ? Visibility.Visible : Visibility.Collapsed;
-        HeaderIcon.Visibility      = hasIcon ? Visibility.Visible : Visibility.Collapsed;
-        TitleArea.Visibility       = hasTitle ? Visibility.Visible : Visibility.Collapsed;
-        DescriptionText.Visibility = hasDescription ? Visibility.Visible : Visibility.Collapsed;
+        HeaderRow.Visibility = (hasTitle || hasContent) ? Visibility.Visible
+                                                        : Visibility.Collapsed;
+        HeaderIcon.Visibility =
+            hasIcon ? Visibility.Visible : Visibility.Collapsed;
+        TitleArea.Visibility =
+            hasTitle ? Visibility.Visible : Visibility.Collapsed;
+        DescriptionText.Visibility =
+            hasDescription ? Visibility.Visible : Visibility.Collapsed;
     }
 }

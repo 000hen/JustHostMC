@@ -1,4 +1,4 @@
-<UserControl
+﻿<UserControl
     x:Class="JustHostMC.App.Controls.Server.ServerModsPanel"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -174,9 +174,9 @@
     </UserControl.Resources>
 
     <server:ServerSectionLayout
+        Title="{x:Bind Mods.KindLabel, Mode=OneWay}"
         Description="{x:Bind ModsDescription(Mods.CanModify), Mode=OneWay}"
-        IconGlyph="&#xE7B8;"
-        Title="{x:Bind Mods.KindLabel, Mode=OneWay}">
+        IconGlyph="&#xE7B8;">
         <server:ServerSectionLayout.HeaderContent>
             <StackPanel Orientation="Horizontal" Spacing="8">
                 <Button

@@ -93,9 +93,7 @@
                 <Expander.Header>
                     <TextBlock x:Uid="ScriptsScriptLogsHeader" Style="{StaticResource BodyStrongTextBlockStyle}" />
                 </Expander.Header>
-                <Border
-                    MinHeight="72"
-                    MaxHeight="360">
+                <Border MinHeight="72" MaxHeight="360">
                     <Grid>
                         <TextBlock
                             x:Uid="ScriptsScriptLogsEmpty"

@@ -14,71 +14,71 @@
         HorizontalScrollBarVisibility="Disabled"
         VerticalScrollBarVisibility="Auto">
         <controls:SafeAreaContainer>
-        <StackPanel HorizontalAlignment="Stretch">
+            <StackPanel HorizontalAlignment="Stretch">
 
-            <TextBlock x:Uid="ScriptsPageTitle" Style="{StaticResource TitleTextBlockStyle}" />
-            <TextBlock
-                Margin="0,8,0,0"
-                x:Uid="ScriptsPageSubtitle"
-                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                TextWrapping="WrapWholeWords" />
+                <TextBlock x:Uid="ScriptsPageTitle" Style="{StaticResource TitleTextBlockStyle}" />
+                <TextBlock
+                    x:Uid="ScriptsPageSubtitle"
+                    Margin="0,8,0,0"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    TextWrapping="WrapWholeWords" />
 
-            <ProgressBar IsIndeterminate="True" Visibility="{x:Bind ViewModel.IsBusy, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                <ProgressBar IsIndeterminate="True" Visibility="{x:Bind ViewModel.IsBusy, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
 
-            <TextBlock
-                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
-                TextWrapping="WrapWholeWords"
-                Visibility="{x:Bind ViewModel.HasStatusMessage, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                <TextBlock
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
+                    TextWrapping="WrapWholeWords"
+                    Visibility="{x:Bind ViewModel.HasStatusMessage, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
 
-            <!--  Providers  -->
-            <controls:ScriptSectionExpander
-                Margin="0,24,0,0"
-                AddScriptsClick="OnImportProviderClick"
-                ItemsSource="{x:Bind ViewModel.Providers}"
-                ScriptRemoved="OnRemoveScript"
-                ScriptToggled="OnScriptToggled"
-                ShowInFolderClick="OnShowProvidersFolderClick">
-                <controls:ScriptSectionExpander.HeaderContent>
-                    <TextBlock x:Uid="ScriptsProvidersHeader" Style="{StaticResource BodyTextBlockStyle}" />
-                </controls:ScriptSectionExpander.HeaderContent>
-            </controls:ScriptSectionExpander>
+                <!--  Providers  -->
+                <controls:ScriptSectionExpander
+                    Margin="0,24,0,0"
+                    AddScriptsClick="OnImportProviderClick"
+                    ItemsSource="{x:Bind ViewModel.Providers}"
+                    ScriptRemoved="OnRemoveScript"
+                    ScriptToggled="OnScriptToggled"
+                    ShowInFolderClick="OnShowProvidersFolderClick">
+                    <controls:ScriptSectionExpander.HeaderContent>
+                        <TextBlock x:Uid="ScriptsProvidersHeader" Style="{StaticResource BodyTextBlockStyle}" />
+                    </controls:ScriptSectionExpander.HeaderContent>
+                </controls:ScriptSectionExpander>
 
-            <!--  Mod/plugin metadata parsers  -->
-            <controls:ScriptSectionExpander
-                AddScriptsClick="OnImportParserClick"
-                ItemsSource="{x:Bind ViewModel.Parsers}"
-                ScriptRemoved="OnRemoveScript"
-                ScriptToggled="OnScriptToggled"
-                ShowInFolderClick="OnShowParsersFolderClick">
-                <controls:ScriptSectionExpander.HeaderContent>
-                    <TextBlock x:Uid="ScriptsParsersHeader" Style="{StaticResource BodyTextBlockStyle}" />
-                </controls:ScriptSectionExpander.HeaderContent>
-            </controls:ScriptSectionExpander>
+                <!--  Mod/plugin metadata parsers  -->
+                <controls:ScriptSectionExpander
+                    AddScriptsClick="OnImportParserClick"
+                    ItemsSource="{x:Bind ViewModel.Parsers}"
+                    ScriptRemoved="OnRemoveScript"
+                    ScriptToggled="OnScriptToggled"
+                    ShowInFolderClick="OnShowParsersFolderClick">
+                    <controls:ScriptSectionExpander.HeaderContent>
+                        <TextBlock x:Uid="ScriptsParsersHeader" Style="{StaticResource BodyTextBlockStyle}" />
+                    </controls:ScriptSectionExpander.HeaderContent>
+                </controls:ScriptSectionExpander>
 
-            <!--  Automation scripts  -->
-            <controls:ScriptSectionExpander
-                AddScriptsClick="OnImportScriptClick"
-                ItemsSource="{x:Bind ViewModel.Scripts}"
-                ScriptRemoved="OnRemoveScript"
-                ScriptToggled="OnScriptToggled"
-                ShowInFolderClick="OnShowAutomationFolderClick">
-                <controls:ScriptSectionExpander.HeaderContent>
-                    <TextBlock x:Uid="ScriptsAutomationHeader" Style="{StaticResource BodyTextBlockStyle}" />
-                </controls:ScriptSectionExpander.HeaderContent>
-                <controls:ScriptSectionExpander.HeaderAdditionalButtons>
-                    <Button
-                        x:Uid="ScriptsAllLogsButton"
-                        HorizontalAlignment="Right"
-                        Click="OnShowAllLogsClick">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon FontSize="14" Glyph="&#xE9D9;" />
-                            <TextBlock x:Uid="ScriptsAllLogsButtonLabel" />
-                        </StackPanel>
-                    </Button>
-                </controls:ScriptSectionExpander.HeaderAdditionalButtons>
-            </controls:ScriptSectionExpander>
-        </StackPanel>
+                <!--  Automation scripts  -->
+                <controls:ScriptSectionExpander
+                    AddScriptsClick="OnImportScriptClick"
+                    ItemsSource="{x:Bind ViewModel.Scripts}"
+                    ScriptRemoved="OnRemoveScript"
+                    ScriptToggled="OnScriptToggled"
+                    ShowInFolderClick="OnShowAutomationFolderClick">
+                    <controls:ScriptSectionExpander.HeaderContent>
+                        <TextBlock x:Uid="ScriptsAutomationHeader" Style="{StaticResource BodyTextBlockStyle}" />
+                    </controls:ScriptSectionExpander.HeaderContent>
+                    <controls:ScriptSectionExpander.HeaderAdditionalButtons>
+                        <Button
+                            x:Uid="ScriptsAllLogsButton"
+                            HorizontalAlignment="Right"
+                            Click="OnShowAllLogsClick">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon FontSize="14" Glyph="&#xE9D9;" />
+                                <TextBlock x:Uid="ScriptsAllLogsButtonLabel" />
+                            </StackPanel>
+                        </Button>
+                    </controls:ScriptSectionExpander.HeaderAdditionalButtons>
+                </controls:ScriptSectionExpander>
+            </StackPanel>
         </controls:SafeAreaContainer>
     </ScrollViewer>
 </Page>

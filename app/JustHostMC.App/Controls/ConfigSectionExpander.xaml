@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <UserControl
     x:Class="JustHostMC.App.Controls.ConfigSectionExpander"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -15,7 +15,7 @@
         HorizontalContentAlignment="Stretch"
         IsExpanded="{Binding IsExpanded, ElementName=Root, Mode=TwoWay}">
         <Expander.Header>
-            <StackPanel Spacing="4" Padding="0,12">
+            <StackPanel Padding="0,12" Spacing="4">
                 <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{Binding Title, ElementName=Root}" />
                 <TextBlock
                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"

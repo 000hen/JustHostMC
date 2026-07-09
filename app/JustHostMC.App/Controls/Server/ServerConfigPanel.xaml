@@ -1,4 +1,4 @@
-<UserControl
+﻿<UserControl
     x:Class="JustHostMC.App.Controls.Server.ServerConfigPanel"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -9,9 +9,9 @@
     mc:Ignorable="d">
 
     <server:ServerSectionLayout
+        Title="{x:Bind ConfigTitle()}"
         Description="{x:Bind ConfigDescription(Config.CanModify), Mode=OneWay}"
-        IconGlyph="&#xE713;"
-        Title="{x:Bind ConfigTitle()}">
+        IconGlyph="&#xE713;">
         <server:ServerSectionLayout.Body>
             <Grid>
                 <ScrollViewer
@@ -19,9 +19,7 @@
                     HorizontalScrollBarVisibility="Disabled"
                     HorizontalScrollMode="Disabled"
                     VerticalScrollBarVisibility="Auto">
-                    <StackPanel
-                        Padding="0,0,0,60"
-                        HorizontalAlignment="Stretch">
+                    <StackPanel Padding="0,0,0,60" HorizontalAlignment="Stretch">
 
                         <StackPanel Spacing="12" Visibility="{x:Bind Config.IsInitialLoading, Mode=OneWay, Converter={StaticResource BoolToVis}}">
                             <Expander

@@ -35,7 +35,8 @@ public sealed partial class ServerModsPanel : UserControl {
     }
 
     private string ModsDescription(bool canModify) =>
-        canModify ? _localizer.Get("ServerSectionModsHint/Text") : _localizer.Get("ModsStoppedHint/Text");
+        canModify ? _localizer.Get("ServerSectionModsHint/Text")
+                  : _localizer.Get("ModsStoppedHint/Text");
 
     private static void OnViewModelChanged(
         DependencyObject d, DependencyPropertyChangedEventArgs e) {

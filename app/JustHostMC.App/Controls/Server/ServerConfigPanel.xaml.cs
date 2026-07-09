@@ -23,11 +23,11 @@ public sealed partial class ServerConfigPanel : UserControl {
         InitializeComponent();
     }
 
-    private string ConfigTitle() =>
-        _localizer.Get("ServerSectionConfig/Text");
+    private string ConfigTitle() => _localizer.Get("ServerSectionConfig/Text");
 
     private string ConfigDescription(bool canModify) =>
-        canModify ? _localizer.Get("ServerSectionConfigHint/Text") : _localizer.Get("ConfigStoppedHint/Text");
+        canModify ? _localizer.Get("ServerSectionConfigHint/Text")
+                  : _localizer.Get("ConfigStoppedHint/Text");
 
     private static void OnConfigChanged(DependencyObject d,
                                         DependencyPropertyChangedEventArgs e) {

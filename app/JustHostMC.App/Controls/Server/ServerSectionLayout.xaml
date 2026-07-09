@@ -1,4 +1,4 @@
-<UserControl
+﻿<UserControl
     x:Class="JustHostMC.App.Controls.Server.ServerSectionLayout"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -27,8 +27,8 @@
             <FontIcon
                 x:Name="HeaderIcon"
                 Grid.Column="0"
-                FontSize="16"
                 Margin="8,0"
+                FontSize="16"
                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                 Glyph="{x:Bind IconGlyph, Mode=OneWay}"
                 Visibility="Collapsed" />
@@ -58,8 +58,6 @@
                 Content="{x:Bind HeaderContent, Mode=OneWay}" />
         </Grid>
 
-        <ContentPresenter
-            Grid.Row="1"
-            Content="{x:Bind Body, Mode=OneWay}" />
+        <ContentPresenter Grid.Row="1" Content="{x:Bind Body, Mode=OneWay}" />
     </Grid>
 </UserControl>

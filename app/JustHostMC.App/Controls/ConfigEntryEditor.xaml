@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <UserControl
     x:Class="JustHostMC.App.Controls.ConfigEntryEditor"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -8,7 +8,7 @@
     x:Name="Root"
     mc:Ignorable="d">
 
-    <Grid ColumnSpacing="16" Padding="0,8">
+    <Grid Padding="0,8" ColumnSpacing="16">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />

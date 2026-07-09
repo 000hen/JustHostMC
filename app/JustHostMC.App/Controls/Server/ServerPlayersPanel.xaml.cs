@@ -56,7 +56,8 @@ public sealed partial class ServerPlayersPanel : UserControl {
         _localizer.Get("Players_Header", ("count", count.ToString()));
 
     private string PlayersDescription(int count) =>
-        count == 0 ? _localizer.Get("PlayersEmptyHint/Text") : _localizer.Get("ServerSectionPlayersHint/Text");
+        count == 0 ? _localizer.Get("PlayersEmptyHint/Text")
+                   : _localizer.Get("ServerSectionPlayersHint/Text");
 
     private Visibility HasNoPlayers(int count) => count == 0
                                                       ? Visibility.Visible

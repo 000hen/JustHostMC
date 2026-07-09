@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="JustHostMC.App.Views.ScriptsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -10,88 +10,63 @@
     mc:Ignorable="d">
 
     <ScrollViewer
-        Padding="24"
         HorizontalContentAlignment="Stretch"
         HorizontalScrollBarVisibility="Disabled"
         VerticalScrollBarVisibility="Auto">
-        <StackPanel HorizontalAlignment="Stretch" Spacing="8">
+        <controls:SafeAreaContainer MaxContentWidth="1000">
+            <StackPanel HorizontalAlignment="Stretch">
 
-            <TextBlock x:Uid="ScriptsPageTitle" Style="{StaticResource TitleTextBlockStyle}" />
-            <TextBlock
-                x:Uid="ScriptsPageSubtitle"
-                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                TextWrapping="WrapWholeWords" />
+                <TextBlock x:Uid="ScriptsPageTitle" Style="{StaticResource TitleTextBlockStyle}" />
+                <TextBlock
+                    x:Uid="ScriptsPageSubtitle"
+                    Margin="0,8,0,0"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    TextWrapping="WrapWholeWords" />
 
-            <ProgressBar IsIndeterminate="True" Visibility="{x:Bind ViewModel.IsBusy, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                <ProgressBar IsIndeterminate="True" Visibility="{x:Bind ViewModel.IsBusy, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
 
-            <TextBlock
-                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
-                TextWrapping="WrapWholeWords"
-                Visibility="{x:Bind ViewModel.HasStatusMessage, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                <TextBlock
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
+                    TextWrapping="WrapWholeWords"
+                    Visibility="{x:Bind ViewModel.HasStatusMessage, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
 
-            <!--  Providers  -->
-            <controls:ScriptSectionExpander
-                Margin="0,20,0,0"
-                AddScriptsClick="OnImportProviderClick"
-                ShowInFolderClick="OnShowProvidersFolderClick">
-                <controls:ScriptSectionExpander.HeaderContent>
-                    <TextBlock x:Uid="ScriptsProvidersHeader" Style="{StaticResource SubtitleTextBlockStyle}" />
-                </controls:ScriptSectionExpander.HeaderContent>
-                <controls:ScriptSectionExpander.SectionContent>
-                    <StackPanel Spacing="8">
-                        <TextBlock
-                            x:Uid="ScriptsProvidersEmpty"
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                            Visibility="{x:Bind ViewModel.Providers.Count, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
+                <!--  Providers  -->
+                <controls:ScriptSectionExpander
+                    Margin="0,24,0,0"
+                    AddScriptsClick="OnImportProviderClick"
+                    ItemsSource="{x:Bind ViewModel.Providers}"
+                    ScriptRemoved="OnRemoveScript"
+                    ScriptToggled="OnScriptToggled"
+                    ShowInFolderClick="OnShowProvidersFolderClick">
+                    <controls:ScriptSectionExpander.HeaderContent>
+                        <TextBlock x:Uid="ScriptsProvidersHeader" Style="{StaticResource BodyTextBlockStyle}" />
+                    </controls:ScriptSectionExpander.HeaderContent>
+                </controls:ScriptSectionExpander>
 
-                        <ItemsControl
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            ItemsSource="{x:Bind ViewModel.Providers, Mode=OneWay}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="models:ProviderItem">
-                                    <controls:ScriptEntryCard Item="{x:Bind}" RemoveClick="OnRemoveProviderClick" />
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </controls:ScriptSectionExpander.SectionContent>
-            </controls:ScriptSectionExpander>
+                <!--  Mod/plugin metadata parsers  -->
+                <controls:ScriptSectionExpander
+                    AddScriptsClick="OnImportParserClick"
+                    ItemsSource="{x:Bind ViewModel.Parsers}"
+                    ScriptRemoved="OnRemoveScript"
+                    ScriptToggled="OnScriptToggled"
+                    ShowInFolderClick="OnShowParsersFolderClick">
+                    <controls:ScriptSectionExpander.HeaderContent>
+                        <TextBlock x:Uid="ScriptsParsersHeader" Style="{StaticResource BodyTextBlockStyle}" />
+                    </controls:ScriptSectionExpander.HeaderContent>
+                </controls:ScriptSectionExpander>
 
-            <!--  Mod/plugin metadata parsers  -->
-            <controls:ScriptSectionExpander AddScriptsClick="OnImportParserClick" ShowInFolderClick="OnShowParsersFolderClick">
-                <controls:ScriptSectionExpander.HeaderContent>
-                    <TextBlock x:Uid="ScriptsParsersHeader" Style="{StaticResource SubtitleTextBlockStyle}" />
-                </controls:ScriptSectionExpander.HeaderContent>
-                <controls:ScriptSectionExpander.SectionContent>
-                    <StackPanel Spacing="8">
-                        <TextBlock
-                            x:Uid="ScriptsParsersEmpty"
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                            Visibility="{x:Bind ViewModel.Parsers.Count, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
-
-                        <ItemsControl
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            ItemsSource="{x:Bind ViewModel.Parsers, Mode=OneWay}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="models:ParserItem">
-                                    <controls:ScriptEntryCard Item="{x:Bind}" RemoveClick="OnRemoveParserClick" />
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </controls:ScriptSectionExpander.SectionContent>
-            </controls:ScriptSectionExpander>
-
-            <!--  Automation scripts  -->
-            <controls:ScriptSectionExpander AddScriptsClick="OnImportScriptClick" ShowInFolderClick="OnShowAutomationFolderClick">
-                <controls:ScriptSectionExpander.HeaderContent>
-                    <TextBlock x:Uid="ScriptsAutomationHeader" Style="{StaticResource SubtitleTextBlockStyle}" />
-                </controls:ScriptSectionExpander.HeaderContent>
-                <controls:ScriptSectionExpander.SectionContent>
-                    <StackPanel Spacing="8">
+                <!--  Automation scripts  -->
+                <controls:ScriptSectionExpander
+                    AddScriptsClick="OnImportScriptClick"
+                    ItemsSource="{x:Bind ViewModel.Scripts}"
+                    ScriptRemoved="OnRemoveScript"
+                    ScriptToggled="OnScriptToggled"
+                    ShowInFolderClick="OnShowAutomationFolderClick">
+                    <controls:ScriptSectionExpander.HeaderContent>
+                        <TextBlock x:Uid="ScriptsAutomationHeader" Style="{StaticResource BodyTextBlockStyle}" />
+                    </controls:ScriptSectionExpander.HeaderContent>
+                    <controls:ScriptSectionExpander.HeaderAdditionalButtons>
                         <Button
                             x:Uid="ScriptsAllLogsButton"
                             HorizontalAlignment="Right"
@@ -101,29 +76,9 @@
                                 <TextBlock x:Uid="ScriptsAllLogsButtonLabel" />
                             </StackPanel>
                         </Button>
-
-                        <TextBlock
-                            x:Uid="ScriptsAutomationEmpty"
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                            Visibility="{x:Bind ViewModel.Scripts.Count, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
-
-                        <ItemsControl
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch"
-                            ItemsSource="{x:Bind ViewModel.Scripts, Mode=OneWay}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="models:ScriptItem">
-                                    <controls:ScriptEntryCard
-                                        EnabledToggled="OnScriptToggled"
-                                        Item="{x:Bind}"
-                                        RemoveClick="OnRemoveScriptClick" />
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-
-                    </StackPanel>
-                </controls:ScriptSectionExpander.SectionContent>
-            </controls:ScriptSectionExpander>
-        </StackPanel>
+                    </controls:ScriptSectionExpander.HeaderAdditionalButtons>
+                </controls:ScriptSectionExpander>
+            </StackPanel>
+        </controls:SafeAreaContainer>
     </ScrollViewer>
 </Page>

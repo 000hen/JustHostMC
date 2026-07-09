@@ -1,0 +1,240 @@
+﻿<UserControl
+    x:Class="JustHostMC.App.Controls.Server.ServerModsPanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:JustHostMC.App.Models"
+    xmlns:server="using:JustHostMC.App.Controls.Server"
+    mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <DataTemplate x:Key="ModFileSkeletonTemplate">
+            <Grid
+                MinHeight="68"
+                Padding="8"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="0,0,0,1"
+                ColumnSpacing="12"
+                Opacity="0.65">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Border
+                    Grid.Column="0"
+                    Width="32"
+                    Height="32"
+                    VerticalAlignment="Center"
+                    Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                    CornerRadius="4" />
+                <StackPanel
+                    Grid.Column="1"
+                    VerticalAlignment="Center"
+                    Spacing="7">
+                    <Border
+                        Width="190"
+                        Height="13"
+                        HorizontalAlignment="Left"
+                        Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                        CornerRadius="4" />
+                    <Border
+                        Width="310"
+                        Height="10"
+                        MaxWidth="310"
+                        HorizontalAlignment="Left"
+                        Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                        CornerRadius="3" />
+                </StackPanel>
+                <Border
+                    Grid.Column="2"
+                    Width="58"
+                    Height="10"
+                    VerticalAlignment="Center"
+                    Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                    CornerRadius="3" />
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ModFileRowTemplate" x:DataType="models:ModFileItem">
+            <Grid
+                Padding="8"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Grid
+                    Grid.Column="0"
+                    Width="48"
+                    Height="48"
+                    Margin="0,0,8,0"
+                    VerticalAlignment="Center">
+                    <FontIcon
+                        FontSize="32"
+                        Glyph="&#xE7B8;"
+                        Visibility="{x:Bind FallbackIconVisibility}" />
+                    <Border CornerRadius="4" Visibility="{x:Bind IconVisibility}">
+                        <Image Source="{x:Bind Icon}" Stretch="UniformToFill" />
+                    </Border>
+                </Grid>
+                <StackPanel
+                    Grid.Column="1"
+                    VerticalAlignment="Center"
+                    Spacing="2">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Text="{x:Bind Title}"
+                            TextTrimming="CharacterEllipsis" />
+                        <TextBlock
+                            VerticalAlignment="Bottom"
+                            Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                            Style="{StaticResource CaptionTextBlockStyle}"
+                            Text="{x:Bind Name}"
+                            TextTrimming="CharacterEllipsis"
+                            Visibility="{x:Bind FileNameVisibility}" />
+                    </StackPanel>
+                    <TextBlock
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Text="{x:Bind InfoLine}"
+                        TextTrimming="CharacterEllipsis"
+                        Visibility="{x:Bind InfoLineVisibility}" />
+                    <TextBlock
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        MaxLines="2"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Text="{x:Bind Description}"
+                        TextTrimming="CharacterEllipsis"
+                        TextWrapping="Wrap"
+                        Visibility="{x:Bind DescriptionVisibility}" />
+                    <StackPanel
+                        Orientation="Horizontal"
+                        Spacing="6"
+                        Visibility="{x:Bind CompatibilityWarningVisibility}">
+                        <FontIcon
+                            FontSize="12"
+                            Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                            Glyph="&#xE7BA;" />
+                        <TextBlock
+                            Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                            Style="{StaticResource CaptionTextBlockStyle}"
+                            Text="{x:Bind CompatibilityWarning}"
+                            TextWrapping="Wrap" />
+                    </StackPanel>
+                    <StackPanel
+                        Orientation="Horizontal"
+                        Spacing="6"
+                        Visibility="{x:Bind ParseErrorVisibility}">
+                        <FontIcon
+                            FontSize="12"
+                            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                            Glyph="&#xE783;" />
+                        <TextBlock
+                            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                            Style="{StaticResource CaptionTextBlockStyle}"
+                            Text="{x:Bind ParseError}"
+                            TextWrapping="Wrap" />
+                    </StackPanel>
+                    <HyperlinkButton
+                        x:Uid="ModsWebsiteLink"
+                        Padding="0"
+                        FontSize="12"
+                        NavigateUri="{x:Bind WebsiteUri}"
+                        Visibility="{x:Bind WebsiteVisibility}" />
+                </StackPanel>
+                <TextBlock
+                    Grid.Column="2"
+                    VerticalAlignment="Center"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Style="{StaticResource CaptionTextBlockStyle}"
+                    Text="{x:Bind SizeText}" />
+                <Button x:Uid="ModsRemoveButton" Grid.Column="3">
+                    <FontIcon FontSize="14" Glyph="&#xE74D;" />
+                    <Button.Flyout>
+                        <Flyout>
+                            <StackPanel MaxWidth="240" Spacing="8">
+                                <TextBlock x:Uid="ModsRemoveConfirmText" TextWrapping="Wrap" />
+                                <Button
+                                    x:Uid="ModsRemoveConfirmButton"
+                                    HorizontalAlignment="Right"
+                                    Click="OnRemoveModConfirm"
+                                    Tag="{x:Bind}" />
+                            </StackPanel>
+                        </Flyout>
+                    </Button.Flyout>
+                </Button>
+            </Grid>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <server:ServerSectionLayout
+        Title="{x:Bind Mods.KindLabel, Mode=OneWay}"
+        Description="{x:Bind ModsDescription(Mods.CanModify), Mode=OneWay}"
+        IconGlyph="&#xE7B8;">
+        <server:ServerSectionLayout.HeaderContent>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button
+                    AutomationProperties.AutomationId="ModsExportAll"
+                    Click="OnExportModsClick"
+                    IsEnabled="{x:Bind Mods.Supported, Mode=OneWay}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon FontSize="14" Glyph="&#xE896;" />
+                        <TextBlock x:Uid="ModsExportAllLabel" />
+                    </StackPanel>
+                </Button>
+                <Button
+                    AutomationProperties.AutomationId="ModsBrowse"
+                    Click="OnBrowseShopClick"
+                    IsEnabled="{x:Bind Mods.Supported, Mode=OneWay}"
+                    Style="{StaticResource AccentButtonStyle}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon FontSize="14" Glyph="&#xE719;" />
+                        <TextBlock x:Uid="ModsBrowseLabel" />
+                    </StackPanel>
+                </Button>
+                <Button
+                    AutomationProperties.AutomationId="ModsAddJars"
+                    Click="OnUploadClick"
+                    IsEnabled="{x:Bind Mods.CanModify, Mode=OneWay}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon FontSize="14" Glyph="&#xE8E5;" />
+                        <TextBlock x:Uid="ModsUploadLabel" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </server:ServerSectionLayout.HeaderContent>
+        <server:ServerSectionLayout.Body>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        x:Uid="ModsUnsupportedHint"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        TextWrapping="Wrap"
+                        Visibility="{x:Bind Mods.Supported, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
+
+                    <ItemsControl
+                        IsHitTestVisible="False"
+                        ItemTemplate="{StaticResource ModFileSkeletonTemplate}"
+                        ItemsSource="{x:Bind Mods.LoadingRows, Mode=OneWay}"
+                        Visibility="{x:Bind Mods.IsInitialLoading, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+
+                    <ListView
+                        ItemTemplate="{StaticResource ModFileRowTemplate}"
+                        ItemsSource="{x:Bind Mods.Files, Mode=OneWay}"
+                        Visibility="{x:Bind Mods.IsInitialLoading, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
+
+                    <TextBlock
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Text="{x:Bind Mods.StatusMessage, Mode=OneWay}"
+                        TextWrapping="Wrap" />
+                </StackPanel>
+            </ScrollViewer>
+        </server:ServerSectionLayout.Body>
+    </server:ServerSectionLayout>
+</UserControl>

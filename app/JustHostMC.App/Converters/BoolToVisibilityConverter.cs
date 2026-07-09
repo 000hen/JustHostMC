@@ -6,7 +6,7 @@ namespace JustHostMC.App.Converters;
 /// <summary>
 /// Maps a bool to Visibility. Pass ConverterParameter="invert" to flip it.
 /// </summary>
-public sealed class BoolToVisibilityConverter : IValueConverter {
+public sealed partial class BoolToVisibilityConverter : IValueConverter {
     public object Convert(object value, Type targetType, object parameter,
                           string language) {
         var flag = value switch {

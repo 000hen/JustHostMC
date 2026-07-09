@@ -1,4 +1,3 @@
-using JustHostMC.Core;
 using Xunit;
 
 namespace JustHostMC.Core.Tests;

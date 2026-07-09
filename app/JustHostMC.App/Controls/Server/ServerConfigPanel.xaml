@@ -1,0 +1,221 @@
+﻿<UserControl
+    x:Class="JustHostMC.App.Controls.Server.ServerConfigPanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:JustHostMC.App.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:server="using:JustHostMC.App.Controls.Server"
+    mc:Ignorable="d">
+
+    <server:ServerSectionLayout
+        Title="{x:Bind ConfigTitle()}"
+        Description="{x:Bind ConfigDescription(Config.CanModify), Mode=OneWay}"
+        IconGlyph="&#xE713;">
+        <server:ServerSectionLayout.Body>
+            <Grid>
+                <ScrollViewer
+                    HorizontalContentAlignment="Stretch"
+                    HorizontalScrollBarVisibility="Disabled"
+                    HorizontalScrollMode="Disabled"
+                    VerticalScrollBarVisibility="Auto">
+                    <StackPanel Padding="0,0,0,60" HorizontalAlignment="Stretch">
+
+                        <StackPanel Spacing="12" Visibility="{x:Bind Config.IsInitialLoading, Mode=OneWay, Converter={StaticResource BoolToVis}}">
+                            <Expander
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Stretch"
+                                IsEnabled="False"
+                                IsExpanded="True">
+                                <Expander.Header>
+                                    <StackPanel Spacing="8">
+                                        <Border
+                                            Width="180"
+                                            Height="18"
+                                            HorizontalAlignment="Left"
+                                            Background="{ThemeResource ControlFillColorDefaultBrush}"
+                                            CornerRadius="4" />
+                                        <Border
+                                            Width="360"
+                                            Height="12"
+                                            HorizontalAlignment="Left"
+                                            Background="{ThemeResource ControlFillColorDefaultBrush}"
+                                            CornerRadius="4" />
+                                    </StackPanel>
+                                </Expander.Header>
+                                <StackPanel Padding="0,4,0,0" Spacing="10">
+                                    <Grid MinHeight="64" ColumnSpacing="16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="88" />
+                                            <ColumnDefinition Width="240" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel
+                                            Grid.Column="0"
+                                            VerticalAlignment="Center"
+                                            Spacing="6">
+                                            <Border
+                                                Width="180"
+                                                Height="14"
+                                                HorizontalAlignment="Left"
+                                                Background="{ThemeResource ControlFillColorDefaultBrush}"
+                                                CornerRadius="4" />
+                                            <Border
+                                                Width="420"
+                                                Height="11"
+                                                HorizontalAlignment="Left"
+                                                Background="{ThemeResource ControlFillColorDefaultBrush}"
+                                                CornerRadius="4" />
+                                            <Border
+                                                Width="140"
+                                                Height="11"
+                                                HorizontalAlignment="Left"
+                                                Background="{ThemeResource ControlFillColorDefaultBrush}"
+                                                CornerRadius="4" />
+                                        </StackPanel>
+                                        <Border
+                                            Grid.Column="1"
+                                            Width="56"
+                                            Height="14"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Center"
+                                            Background="{ThemeResource ControlFillColorDefaultBrush}"
+                                            CornerRadius="4" />
+                                        <Border
+                                            Grid.Column="2"
+                                            Width="220"
+                                            Height="32"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Center"
+                                            Background="{ThemeResource ControlFillColorDefaultBrush}"
+                                            CornerRadius="4" />
+                                    </Grid>
+                                    <Grid MinHeight="64" ColumnSpacing="16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="88" />
+                                            <ColumnDefinition Width="240" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel
+                                            Grid.Column="0"
+                                            VerticalAlignment="Center"
+                                            Spacing="6">
+                                            <Border
+                                                Width="220"
+                                                Height="14"
+                                                HorizontalAlignment="Left"
+                                                Background="{ThemeResource ControlFillColorDefaultBrush}"
+                                                CornerRadius="4" />
+                                            <Border
+                                                Width="500"
+                                                Height="11"
+                                                HorizontalAlignment="Left"
+                                                Background="{ThemeResource ControlFillColorDefaultBrush}"
+                                                CornerRadius="4" />
+                                            <Border
+                                                Width="160"
+                                                Height="11"
+                                                HorizontalAlignment="Left"
+                                                Background="{ThemeResource ControlFillColorDefaultBrush}"
+                                                CornerRadius="4" />
+                                        </StackPanel>
+                                        <Border
+                                            Grid.Column="1"
+                                            Width="52"
+                                            Height="14"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Center"
+                                            Background="{ThemeResource ControlFillColorDefaultBrush}"
+                                            CornerRadius="4" />
+                                        <Border
+                                            Grid.Column="2"
+                                            Width="220"
+                                            Height="32"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Center"
+                                            Background="{ThemeResource ControlFillColorDefaultBrush}"
+                                            CornerRadius="4" />
+                                    </Grid>
+                                </StackPanel>
+                            </Expander>
+
+                            <Expander
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Stretch"
+                                IsEnabled="False">
+                                <Expander.Header>
+                                    <Border
+                                        Width="140"
+                                        Height="18"
+                                        HorizontalAlignment="Left"
+                                        Background="{ThemeResource ControlFillColorDefaultBrush}"
+                                        CornerRadius="4" />
+                                </Expander.Header>
+                            </Expander>
+                        </StackPanel>
+
+                        <controls:ConfigSectionExpander
+                            x:Uid="ConfigPropertiesSection"
+                            IsExpanded="True"
+                            ItemsSource="{x:Bind Config.Properties, Mode=OneWay}"
+                            Visibility="{x:Bind Config.IsInitialLoading, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
+
+                        <controls:ConfigSectionExpander
+                            x:Uid="ConfigGameRulesSection"
+                            HasMessage="{x:Bind Config.HasGameRulesMessage, Mode=OneWay}"
+                            ItemsSource="{x:Bind Config.GameRules, Mode=OneWay}"
+                            Message="{x:Bind Config.GameRulesMessage, Mode=OneWay}"
+                            Visibility="{x:Bind Config.IsInitialLoading, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
+
+                        <TextBlock
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Text="{x:Bind Config.StatusMessage, Mode=OneWay}"
+                            TextWrapping="Wrap" />
+                    </StackPanel>
+                </ScrollViewer>
+
+                <Border
+                    Margin="12"
+                    Padding="14,10"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Bottom"
+                    Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Visibility="{x:Bind Config.HasModifiedConfiguration, Mode=OneWay, Converter={StaticResource BoolToVis}}">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            x:Uid="ConfigModifiedText"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        <StackPanel
+                            Grid.Column="1"
+                            Orientation="Horizontal"
+                            Spacing="8">
+                            <Button Click="OnDiscardConfigChangesClick" IsEnabled="{x:Bind Config.CanDiscardChanges, Mode=OneWay}">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <SymbolIcon Symbol="Undo" />
+                                    <TextBlock x:Uid="ConfigDiscardButtonLabel" />
+                                </StackPanel>
+                            </Button>
+                            <Button
+                                Click="OnSaveModifiedConfigClick"
+                                IsEnabled="{x:Bind Config.CanSaveModifiedConfiguration, Mode=OneWay}"
+                                Style="{StaticResource AccentButtonStyle}">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <SymbolIcon Symbol="Save" />
+                                    <TextBlock x:Uid="ConfigSaveModifiedButtonLabel" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </server:ServerSectionLayout.Body>
+    </server:ServerSectionLayout>
+</UserControl>

@@ -76,6 +76,7 @@ public sealed partial class SettingsViewModel : ObservableObject {
     } = "";
 
     private bool _loadingBackend;
+    private bool _isLoadingLogs;
 
     public SettingsViewModel(DispatcherQueue dispatcher, ILocalizer localizer) {
         _dispatcher = dispatcher;
@@ -97,8 +98,10 @@ public sealed partial class SettingsViewModel : ObservableObject {
             var policy = await daemon.Settings.GetLogRetentionAsync(
                 new Empty(), deadline: DateTime.UtcNow.AddSeconds(30));
             RunOnUI(() => {
-                KeepDays   = policy.KeepDays;
-                MaxTotalMb = policy.MaxTotalBytes / (double)BytesPerMb;
+                _isLoadingLogs = true;
+                KeepDays       = policy.KeepDays;
+                MaxTotalMb     = policy.MaxTotalBytes / (double)BytesPerMb;
+                _isLoadingLogs = false;
             });
         } catch (RpcException) {
             RunOnUI(() => StatusMessage =
@@ -196,10 +199,20 @@ public sealed partial class SettingsViewModel : ObservableObject {
                     MaxTotalBytes = (long)Math.Max(0, MaxTotalMb) * BytesPerMb,
                 },
                 deadline: DateTime.UtcNow.AddSeconds(30));
-            RunOnUI(() => StatusMessage = _localizer.Get("Settings_Saved"));
         } catch (RpcException) {
-            RunOnUI(() => StatusMessage =
-                        _localizer.Get("Settings_SaveFailed"));
+            // Silently fail or log it
+        }
+    }
+
+    partial void OnKeepDaysChanged(double value) {
+        if (!_isLoadingLogs) {
+            _ = Save();
+        }
+    }
+
+    partial void OnMaxTotalMbChanged(double value) {
+        if (!_isLoadingLogs) {
+            _ = Save();
         }
     }
 

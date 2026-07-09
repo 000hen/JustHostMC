@@ -184,25 +184,13 @@ public sealed partial class ScriptsPage : Page {
         return content.Granted;
     }
 
-    private async void OnRemoveProviderClick(object sender, RoutedEventArgs e) {
-        if (sender is not ScriptEntryCard { Item : ProviderItem item })
-            return;
-        if (await ConfirmRemoveAsync(item.Name))
-            await ViewModel.RemoveProviderAsync(item);
-    }
-
-    private async void OnRemoveParserClick(object sender, RoutedEventArgs e) {
-        if (sender is not ScriptEntryCard { Item : ParserItem item })
-            return;
-        if (await ConfirmRemoveAsync(item.Name))
-            await ViewModel.RemoveParserAsync(item);
-    }
-
-    private async void OnRemoveScriptClick(object sender, RoutedEventArgs e) {
-        if (sender is not ScriptEntryCard { Item : ScriptItem item })
-            return;
-        if (await ConfirmRemoveAsync(item.Name))
+    private async void OnRemoveScript(object sender, RoutedEventArgs e) {
+        if (sender is ScriptEntryCard { Item : ScriptItem item })
             await ViewModel.RemoveScriptAsync(item);
+        else if (sender is ScriptEntryCard { Item : ProviderItem provider })
+            await ViewModel.RemoveProviderAsync(provider);
+        else if (sender is ScriptEntryCard { Item : ParserItem parser })
+            await ViewModel.RemoveParserAsync(parser);
     }
 
     private async void OnScriptToggled(object sender, RoutedEventArgs e) {
@@ -213,19 +201,6 @@ public sealed partial class ScriptsPage : Page {
         if (sender is ScriptEntryCard { Item : ScriptItem item } card &&
             card.ScriptEnabled != item.Enabled)
             await ViewModel.SetScriptEnabledAsync(item, card.ScriptEnabled);
-    }
-
-    private async Task<bool> ConfirmRemoveAsync(string name) {
-        var dialog = new ContentDialog {
-            XamlRoot = XamlRoot,
-            Title    = _localizer.Get("Scripts_RemoveConfirmTitle"),
-            Content =
-                _localizer.Get("Scripts_RemoveConfirmBody", ("name", name)),
-            PrimaryButtonText = _localizer.Get("Scripts_RemoveConfirmPrimary"),
-            CloseButtonText   = _localizer.Get("Scripts_RemoveConfirmCancel"),
-            DefaultButton     = ContentDialogButton.Close,
-        };
-        return await dialog.ShowAsync() == ContentDialogResult.Primary;
     }
 
     private static async Task<StorageFile?> PickLuaFileAsync() {

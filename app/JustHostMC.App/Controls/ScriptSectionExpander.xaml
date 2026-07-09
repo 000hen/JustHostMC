@@ -3,8 +3,11 @@
     x:Class="JustHostMC.App.Controls.ScriptSectionExpander"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:JustHostMC.App.Controls"
+    xmlns:converters="using:JustHostMC.App.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:JustHostMC.App.Models"
     x:Name="Root"
     HorizontalAlignment="Stretch"
     HorizontalContentAlignment="Stretch"
@@ -27,6 +30,7 @@
                     Grid.Column="1"
                     Orientation="Horizontal"
                     Spacing="8">
+                    <ContentPresenter Content="{Binding HeaderAdditionalButtons, ElementName=Root}" />
                     <Button x:Uid="ScriptSectionShowInFolderButton" Click="OnShowInFolderClick">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon FontSize="14" Glyph="&#xE8B7;" />
@@ -46,9 +50,33 @@
             </Grid>
         </Expander.Header>
 
-        <ContentPresenter
-            HorizontalAlignment="Stretch"
-            HorizontalContentAlignment="Stretch"
-            Content="{Binding SectionContent, ElementName=Root}" />
+        <StackPanel Spacing="8">
+            <TextBlock
+                x:Uid="ScriptsAutomationEmpty"
+                Margin="0,10,0,0"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                TextAlignment="Center"
+                Visibility="{x:Bind IsEmpty, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+
+            <ItemsControl
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Stretch"
+                ItemsSource="{x:Bind ItemsSource, Mode=OneWay}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Vertical" Spacing="8" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="models:ScriptEntryItem">
+                        <controls:ScriptEntryCard
+                            EnabledToggled="OnScriptToggled"
+                            Item="{x:Bind}"
+                            RemoveClick="OnScriptRemoved" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
     </Expander>
 </UserControl>

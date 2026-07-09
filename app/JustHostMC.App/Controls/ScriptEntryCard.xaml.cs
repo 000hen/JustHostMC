@@ -1,4 +1,5 @@
 using JustHostMC.App.Models;
+using JustHostMC.App.Services;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
@@ -10,6 +11,8 @@ public sealed partial class ScriptEntryCard : UserControl {
         DependencyProperty.Register(nameof(Item), typeof(ScriptEntryItem),
                                     typeof(ScriptEntryCard),
                                     new PropertyMetadata(null));
+
+    private readonly ILocalizer _localizer = new LocalizationService();
 
     public ScriptEntryCard() => InitializeComponent();
 
@@ -24,9 +27,19 @@ public sealed partial class ScriptEntryCard : UserControl {
 
     public bool ScriptEnabled => EnabledToggle.IsOn;
 
-    private void OnRemoveClick(object sender,
-                               RoutedEventArgs e) => RemoveClick?.Invoke(this,
-                                                                         e);
+    private void OnRemoveFlyoutOpening(object sender, object e) {
+        if (Item is not null) {
+            RemoveConfirmText.Text = _localizer.Get("Scripts_RemoveConfirmBody",
+                                                    ("name", Item.Name));
+            RemoveConfirmButton.Content =
+                _localizer.Get("Scripts_RemoveConfirmPrimary");
+        }
+    }
+
+    private void OnRemoveConfirmClick(object sender, RoutedEventArgs e) {
+        RemoveFlyout.Hide();
+        RemoveClick?.Invoke(this, e);
+    }
 
     private void OnEnabledToggled(object sender, RoutedEventArgs e) =>
         EnabledToggled?.Invoke(this, e);

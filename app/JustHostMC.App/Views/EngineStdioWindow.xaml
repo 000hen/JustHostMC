@@ -28,17 +28,16 @@
         <controls:AdaptiveFilterLayout
             x:Name="MonitorLayout"
             Grid.Row="1"
+            Padding="12,8,12,8"
             CompactColumnSpacing="0"
             CompactFilterMaxHeight="560"
             CompactFilterOpening="OnCompactFilterOpening"
-            CompactPadding="12,8,12,8"
             FilterRailCornerRadius="8"
             HeaderSpacing="10"
             RowSpacing="8"
             WideColumnSpacing="10"
             WideFilterWidth="250"
-            WideMinWidth="900"
-            WidePadding="12,8,12,8">
+            WideMinWidth="900">
             <controls:AdaptiveFilterLayout.HeaderContent>
                 <Grid ColumnSpacing="10">
                     <Grid.ColumnDefinitions>

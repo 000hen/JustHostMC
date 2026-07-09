@@ -177,6 +177,9 @@
   <data name="SettingsButton.Content" xml:space="preserve"><value>Settings</value></data>
   <data name="SettingsDialog.Title" xml:space="preserve"><value>Settings</value></data>
   <data name="SettingsDialog.CloseButtonText" xml:space="preserve"><value>Close</value></data>
+  <data name="SettingsCategoryEngine.Text" xml:space="preserve"><value>Engine &amp; Servers</value></data>
+  <data name="SettingsCategoryIntegrations.Text" xml:space="preserve"><value>Integrations</value></data>
+  <data name="SettingsCategoryApp.Text" xml:space="preserve"><value>Application</value></data>
   <data name="SettingsRetentionHeader.Text" xml:space="preserve"><value>Log retention</value></data>
   <data name="SettingsRetentionHint.Text" xml:space="preserve"><value>Install and console logs are pruned automatically. Use 0 for no limit.</value></data>
   <data name="SettingsKeepDays.Header" xml:space="preserve"><value>Keep logs for (days)</value></data>
@@ -242,6 +245,9 @@
   <data name="ServerSectionMods.Text" xml:space="preserve"><value>Plugins / Mods</value></data>
   <data name="ServerSectionConfig.Text" xml:space="preserve"><value>Configuration</value></data>
   <data name="ServerSectionConfigHint.Text" xml:space="preserve"><value>Manage server launch settings and advanced options</value></data>
+  <data name="ServerSectionPerformanceHint.Text" xml:space="preserve"><value>Monitor server resource usage and network metrics</value></data>
+  <data name="ServerSectionPlayersHint.Text" xml:space="preserve"><value>Manage online players, operators, and ban lists</value></data>
+  <data name="ServerSectionModsHint.Text" xml:space="preserve"><value>Manage server extensions and modifications</value></data>
   <data name="ServerBackupsMenuItem.Text" xml:space="preserve"><value>Backups</value></data>
   <data name="ServerDeleteMenuItem.Text" xml:space="preserve"><value>Delete server</value></data>
   <data name="ServerMoreButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>More options</value></data>

@@ -1,8 +1,9 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="JustHostMC.App.Views.ShopHomePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:JustHostMC.App.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:JustHostMC.App.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -15,141 +16,142 @@
             HorizontalScrollBarVisibility="Disabled"
             VerticalScrollBarVisibility="Disabled"
             Visibility="{x:Bind LoadingVisibility(ViewModel.IsHomeLoading), Mode=OneWay}">
-            <StackPanel
-                x:Name="SkeletonStack"
-                MaxWidth="1440"
-                Margin="24,16,24,28"
-                HorizontalAlignment="Stretch"
-                Opacity="0.62"
-                Spacing="24">
-                <Border
-                    Height="174"
-                    Background="{ThemeResource ControlFillColorSecondaryBrush}"
-                    CornerRadius="12">
-                    <Grid Padding="28" ColumnSpacing="32">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="104" />
-                        </Grid.ColumnDefinitions>
-                        <StackPanel VerticalAlignment="Center" Spacing="12">
-                            <Border
-                                Width="380"
-                                Height="28"
-                                HorizontalAlignment="Left"
-                                Background="{ThemeResource ControlFillColorDefaultBrush}"
-                                CornerRadius="5" />
-                            <Border
-                                Width="620"
-                                Height="14"
-                                MaxWidth="620"
-                                HorizontalAlignment="Left"
-                                Background="{ThemeResource ControlFillColorDefaultBrush}"
-                                CornerRadius="4" />
-                            <StackPanel Orientation="Horizontal" Spacing="8">
+            <controls:SafeAreaContainer Padding="0" MaxContentWidth="1440">
+                <StackPanel
+                    x:Name="SkeletonStack"
+                    Margin="24,16,24,28"
+                    HorizontalAlignment="Stretch"
+                    Opacity="0.62"
+                    Spacing="24">
+                    <Border
+                        Height="174"
+                        Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                        CornerRadius="12">
+                        <Grid Padding="28" ColumnSpacing="32">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="104" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center" Spacing="12">
                                 <Border
-                                    Width="90"
-                                    Height="30"
+                                    Width="380"
+                                    Height="28"
+                                    HorizontalAlignment="Left"
                                     Background="{ThemeResource ControlFillColorDefaultBrush}"
                                     CornerRadius="5" />
                                 <Border
-                                    Width="110"
-                                    Height="30"
+                                    Width="620"
+                                    Height="14"
+                                    MaxWidth="620"
+                                    HorizontalAlignment="Left"
                                     Background="{ThemeResource ControlFillColorDefaultBrush}"
-                                    CornerRadius="5" />
+                                    CornerRadius="4" />
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Border
+                                        Width="90"
+                                        Height="30"
+                                        Background="{ThemeResource ControlFillColorDefaultBrush}"
+                                        CornerRadius="5" />
+                                    <Border
+                                        Width="110"
+                                        Height="30"
+                                        Background="{ThemeResource ControlFillColorDefaultBrush}"
+                                        CornerRadius="5" />
+                                </StackPanel>
                             </StackPanel>
-                        </StackPanel>
-                        <Border
-                            Grid.Column="1"
-                            Width="88"
-                            Height="88"
-                            Background="{ThemeResource ControlFillColorDefaultBrush}"
-                            CornerRadius="18" />
-                    </Grid>
-                </Border>
+                            <Border
+                                Grid.Column="1"
+                                Width="88"
+                                Height="88"
+                                Background="{ThemeResource ControlFillColorDefaultBrush}"
+                                CornerRadius="18" />
+                        </Grid>
+                    </Border>
 
-                <StackPanel Spacing="12">
-                    <StackPanel Spacing="7">
-                        <Border
-                            Width="190"
-                            Height="20"
-                            HorizontalAlignment="Left"
-                            Background="{ThemeResource ControlFillColorSecondaryBrush}"
-                            CornerRadius="4" />
-                        <Border
-                            Width="330"
-                            Height="12"
-                            HorizontalAlignment="Left"
-                            Background="{ThemeResource ControlFillColorSecondaryBrush}"
-                            CornerRadius="3" />
+                    <StackPanel Spacing="12">
+                        <StackPanel Spacing="7">
+                            <Border
+                                Width="190"
+                                Height="20"
+                                HorizontalAlignment="Left"
+                                Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                                CornerRadius="4" />
+                            <Border
+                                Width="330"
+                                Height="12"
+                                HorizontalAlignment="Left"
+                                Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                                CornerRadius="3" />
+                        </StackPanel>
+                        <ItemsRepeater ItemsSource="{x:Bind SkeletonItems}">
+                            <ItemsRepeater.Layout>
+                                <UniformGridLayout
+                                    ItemsStretch="Fill"
+                                    MinColumnSpacing="12"
+                                    MinItemHeight="166"
+                                    MinItemWidth="360"
+                                    MinRowSpacing="12" />
+                            </ItemsRepeater.Layout>
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate>
+                                    <Border
+                                        Height="166"
+                                        Padding="14"
+                                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="9">
+                                        <Grid ColumnSpacing="12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="64" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <Border
+                                                Width="64"
+                                                Height="64"
+                                                VerticalAlignment="Top"
+                                                Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                                                CornerRadius="9" />
+                                            <StackPanel Grid.Column="1" Spacing="9">
+                                                <Border
+                                                    Width="170"
+                                                    Height="16"
+                                                    HorizontalAlignment="Left"
+                                                    Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                                                    CornerRadius="4" />
+                                                <Border
+                                                    Height="11"
+                                                    Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                                                    CornerRadius="3" />
+                                                <Border
+                                                    Width="210"
+                                                    Height="11"
+                                                    HorizontalAlignment="Left"
+                                                    Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                                                    CornerRadius="3" />
+                                                <Border
+                                                    Width="90"
+                                                    Height="18"
+                                                    HorizontalAlignment="Left"
+                                                    Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                                                    CornerRadius="8" />
+                                            </StackPanel>
+                                            <Border
+                                                Grid.ColumnSpan="2"
+                                                Width="120"
+                                                Height="10"
+                                                HorizontalAlignment="Left"
+                                                VerticalAlignment="Bottom"
+                                                Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                                                CornerRadius="3" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
                     </StackPanel>
-                    <ItemsRepeater ItemsSource="{x:Bind SkeletonItems}">
-                        <ItemsRepeater.Layout>
-                            <UniformGridLayout
-                                ItemsStretch="Fill"
-                                MinColumnSpacing="12"
-                                MinItemHeight="166"
-                                MinItemWidth="360"
-                                MinRowSpacing="12" />
-                        </ItemsRepeater.Layout>
-                        <ItemsRepeater.ItemTemplate>
-                            <DataTemplate>
-                                <Border
-                                    Height="166"
-                                    Padding="14"
-                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                    BorderThickness="1"
-                                    CornerRadius="9">
-                                    <Grid ColumnSpacing="12">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="64" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-                                        <Border
-                                            Width="64"
-                                            Height="64"
-                                            VerticalAlignment="Top"
-                                            Background="{ThemeResource ControlFillColorSecondaryBrush}"
-                                            CornerRadius="9" />
-                                        <StackPanel Grid.Column="1" Spacing="9">
-                                            <Border
-                                                Width="170"
-                                                Height="16"
-                                                HorizontalAlignment="Left"
-                                                Background="{ThemeResource ControlFillColorSecondaryBrush}"
-                                                CornerRadius="4" />
-                                            <Border
-                                                Height="11"
-                                                Background="{ThemeResource ControlFillColorSecondaryBrush}"
-                                                CornerRadius="3" />
-                                            <Border
-                                                Width="210"
-                                                Height="11"
-                                                HorizontalAlignment="Left"
-                                                Background="{ThemeResource ControlFillColorSecondaryBrush}"
-                                                CornerRadius="3" />
-                                            <Border
-                                                Width="90"
-                                                Height="18"
-                                                HorizontalAlignment="Left"
-                                                Background="{ThemeResource ControlFillColorSecondaryBrush}"
-                                                CornerRadius="8" />
-                                        </StackPanel>
-                                        <Border
-                                            Grid.ColumnSpan="2"
-                                            Width="120"
-                                            Height="10"
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Bottom"
-                                            Background="{ThemeResource ControlFillColorSecondaryBrush}"
-                                            CornerRadius="3" />
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsRepeater.ItemTemplate>
-                    </ItemsRepeater>
                 </StackPanel>
-            </StackPanel>
+            </controls:SafeAreaContainer>
         </ScrollViewer>
 
         <StackPanel
@@ -169,211 +171,212 @@
             HorizontalScrollBarVisibility="Disabled"
             VerticalScrollBarVisibility="Auto"
             Visibility="{x:Bind local:ShopHomePage.InvertVisibility(ViewModel.IsHomeLoading), Mode=OneWay}">
-            <StackPanel
-                x:Name="ContentStack"
-                MaxWidth="1440"
-                Margin="24,16,24,28"
-                HorizontalAlignment="Stretch"
-                Spacing="24">
-                <Border
-                    x:Name="WelcomeBanner"
-                    Background="{ThemeResource AccentFillColorSecondaryBrush}"
-                    BorderBrush="{ThemeResource AccentFillColorTertiaryBrush}"
-                    BorderThickness="1"
-                    CornerRadius="12">
-                    <Grid
-                        x:Name="WelcomePanel"
-                        MinHeight="174"
-                        Padding="28">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
+            <controls:SafeAreaContainer Padding="0" MaxContentWidth="1440">
+                <StackPanel
+                    x:Name="ContentStack"
+                    Margin="24,16,24,28"
+                    HorizontalAlignment="Stretch"
+                    Spacing="24">
+                    <Border
+                        x:Name="WelcomeBanner"
+                        Background="{ThemeResource AccentFillColorSecondaryBrush}"
+                        BorderBrush="{ThemeResource AccentFillColorTertiaryBrush}"
+                        BorderThickness="1"
+                        CornerRadius="12">
+                        <Grid
+                            x:Name="WelcomePanel"
+                            MinHeight="174"
+                            Padding="28">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
 
-                        <StackPanel
-                            MaxWidth="650"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center"
-                            Spacing="10">
-                            <TextBlock
-                                x:Uid="ShopDiscoverTitle"
-                                Style="{StaticResource TitleTextBlockStyle}"
-                                TextWrapping="Wrap" />
-                            <TextBlock
-                                x:Uid="ShopDiscoverSubtitle"
-                                FontSize="15"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                TextWrapping="Wrap" />
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <ToggleButton
-                                    Click="OnFilterChanged"
-                                    IsChecked="{x:Bind ViewModel.UseVersionFilter, Mode=TwoWay}"
-                                    Visibility="{x:Bind ViewModel.HasVersionFilter}">
-                                    <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <FontIcon FontSize="12" Glyph="&#xE787;" />
-                                        <TextBlock Text="{x:Bind ViewModel.VersionFilterLabel}" />
-                                    </StackPanel>
-                                </ToggleButton>
-                                <ToggleButton
-                                    Click="OnFilterChanged"
-                                    IsChecked="{x:Bind ViewModel.UseLoaderFilter, Mode=TwoWay}"
-                                    Visibility="{x:Bind ViewModel.HasLoaderFilter}">
-                                    <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <FontIcon FontSize="12" Glyph="&#xE713;" />
-                                        <TextBlock Text="{x:Bind ViewModel.LoaderFilterLabel}" />
-                                    </StackPanel>
-                                </ToggleButton>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <Grid Grid.Column="1" Margin="28,0,0,0">
-                            <Image
-                                Width="104"
-                                Height="104"
-                                Margin="0,14,14,0"
-                                Opacity="0.30"
-                                Source="ms-appx:///Assets/StoreLogo.png" />
-                            <Button
-                                x:Uid="ShopDismissWelcome"
-                                Width="32"
-                                Height="32"
-                                Padding="0"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Top"
-                                Background="Transparent"
-                                Click="OnDismissWelcome">
-                                <FontIcon FontSize="12" Glyph="&#xE711;" />
-                            </Button>
-                        </Grid>
-                    </Grid>
-                </Border>
-
-                <ItemsControl ItemsSource="{x:Bind ViewModel.HomeSections, Mode=OneWay}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="models:ShopSectionItem">
-                            <StackPanel Margin="0,0,0,24" Spacing="12">
-                                <StackPanel Spacing="2">
-                                    <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="{x:Bind Title}" />
-                                    <TextBlock
-                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                        Text="{x:Bind Description}"
-                                        TextWrapping="Wrap" />
+                            <StackPanel
+                                MaxWidth="650"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                Spacing="10">
+                                <TextBlock
+                                    x:Uid="ShopDiscoverTitle"
+                                    Style="{StaticResource TitleTextBlockStyle}"
+                                    TextWrapping="Wrap" />
+                                <TextBlock
+                                    x:Uid="ShopDiscoverSubtitle"
+                                    FontSize="15"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                    TextWrapping="Wrap" />
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <ToggleButton
+                                        Click="OnFilterChanged"
+                                        IsChecked="{x:Bind ViewModel.UseVersionFilter, Mode=TwoWay}"
+                                        Visibility="{x:Bind ViewModel.HasVersionFilter}">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <FontIcon FontSize="12" Glyph="&#xE787;" />
+                                            <TextBlock Text="{x:Bind ViewModel.VersionFilterLabel}" />
+                                        </StackPanel>
+                                    </ToggleButton>
+                                    <ToggleButton
+                                        Click="OnFilterChanged"
+                                        IsChecked="{x:Bind ViewModel.UseLoaderFilter, Mode=TwoWay}"
+                                        Visibility="{x:Bind ViewModel.HasLoaderFilter}">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <FontIcon FontSize="12" Glyph="&#xE713;" />
+                                            <TextBlock Text="{x:Bind ViewModel.LoaderFilterLabel}" />
+                                        </StackPanel>
+                                    </ToggleButton>
                                 </StackPanel>
-
-                                <ItemsRepeater ItemsSource="{x:Bind Projects}">
-                                    <ItemsRepeater.Layout>
-                                        <UniformGridLayout
-                                            ItemsStretch="Fill"
-                                            MinColumnSpacing="12"
-                                            MinItemHeight="166"
-                                            MinItemWidth="360"
-                                            MinRowSpacing="12" />
-                                    </ItemsRepeater.Layout>
-                                    <ItemsRepeater.ItemTemplate>
-                                        <DataTemplate x:DataType="models:ShopProjectItem">
-                                            <Button
-                                                Padding="0"
-                                                HorizontalAlignment="Stretch"
-                                                VerticalAlignment="Stretch"
-                                                HorizontalContentAlignment="Stretch"
-                                                VerticalContentAlignment="Stretch"
-                                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                                BorderThickness="1"
-                                                Click="OnProjectClick"
-                                                CornerRadius="9"
-                                                Tag="{x:Bind}">
-                                                <Grid Padding="14" ColumnSpacing="12">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="64" />
-                                                        <ColumnDefinition Width="*" />
-                                                    </Grid.ColumnDefinitions>
-
-                                                    <Grid
-                                                        Width="64"
-                                                        Height="64"
-                                                        VerticalAlignment="Top">
-                                                        <Border Background="{ThemeResource AccentFillColorTertiaryBrush}" CornerRadius="9">
-                                                            <TextBlock
-                                                                HorizontalAlignment="Center"
-                                                                VerticalAlignment="Center"
-                                                                FontSize="24"
-                                                                FontWeight="SemiBold"
-                                                                Text="{x:Bind Initial}"
-                                                                Visibility="{x:Bind FallbackIconVisibility}" />
-                                                        </Border>
-                                                        <Border CornerRadius="9" Visibility="{x:Bind IconVisibility}">
-                                                            <Image Source="{x:Bind Icon}" Stretch="UniformToFill" />
-                                                        </Border>
-                                                    </Grid>
-
-                                                    <StackPanel Grid.Column="1" Spacing="4">
-                                                        <TextBlock
-                                                            Style="{StaticResource BodyStrongTextBlockStyle}"
-                                                            Text="{x:Bind Title}"
-                                                            TextTrimming="CharacterEllipsis" />
-                                                        <TextBlock
-                                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                            MaxLines="3"
-                                                            Style="{StaticResource CaptionTextBlockStyle}"
-                                                            Text="{x:Bind Summary}"
-                                                            TextTrimming="CharacterEllipsis"
-                                                            TextWrapping="Wrap" />
-                                                        <StackPanel Orientation="Horizontal" Spacing="7">
-                                                            <Border
-                                                                Padding="6,1"
-                                                                Background="{ThemeResource ControlFillColorSecondaryBrush}"
-                                                                CornerRadius="8"
-                                                                Visibility="{x:Bind ProjectTypeVisibility}">
-                                                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind ProjectTypeLabel}" />
-                                                            </Border>
-                                                            <TextBlock
-                                                                Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-                                                                Style="{StaticResource CaptionTextBlockStyle}"
-                                                                Text="{x:Bind CategoriesText}"
-                                                                TextTrimming="CharacterEllipsis"
-                                                                Visibility="{x:Bind CategoriesVisibility}" />
-                                                        </StackPanel>
-                                                    </StackPanel>
-
-                                                    <Grid
-                                                        Grid.ColumnSpan="2"
-                                                        Margin="0,8,0,0"
-                                                        VerticalAlignment="Bottom">
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="*" />
-                                                            <ColumnDefinition Width="Auto" />
-                                                        </Grid.ColumnDefinitions>
-                                                        <TextBlock
-                                                            Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-                                                            Style="{StaticResource CaptionTextBlockStyle}"
-                                                            Text="{x:Bind Author}"
-                                                            TextTrimming="CharacterEllipsis"
-                                                            Visibility="{x:Bind AuthorVisibility}" />
-                                                        <StackPanel
-                                                            Grid.Column="1"
-                                                            Orientation="Horizontal"
-                                                            Spacing="4">
-                                                            <FontIcon
-                                                                FontSize="10"
-                                                                Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-                                                                Glyph="&#xE896;" />
-                                                            <TextBlock
-                                                                Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-                                                                Style="{StaticResource CaptionTextBlockStyle}"
-                                                                Text="{x:Bind DownloadsText}" />
-                                                        </StackPanel>
-                                                    </Grid>
-                                                </Grid>
-                                            </Button>
-                                        </DataTemplate>
-                                    </ItemsRepeater.ItemTemplate>
-                                </ItemsRepeater>
                             </StackPanel>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </StackPanel>
+
+                            <Grid Grid.Column="1" Margin="28,0,0,0">
+                                <Image
+                                    Width="104"
+                                    Height="104"
+                                    Margin="0,14,14,0"
+                                    Opacity="0.30"
+                                    Source="ms-appx:///Assets/StoreLogo.png" />
+                                <Button
+                                    x:Uid="ShopDismissWelcome"
+                                    Width="32"
+                                    Height="32"
+                                    Padding="0"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Top"
+                                    Background="Transparent"
+                                    Click="OnDismissWelcome">
+                                    <FontIcon FontSize="12" Glyph="&#xE711;" />
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.HomeSections, Mode=OneWay}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:ShopSectionItem">
+                                <StackPanel Margin="0,0,0,24" Spacing="12">
+                                    <StackPanel Spacing="2">
+                                        <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="{x:Bind Title}" />
+                                        <TextBlock
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                            Text="{x:Bind Description}"
+                                            TextWrapping="Wrap" />
+                                    </StackPanel>
+
+                                    <ItemsRepeater ItemsSource="{x:Bind Projects}">
+                                        <ItemsRepeater.Layout>
+                                            <UniformGridLayout
+                                                ItemsStretch="Fill"
+                                                MinColumnSpacing="12"
+                                                MinItemHeight="166"
+                                                MinItemWidth="360"
+                                                MinRowSpacing="12" />
+                                        </ItemsRepeater.Layout>
+                                        <ItemsRepeater.ItemTemplate>
+                                            <DataTemplate x:DataType="models:ShopProjectItem">
+                                                <Button
+                                                    Padding="0"
+                                                    HorizontalAlignment="Stretch"
+                                                    VerticalAlignment="Stretch"
+                                                    HorizontalContentAlignment="Stretch"
+                                                    VerticalContentAlignment="Stretch"
+                                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                    BorderThickness="1"
+                                                    Click="OnProjectClick"
+                                                    CornerRadius="9"
+                                                    Tag="{x:Bind}">
+                                                    <Grid Padding="14" ColumnSpacing="12">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="64" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+
+                                                        <Grid
+                                                            Width="64"
+                                                            Height="64"
+                                                            VerticalAlignment="Top">
+                                                            <Border Background="{ThemeResource AccentFillColorTertiaryBrush}" CornerRadius="9">
+                                                                <TextBlock
+                                                                    HorizontalAlignment="Center"
+                                                                    VerticalAlignment="Center"
+                                                                    FontSize="24"
+                                                                    FontWeight="SemiBold"
+                                                                    Text="{x:Bind Initial}"
+                                                                    Visibility="{x:Bind FallbackIconVisibility}" />
+                                                            </Border>
+                                                            <Border CornerRadius="9" Visibility="{x:Bind IconVisibility}">
+                                                                <Image Source="{x:Bind Icon}" Stretch="UniformToFill" />
+                                                            </Border>
+                                                        </Grid>
+
+                                                        <StackPanel Grid.Column="1" Spacing="4">
+                                                            <TextBlock
+                                                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                                Text="{x:Bind Title}"
+                                                                TextTrimming="CharacterEllipsis" />
+                                                            <TextBlock
+                                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                MaxLines="3"
+                                                                Style="{StaticResource CaptionTextBlockStyle}"
+                                                                Text="{x:Bind Summary}"
+                                                                TextTrimming="CharacterEllipsis"
+                                                                TextWrapping="Wrap" />
+                                                            <StackPanel Orientation="Horizontal" Spacing="7">
+                                                                <Border
+                                                                    Padding="6,1"
+                                                                    Background="{ThemeResource ControlFillColorSecondaryBrush}"
+                                                                    CornerRadius="8"
+                                                                    Visibility="{x:Bind ProjectTypeVisibility}">
+                                                                    <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind ProjectTypeLabel}" />
+                                                                </Border>
+                                                                <TextBlock
+                                                                    Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                                                    Style="{StaticResource CaptionTextBlockStyle}"
+                                                                    Text="{x:Bind CategoriesText}"
+                                                                    TextTrimming="CharacterEllipsis"
+                                                                    Visibility="{x:Bind CategoriesVisibility}" />
+                                                            </StackPanel>
+                                                        </StackPanel>
+
+                                                        <Grid
+                                                            Grid.ColumnSpan="2"
+                                                            Margin="0,8,0,0"
+                                                            VerticalAlignment="Bottom">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="Auto" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock
+                                                                Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                                                Style="{StaticResource CaptionTextBlockStyle}"
+                                                                Text="{x:Bind Author}"
+                                                                TextTrimming="CharacterEllipsis"
+                                                                Visibility="{x:Bind AuthorVisibility}" />
+                                                            <StackPanel
+                                                                Grid.Column="1"
+                                                                Orientation="Horizontal"
+                                                                Spacing="4">
+                                                                <FontIcon
+                                                                    FontSize="10"
+                                                                    Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                                                    Glyph="&#xE896;" />
+                                                                <TextBlock
+                                                                    Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                                                    Style="{StaticResource CaptionTextBlockStyle}"
+                                                                    Text="{x:Bind DownloadsText}" />
+                                                            </StackPanel>
+                                                        </Grid>
+                                                    </Grid>
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsRepeater.ItemTemplate>
+                                    </ItemsRepeater>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </controls:SafeAreaContainer>
         </ScrollViewer>
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup>

@@ -6,245 +6,239 @@
     xmlns:controls="using:JustHostMC.App.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
     mc:Ignorable="d">
+
+    <Page.Resources>
+        <Style
+            x:Key="SettingsSectionHeaderTextBlockStyle"
+            BasedOn="{StaticResource BodyStrongTextBlockStyle}"
+            TargetType="TextBlock">
+            <Style.Setters>
+                <Setter Property="Margin" Value="1,30,0,6" />
+            </Style.Setters>
+        </Style>
+    </Page.Resources>
 
     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
         <controls:SafeAreaContainer>
-            <StackPanel Spacing="16">
-
-                <TextBlock x:Uid="SettingsTitle" Style="{StaticResource TitleTextBlockStyle}" />
-
-                <TextBlock x:Uid="SettingsRetentionHeader" Style="{StaticResource BodyStrongTextBlockStyle}" />
-                <TextBlock
-                    x:Uid="SettingsRetentionHint"
-                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    Style="{StaticResource CaptionTextBlockStyle}"
-                    TextWrapping="Wrap" />
-
-                <NumberBox
-                    x:Uid="SettingsKeepDays"
-                    HorizontalAlignment="Left"
-                    Minimum="0"
-                    SpinButtonPlacementMode="Inline"
-                    Value="{x:Bind ViewModel.KeepDays, Mode=TwoWay}" />
-                <NumberBox
-                    x:Uid="SettingsMaxSize"
-                    HorizontalAlignment="Left"
-                    Minimum="0"
-                    SpinButtonPlacementMode="Inline"
-                    Value="{x:Bind ViewModel.MaxTotalMb, Mode=TwoWay}" />
-
-                <Grid HorizontalAlignment="Left" ColumnSpacing="12">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Button
-                        x:Uid="SettingsSaveButton"
-                        Grid.Column="0"
-                        Command="{x:Bind ViewModel.SaveCommand}"
-                        Style="{StaticResource AccentButtonStyle}" />
-                    <Button
-                        x:Uid="SettingsPurgeButton"
-                        Grid.Column="1"
-                        Command="{x:Bind ViewModel.PurgeNowCommand}" />
-                    <ProgressRing
-                        Grid.Column="2"
-                        Width="20"
-                        Height="20"
-                        HorizontalAlignment="Left"
-                        IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}"
-                        Visibility="{x:Bind ViewModel.IsBusy, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
-                </Grid>
+            <StackPanel
+                MaxWidth="1000"
+                HorizontalAlignment="Stretch"
+                Spacing="4">
 
                 <TextBlock
-                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
-                    TextWrapping="Wrap" />
+                    x:Uid="SettingsTitle"
+                    Margin="0,0,0,16"
+                    Style="{StaticResource TitleTextBlockStyle}" />
 
-                <!--  Server isolation backend (Docker opt-in)  -->
-                <Border
-                    Padding="16"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                    BorderThickness="1"
-                    CornerRadius="8">
-                    <StackPanel Spacing="8">
-                        <TextBlock x:Uid="SettingsBackendHeader" Style="{StaticResource BodyStrongTextBlockStyle}" />
-                        <TextBlock Text="{x:Bind ViewModel.ActiveModeText, Mode=OneWay}" TextWrapping="Wrap" />
-                        <TextBlock
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                            Style="{StaticResource CaptionTextBlockStyle}"
-                            Text="{x:Bind ViewModel.DockerStatusText, Mode=OneWay}"
-                            TextWrapping="Wrap" />
-                        <ToggleSwitch x:Uid="SettingsUseDocker" IsOn="{x:Bind ViewModel.UseDocker, Mode=TwoWay}" />
+                <!--  Category: Engine & Servers  -->
+                <TextBlock
+                    x:Uid="SettingsCategoryEngine"
+                    Margin="4,0,0,8"
+                    Style="{StaticResource SettingsSectionHeaderTextBlockStyle}" />
+
+                <!--  Log Retention Policy  -->
+                <toolkit:SettingsExpander IsExpanded="True">
+                    <toolkit:SettingsExpander.Header>
+                        <TextBlock x:Uid="SettingsRetentionHeader" />
+                    </toolkit:SettingsExpander.Header>
+                    <toolkit:SettingsExpander.Description>
+                        <TextBlock x:Uid="SettingsRetentionHint" TextWrapping="Wrap" />
+                    </toolkit:SettingsExpander.Description>
+                    <toolkit:SettingsExpander.HeaderIcon>
+                        <FontIcon Glyph="&#xE787;" />
+                    </toolkit:SettingsExpander.HeaderIcon>
+
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <ProgressRing
+                            Width="20"
+                            Height="20"
+                            IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}"
+                            Visibility="{x:Bind ViewModel.IsBusy, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                        <Button x:Uid="SettingsPurgeButton" Command="{x:Bind ViewModel.PurgeNowCommand}" />
                     </StackPanel>
-                </Border>
+
+                    <toolkit:SettingsExpander.Items>
+                        <toolkit:SettingsCard x:Uid="SettingsKeepDays">
+                            <NumberBox
+                                HorizontalAlignment="Left"
+                                Minimum="0"
+                                SpinButtonPlacementMode="Inline"
+                                Value="{x:Bind ViewModel.KeepDays, Mode=TwoWay}" />
+                        </toolkit:SettingsCard>
+
+                        <toolkit:SettingsCard x:Uid="SettingsMaxSize">
+                            <NumberBox
+                                HorizontalAlignment="Left"
+                                Minimum="0"
+                                SpinButtonPlacementMode="Inline"
+                                Value="{x:Bind ViewModel.MaxTotalMb, Mode=TwoWay}" />
+                        </toolkit:SettingsCard>
+                    </toolkit:SettingsExpander.Items>
+                </toolkit:SettingsExpander>
+
+                <!--  Server isolation backend  -->
+                <toolkit:SettingsExpander>
+                    <toolkit:SettingsExpander.Header>
+                        <TextBlock x:Uid="SettingsBackendHeader" />
+                    </toolkit:SettingsExpander.Header>
+                    <toolkit:SettingsExpander.HeaderIcon>
+                        <FontIcon Glyph="&#xE753;" />
+                    </toolkit:SettingsExpander.HeaderIcon>
+                    <toolkit:SettingsExpander.Items>
+                        <toolkit:SettingsCard x:Uid="SettingsUseDocker">
+                            <toolkit:SettingsCard.Description>
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="{x:Bind ViewModel.ActiveModeText, Mode=OneWay}" TextWrapping="Wrap" />
+                                    <TextBlock
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        Text="{x:Bind ViewModel.DockerStatusText, Mode=OneWay}"
+                                        TextWrapping="Wrap" />
+                                </StackPanel>
+                            </toolkit:SettingsCard.Description>
+                            <ToggleSwitch IsOn="{x:Bind ViewModel.UseDocker, Mode=TwoWay}" />
+                        </toolkit:SettingsCard>
+                    </toolkit:SettingsExpander.Items>
+                </toolkit:SettingsExpander>
 
                 <!--  Engine diagnostics  -->
-                <Border
-                    Padding="16"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                    BorderThickness="1"
-                    CornerRadius="8">
-                    <StackPanel Spacing="8">
-                        <TextBlock x:Uid="SettingsEngineMonitorHeader" Style="{StaticResource BodyStrongTextBlockStyle}" />
-                        <TextBlock
-                            x:Uid="SettingsEngineMonitorHint"
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                            Style="{StaticResource CaptionTextBlockStyle}"
-                            TextWrapping="Wrap" />
-                        <Button
-                            x:Uid="SettingsEngineMonitorButton"
-                            HorizontalAlignment="Left"
-                            Click="OnOpenEngineMonitorClick" />
-                    </StackPanel>
-                </Border>
+                <toolkit:SettingsCard Click="OnOpenEngineMonitorClick" IsClickEnabled="True">
+                    <toolkit:SettingsCard.Header>
+                        <TextBlock x:Uid="SettingsEngineMonitorHeader" />
+                    </toolkit:SettingsCard.Header>
+                    <toolkit:SettingsCard.Description>
+                        <TextBlock x:Uid="SettingsEngineMonitorHint" TextWrapping="Wrap" />
+                    </toolkit:SettingsCard.Description>
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE9D9;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <toolkit:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8A7;" />
+                    </toolkit:SettingsCard.ActionIcon>
+                </toolkit:SettingsCard>
+
+                <!--  Category: Integrations  -->
+                <TextBlock
+                    x:Uid="SettingsCategoryIntegrations"
+                    Margin="4,24,0,8"
+                    Style="{StaticResource SettingsSectionHeaderTextBlockStyle}" />
 
                 <!--  Mod shop: CurseForge API key  -->
-                <Border
-                    Padding="16"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                    BorderThickness="1"
-                    CornerRadius="8">
-                    <StackPanel Spacing="8">
-                        <TextBlock x:Uid="SettingsShopHeader" Style="{StaticResource BodyStrongTextBlockStyle}" />
-                        <TextBlock
-                            x:Uid="SettingsShopHint"
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                            Style="{StaticResource CaptionTextBlockStyle}"
-                            TextWrapping="Wrap" />
-                        <TextBlock
-                            Style="{StaticResource CaptionTextBlockStyle}"
-                            Text="{x:Bind ViewModel.CurseForgeKeyStatus, Mode=OneWay}"
-                            TextWrapping="Wrap" />
-                        <Grid ColumnSpacing="8">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <PasswordBox
-                                x:Uid="SettingsCurseForgeKey"
-                                AutomationProperties.AutomationId="SettingsCurseForgeKey"
-                                Password="{x:Bind ViewModel.CurseForgeKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                            <Button
-                                x:Uid="SettingsShopKeySaveButton"
-                                Grid.Column="1"
-                                VerticalAlignment="Bottom"
-                                Command="{x:Bind ViewModel.SaveCurseForgeKeyCommand}" />
-                        </Grid>
-                    </StackPanel>
-                </Border>
+                <toolkit:SettingsExpander>
+                    <toolkit:SettingsExpander.Header>
+                        <TextBlock x:Uid="SettingsShopHeader" />
+                    </toolkit:SettingsExpander.Header>
+                    <toolkit:SettingsExpander.Description>
+                        <TextBlock x:Uid="SettingsShopHint" TextWrapping="Wrap" />
+                    </toolkit:SettingsExpander.Description>
+                    <toolkit:SettingsExpander.HeaderIcon>
+                        <FontIcon Glyph="&#xE719;" />
+                    </toolkit:SettingsExpander.HeaderIcon>
+                    <toolkit:SettingsExpander.Items>
+                        <toolkit:SettingsCard x:Uid="SettingsCurseForgeKey" Description="{x:Bind ViewModel.CurseForgeKeyStatus, Mode=OneWay}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <PasswordBox
+                                    Width="250"
+                                    AutomationProperties.AutomationId="SettingsCurseForgeKey"
+                                    Password="{x:Bind ViewModel.CurseForgeKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    PlaceholderText="API Key" />
+                                <Button x:Uid="SettingsShopKeySaveButton" Command="{x:Bind ViewModel.SaveCurseForgeKeyCommand}" />
+                            </StackPanel>
+                        </toolkit:SettingsCard>
+                    </toolkit:SettingsExpander.Items>
+                </toolkit:SettingsExpander>
+
+                <!--  Category: Application  -->
+                <TextBlock
+                    x:Uid="SettingsCategoryApp"
+                    Margin="4,24,0,8"
+                    Style="{StaticResource SettingsSectionHeaderTextBlockStyle}" />
 
                 <!--  Destructive: remove all data  -->
-                <Border
-                    Padding="16"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                    BorderThickness="1"
-                    CornerRadius="8">
-                    <StackPanel Spacing="8">
-                        <TextBlock x:Uid="SettingsDataHeader" Style="{StaticResource BodyStrongTextBlockStyle}" />
-                        <TextBlock
-                            x:Uid="SettingsDataHint"
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                            Style="{StaticResource CaptionTextBlockStyle}"
-                            TextWrapping="Wrap" />
-                        <Button x:Uid="SettingsRemoveDataButton" HorizontalAlignment="Left">
-                            <Button.Flyout>
-                                <Flyout>
-                                    <StackPanel MaxWidth="260" Spacing="8">
-                                        <TextBlock x:Uid="SettingsRemoveDataConfirmText" TextWrapping="Wrap" />
-                                        <Button
-                                            x:Uid="SettingsRemoveDataConfirmButton"
-                                            HorizontalAlignment="Right"
-                                            Command="{x:Bind ViewModel.RemoveAllDataCommand}" />
-                                    </StackPanel>
-                                </Flyout>
-                            </Button.Flyout>
-                        </Button>
-                    </StackPanel>
-                </Border>
+                <toolkit:SettingsCard>
+                    <toolkit:SettingsCard.Header>
+                        <TextBlock x:Uid="SettingsDataHeader" />
+                    </toolkit:SettingsCard.Header>
+                    <toolkit:SettingsCard.Description>
+                        <TextBlock x:Uid="SettingsDataHint" TextWrapping="Wrap" />
+                    </toolkit:SettingsCard.Description>
+                    <toolkit:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE74D;" />
+                    </toolkit:SettingsCard.HeaderIcon>
+                    <Button x:Uid="SettingsRemoveDataButton" HorizontalAlignment="Left">
+                        <Button.Flyout>
+                            <Flyout>
+                                <StackPanel MaxWidth="260" Spacing="8">
+                                    <TextBlock x:Uid="SettingsRemoveDataConfirmText" TextWrapping="Wrap" />
+                                    <Button
+                                        x:Uid="SettingsRemoveDataConfirmButton"
+                                        HorizontalAlignment="Right"
+                                        Command="{x:Bind ViewModel.RemoveAllDataCommand}" />
+                                </StackPanel>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
+                </toolkit:SettingsCard>
 
-                <!--  About  -->
+                <!--  Category: About  -->
                 <TextBlock
                     x:Uid="SettingsAboutHeader"
-                    Margin="0,8,0,0"
-                    Style="{StaticResource BodyStrongTextBlockStyle}" />
-                <Expander
-                    HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Stretch"
-                    CornerRadius="8">
-                    <Expander.Header>
-                        <Grid MinHeight="56">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
+                    Margin="4,24,0,8"
+                    Style="{StaticResource SettingsSectionHeaderTextBlockStyle}" />
 
-                            <Image
-                                Width="24"
-                                Height="24"
-                                Margin="0,0,16,0"
-                                VerticalAlignment="Center"
-                                Source="ms-appx:///Assets/Square44x44Logo.png" />
+                <!--  About Section  -->
+                <toolkit:SettingsExpander Description="{x:Bind ViewModel.AppVersionText, Mode=OneWay}" Header="{x:Bind ViewModel.AppName, Mode=OneWay}">
+                    <toolkit:SettingsExpander.HeaderIcon>
+                        <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///Assets/Square44x44Logo.png" />
+                    </toolkit:SettingsExpander.HeaderIcon>
+                    <toolkit:SettingsExpander.Items>
 
-                            <TextBlock
-                                Grid.Column="1"
-                                Margin="0,0,16,0"
-                                VerticalAlignment="Center"
-                                Style="{StaticResource BodyStrongTextBlockStyle}"
-                                Text="{x:Bind ViewModel.AppName, Mode=OneWay}" />
+                        <toolkit:SettingsCard IsClickEnabled="True">
+                            <toolkit:SettingsCard.Header>
+                                <TextBlock x:Uid="SettingsAboutRepo" />
+                            </toolkit:SettingsCard.Header>
+                            <toolkit:SettingsCard.ActionIcon>
+                                <FontIcon Glyph="&#xE8A7;" />
+                            </toolkit:SettingsCard.ActionIcon>
+                            <HyperlinkButton NavigateUri="https://github.com/000hen/JustHostMC">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <TextBlock VerticalAlignment="Center" Text="github.com/000hen/JustHostMC" />
+                                    <FontIcon
+                                        VerticalAlignment="Center"
+                                        FontSize="12"
+                                        Glyph="&#xE8A7;" />
+                                </StackPanel>
+                            </HyperlinkButton>
+                        </toolkit:SettingsCard>
 
-                            <TextBlock
-                                Grid.Column="2"
-                                VerticalAlignment="Center"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                Text="{x:Bind ViewModel.AppVersionText, Mode=OneWay}" />
-                        </Grid>
-                    </Expander.Header>
-                    <Expander.Content>
-                        <StackPanel Margin="-16" Spacing="0">
-                            <!--  Repository  -->
-                            <Grid Padding="16,12">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <TextBlock x:Uid="SettingsAboutRepo" VerticalAlignment="Center" />
-                                <HyperlinkButton Grid.Column="1" NavigateUri="https://github.com/000hen/JustHostMC">
-                                    <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <TextBlock VerticalAlignment="Center" Text="github.com/000hen/JustHostMC" />
-                                        <FontIcon
-                                            VerticalAlignment="Center"
-                                            FontSize="12"
-                                            Glyph="&#xE8A7;" />
-                                    </StackPanel>
-                                </HyperlinkButton>
-                            </Grid>
+                        <toolkit:SettingsCard IsClickEnabled="True">
+                            <toolkit:SettingsCard.Header>
+                                <TextBlock x:Uid="SettingsAboutIssues" />
+                            </toolkit:SettingsCard.Header>
+                            <toolkit:SettingsCard.ActionIcon>
+                                <FontIcon Glyph="&#xE8A7;" />
+                            </toolkit:SettingsCard.ActionIcon>
+                            <HyperlinkButton NavigateUri="https://github.com/000hen/JustHostMC/issues">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <TextBlock VerticalAlignment="Center" Text="github.com/000hen/JustHostMC/issues" />
+                                    <FontIcon
+                                        VerticalAlignment="Center"
+                                        FontSize="12"
+                                        Glyph="&#xE8A7;" />
+                                </StackPanel>
+                            </HyperlinkButton>
+                        </toolkit:SettingsCard>
 
-                            <MenuFlyoutSeparator Margin="0" />
+                    </toolkit:SettingsExpander.Items>
+                </toolkit:SettingsExpander>
 
-                            <!--  Issues  -->
-                            <Grid Padding="16,12">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <TextBlock x:Uid="SettingsAboutIssues" VerticalAlignment="Center" />
-                                <HyperlinkButton Grid.Column="1" NavigateUri="https://github.com/000hen/JustHostMC/issues">
-                                    <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <TextBlock VerticalAlignment="Center" Text="github.com/000hen/JustHostMC/issues" />
-                                        <FontIcon
-                                            VerticalAlignment="Center"
-                                            FontSize="12"
-                                            Glyph="&#xE8A7;" />
-                                    </StackPanel>
-                                </HyperlinkButton>
-                            </Grid>
-                        </StackPanel>
-                    </Expander.Content>
-                </Expander>
+                <TextBlock
+                    Margin="0,32,0,0"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Style="{StaticResource CaptionTextBlockStyle}"
+                    Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" />
+
             </StackPanel>
         </controls:SafeAreaContainer>
     </ScrollViewer>

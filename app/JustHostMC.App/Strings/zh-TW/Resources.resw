@@ -174,6 +174,9 @@
   <data name="SettingsButton.Content" xml:space="preserve"><value>設定</value></data>
   <data name="SettingsDialog.Title" xml:space="preserve"><value>設定</value></data>
   <data name="SettingsDialog.CloseButtonText" xml:space="preserve"><value>關閉</value></data>
+  <data name="SettingsCategoryEngine.Text" xml:space="preserve"><value>引擎與伺服器</value></data>
+  <data name="SettingsCategoryIntegrations.Text" xml:space="preserve"><value>整合</value></data>
+  <data name="SettingsCategoryApp.Text" xml:space="preserve"><value>應用程式</value></data>
   <data name="SettingsRetentionHeader.Text" xml:space="preserve"><value>記錄保留</value></data>
   <data name="SettingsRetentionHint.Text" xml:space="preserve"><value>安裝與控制台記錄會自動清理。使用 0 表示不限制。</value></data>
   <data name="SettingsKeepDays.Header" xml:space="preserve"><value>記錄保留天數</value></data>

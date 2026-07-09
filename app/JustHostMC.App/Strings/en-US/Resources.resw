@@ -177,6 +177,9 @@
   <data name="SettingsButton.Content" xml:space="preserve"><value>Settings</value></data>
   <data name="SettingsDialog.Title" xml:space="preserve"><value>Settings</value></data>
   <data name="SettingsDialog.CloseButtonText" xml:space="preserve"><value>Close</value></data>
+  <data name="SettingsCategoryEngine.Text" xml:space="preserve"><value>Engine &amp; Servers</value></data>
+  <data name="SettingsCategoryIntegrations.Text" xml:space="preserve"><value>Integrations</value></data>
+  <data name="SettingsCategoryApp.Text" xml:space="preserve"><value>Application</value></data>
   <data name="SettingsRetentionHeader.Text" xml:space="preserve"><value>Log retention</value></data>
   <data name="SettingsRetentionHint.Text" xml:space="preserve"><value>Install and console logs are pruned automatically. Use 0 for no limit.</value></data>
   <data name="SettingsKeepDays.Header" xml:space="preserve"><value>Keep logs for (days)</value></data>

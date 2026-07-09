@@ -1,4 +1,5 @@
 using JustHostMC.App.Models;
+using JustHostMC.App.Services;
 using JustHostMC.App.ViewModels;
 using JustHostMC.App.Views;
 using Microsoft.UI.Xaml;
@@ -8,6 +9,7 @@ using Windows.Storage.Pickers;
 namespace JustHostMC.App.Controls.Server;
 
 public sealed partial class ServerModsPanel : UserControl {
+    private readonly ILocalizer _localizer = new LocalizationService();
     public static readonly DependencyProperty ModsProperty =
         DependencyProperty.Register(
             nameof(Mods), typeof(ModsViewModel), typeof(ServerModsPanel),
@@ -31,6 +33,9 @@ public sealed partial class ServerModsPanel : UserControl {
     public ServerModsPanel() {
         InitializeComponent();
     }
+
+    private string ModsDescription(bool canModify) =>
+        canModify ? _localizer.Get("ServerSectionModsHint/Text") : _localizer.Get("ModsStoppedHint/Text");
 
     private static void OnViewModelChanged(
         DependencyObject d, DependencyPropertyChangedEventArgs e) {

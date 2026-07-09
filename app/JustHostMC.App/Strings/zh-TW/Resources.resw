@@ -239,6 +239,9 @@
   <data name="ServerSectionMods.Text" xml:space="preserve"><value>插件 / 模組</value></data>
   <data name="ServerSectionConfig.Text" xml:space="preserve"><value>設定</value></data>
   <data name="ServerSectionConfigHint.Text" xml:space="preserve"><value>管理伺服器啟動設定與進階選項</value></data>
+  <data name="ServerSectionPerformanceHint.Text" xml:space="preserve"><value>監控伺服器資源使用與網路指標</value></data>
+  <data name="ServerSectionPlayersHint.Text" xml:space="preserve"><value>管理線上玩家、管理員與封鎖名單</value></data>
+  <data name="ServerSectionModsHint.Text" xml:space="preserve"><value>管理伺服器擴充功能與模組</value></data>
   <data name="ServerEditMenuItem.Text" xml:space="preserve"><value>編輯伺服器</value></data>
   <data name="ServerBackupsMenuItem.Text" xml:space="preserve"><value>備份</value></data>
   <data name="ServerDeleteMenuItem.Text" xml:space="preserve"><value>刪除伺服器</value></data>

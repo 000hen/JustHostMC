@@ -242,6 +242,9 @@
   <data name="ServerSectionMods.Text" xml:space="preserve"><value>Plugins / Mods</value></data>
   <data name="ServerSectionConfig.Text" xml:space="preserve"><value>Configuration</value></data>
   <data name="ServerSectionConfigHint.Text" xml:space="preserve"><value>Manage server launch settings and advanced options</value></data>
+  <data name="ServerSectionPerformanceHint.Text" xml:space="preserve"><value>Monitor server resource usage and network metrics</value></data>
+  <data name="ServerSectionPlayersHint.Text" xml:space="preserve"><value>Manage online players, operators, and ban lists</value></data>
+  <data name="ServerSectionModsHint.Text" xml:space="preserve"><value>Manage server extensions and modifications</value></data>
   <data name="ServerBackupsMenuItem.Text" xml:space="preserve"><value>Backups</value></data>
   <data name="ServerDeleteMenuItem.Text" xml:space="preserve"><value>Delete server</value></data>
   <data name="ServerMoreButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>More options</value></data>

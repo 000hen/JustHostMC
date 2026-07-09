@@ -1,3 +1,4 @@
+using JustHostMC.App.Services;
 using JustHostMC.App.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -5,6 +6,8 @@ using Microsoft.UI.Xaml.Controls;
 namespace JustHostMC.App.Controls.Server;
 
 public sealed partial class ServerConfigPanel : UserControl {
+    private readonly ILocalizer _localizer = new LocalizationService();
+
     public static readonly DependencyProperty ConfigProperty =
         DependencyProperty.Register(
             nameof(Config), typeof(ServerConfigViewModel),
@@ -19,6 +22,12 @@ public sealed partial class ServerConfigPanel : UserControl {
     public ServerConfigPanel() {
         InitializeComponent();
     }
+
+    private string ConfigTitle() =>
+        _localizer.Get("ServerSectionConfig/Text");
+
+    private string ConfigDescription(bool canModify) =>
+        canModify ? _localizer.Get("ServerSectionConfigHint/Text") : _localizer.Get("ConfigStoppedHint/Text");
 
     private static void OnConfigChanged(DependencyObject d,
                                         DependencyPropertyChangedEventArgs e) {

@@ -1,51 +1,35 @@
-﻿<UserControl
+<UserControl
     x:Class="JustHostMC.App.Controls.Server.ServerPlayersPanel"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:JustHostMC.App.Models"
+    xmlns:server="using:JustHostMC.App.Controls.Server"
     mc:Ignorable="d">
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <Border
-            Padding="16"
-            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-            BorderThickness="1"
-            CornerRadius="8">
-            <StackPanel Spacing="12">
-                <Grid ColumnSpacing="8">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <FontIcon
-                        Grid.Column="0"
-                        FontSize="16"
-                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                        Glyph="&#xE716;" />
-                    <StackPanel Grid.Column="1" Spacing="2">
-                        <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind PlayersHeader(Players.Count), Mode=OneWay}" />
-                        <TextBlock
-                            x:Uid="PlayersEmptyHint"
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                            Style="{StaticResource CaptionTextBlockStyle}"
-                            Visibility="{x:Bind HasNoPlayers(Players.Count), Mode=OneWay}" />
-                    </StackPanel>
-                    <Button
-                        x:Uid="ManageBansButton"
-                        Grid.Column="2"
-                        VerticalAlignment="Center"
-                        Click="OnManageBansClick">
-                        <StackPanel Orientation="Horizontal" Spacing="6">
-                            <SymbolIcon Symbol="BlockContact" />
-                            <TextBlock x:Uid="ManageBansButtonLabel" />
-                        </StackPanel>
-                    </Button>
-                </Grid>
-
+    <server:ServerSectionLayout
+        Description="{x:Bind PlayersDescription(Players.Count), Mode=OneWay}"
+        IconGlyph="&#xE716;"
+        Title="{x:Bind PlayersHeader(Players.Count), Mode=OneWay}">
+        <server:ServerSectionLayout.HeaderContent>
+            <Button
+                x:Uid="ManageBansButton"
+                VerticalAlignment="Center"
+                Click="OnManageBansClick">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <SymbolIcon Symbol="BlockContact" />
+                    <TextBlock x:Uid="ManageBansButtonLabel" />
+                </StackPanel>
+            </Button>
+        </server:ServerSectionLayout.HeaderContent>
+        <server:ServerSectionLayout.Body>
+            <Border
+                Padding="16"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
                 <ListView
                     Background="Transparent"
                     ItemsSource="{x:Bind Players.Players, Mode=OneWay}"
@@ -151,7 +135,7 @@
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
-            </StackPanel>
-        </Border>
-    </ScrollViewer>
+            </Border>
+        </server:ServerSectionLayout.Body>
+    </server:ServerSectionLayout>
 </UserControl>

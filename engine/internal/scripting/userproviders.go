@@ -1,6 +1,7 @@
 package scripting
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"strings"
@@ -11,7 +12,7 @@ import (
 // a bundled jar) or a loose *.lua file. A missing dir is not an error; a single
 // bad script is logged by the caller via the returned (first) error but does not
 // stop the others from loading.
-func LoadUserProviders(r *Registry, dir string) error {
+func LoadUserProviders(ctx context.Context, r *Registry, dir string) error {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -29,7 +30,7 @@ func LoadUserProviders(r *Registry, dir string) error {
 		switch {
 		case e.IsDir():
 			if _, err := os.Stat(filepath.Join(dir, e.Name(), "provider.lua")); err == nil {
-				_, err := r.AddProviderDir(filepath.Join(dir, e.Name()), false)
+				_, err := r.AddProviderDir(ctx, filepath.Join(dir, e.Name()), false)
 				note(err)
 			}
 		case strings.HasSuffix(strings.ToLower(e.Name()), ".lua"):
@@ -38,7 +39,7 @@ func LoadUserProviders(r *Registry, dir string) error {
 				note(err)
 				continue
 			}
-			_, err = r.AddSource(string(src), false)
+			_, err = r.AddSource(ctx, string(src), false)
 			note(err)
 		}
 	}

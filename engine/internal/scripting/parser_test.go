@@ -13,7 +13,7 @@ import (
 func newBuiltinParserSet(t *testing.T) *ParserSet {
 	t.Helper()
 	ps := NewParserSet(NewHost(nil, nil, nil), nil)
-	if err := LoadBuiltinParsers(ps); err != nil {
+	if err := LoadBuiltinParsers(context.Background(), ps); err != nil {
 		t.Fatalf("LoadBuiltinParsers: %v", err)
 	}
 	return ps
@@ -437,7 +437,7 @@ func TestParseJarReportsMalformedKnownDescriptor(t *testing.T) {
 func TestBrokenParserSkipped(t *testing.T) {
 	ps := newBuiltinParserSet(t)
 	// Registered after built-ins; matches everything but explodes.
-	if _, err := ps.AddSource(`
+	if _, err := ps.AddSource(context.Background(), `
 meta = { id = "broken", name = "Broken",
   permissions = { {kind = "fs_server", reason = "x"} } }
 function parse(ctx)
@@ -463,7 +463,7 @@ end`, false); err != nil {
 // simply doesn't match.
 func TestUserParserUngrantedCannotRead(t *testing.T) {
 	ps := NewParserSet(NewHost(nil, nil, nil), nil)
-	if _, err := ps.AddSource(`
+	if _, err := ps.AddSource(context.Background(), `
 meta = { id = "user-parser", name = "User Parser",
   permissions = { {kind = "fs_server", reason = "read jars"} } }
 function parse(ctx)
@@ -492,7 +492,7 @@ func TestParserMetaFormats(t *testing.T) {
 
 func TestParserRejectsMissingParseFunction(t *testing.T) {
 	ps := NewParserSet(NewHost(nil, nil, nil), nil)
-	_, err := ps.AddSource(`meta = { id = "nop", name = "Nop", permissions = {} }`, false)
+	_, err := ps.AddSource(context.Background(), `meta = { id = "nop", name = "Nop", permissions = {} }`, false)
 	if err == nil || !strings.Contains(err.Error(), "parse") {
 		t.Fatalf("err = %v, want missing-parse error", err)
 	}

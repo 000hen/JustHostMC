@@ -60,7 +60,7 @@ func newMetadataTestService(t *testing.T) (*ModService, *countingParser, appdata
 	_ = st.Put(&store.Server{ID: "s1", ProviderID: "fabric", ModLayout: "mods", McVersion: "1.20.1", Status: mcmanagerv1.ServerStatus_STOPPED})
 
 	ps := scripting.NewParserSet(scripting.NewHost(nil, nil, nil), nil)
-	if err := scripting.LoadBuiltinParsers(ps); err != nil {
+	if err := scripting.LoadBuiltinParsers(context.Background(), ps); err != nil {
 		t.Fatalf("LoadBuiltinParsers: %v", err)
 	}
 	parser := &countingParser{inner: ps}
@@ -154,7 +154,7 @@ func TestListReranksCachedHybridMetadataWhenServerProviderChanges(t *testing.T) 
 	_ = st.Put(&store.Server{ID: "s1", ProviderID: "fabric", ModLayout: "mods", McVersion: "1.20.1", Status: mcmanagerv1.ServerStatus_STOPPED})
 
 	ps := scripting.NewParserSet(scripting.NewHost(nil, nil, nil), nil)
-	if err := scripting.LoadBuiltinParsers(ps); err != nil {
+	if err := scripting.LoadBuiltinParsers(context.Background(), ps); err != nil {
 		t.Fatalf("LoadBuiltinParsers: %v", err)
 	}
 	parser := &countingParser{inner: ps}

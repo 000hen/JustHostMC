@@ -1,6 +1,8 @@
 package automation
 
 import (
+	"context"
+
 	"sync"
 	"testing"
 
@@ -83,7 +85,7 @@ register = function()
   if server.info("nope") == nil then log("missing:nil") end
 end
 `
-	if _, err := m.AddSource(src, true); err != nil {
+	if _, err := m.AddSource(context.Background(), src, true); err != nil {
 		t.Fatalf("AddSource: %v", err)
 	}
 	if err := m.Enable("q"); err != nil {
@@ -129,7 +131,7 @@ register = function()
   log("done")
 end
 `
-	if _, err := m.AddSource(src, true); err != nil {
+	if _, err := m.AddSource(context.Background(), src, true); err != nil {
 		t.Fatalf("AddSource: %v", err)
 	}
 	if err := m.Enable("pm"); err != nil {
@@ -169,7 +171,7 @@ on_join("srv", function(name) log("join:" .. name) end)
 on_leave("srv", function(name) log("leave:" .. name) end)
 on_join("other", function(name) log("otherjoin:" .. name) end)
 `
-	if _, err := m.AddSource(src, true); err != nil {
+	if _, err := m.AddSource(context.Background(), src, true); err != nil {
 		t.Fatalf("AddSource: %v", err)
 	}
 	if err := m.Enable("greeter"); err != nil {
@@ -199,7 +201,7 @@ meta = { id = "spy", name = "Spy",
   permissions = { {kind = "player_manage", reason = "x"} } }
 on_join("srv", function(name) end)
 `
-	if _, err := m.AddSource(src, false); err != nil {
+	if _, err := m.AddSource(context.Background(), src, false); err != nil {
 		t.Fatalf("AddSource: %v", err)
 	}
 	if err := m.Enable("spy"); err == nil {
@@ -219,7 +221,7 @@ register = function()
   log("woke")
 end
 `
-	if _, err := m.AddSource(src, true); err != nil {
+	if _, err := m.AddSource(context.Background(), src, true); err != nil {
 		t.Fatalf("AddSource: %v", err)
 	}
 	if err := m.Enable("sleepy"); err != nil {
@@ -243,7 +245,7 @@ register = function()
   log("runs:" .. jhmc.store.get("runs"))
 end
 `
-	if _, err := m.AddSource(src, true); err != nil {
+	if _, err := m.AddSource(context.Background(), src, true); err != nil {
 		t.Fatalf("AddSource: %v", err)
 	}
 	if err := m.Enable("counter"); err != nil {

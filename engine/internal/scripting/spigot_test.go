@@ -16,7 +16,7 @@ import (
 // metadata + permissions parse correctly (no network).
 func TestBuiltinSpigotMeta(t *testing.T) {
 	r := NewRegistry(NewHost(nil, nil, nil), nil)
-	if err := LoadBuiltins(r); err != nil {
+	if err := LoadBuiltins(context.Background(), r); err != nil {
 		t.Fatalf("LoadBuiltins: %v", err)
 	}
 	e, ok := r.Get("spigot")
@@ -88,7 +88,7 @@ func spigotScript(url string) string {
 func TestSpigotVersionsSupportedReleasesOnly(t *testing.T) {
 	srv := spigotManifestStub(t)
 	r := NewRegistry(NewHost(nil, nil, nil), nil)
-	e, err := r.AddSource(spigotScript(srv.URL), true) // builtin → network auto-granted
+	e, err := r.AddSource(context.Background(), spigotScript(srv.URL), true) // builtin → network auto-granted
 	if err != nil {
 		t.Fatalf("AddSource: %v", err)
 	}
@@ -111,7 +111,7 @@ func TestSpigotVersionsSupportedReleasesOnly(t *testing.T) {
 func TestSpigotInstallRejectsUnsupportedVersion(t *testing.T) {
 	srv := spigotManifestStub(t)
 	r := NewRegistry(NewHost(nil, nil, nil), nil)
-	e, err := r.AddSource(spigotScript(srv.URL), true)
+	e, err := r.AddSource(context.Background(), spigotScript(srv.URL), true)
 	if err != nil {
 		t.Fatalf("AddSource: %v", err)
 	}

@@ -21,8 +21,8 @@ type LuaProvider struct {
 
 // newLuaProvider parses a script's meta (in a throwaway sandbox) and returns the
 // adapter. grantsFn is set by the registry once the id is known.
-func newLuaProvider(host *Host, source string, builtin bool, assetDir string) (*LuaProvider, error) {
-	inv := &invocation{ctx: context.Background(), host: host}
+func newLuaProvider(ctx context.Context, host *Host, source string, builtin bool, assetDir string) (*LuaProvider, error) {
+	inv := &invocation{ctx: ctx, host: host}
 	L, err := inv.prepare(source)
 	if err != nil {
 		return nil, err

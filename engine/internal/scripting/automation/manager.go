@@ -56,8 +56,8 @@ func (m *Manager) Logs() *scriptlog.LogBuffer { return m.logs }
 
 // AddSource compiles an automation script and registers it (disabled). builtin
 // marks first-party scripts, whose declared permissions are granted by default.
-func (m *Manager) AddSource(source string, builtin bool) (*Automation, error) {
-	a, err := newAutomation(m.cfg.Host, source, builtin)
+func (m *Manager) AddSource(ctx context.Context, source string, builtin bool) (*Automation, error) {
+	a, err := newAutomation(ctx, m.cfg.Host, source, builtin)
 	if err != nil {
 		return nil, err
 	}

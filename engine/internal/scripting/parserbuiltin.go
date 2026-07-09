@@ -1,6 +1,7 @@
 package scripting
 
 import (
+	"context"
 	"embed"
 	"fmt"
 	"strings"
@@ -13,7 +14,7 @@ import (
 var builtinParsersFS embed.FS
 
 // LoadBuiltinParsers registers every embedded parser script as builtin.
-func LoadBuiltinParsers(ps *ParserSet) error {
+func LoadBuiltinParsers(ctx context.Context, ps *ParserSet) error {
 	entries, err := builtinParsersFS.ReadDir("builtin_parsers")
 	if err != nil {
 		return err
@@ -26,7 +27,7 @@ func LoadBuiltinParsers(ps *ParserSet) error {
 		if err != nil {
 			return fmt.Errorf("builtin parser %s: %w", e.Name(), err)
 		}
-		if _, err := ps.AddSource(string(src), true); err != nil {
+		if _, err := ps.AddSource(ctx, string(src), true); err != nil {
 			return fmt.Errorf("builtin parser %s: %w", e.Name(), err)
 		}
 	}

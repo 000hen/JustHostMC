@@ -279,11 +279,11 @@ func send(stream grpc.ServerStreamingServer[mcmanagerv1.InstallProgress], key st
 	})
 }
 
-func (s *ShopService) Import(_ context.Context, req *mcmanagerv1.ImportShopRequest) (*mcmanagerv1.ShopInfo, error) {
+func (s *ShopService) Import(ctx context.Context, req *mcmanagerv1.ImportShopRequest) (*mcmanagerv1.ShopInfo, error) {
 	if strings.TrimSpace(req.LuaSource) == "" {
 		return nil, errorStatus(codes.InvalidArgument, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, "shop script is empty", nil)
 	}
-	sh, err := s.shops.AddSource(req.LuaSource, false)
+	sh, err := s.shops.AddSource(ctx, req.LuaSource, false)
 	if err != nil {
 		return nil, errorStatus(codes.InvalidArgument, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, err.Error(), nil)
 	}

@@ -1,6 +1,7 @@
 package automation
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/000hen/justhostmc/engine/internal/scripting"
@@ -27,8 +28,8 @@ func (a *Automation) Builtin() bool { return a.builtin }
 // scripts register hooks at top level, so the sandbox installs no-op stubs for
 // the automation API (server.*/on_*/schedule/log/print): they let the source
 // load and `meta` be read without actually wiring anything up.
-func newAutomation(host *scripting.Host, source string, builtin bool) (*Automation, error) {
-	inv := scripting.NewInvocation(scripting.InvocationConfig{Host: host})
+func newAutomation(ctx context.Context, host *scripting.Host, source string, builtin bool) (*Automation, error) {
+	inv := scripting.NewInvocation(scripting.InvocationConfig{Ctx: ctx, Host: host})
 	L := scripting.NewSandbox(inv.Ctx())
 	L.SetGlobal("jhmc", inv.NewJHMC(L))
 	installAutoStubs(L)

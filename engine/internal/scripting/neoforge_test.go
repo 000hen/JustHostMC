@@ -1,6 +1,8 @@
 package scripting
 
 import (
+	"context"
+
 	"testing"
 
 	mcmanagerv1 "github.com/000hen/justhostmc/engine/gen/mcmanager/v1"
@@ -11,7 +13,7 @@ import (
 // network-stubbed, so install/versions are covered by gated e2e tests, not here.)
 func TestNeoForgeBuiltin(t *testing.T) {
 	r := NewRegistry(NewHost(nil, nil, nil), nil)
-	if err := LoadBuiltins(r); err != nil {
+	if err := LoadBuiltins(context.Background(), r); err != nil {
 		t.Fatalf("LoadBuiltins: %v", err)
 	}
 	e, ok := r.Get("neoforge")

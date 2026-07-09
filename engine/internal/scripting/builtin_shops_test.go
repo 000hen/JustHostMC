@@ -35,7 +35,7 @@ func newBuiltinShops(t *testing.T, handler http.Handler) *ShopSet {
 		}
 		return ""
 	})
-	if err := LoadBuiltinShops(ss); err != nil {
+	if err := LoadBuiltinShops(context.Background(), ss); err != nil {
 		t.Fatalf("LoadBuiltinShops: %v", err)
 	}
 	return ss

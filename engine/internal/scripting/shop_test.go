@@ -71,10 +71,10 @@ func newTestShopSet(t *testing.T, keyFn func(string) string) *ShopSet {
 
 func TestShopContract(t *testing.T) {
 	ss := newTestShopSet(t, nil)
-	if _, err := ss.AddSource(`meta = { id = "x" }`, true); err == nil {
+	if _, err := ss.AddSource(context.Background(), `meta = { id = "x" }`, true); err == nil {
 		t.Fatal("script without shop functions must be rejected")
 	}
-	s, err := ss.AddSource(testShopSrc, true)
+	s, err := ss.AddSource(context.Background(), testShopSrc, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -88,7 +88,7 @@ func TestShopContract(t *testing.T) {
 
 func TestShopSearchMapsResult(t *testing.T) {
 	ss := newTestShopSet(t, nil)
-	s, err := ss.AddSource(testShopSrc, true)
+	s, err := ss.AddSource(context.Background(), testShopSrc, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -108,7 +108,7 @@ func TestShopSearchMapsResult(t *testing.T) {
 
 func TestShopHomeDetailVersions(t *testing.T) {
 	ss := newTestShopSet(t, nil)
-	s, _ := ss.AddSource(testShopSrc, true)
+	s, _ := ss.AddSource(context.Background(), testShopSrc, true)
 	ctx := context.Background()
 
 	secs, err := s.Home(ctx, ShopQuery{})
@@ -138,7 +138,7 @@ func TestShopHomeDetailVersions(t *testing.T) {
 
 func TestShopResolveFileAndErrorBridging(t *testing.T) {
 	ss := newTestShopSet(t, nil)
-	s, _ := ss.AddSource(testShopSrc, true)
+	s, _ := ss.AddSource(context.Background(), testShopSrc, true)
 	ctx := context.Background()
 
 	f, err := s.ResolveFile(ctx, "p1", "v1", "26.1", "fabric")
@@ -158,7 +158,7 @@ func TestShopNeedsKeyGate(t *testing.T) {
 	keyed := testShopSrc + "\nmeta.needs_key = true\n"
 	key := ""
 	ss := newTestShopSet(t, func(id string) string { return key })
-	s, err := ss.AddSource(keyed, true)
+	s, err := ss.AddSource(context.Background(), keyed, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -179,10 +179,10 @@ func TestShopNeedsKeyGate(t *testing.T) {
 
 func TestShopUserCannotShadowBuiltin(t *testing.T) {
 	ss := newTestShopSet(t, nil)
-	if _, err := ss.AddSource(testShopSrc, true); err != nil {
+	if _, err := ss.AddSource(context.Background(), testShopSrc, true); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := ss.AddSource(testShopSrc, false); !errors.Is(err, ErrProviderIDConflict) {
+	if _, err := ss.AddSource(context.Background(), testShopSrc, false); !errors.Is(err, ErrProviderIDConflict) {
 		t.Fatalf("want ErrProviderIDConflict, got %v", err)
 	}
 }

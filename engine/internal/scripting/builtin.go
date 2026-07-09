@@ -1,6 +1,7 @@
 package scripting
 
 import (
+	"context"
 	"embed"
 	"fmt"
 	"strings"
@@ -11,7 +12,7 @@ var builtinFS embed.FS
 
 // LoadBuiltins registers every embedded built-in provider script into r. New
 // built-ins are added by dropping a .lua file in builtin/ — no Go change.
-func LoadBuiltins(r *Registry) error {
+func LoadBuiltins(ctx context.Context, r *Registry) error {
 	entries, err := builtinFS.ReadDir("builtin")
 	if err != nil {
 		return err
@@ -24,7 +25,7 @@ func LoadBuiltins(r *Registry) error {
 		if err != nil {
 			return err
 		}
-		if _, err := r.AddSource(string(src), true); err != nil {
+		if _, err := r.AddSource(ctx, string(src), true); err != nil {
 			return fmt.Errorf("builtin %s: %w", e.Name(), err)
 		}
 	}

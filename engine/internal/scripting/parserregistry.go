@@ -27,8 +27,8 @@ func NewParserSet(host *Host, grants Grants) *ParserSet {
 
 // AddSource compiles a parser script and registers it. A user parser (builtin
 // false) may not take over a built-in's id.
-func (ps *ParserSet) AddSource(source string, builtin bool) (*LuaParser, error) {
-	p, err := newLuaParser(ps.host, source, builtin)
+func (ps *ParserSet) AddSource(ctx context.Context, source string, builtin bool) (*LuaParser, error) {
+	p, err := newLuaParser(ctx, ps.host, source, builtin)
 	if err != nil {
 		return nil, err
 	}

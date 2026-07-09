@@ -1,6 +1,7 @@
 package scripting
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -45,22 +46,22 @@ func NewRegistry(host *Host, grants Grants) *Registry {
 // AddSource compiles a Lua provider script (with no bundled assets) and
 // registers it. builtin marks first-party scripts, whose declared permissions
 // are granted by default.
-func (r *Registry) AddSource(source string, builtin bool) (*Entry, error) {
-	return r.add(source, builtin, "")
+func (r *Registry) AddSource(ctx context.Context, source string, builtin bool) (*Entry, error) {
+	return r.add(ctx, source, builtin, "")
 }
 
 // AddProviderDir registers the provider whose script is dir/provider.lua, with
 // dir as its asset directory (so the script can use a bundled custom jar).
-func (r *Registry) AddProviderDir(dir string, builtin bool) (*Entry, error) {
+func (r *Registry) AddProviderDir(ctx context.Context, dir string, builtin bool) (*Entry, error) {
 	src, err := os.ReadFile(filepath.Join(dir, "provider.lua"))
 	if err != nil {
 		return nil, err
 	}
-	return r.add(string(src), builtin, dir)
+	return r.add(ctx, string(src), builtin, dir)
 }
 
-func (r *Registry) add(source string, builtin bool, assetDir string) (*Entry, error) {
-	lp, err := newLuaProvider(r.host, source, builtin, assetDir)
+func (r *Registry) add(ctx context.Context, source string, builtin bool, assetDir string) (*Entry, error) {
+	lp, err := newLuaProvider(ctx, r.host, source, builtin, assetDir)
 	if err != nil {
 		return nil, err
 	}
@@ -158,8 +159,8 @@ func (r *Registry) EffectiveGrants(id string) GrantSet {
 }
 
 // MustAddSource is a test/bootstrap helper that panics on a bad script.
-func (r *Registry) MustAddSource(source string, builtin bool) *Entry {
-	e, err := r.AddSource(source, builtin)
+func (r *Registry) MustAddSource(ctx context.Context, source string, builtin bool) *Entry {
+	e, err := r.AddSource(ctx, source, builtin)
 	if err != nil {
 		panic(fmt.Sprintf("scripting: bad builtin script: %v", err))
 	}

@@ -1,6 +1,7 @@
 package scripting
 
 import (
+	"context"
 	"fmt"
 	"sync"
 )
@@ -28,8 +29,8 @@ func NewShopSet(host *Host, grants Grants, keyFn func(shopID string) string) *Sh
 
 // AddSource compiles a shop script and registers it. A user shop (builtin
 // false) may not take over a built-in's id.
-func (ss *ShopSet) AddSource(source string, builtin bool) (*LuaShop, error) {
-	s, err := newLuaShop(ss.host, source, builtin)
+func (ss *ShopSet) AddSource(ctx context.Context, source string, builtin bool) (*LuaShop, error) {
+	s, err := newLuaShop(ctx, ss.host, source, builtin)
 	if err != nil {
 		return nil, err
 	}

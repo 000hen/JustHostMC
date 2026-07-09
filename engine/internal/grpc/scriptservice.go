@@ -44,12 +44,12 @@ func (s *ScriptService) List(_ context.Context, _ *mcmanagerv1.Empty) (*mcmanage
 	return &mcmanagerv1.ScriptList{Scripts: out}, nil
 }
 
-func (s *ScriptService) Import(_ context.Context, req *mcmanagerv1.ImportScriptRequest) (*mcmanagerv1.ScriptInfo, error) {
+func (s *ScriptService) Import(ctx context.Context, req *mcmanagerv1.ImportScriptRequest) (*mcmanagerv1.ScriptInfo, error) {
 	if strings.TrimSpace(req.LuaSource) == "" {
 		return nil, errorStatus(codes.InvalidArgument, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, "automation script is empty", nil)
 	}
 	// Compile first so a bad script is rejected before anything is written.
-	a, err := s.mgr.AddSource(req.LuaSource, false)
+	a, err := s.mgr.AddSource(ctx, req.LuaSource, false)
 	if err != nil {
 		return nil, errorStatus(codes.InvalidArgument, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, err.Error(), nil)
 	}

@@ -1,19 +1,28 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<UserControl
+<ContentControl
     x:Class="JustHostMC.App.Controls.SafeAreaContainer"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:JustHostMC.App.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Padding="24"
+    HorizontalContentAlignment="Stretch"
+    VerticalContentAlignment="Stretch"
     mc:Ignorable="d">
 
-    <Grid Padding="{x:Bind Padding, Mode=OneWay}">
-        <ContentPresenter
-            HorizontalAlignment="Stretch"
-            HorizontalContentAlignment="Stretch"
-            VerticalContentAlignment="Stretch"
-            MaxWidth="{x:Bind SafeWidth, Mode=OneWay}"
-            Content="{x:Bind InnerContent, Mode=OneWay}" />
-    </Grid>
-</UserControl>
+    <ContentControl.Template>
+        <ControlTemplate TargetType="local:SafeAreaContainer">
+            <Grid Padding="{TemplateBinding Padding}">
+                <ContentPresenter
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                    VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                    MaxWidth="{TemplateBinding MaxContentWidth}"
+                    Content="{TemplateBinding Content}"
+                    ContentTemplate="{TemplateBinding ContentTemplate}"
+                    ContentTransitions="{TemplateBinding ContentTransitions}" />
+            </Grid>
+        </ControlTemplate>
+    </ContentControl.Template>
+</ContentControl>

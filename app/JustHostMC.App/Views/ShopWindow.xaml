@@ -110,27 +110,5 @@
             x:Name="ContentFrame"
             Grid.Row="2"
             Navigated="OnFrameNavigated" />
-        <VisualStateManager.VisualStateGroups>
-            <VisualStateGroup>
-                <VisualState x:Name="CompactWindow">
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="0" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="SearchBox.Width" Value="220" />
-                        <Setter Target="CommandBarGrid.Padding" Value="12,4" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState x:Name="WideWindow">
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="900" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="SearchBox.Width" Value="360" />
-                        <Setter Target="CommandBarGrid.Padding" Value="16,8" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-        </VisualStateManager.VisualStateGroups>
     </Grid>
 </Window>

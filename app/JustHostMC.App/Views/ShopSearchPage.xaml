@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="JustHostMC.App.Views.ShopSearchPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -10,20 +10,19 @@
     xmlns:viewModels="using:JustHostMC.App.ViewModels"
     mc:Ignorable="d">
 
-    <controls:SafeAreaContainer x:Name="SearchPageRoot">
+    <controls:SafeAreaContainer x:Name="SearchPageRoot" MaxContentWidth="1440" Padding="0">
         <controls:AdaptiveFilterLayout
             x:Name="SearchFilterLayout"
             CompactColumnSpacing="0"
             CompactFilterMaxHeight="620"
-            CompactPadding="12,8,12,0"
+            Padding="12,8,12,0"
             FilterRailCornerRadius="10"
             FilterRailIncludesHeader="True"
             HeaderSpacing="12"
             RowSpacing="12"
             WideColumnSpacing="20"
             WideFilterWidth="292"
-            WideMinWidth="1050"
-            WidePadding="24,16,24,0">
+            WideMinWidth="1050">
             <controls:AdaptiveFilterLayout.HeaderContent>
                 <StackPanel Spacing="2">
                     <TextBlock x:Uid="ShopSearchResultsHeading" Style="{StaticResource SubtitleTextBlockStyle}" />

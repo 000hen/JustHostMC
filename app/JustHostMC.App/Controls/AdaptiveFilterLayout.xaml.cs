@@ -34,19 +34,6 @@ public sealed partial class AdaptiveFilterLayout : UserControl {
             nameof(CompactFilterContent), typeof(object),
             typeof(AdaptiveFilterLayout), new PropertyMetadata(null));
 
-    public static readonly DependencyProperty CompactPaddingProperty =
-        DependencyProperty.Register(
-            nameof(CompactPadding), typeof(Thickness),
-            typeof(AdaptiveFilterLayout),
-            new PropertyMetadata(new Thickness(12, 8, 12, 0),
-                                 OnLayoutPropertyChanged));
-
-    public static readonly DependencyProperty WidePaddingProperty =
-        DependencyProperty.Register(
-            nameof(WidePadding), typeof(Thickness),
-            typeof(AdaptiveFilterLayout),
-            new PropertyMetadata(new Thickness(24, 16, 24, 0),
-                                 OnLayoutPropertyChanged));
 
     public static readonly DependencyProperty RowSpacingProperty =
         DependencyProperty.Register(nameof(RowSpacing), typeof(double),
@@ -131,15 +118,6 @@ public sealed partial class AdaptiveFilterLayout : UserControl {
         set => SetValue(CompactFilterContentProperty, value);
     }
 
-    public Thickness CompactPadding {
-        get => (Thickness)GetValue(CompactPaddingProperty);
-        set => SetValue(CompactPaddingProperty, value);
-    }
-
-    public Thickness WidePadding {
-        get => (Thickness)GetValue(WidePaddingProperty);
-        set => SetValue(WidePaddingProperty, value);
-    }
 
     public double RowSpacing {
         get => (double)GetValue(RowSpacingProperty);
@@ -201,7 +179,7 @@ public sealed partial class AdaptiveFilterLayout : UserControl {
         // not at all. Assign the compact filter body explicitly when the popup
         // opens.
         CompactFilterScrollViewer.MaxHeight = CompactFilterMaxHeight;
-        CompactFilterPresenter.Content      = CompactFilterContent;
+        CompactFilterPresenter.Content = CompactFilterContent;
         CompactFilterOpening?.Invoke(this, e);
     }
 
@@ -209,8 +187,7 @@ public sealed partial class AdaptiveFilterLayout : UserControl {
         if (RootLayout is null)
             return;
 
-        var isWide         = ActualWidth >= WideMinWidth;
-        RootLayout.Padding = isWide ? WidePadding : CompactPadding;
+        var isWide = ActualWidth >= WideMinWidth;
         RootLayout.ColumnSpacing =
             isWide ? WideColumnSpacing : CompactColumnSpacing;
         FilterColumn.Width = new GridLength(isWide ? WideFilterWidth : 0);

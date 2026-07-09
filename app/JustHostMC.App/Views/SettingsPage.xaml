@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="JustHostMC.App.Views.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -21,9 +21,8 @@
     </Page.Resources>
 
     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-        <controls:SafeAreaContainer>
+        <controls:SafeAreaContainer MaxContentWidth="1000">
             <StackPanel
-                MaxWidth="1000"
                 HorizontalAlignment="Stretch"
                 Spacing="4">
 

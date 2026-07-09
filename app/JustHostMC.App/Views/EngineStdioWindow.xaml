@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <Window
     x:Class="JustHostMC.App.Views.EngineStdioWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -28,10 +28,10 @@
         <controls:AdaptiveFilterLayout
             x:Name="MonitorLayout"
             Grid.Row="1"
+            Padding="12,8,12,8"
             CompactColumnSpacing="0"
             CompactFilterMaxHeight="560"
             CompactFilterOpening="OnCompactFilterOpening"
-            Padding="12,8,12,8"
             FilterRailCornerRadius="8"
             HeaderSpacing="10"
             RowSpacing="8"

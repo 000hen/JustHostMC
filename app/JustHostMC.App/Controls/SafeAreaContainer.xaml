@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentControl
     x:Class="JustHostMC.App.Controls.SafeAreaContainer"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -15,10 +15,10 @@
         <ControlTemplate TargetType="local:SafeAreaContainer">
             <Grid Padding="{TemplateBinding Padding}">
                 <ContentPresenter
+                    MaxWidth="{TemplateBinding MaxContentWidth}"
                     HorizontalAlignment="Stretch"
                     HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
                     VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                    MaxWidth="{TemplateBinding MaxContentWidth}"
                     Content="{TemplateBinding Content}"
                     ContentTemplate="{TemplateBinding ContentTemplate}"
                     ContentTransitions="{TemplateBinding ContentTransitions}" />

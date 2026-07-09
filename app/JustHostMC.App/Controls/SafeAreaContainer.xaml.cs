@@ -5,7 +5,8 @@ namespace JustHostMC.App.Controls;
 
 /// <summary>
 /// A reusable responsive content container for pages.
-/// It centers page content and limits the maximum width so wide screens don't stretch the UI.
+/// It centers page content and limits the maximum width so wide screens don't
+/// stretch the UI.
 /// </summary>
 public sealed partial class SafeAreaContainer : ContentControl {
     public static readonly DependencyProperty MaxContentWidthProperty =

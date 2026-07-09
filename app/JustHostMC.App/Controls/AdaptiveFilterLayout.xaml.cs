@@ -34,7 +34,6 @@ public sealed partial class AdaptiveFilterLayout : UserControl {
             nameof(CompactFilterContent), typeof(object),
             typeof(AdaptiveFilterLayout), new PropertyMetadata(null));
 
-
     public static readonly DependencyProperty RowSpacingProperty =
         DependencyProperty.Register(nameof(RowSpacing), typeof(double),
                                     typeof(AdaptiveFilterLayout),
@@ -118,7 +117,6 @@ public sealed partial class AdaptiveFilterLayout : UserControl {
         set => SetValue(CompactFilterContentProperty, value);
     }
 
-
     public double RowSpacing {
         get => (double)GetValue(RowSpacingProperty);
         set => SetValue(RowSpacingProperty, value);
@@ -179,7 +177,7 @@ public sealed partial class AdaptiveFilterLayout : UserControl {
         // not at all. Assign the compact filter body explicitly when the popup
         // opens.
         CompactFilterScrollViewer.MaxHeight = CompactFilterMaxHeight;
-        CompactFilterPresenter.Content = CompactFilterContent;
+        CompactFilterPresenter.Content      = CompactFilterContent;
         CompactFilterOpening?.Invoke(this, e);
     }
 

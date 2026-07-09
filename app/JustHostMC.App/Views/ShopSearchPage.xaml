@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="JustHostMC.App.Views.ShopSearchPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -10,12 +10,15 @@
     xmlns:viewModels="using:JustHostMC.App.ViewModels"
     mc:Ignorable="d">
 
-    <controls:SafeAreaContainer x:Name="SearchPageRoot" MaxContentWidth="1440" Padding="0">
+    <controls:SafeAreaContainer
+        x:Name="SearchPageRoot"
+        Padding="0"
+        MaxContentWidth="1440">
         <controls:AdaptiveFilterLayout
             x:Name="SearchFilterLayout"
+            Padding="12,8,12,0"
             CompactColumnSpacing="0"
             CompactFilterMaxHeight="620"
-            Padding="12,8,12,0"
             FilterRailCornerRadius="10"
             FilterRailIncludesHeader="True"
             HeaderSpacing="12"

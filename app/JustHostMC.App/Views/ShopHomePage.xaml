@@ -171,7 +171,7 @@
             HorizontalScrollBarVisibility="Disabled"
             VerticalScrollBarVisibility="Auto"
             Visibility="{x:Bind local:ShopHomePage.InvertVisibility(ViewModel.IsHomeLoading), Mode=OneWay}">
-            <controls:SafeAreaContainer MaxContentWidth="1440" Padding="0">
+            <controls:SafeAreaContainer Padding="0" MaxContentWidth="1440">
                 <StackPanel
                     x:Name="ContentStack"
                     Margin="24,16,24,28"

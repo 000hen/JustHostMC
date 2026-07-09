@@ -95,10 +95,7 @@
                 </Expander.Header>
                 <Border
                     MinHeight="72"
-                    MaxHeight="180"
-                    Background="{ThemeResource ControlFillColorDefaultBrush}"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                    CornerRadius="6">
+                    MaxHeight="360">
                     <Grid>
                         <TextBlock
                             x:Uid="ScriptsScriptLogsEmpty"

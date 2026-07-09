@@ -14,7 +14,7 @@
         Title="{x:Bind PerformanceTitle()}">
         <server:ServerSectionLayout.Body>
             <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <Grid ColumnSpacing="12" RowSpacing="12">
+                <Grid ColumnSpacing="4" RowSpacing="4">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />

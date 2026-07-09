@@ -10,14 +10,15 @@
     mc:Ignorable="d">
 
     <ScrollViewer
-        Padding="24"
         HorizontalContentAlignment="Stretch"
         HorizontalScrollBarVisibility="Disabled"
         VerticalScrollBarVisibility="Auto">
-        <StackPanel HorizontalAlignment="Stretch" Spacing="8">
+        <controls:SafeAreaContainer>
+        <StackPanel HorizontalAlignment="Stretch">
 
             <TextBlock x:Uid="ScriptsPageTitle" Style="{StaticResource TitleTextBlockStyle}" />
             <TextBlock
+                Margin="0,8,0,0"
                 x:Uid="ScriptsPageSubtitle"
                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                 TextWrapping="WrapWholeWords" />
@@ -32,14 +33,14 @@
 
             <!--  Providers  -->
             <controls:ScriptSectionExpander
-                Margin="0,20,0,0"
+                Margin="0,24,0,0"
                 AddScriptsClick="OnImportProviderClick"
                 ItemsSource="{x:Bind ViewModel.Providers}"
                 ScriptRemoved="OnRemoveScript"
                 ScriptToggled="OnScriptToggled"
                 ShowInFolderClick="OnShowProvidersFolderClick">
                 <controls:ScriptSectionExpander.HeaderContent>
-                    <TextBlock x:Uid="ScriptsProvidersHeader" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock x:Uid="ScriptsProvidersHeader" Style="{StaticResource BodyTextBlockStyle}" />
                 </controls:ScriptSectionExpander.HeaderContent>
             </controls:ScriptSectionExpander>
 
@@ -51,7 +52,7 @@
                 ScriptToggled="OnScriptToggled"
                 ShowInFolderClick="OnShowParsersFolderClick">
                 <controls:ScriptSectionExpander.HeaderContent>
-                    <TextBlock x:Uid="ScriptsParsersHeader" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock x:Uid="ScriptsParsersHeader" Style="{StaticResource BodyTextBlockStyle}" />
                 </controls:ScriptSectionExpander.HeaderContent>
             </controls:ScriptSectionExpander>
 
@@ -63,7 +64,7 @@
                 ScriptToggled="OnScriptToggled"
                 ShowInFolderClick="OnShowAutomationFolderClick">
                 <controls:ScriptSectionExpander.HeaderContent>
-                    <TextBlock x:Uid="ScriptsAutomationHeader" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock x:Uid="ScriptsAutomationHeader" Style="{StaticResource BodyTextBlockStyle}" />
                 </controls:ScriptSectionExpander.HeaderContent>
                 <controls:ScriptSectionExpander.HeaderAdditionalButtons>
                     <Button
@@ -78,5 +79,6 @@
                 </controls:ScriptSectionExpander.HeaderAdditionalButtons>
             </controls:ScriptSectionExpander>
         </StackPanel>
+        </controls:SafeAreaContainer>
     </ScrollViewer>
 </Page>

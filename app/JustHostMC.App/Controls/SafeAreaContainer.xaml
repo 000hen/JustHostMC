@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <UserControl
     x:Class="JustHostMC.App.Controls.SafeAreaContainer"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -9,41 +9,11 @@
     mc:Ignorable="d">
 
     <Grid Padding="{x:Bind Padding, Mode=OneWay}">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition x:Name="LeftSafeArea" Width="0" />
-            <ColumnDefinition x:Name="ContentSafeArea" Width="*" />
-            <ColumnDefinition x:Name="RightSafeArea" Width="0" />
-        </Grid.ColumnDefinitions>
-
         <ContentPresenter
-            Grid.Column="1"
+            HorizontalAlignment="Stretch"
             HorizontalContentAlignment="Stretch"
             VerticalContentAlignment="Stretch"
+            MaxWidth="{x:Bind SafeWidth, Mode=OneWay}"
             Content="{x:Bind InnerContent, Mode=OneWay}" />
-
-        <VisualStateManager.VisualStateGroups>
-            <VisualStateGroup x:Name="SafeAreaStates">
-                <VisualState x:Name="FluidSafeArea">
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="0" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="LeftSafeArea.Width" Value="0" />
-                        <Setter Target="ContentSafeArea.Width" Value="*" />
-                        <Setter Target="RightSafeArea.Width" Value="0" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState x:Name="ConstrainedSafeArea">
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="1440" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="LeftSafeArea.Width" Value="*" />
-                        <Setter Target="ContentSafeArea.Width" Value="1440" />
-                        <Setter Target="RightSafeArea.Width" Value="*" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-        </VisualStateManager.VisualStateGroups>
     </Grid>
 </UserControl>

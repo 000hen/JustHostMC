@@ -16,6 +16,11 @@ public sealed partial class SafeAreaContainer : UserControl {
                                     typeof(SafeAreaContainer),
                                     new PropertyMetadata(null));
 
+    public static readonly DependencyProperty SafeWidthProperty =
+        DependencyProperty.Register(nameof(SafeWidth), typeof(double),
+                                    typeof(SafeAreaContainer),
+                                    new PropertyMetadata(1440.0));
+
     public SafeAreaContainer() {
         this.InitializeComponent();
     }
@@ -23,5 +28,10 @@ public sealed partial class SafeAreaContainer : UserControl {
     public object InnerContent {
         get => GetValue(InnerContentProperty);
         set => SetValue(InnerContentProperty, value);
+    }
+
+    public double SafeWidth {
+        get => (double)GetValue(SafeWidthProperty);
+        set => SetValue(SafeWidthProperty, value);
     }
 }

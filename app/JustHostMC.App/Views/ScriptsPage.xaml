@@ -13,7 +13,7 @@
         HorizontalContentAlignment="Stretch"
         HorizontalScrollBarVisibility="Disabled"
         VerticalScrollBarVisibility="Auto">
-        <controls:SafeAreaContainer>
+        <controls:SafeAreaContainer SafeWidth="1000">
             <StackPanel HorizontalAlignment="Stretch">
 
                 <TextBlock x:Uid="ScriptsPageTitle" Style="{StaticResource TitleTextBlockStyle}" />

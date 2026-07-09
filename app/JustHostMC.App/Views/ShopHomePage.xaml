@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="JustHostMC.App.Views.ShopHomePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -16,7 +16,7 @@
             HorizontalScrollBarVisibility="Disabled"
             VerticalScrollBarVisibility="Disabled"
             Visibility="{x:Bind LoadingVisibility(ViewModel.IsHomeLoading), Mode=OneWay}">
-            <controls:SafeAreaContainer>
+            <controls:SafeAreaContainer Padding="0" MaxContentWidth="1440">
                 <StackPanel
                     x:Name="SkeletonStack"
                     Margin="24,16,24,28"

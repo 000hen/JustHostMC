@@ -59,9 +59,9 @@
                 Visibility="{x:Bind IsEmpty, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
 
             <ItemsControl
-                HorizontalAlignment="Stretch"
-                HorizontalContentAlignment="Stretch"
-                ItemsSource="{x:Bind ItemsSource, Mode=OneWay}">
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Stretch"
+                    ItemsSource="{x:Bind ItemsSource, Mode=OneWay}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Vertical" Spacing="8" />
@@ -71,9 +71,9 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="models:ScriptEntryItem">
                         <controls:ScriptEntryCard
-                            EnabledToggled="OnScriptToggled"
-                            Item="{x:Bind}"
-                            RemoveClick="OnScriptRemoved" />
+                                EnabledToggled="OnScriptToggled"
+                                Item="{x:Bind}"
+                                RemoveClick="OnScriptRemoved" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

@@ -6,25 +6,19 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     x:Name="Root"
-    HorizontalAlignment="Stretch"
     mc:Ignorable="d">
 
-    <Grid
-        MinHeight="64"
-        Padding="8,10"
-        BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
-        BorderThickness="0,0,0,1"
-        ColumnSpacing="16">
+    <Grid ColumnSpacing="16" Padding="0,8">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="88" />
-            <ColumnDefinition Width="240" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="220" />
         </Grid.ColumnDefinitions>
 
         <StackPanel
             Grid.Column="0"
             VerticalAlignment="Center"
-            Spacing="3">
+            Spacing="4">
             <TextBlock
                 Style="{StaticResource BodyStrongTextBlockStyle}"
                 Text="{Binding Entry.DisplayName, ElementName=Root}"

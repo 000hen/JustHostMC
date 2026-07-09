@@ -24,8 +24,6 @@
                         HorizontalAlignment="Stretch"
                         Spacing="8">
 
-                        <ProgressBar IsIndeterminate="True" Visibility="{x:Bind Config.IsBusy, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
-
                         <StackPanel Spacing="12" Visibility="{x:Bind Config.IsInitialLoading, Mode=OneWay, Converter={StaticResource BoolToVis}}">
                             <Expander
                                 HorizontalAlignment="Stretch"

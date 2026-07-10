@@ -216,15 +216,16 @@ public sealed partial class ModsViewModel : ObservableObject {
         });
         try {
             var daemon = await App.Current.DaemonReady.ConfigureAwait(false);
-            var list = await daemon.Mods.ListAsync(new ModListRequest {
-                ServerId = _serverId,
-                Offset   = _nextOffset,
-                Limit    = PageSize,
-            }).ResponseAsync.ConfigureAwait(false);
-            var files = list.Files.ToArray();
+            var list   = await daemon.Mods
+                             .ListAsync(new ModListRequest {
+                                 ServerId = _serverId,
+                                 Offset   = _nextOffset,
+                                 Limit    = PageSize,
+                             })
+                             .ResponseAsync.ConfigureAwait(false);
+            var files  = list.Files.ToArray();
             await RunOnUIAsync(() => {
-                foreach (var file in files)
-                    Files.Add(CreateItem(file));
+                foreach (var file in files) Files.Add(CreateItem(file));
                 _nextOffset  = list.NextOffset;
                 HasMoreFiles = list.HasMore;
             });
@@ -350,7 +351,7 @@ public sealed partial class ModsViewModel : ObservableObject {
     private async Task LoadIconAsync(ModFileItem item) {
         try {
             var daemon = await App.Current.DaemonReady;
-            var icon = await daemon.Mods.GetIconAsync(
+            var icon   = await daemon.Mods.GetIconAsync(
                 new ModIconRequest { ServerId = _serverId, Name = item.Name },
                 deadline: DateTime.UtcNow.AddSeconds(15));
             if (icon.Data.Length == 0)
@@ -406,14 +407,13 @@ public sealed partial class ModsViewModel : ObservableObject {
         "Mods_OperationFailedDetail",
         ("summary", _localizer.Get(MapErrorKey(ex))),
         ("code", ex.StatusCode.ToString()),
-        ("detail", string.IsNullOrWhiteSpace(ex.Status.Detail)
-                       ? ex.Message
-                       : ex.Status.Detail));
+        ("detail", string.IsNullOrWhiteSpace(
+                             ex.Status.Detail)? ex.Message: ex.Status.Detail));
 
-    private string FormatUnexpectedError(Exception ex) => _localizer.Get(
-        "Mods_OperationFailedDetail",
-        ("summary", _localizer.Get("Mods_OperationFailed")),
-        ("code", ex.GetType().Name), ("detail", ex.Message));
+    private string FormatUnexpectedError(Exception ex) =>
+        _localizer.Get("Mods_OperationFailedDetail",
+                       ("summary", _localizer.Get("Mods_OperationFailed")),
+                       ("code", ex.GetType().Name), ("detail", ex.Message));
 
     private void RunOnUI(Action action) {
         if (_dispatcher.HasThreadAccess)

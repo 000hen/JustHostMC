@@ -44,14 +44,23 @@ public static partial class ProcessInfoHelper {
     }
 
     /// <summary>
-    /// Returns the full version string including the Git SHA and branch if
-    /// available.
+    /// Returns the MSIX package version with Git metadata. Unpackaged builds
+    /// have no product version and show only the Git SHA and branch.
     /// </summary>
-    public static string FullVersion =>
-        _packageVersion is not null ? VersionWithPrefix
-        : (!string.IsNullOrEmpty(GitBranch) && !string.IsNullOrEmpty(GitSha))
-            ? $"v{Version}+{GitSha} ({GitBranch})"
-            : VersionWithPrefix;
+    public static string FullVersion {
+        get {
+            bool hasGitMetadata = !string.IsNullOrEmpty(GitBranch) &&
+                                  !string.IsNullOrEmpty(GitSha);
+
+            if (_packageVersion is null)
+                return hasGitMetadata ? $"{GitSha} ({GitBranch})"
+                                      : string.Empty;
+
+            return hasGitMetadata
+                       ? $"{VersionWithPrefix}+{GitSha} ({GitBranch})"
+                       : VersionWithPrefix;
+        }
+    }
 
     /// <summary>
     /// Returns the version string.

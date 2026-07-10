@@ -22,7 +22,18 @@ import (
 
 // maxModBytes caps a single uploaded plugin/mod archive; individual files are far
 // smaller, so this just guards against a runaway or malicious upload.
-const maxModBytes = 512 << 20 // 512 MiB
+const (
+	maxModBytes         = 512 << 20 // 512 MiB
+	maxModIconBytes     = 512 << 10 // 512 KiB
+	defaultModListLimit = 20
+	maxModListLimit     = 50
+)
+
+type modFileInfo struct {
+	name  string
+	size  int64
+	mtime int64
+}
 
 // ModService manages mod archives in a server's plugins or mods folder. Uploads
 // and removals require the server to be stopped so files aren't changed beneath a
@@ -82,25 +93,25 @@ func modLayout(layout string) (subdir string, kind mcmanagerv1.ModKind, ok bool)
 }
 
 // List returns the archives in the server's plugins/mods folder, enriched
-// with parsed metadata (name/version/authors/icon/...) where a parser matches.
-func (s *ModService) List(ctx context.Context, req *mcmanagerv1.ServerId) (*mcmanagerv1.ModList, error) {
-	rec, ok := s.store.Get(req.Id)
+// with parsed metadata where a parser matches. Raw icons are deliberately
+// omitted so one image cannot inflate the list response past gRPC's limit.
+func (s *ModService) List(ctx context.Context, req *mcmanagerv1.ModListRequest) (*mcmanagerv1.ModList, error) {
+	rec, ok := s.store.Get(req.ServerId)
 	if !ok {
 		return nil, status.Error(codes.NotFound, "server not found")
 	}
 	subdir, kind, ok := modLayout(rec.ModLayout)
 	if !ok {
-		return &mcmanagerv1.ModList{ServerId: req.Id, Supported: false}, nil
+		return &mcmanagerv1.ModList{ServerId: req.ServerId, Supported: false}, nil
 	}
 
-	dir := filepath.Join(s.paths.ServerDir(req.Id), subdir)
+	dir := filepath.Join(s.paths.ServerDir(req.ServerId), subdir)
 	entries, err := os.ReadDir(dir)
 	if err != nil && !os.IsNotExist(err) {
 		return nil, status.Errorf(codes.Internal, "read %s: %v", subdir, err)
 	}
 
-	list := &mcmanagerv1.ModList{ServerId: req.Id, Kind: kind, Supported: true}
-	fresh := map[string]*modMetadataParseResult{}
+	files := make([]modFileInfo, 0, len(entries))
 	for _, e := range entries {
 		if e.IsDir() || !supportedModFile(e.Name(), kind) {
 			continue
@@ -109,21 +120,59 @@ func (s *ModService) List(ctx context.Context, req *mcmanagerv1.ServerId) (*mcma
 		if err != nil {
 			continue
 		}
-		parsed := s.jarMetadata(ctx, req.Id, subdir, e.Name(), info.Size(), info.ModTime().UnixNano(), fresh)
+		files = append(files, modFileInfo{name: e.Name(), size: info.Size(), mtime: info.ModTime().UnixNano()})
+	}
+	sort.Slice(files, func(i, j int) bool { return files[i].name < files[j].name })
+	offset, end := modPageBounds(req.Offset, req.Limit, len(files))
+	list := &mcmanagerv1.ModList{
+		ServerId: req.ServerId, Kind: kind, Supported: true,
+		Total: int32(len(files)), Offset: int32(offset), NextOffset: int32(end), HasMore: end < len(files),
+	}
+	fresh := s.currentMetadataCache(req.ServerId, files)
+	for _, file := range files[offset:end] {
+		parsed := s.jarMetadata(ctx, req.ServerId, subdir, file.name, file.size, file.mtime, fresh)
 		meta := selectModMetadata(parsed, rec.ProviderID, rec.McVersion, kind)
+		meta.Icon = nil
 		list.Files = append(list.Files, &mcmanagerv1.ModFile{
-			Name:      e.Name(),
-			SizeBytes: info.Size(),
+			Name:      file.name,
+			SizeBytes: file.size,
 			Metadata:  meta,
 		})
 	}
 	// Replace the server's cache with only the keys seen this pass so removed
 	// or re-uploaded jars don't accumulate stale entries.
 	s.metaMu.Lock()
-	s.metaCache[req.Id] = fresh
+	s.metaCache[req.ServerId] = fresh
 	s.metaMu.Unlock()
-	sort.Slice(list.Files, func(i, j int) bool { return list.Files[i].Name < list.Files[j].Name })
 	return list, nil
+}
+
+func modPageBounds(requestedOffset, requestedLimit int32, total int) (int, int) {
+	offset := max(0, min(int(requestedOffset), total))
+	limit := int(requestedLimit)
+	if limit <= 0 {
+		limit = defaultModListLimit
+	} else if limit > maxModListLimit {
+		limit = maxModListLimit
+	}
+	return offset, min(offset+limit, total)
+}
+
+func modMetadataCacheKey(file modFileInfo) string {
+	return fmt.Sprintf("%s|%d|%d", file.name, file.size, file.mtime)
+}
+
+func (s *ModService) currentMetadataCache(serverID string, files []modFileInfo) map[string]*modMetadataParseResult {
+	s.metaMu.Lock()
+	defer s.metaMu.Unlock()
+	current := make(map[string]*modMetadataParseResult, len(files))
+	for _, file := range files {
+		key := modMetadataCacheKey(file)
+		if cached, ok := s.metaCache[serverID][key]; ok {
+			current[key] = cached
+		}
+	}
+	return current
 }
 
 // jarMetadata returns the (possibly cached) parsed metadata for one jar and
@@ -153,6 +202,10 @@ func (s *ModService) jarMetadata(ctx context.Context, serverID, subdir, name str
 }
 
 func metadataFromModMeta(m scripting.ModMeta, parserID string) *mcmanagerv1.ModMetadata {
+	icon := m.Icon
+	if len(icon) > maxModIconBytes {
+		icon = nil
+	}
 	return &mcmanagerv1.ModMetadata{
 		Parsed:                 true,
 		ParserId:               parserID,
@@ -164,8 +217,47 @@ func metadataFromModMeta(m scripting.ModMeta, parserID string) *mcmanagerv1.ModM
 		Authors:                append([]string(nil), m.Authors...),
 		Description:            m.Description,
 		Website:                m.Website,
-		Icon:                   append([]byte(nil), m.Icon...),
+		Icon:                   append([]byte(nil), icon...),
+		HasIcon:                len(icon) > 0,
 	}
+}
+
+// GetIcon returns one bounded icon independently from paged metadata so raw
+// image bytes can never accumulate into an oversized List response.
+func (s *ModService) GetIcon(ctx context.Context, req *mcmanagerv1.ModIconRequest) (*mcmanagerv1.ModIcon, error) {
+	rec, ok := s.store.Get(req.ServerId)
+	if !ok {
+		return nil, status.Error(codes.NotFound, "server not found")
+	}
+	subdir, kind, ok := modLayout(rec.ModLayout)
+	if !ok {
+		return nil, status.Error(codes.FailedPrecondition, "this server type has no plugins/mods folder")
+	}
+	name, err := safeModFileName(req.Name, kind)
+	if err != nil {
+		return nil, err
+	}
+	info, err := os.Stat(filepath.Join(s.paths.ServerDir(req.ServerId), subdir, name))
+	if os.IsNotExist(err) {
+		return nil, status.Error(codes.NotFound, "mod file not found")
+	}
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "stat mod file: %v", err)
+	}
+	file := modFileInfo{name: name, size: info.Size(), mtime: info.ModTime().UnixNano()}
+	fresh := s.currentMetadataCache(req.ServerId, []modFileInfo{file})
+	parsed := s.jarMetadata(ctx, req.ServerId, subdir, name, file.size, file.mtime, fresh)
+	s.metaMu.Lock()
+	if s.metaCache[req.ServerId] == nil {
+		s.metaCache[req.ServerId] = make(map[string]*modMetadataParseResult)
+	}
+	s.metaCache[req.ServerId][modMetadataCacheKey(file)] = parsed
+	s.metaMu.Unlock()
+	meta := selectModMetadata(parsed, rec.ProviderID, rec.McVersion, kind)
+	if !meta.HasIcon || len(meta.Icon) == 0 {
+		return &mcmanagerv1.ModIcon{}, nil
+	}
+	return &mcmanagerv1.ModIcon{Data: append([]byte(nil), meta.Icon...)}, nil
 }
 
 func selectModMetadata(parsed *modMetadataParseResult, providerID, mcVersion string, kind mcmanagerv1.ModKind) *mcmanagerv1.ModMetadata {

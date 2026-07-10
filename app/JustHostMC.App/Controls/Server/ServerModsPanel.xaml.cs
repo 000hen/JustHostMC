@@ -93,4 +93,14 @@ public sealed partial class ServerModsPanel : UserControl {
         if (sender is FrameworkElement { Tag : ModFileItem item })
             await Mods.RemoveAsync(item);
     }
+
+    private async void OnModsScrollViewChanged(
+        object sender, ScrollViewerViewChangedEventArgs e) {
+        const double loadAheadThreshold = 240;
+        if (Mods is not null && sender is ScrollViewer scrollViewer &&
+            scrollViewer.ScrollableHeight - scrollViewer.VerticalOffset <=
+                loadAheadThreshold) {
+            await Mods.LoadMoreAsync();
+        }
+    }
 }

@@ -85,7 +85,7 @@ func TestModServiceList(t *testing.T) {
 	}
 
 	svc := NewModService(st, paths, nil)
-	list, err := svc.List(context.Background(), &mcmanagerv1.ServerId{Id: "s1"})
+	list, err := svc.List(context.Background(), &mcmanagerv1.ModListRequest{ServerId: "s1"})
 	if err != nil {
 		t.Fatalf("List: %v", err)
 	}
@@ -117,7 +117,7 @@ func TestModServiceListIncludesLiteModForMods(t *testing.T) {
 	}
 
 	svc := NewModService(st, paths, nil)
-	list, err := svc.List(context.Background(), &mcmanagerv1.ServerId{Id: "s1"})
+	list, err := svc.List(context.Background(), &mcmanagerv1.ModListRequest{ServerId: "s1"})
 	if err != nil {
 		t.Fatalf("List: %v", err)
 	}
@@ -126,12 +126,40 @@ func TestModServiceListIncludesLiteModForMods(t *testing.T) {
 	}
 }
 
+func TestModServiceListPaging(t *testing.T) {
+	st := store.NewMemory()
+	paths := appdata.Paths{Base: t.TempDir()}
+	_ = st.Put(&store.Server{ID: "s1", ProviderID: "paper", ModLayout: "plugins", Status: mcmanagerv1.ServerStatus_STOPPED})
+	dir := filepath.Join(paths.ServerDir("s1"), "plugins")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	for _, name := range []string{"d.jar", "b.jar", "a.jar", "c.jar"} {
+		if err := os.WriteFile(filepath.Join(dir, name), []byte("x"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	list, err := NewModService(st, paths, nil).List(context.Background(), &mcmanagerv1.ModListRequest{
+		ServerId: "s1", Offset: 1, Limit: 2,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if list.Total != 4 || list.Offset != 1 || list.NextOffset != 3 || !list.HasMore {
+		t.Fatalf("paging = total:%d offset:%d next:%d more:%v", list.Total, list.Offset, list.NextOffset, list.HasMore)
+	}
+	if len(list.Files) != 2 || list.Files[0].Name != "b.jar" || list.Files[1].Name != "c.jar" {
+		t.Fatalf("files = %v, want [b.jar c.jar]", list.Files)
+	}
+}
+
 func TestModServiceListUnsupported(t *testing.T) {
 	st := store.NewMemory()
 	_ = st.Put(&store.Server{ID: "v1", ProviderID: "vanilla", ModLayout: "none", Status: mcmanagerv1.ServerStatus_STOPPED})
 	svc := NewModService(st, appdata.Paths{Base: t.TempDir()}, nil)
 
-	list, err := svc.List(context.Background(), &mcmanagerv1.ServerId{Id: "v1"})
+	list, err := svc.List(context.Background(), &mcmanagerv1.ModListRequest{ServerId: "v1"})
 	if err != nil {
 		t.Fatalf("List: %v", err)
 	}

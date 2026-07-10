@@ -130,6 +130,7 @@ secrets.json
 
 # RTK (Rust Token Killer) local cache
 .rtk/
+.tokensave/
 
 # Agent skills downloaded from npx skills
 agent/skills/

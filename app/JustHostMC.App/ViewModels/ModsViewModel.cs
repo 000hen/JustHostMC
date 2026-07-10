@@ -7,7 +7,6 @@ using JustHostMC.App.Models;
 using JustHostMC.App.Services;
 using McManager.Grpc;
 using Microsoft.UI.Dispatching;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -19,6 +18,7 @@ namespace JustHostMC.App.ViewModels;
 /// stopped.</summary>
 public sealed partial class ModsViewModel : ObservableObject {
     private const int ChunkSize = 64 * 1024;
+    private const int PageSize  = 20;
 
     private readonly string _serverId;
     private readonly DispatcherQueue _dispatcher;
@@ -26,6 +26,8 @@ public sealed partial class ModsViewModel : ObservableObject {
     private bool _serverStopped;
     private bool _loaded;
     private Task? _refreshTask;
+    private Task? _loadMoreTask;
+    private int _nextOffset;
 
     public ModsViewModel(string serverId, DispatcherQueue dispatcher,
                          ILocalizer localizer) {
@@ -68,6 +70,16 @@ public sealed partial class ModsViewModel : ObservableObject {
     }
 
     [ObservableProperty]
+    public partial bool IsLoadingMore {
+        get; private set;
+    }
+
+    [ObservableProperty]
+    public partial bool HasMoreFiles {
+        get; private set;
+    }
+
+    [ObservableProperty]
     public partial string KindLabel {
         get; private set;
     } = "";
@@ -84,7 +96,7 @@ public sealed partial class ModsViewModel : ObservableObject {
         Files.Select(f => f.Name).ToArray();
 
     public bool ShowOperationProgress =>
-        !IsInitialLoading && (IsBusy || IsRefreshing);
+        !IsInitialLoading && (IsBusy || IsRefreshing || IsLoadingMore);
 
     [ObservableProperty]
     public partial string StatusMessage { get; private set; } = "";
@@ -102,6 +114,11 @@ public sealed partial class ModsViewModel : ObservableObject {
     }
 
     partial void OnIsRefreshingChanged(bool value) {
+        OnPropertyChanged(nameof(ShowOperationProgress));
+        RecomputeCanModify();
+    }
+
+    partial void OnIsLoadingMoreChanged(bool value) {
         OnPropertyChanged(nameof(ShowOperationProgress));
         RecomputeCanModify();
     }
@@ -146,7 +163,11 @@ public sealed partial class ModsViewModel : ObservableObject {
             // from the UI synchronization context. The engine itself parses out
             // of process.
             var daemon = await App.Current.DaemonReady.ConfigureAwait(false);
-            var call   = daemon.Mods.ListAsync(new ServerId { Id = _serverId });
+            var call   = daemon.Mods.ListAsync(new ModListRequest {
+                ServerId = _serverId,
+                Offset   = 0,
+                Limit    = PageSize,
+            });
             var list   = await call.ResponseAsync.ConfigureAwait(false);
             var files  = list.Files.ToArray();
 
@@ -158,21 +179,62 @@ public sealed partial class ModsViewModel : ObservableObject {
                                                     ? "Mods_KindMods"
                                                     : "Mods_KindPlugins");
                 ApplyFileDiff(files);
-                _loaded = true;
+                _nextOffset  = list.NextOffset;
+                HasMoreFiles = list.HasMore;
+                _loaded      = true;
             });
-        } catch (RpcException) {
-            await RunOnUIAsync(() => StatusMessage =
-                                   _localizer.Get("Mods_OperationFailed"))
+        } catch (RpcException ex) {
+            await RunOnUIAsync(() => StatusMessage = FormatRpcError(ex))
                 .ConfigureAwait(false);
-        } catch {
-            await RunOnUIAsync(() => StatusMessage =
-                                   _localizer.Get("Mods_OperationFailed"))
+        } catch (Exception ex) {
+            await RunOnUIAsync(() => StatusMessage = FormatUnexpectedError(ex))
                 .ConfigureAwait(false);
         } finally {
             await RunOnUIAsync(() => {
                 IsInitialLoading = false;
                 IsRefreshing     = false;
             }).ConfigureAwait(false);
+        }
+    }
+
+    public async Task LoadMoreAsync() {
+        if (!HasMoreFiles)
+            return;
+        if (_loadMoreTask is { IsCompleted : false }) {
+            await _loadMoreTask;
+            return;
+        }
+
+        _loadMoreTask = LoadMoreCoreAsync();
+        await _loadMoreTask;
+    }
+
+    private async Task LoadMoreCoreAsync() {
+        await RunOnUIAsync(() => {
+            IsLoadingMore = true;
+            StatusMessage = "";
+        });
+        try {
+            var daemon = await App.Current.DaemonReady.ConfigureAwait(false);
+            var list   = await daemon.Mods
+                             .ListAsync(new ModListRequest {
+                                 ServerId = _serverId,
+                                 Offset   = _nextOffset,
+                                 Limit    = PageSize,
+                             })
+                             .ResponseAsync.ConfigureAwait(false);
+            var files  = list.Files.ToArray();
+            await RunOnUIAsync(() => {
+                foreach (var file in files) Files.Add(CreateItem(file));
+                _nextOffset  = list.NextOffset;
+                HasMoreFiles = list.HasMore;
+            });
+        } catch (RpcException ex) {
+            await RunOnUIAsync(() => StatusMessage = FormatRpcError(ex));
+        } catch (Exception ex) {
+            await RunOnUIAsync(() => StatusMessage = FormatUnexpectedError(ex));
+        } finally {
+            await RunOnUIAsync(() => IsLoadingMore = false);
         }
     }
 
@@ -278,37 +340,39 @@ public sealed partial class ModsViewModel : ObservableObject {
         }
     }
 
-    /// <summary>Builds a list item, decoding the parsed jar icon (if any) into
-    /// a BitmapImage. Must run on the UI thread (BitmapImage is a UI object);
-    /// the async decode fills the image in place while the list already
-    /// shows.</summary>
     private ModFileItem CreateItem(ModFile file) {
-        ImageSource? icon = null;
-        if (file.Metadata is { Parsed : true } meta && meta.Icon.Length > 0) {
-            var bitmap = new BitmapImage { DecodePixelWidth = 64 };
-            _          = LoadIconAsync(bitmap, meta.Icon);
-            icon       = bitmap;
-        }
-        return new ModFileItem(file.Name, file.SizeBytes, file.Metadata, icon,
-                               _localizer);
+        var item = new ModFileItem(file.Name, file.SizeBytes, file.Metadata,
+                                   null, _localizer);
+        if (file.Metadata is { HasIcon : true })
+            _ = LoadIconAsync(item);
+        return item;
     }
 
-    private static async Task LoadIconAsync(BitmapImage bitmap,
-                                            ByteString bytes) {
+    private async Task LoadIconAsync(ModFileItem item) {
         try {
+            var daemon = await App.Current.DaemonReady;
+            var icon   = await daemon.Mods.GetIconAsync(
+                new ModIconRequest { ServerId = _serverId, Name = item.Name },
+                deadline: DateTime.UtcNow.AddSeconds(15));
+            if (icon.Data.Length == 0)
+                return;
+
             using var stream = new InMemoryRandomAccessStream();
-            await stream.WriteAsync(bytes.ToByteArray().AsBuffer());
+            await stream.WriteAsync(icon.Data.ToByteArray().AsBuffer());
             stream.Seek(0);
+            var bitmap = new BitmapImage { DecodePixelWidth = 64 };
             await bitmap.SetSourceAsync(stream);
+            item.SetIcon(bitmap);
         } catch {
-            // Undecodable icon bytes: the item keeps its fallback glyph area.
+            // Missing, oversized, or undecodable icons keep the fallback glyph.
         }
     }
 
     private void RecomputeCanModify() => CanModify = Supported && _serverStopped
                                                      && !IsBusy &&
                                                      !IsInitialLoading &&
-                                                     !IsRefreshing;
+                                                     !IsRefreshing &&
+                                                     !IsLoadingMore;
 
     /// <summary>Zips the whole plugins/mods folder to a user-picked .zip.
     /// Read-only on the server dir, so it works while the server
@@ -338,6 +402,18 @@ public sealed partial class ModsViewModel : ObservableObject {
         StatusCode.FailedPrecondition => "Mods_StoppedRequired",
         _                             => "Mods_OperationFailed",
     };
+
+    private string FormatRpcError(RpcException ex) => _localizer.Get(
+        "Mods_OperationFailedDetail",
+        ("summary", _localizer.Get(MapErrorKey(ex))),
+        ("code", ex.StatusCode.ToString()),
+        ("detail", string.IsNullOrWhiteSpace(
+                             ex.Status.Detail)? ex.Message: ex.Status.Detail));
+
+    private string FormatUnexpectedError(Exception ex) =>
+        _localizer.Get("Mods_OperationFailedDetail",
+                       ("summary", _localizer.Get("Mods_OperationFailed")),
+                       ("code", ex.GetType().Name), ("detail", ex.Message));
 
     private void RunOnUI(Action action) {
         if (_dispatcher.HasThreadAccess)

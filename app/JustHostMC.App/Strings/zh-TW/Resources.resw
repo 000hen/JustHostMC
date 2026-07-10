@@ -375,6 +375,7 @@
   <data name="Mods_KindMods" xml:space="preserve"><value>模組</value></data>
   <data name="Mods_StoppedRequired" xml:space="preserve"><value>變更插件或模組前，請先停止伺服器。</value></data>
   <data name="Mods_OperationFailed" xml:space="preserve"><value>作業失敗。請再試一次。</value></data>
+  <data name="Mods_OperationFailedDetail" xml:space="preserve"><value>{summary}（{code}）{detail}</value></data>
   <data name="Mods_TypeMismatch" xml:space="preserve"><value>此項目適用於 {loader}，與伺服器類型不符。</value></data>
   <data name="Mods_VersionMismatch" xml:space="preserve"><value>此項目需要 Minecraft {version}，與伺服器版本不符。</value></data>
   <data name="Mods_TypeAndVersionMismatch" xml:space="preserve"><value>此項目適用於 {loader} 與 Minecraft {version}，類型及版本皆與伺服器不符。</value></data>

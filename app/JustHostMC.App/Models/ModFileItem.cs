@@ -1,3 +1,4 @@
+using CommunityToolkit.Mvvm.ComponentModel;
 using JustHostMC.App.Services;
 using McManager.Grpc;
 using Microsoft.UI.Xaml;
@@ -8,12 +9,12 @@ namespace JustHostMC.App.Models;
 /// <summary>A plugin/mod jar shown in the server page's Plugins/Mods panel,
 /// enriched with metadata parsed from the jar's embedded descriptor when an
 /// installed parser recognized it.</summary>
-public sealed class ModFileItem {
+public sealed class ModFileItem : ObservableObject {
     public ModFileItem(string name, long sizeBytes, ModMetadata? metadata,
                        ImageSource? icon, ILocalizer localizer) {
         Name      = name;
         SizeBytes = sizeBytes;
-        Icon      = icon;
+        _icon     = icon;
         if (metadata is not null && metadata.ParseError.Length > 0) {
             ParseError = localizer.Get("Mods_ParseFailed",
                                        ("error", metadata.ParseError));
@@ -59,7 +60,15 @@ public sealed class ModFileItem {
 
     /// <summary>Decoded jar icon; null when the jar has none (a glyph shows
     /// instead).</summary>
-    public ImageSource? Icon { get; }
+    private ImageSource? _icon;
+    public ImageSource? Icon => _icon;
+
+    public void SetIcon(ImageSource icon) {
+        if (!SetProperty(ref _icon, icon, nameof(Icon)))
+            return;
+        OnPropertyChanged(nameof(IconVisibility));
+        OnPropertyChanged(nameof(FallbackIconVisibility));
+    }
 
     /// <summary>Parsed display name, falling back to the jar
     /// filename.</summary>

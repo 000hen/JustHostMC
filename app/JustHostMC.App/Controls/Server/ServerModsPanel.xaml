@@ -77,9 +77,9 @@
                     <FontIcon
                         FontSize="32"
                         Glyph="&#xE7B8;"
-                        Visibility="{x:Bind FallbackIconVisibility}" />
-                    <Border CornerRadius="4" Visibility="{x:Bind IconVisibility}">
-                        <Image Source="{x:Bind Icon}" Stretch="UniformToFill" />
+                        Visibility="{x:Bind FallbackIconVisibility, Mode=OneWay}" />
+                    <Border CornerRadius="4" Visibility="{x:Bind IconVisibility, Mode=OneWay}">
+                        <Image Source="{x:Bind Icon, Mode=OneWay}" Stretch="UniformToFill" />
                     </Border>
                 </Grid>
                 <StackPanel
@@ -210,7 +210,7 @@
             </StackPanel>
         </server:ServerSectionLayout.HeaderContent>
         <server:ServerSectionLayout.Body>
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" ViewChanged="OnModsScrollViewChanged">
                 <StackPanel Spacing="12">
                     <TextBlock
                         x:Uid="ModsUnsupportedHint"

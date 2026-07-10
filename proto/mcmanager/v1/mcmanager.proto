@@ -475,6 +475,7 @@ message ModMetadata {
   bool loader_mismatch = 12;     // parsed loader/type is incompatible with the server provider
   bool game_version_mismatch = 13; // declared Minecraft constraint excludes the server version
   string parse_error = 14;       // per-file parser/archive failure; does not fail the containing ModList
+  bool has_icon = 15;            // icon is available through ModService.GetIcon
 }
 
 message ModFile {
@@ -482,11 +483,27 @@ message ModFile {
   int64 size_bytes = 2;
   ModMetadata metadata = 3;
 }
+message ModListRequest {
+  string server_id = 1;
+  int32 offset = 2;
+  int32 limit = 3; // 0 uses the engine default; clamped to a safe maximum
+}
+message ModIconRequest {
+  string server_id = 1;
+  string name = 2;
+}
+message ModIcon {
+  bytes data = 1;
+}
 message ModList {
   string server_id = 1;
   ModKind kind = 2;
   repeated ModFile files = 3;
   bool supported = 4; // false for Vanilla (no plugins/mods folder)
+  int32 total = 5;
+  int32 offset = 6;
+  int32 next_offset = 7;
+  bool has_more = 8;
 }
 message UploadModInit {
   string server_id = 1;
@@ -740,7 +757,8 @@ service MetricsService {
 }
 
 service ModService {
-  rpc List(ServerId) returns (ModList);
+  rpc List(ModListRequest) returns (ModList);
+  rpc GetIcon(ModIconRequest) returns (ModIcon);
   rpc Upload(stream UploadModRequest) returns (ModFile); // first message = init, then raw chunks
   rpc Remove(RemoveModRequest) returns (Empty);
   rpc ExportAll(ExportModsRequest) returns (Empty); // zip the mods|plugins folder to dest_path

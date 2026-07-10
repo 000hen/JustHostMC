@@ -80,7 +80,7 @@ func TestListPopulatesMetadata(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	list, err := svc.List(context.Background(), &mcmanagerv1.ServerId{Id: "s1"})
+	list, err := svc.List(context.Background(), &mcmanagerv1.ModListRequest{ServerId: "s1"})
 	if err != nil {
 		t.Fatalf("List: %v", err)
 	}
@@ -96,14 +96,31 @@ func TestListPopulatesMetadata(t *testing.T) {
 		m.ModId != "example" || m.Name != "Example" || m.Version != "1.2" ||
 		m.GameVersionRequirement != ">=1.20 <1.21" || m.LoaderMismatch || m.GameVersionMismatch ||
 		len(m.Authors) != 1 || m.Authors[0] != "Alice" || m.Website != "https://e.x" ||
-		string(m.Icon) != "PNGBYTES" {
+		!m.HasIcon || len(m.Icon) != 0 {
 		t.Errorf("example.jar metadata = %+v", m)
+	}
+	icon, err := svc.GetIcon(context.Background(), &mcmanagerv1.ModIconRequest{
+		ServerId: "s1",
+		Name:     "example.jar",
+	})
+	if err != nil {
+		t.Fatalf("GetIcon: %v", err)
+	}
+	if string(icon.Data) != "PNGBYTES" {
+		t.Errorf("icon = %q, want PNGBYTES", icon.Data)
 	}
 	if om := byName["opaque.jar"].Metadata; om == nil || om.Parsed {
 		t.Errorf("opaque.jar metadata = %+v, want Parsed=false", om)
 	}
 	if bm := byName["broken.jar"].Metadata; bm == nil || bm.Parsed || bm.ParseError == "" {
 		t.Errorf("broken.jar metadata = %+v, want a per-file parse error", bm)
+	}
+}
+
+func TestMetadataDropsOversizedIcon(t *testing.T) {
+	meta := metadataFromModMeta(scripting.ModMeta{Icon: make([]byte, maxModIconBytes+1)}, "parser-test")
+	if meta.HasIcon || len(meta.Icon) != 0 {
+		t.Fatalf("oversized icon retained: has_icon=%v bytes=%d", meta.HasIcon, len(meta.Icon))
 	}
 }
 
@@ -120,7 +137,7 @@ versionRange = "[1.19,1.20)"
 `,
 	})
 
-	list, err := svc.List(context.Background(), &mcmanagerv1.ServerId{Id: "s1"})
+	list, err := svc.List(context.Background(), &mcmanagerv1.ModListRequest{ServerId: "s1"})
 	if err != nil {
 		t.Fatalf("List: %v", err)
 	}
@@ -137,7 +154,7 @@ func TestListSelectsServerCompatibleHybridMetadata(t *testing.T) {
 		"fabric.mod.json": `{"id":"hybridmod","name":"Hybrid Mod","version":"2","depends":{"minecraft":">=1.20 <1.21"}}`,
 	})
 
-	list, err := svc.List(context.Background(), &mcmanagerv1.ServerId{Id: "s1"})
+	list, err := svc.List(context.Background(), &mcmanagerv1.ModListRequest{ServerId: "s1"})
 	if err != nil {
 		t.Fatalf("List: %v", err)
 	}
@@ -172,7 +189,7 @@ versionRange = "[1.20,1.21)"
 `,
 	})
 
-	first, err := svc.List(context.Background(), &mcmanagerv1.ServerId{Id: "s1"})
+	first, err := svc.List(context.Background(), &mcmanagerv1.ModListRequest{ServerId: "s1"})
 	if err != nil {
 		t.Fatalf("List fabric: %v", err)
 	}
@@ -181,7 +198,7 @@ versionRange = "[1.20,1.21)"
 	}
 
 	_ = st.Put(&store.Server{ID: "s1", ProviderID: "forge", ModLayout: "mods", McVersion: "1.20.1", Status: mcmanagerv1.ServerStatus_STOPPED})
-	second, err := svc.List(context.Background(), &mcmanagerv1.ServerId{Id: "s1"})
+	second, err := svc.List(context.Background(), &mcmanagerv1.ModListRequest{ServerId: "s1"})
 	if err != nil {
 		t.Fatalf("List forge: %v", err)
 	}
@@ -199,7 +216,7 @@ func TestListMetadataCache(t *testing.T) {
 	writeJar(t, jar, map[string]string{"fabric.mod.json": `{"id":"example","version":"1"}`})
 
 	for i := 0; i < 3; i++ {
-		if _, err := svc.List(context.Background(), &mcmanagerv1.ServerId{Id: "s1"}); err != nil {
+		if _, err := svc.List(context.Background(), &mcmanagerv1.ModListRequest{ServerId: "s1"}); err != nil {
 			t.Fatalf("List #%d: %v", i, err)
 		}
 	}
@@ -213,7 +230,7 @@ func TestListMetadataCache(t *testing.T) {
 	if err := os.Chtimes(jar, future, future); err != nil {
 		t.Fatal(err)
 	}
-	list, err := svc.List(context.Background(), &mcmanagerv1.ServerId{Id: "s1"})
+	list, err := svc.List(context.Background(), &mcmanagerv1.ModListRequest{ServerId: "s1"})
 	if err != nil {
 		t.Fatalf("List after rewrite: %v", err)
 	}
@@ -232,7 +249,7 @@ func TestListNilParserDegrades(t *testing.T) {
 	writeJar(t, filepath.Join(paths.ServerDir("s1"), "plugins", "p.jar"), map[string]string{"plugin.yml": "name: X\nversion: '1'"})
 
 	svc := NewModService(st, paths, nil)
-	list, err := svc.List(context.Background(), &mcmanagerv1.ServerId{Id: "s1"})
+	list, err := svc.List(context.Background(), &mcmanagerv1.ModListRequest{ServerId: "s1"})
 	if err != nil {
 		t.Fatalf("List: %v", err)
 	}

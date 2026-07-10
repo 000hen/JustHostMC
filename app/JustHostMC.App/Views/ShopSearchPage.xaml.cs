@@ -29,6 +29,10 @@ public sealed partial class ShopSearchPage : Page {
     public IReadOnlyList<int> SkeletonItems { get; } = [0, 1, 2, 3, 4, 5];
 
     public ShopSearchPage() {
+        // The result collection is window-scoped, so keep this page's visual
+        // tree with it. Recreating the ListView after visiting a project detail
+        // resets its internal ScrollViewer to the top.
+        NavigationCacheMode = NavigationCacheMode.Required;
         InitializeComponent();
     }
 

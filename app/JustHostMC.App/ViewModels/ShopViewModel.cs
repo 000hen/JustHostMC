@@ -89,6 +89,15 @@ public sealed partial class ShopViewModel : ObservableObject {
     public bool HasCategoryFilters => CategoryFilters.Count > 0;
 
     partial void OnSelectedShopChanged(ShopInfo? value) {
+        // HomeSections is window-scoped and survives page navigation.
+        // Invalidate it when the source changes so the new home page does not
+        // mistake the previous shop's sections for an already-loaded current
+        // source.
+        Interlocked.Increment(ref _homeGeneration);
+        HomeSections.Clear();
+        IsHomeLoading = false;
+        StatusMessage = "";
+
         OnPropertyChanged(nameof(SelectedShopName));
         CategoryFilters.Clear();
         if (value?.Id == "modrinth") {

@@ -20,6 +20,8 @@ public sealed partial class ScriptEntryCard : UserControl {
 
     public event RoutedEventHandler? EnabledToggled;
 
+    public event RoutedEventHandler? ConfigureClick;
+
     public ScriptEntryItem? Item {
         get => (ScriptEntryItem?)GetValue(ItemProperty);
         set => SetValue(ItemProperty, value);
@@ -38,6 +40,9 @@ public sealed partial class ScriptEntryCard : UserControl {
         RemoveFlyout.Hide();
         RemoveClick?.Invoke(this, e);
     }
+
+    private void OnConfigureClick(object sender, RoutedEventArgs e) =>
+        ConfigureClick?.Invoke(this, e);
 
     private void OnEnabledToggled(object sender, RoutedEventArgs e) =>
         EnabledToggled?.Invoke(this, e);

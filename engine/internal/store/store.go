@@ -18,6 +18,7 @@ type Server struct {
 	ProviderID     string
 	ModLayout      string // "plugins" | "mods" | "none"; captured from the provider at create
 	McVersion      string
+	Loader         string // effective mod loader ("fabric"/"forge"/…); empty falls back to ProviderID
 	MemoryMB       int
 	Port           int
 	Status         mcmanagerv1.ServerStatus
@@ -34,6 +35,7 @@ func (s *Server) Proto() *mcmanagerv1.Server {
 		Name:           s.Name,
 		ProviderId:     s.ProviderID,
 		McVersion:      s.McVersion,
+		Loader:         s.Loader,
 		MemoryMb:       int32(s.MemoryMB),
 		Port:           int32(s.Port),
 		Status:         s.Status,

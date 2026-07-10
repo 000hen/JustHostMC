@@ -241,4 +241,9 @@ public sealed partial class ServerPage : Page {
         _main.DeleteServerCommand.Execute(Server);
         _shell.RequestHome();
     }
+
+    /// <summary>A modpack shop opened from the mods panel can create whole new
+    /// servers; pull them into the main list.</summary>
+    private void OnShopServerCreated(object sender, RoutedEventArgs e) =>
+        _main.RefreshCommand.Execute(null);
 }

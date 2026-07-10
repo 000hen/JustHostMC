@@ -26,6 +26,15 @@ type Entry struct {
 	Builtin  bool
 }
 
+// ConfigReader is the read side of the typed-config store the registry injects
+// into provider scripts. *ConfigStore implements it directly; wrap it with
+// NewFallbackConfigReader to layer a lazily-computed default onto one key.
+type ConfigReader interface {
+	// Values returns the stored config overrides for a script id (a possibly
+	// empty, freely-mutable map).
+	Values(id string) map[string]string
+}
+
 // Registry holds the installed providers keyed by id, in insertion order, and
 // resolves each provider's effective grants (persisted grant, or — for trusted
 // built-ins — all declared permissions by default).
@@ -33,6 +42,7 @@ type Registry struct {
 	mu     sync.RWMutex
 	host   *Host
 	grants Grants
+	config ConfigReader
 	order  []string
 	byID   map[string]*Entry
 }
@@ -41,6 +51,18 @@ type Registry struct {
 // supplies persisted user permission decisions.
 func NewRegistry(host *Host, grants Grants) *Registry {
 	return &Registry{host: host, grants: grants, byID: map[string]*Entry{}}
+}
+
+// SetConfigStore wires the typed-config reader the registry hands to its
+// scripts. A plain *ConfigStore is the common case; a wrapper may layer defaults.
+func (r *Registry) SetConfigStore(cs ConfigReader) { r.config = cs }
+
+// configValues returns the stored config overrides for id (nil when no store).
+func (r *Registry) configValues(id string) map[string]string {
+	if r.config == nil {
+		return nil
+	}
+	return r.config.Values(id)
 }
 
 // AddSource compiles a Lua provider script (with no bundled assets) and
@@ -73,6 +95,7 @@ func (r *Registry) add(ctx context.Context, source string, builtin bool, assetDi
 		}
 	}
 	lp.grantsFn = func() GrantSet { return r.effectiveGrants(id, builtin, lp.meta) }
+	lp.configFn = func() map[string]string { return r.configValues(id) }
 	e := &Entry{Meta: lp.meta, Provider: lp, Builtin: builtin}
 	r.put(id, e)
 	return e, nil

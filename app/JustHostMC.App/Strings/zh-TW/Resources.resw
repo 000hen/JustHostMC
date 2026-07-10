@@ -126,6 +126,7 @@
   <data name="install.progress.extracting_jre" xml:space="preserve"><value>解壓縮 Java 執行階段中</value></data>
   <data name="install.progress.downloading_installer" xml:space="preserve"><value>下載安裝程式中</value></data>
   <data name="install.progress.running_installer" xml:space="preserve"><value>執行安裝程式中</value></data>
+  <data name="shop.install.downloading" xml:space="preserve"><value>下載整合包檔案中</value></data>
   <data name="install.progress.done" xml:space="preserve"><value>完成。</value></data>
 
   <!-- Errors (mapped from ErrorCode / status) -->
@@ -399,6 +400,15 @@
   <data name="ScriptsProvidersHeader.Text" xml:space="preserve"><value>提供者</value></data>
   <data name="ScriptsParsersHeader.Text" xml:space="preserve"><value>模組資訊解析器</value></data>
   <data name="ScriptsParsersEmpty.Text" xml:space="preserve"><value>尚未安裝任何解析器。解析器會讀取模組或外掛 jar 內嵌的資訊（名稱、版本、作者、圖示），顯示在伺服器的模組面板。</value></data>
+  <data name="ScriptsShopsHeader.Text" xml:space="preserve"><value>模組商店</value></data>
+  <data name="ScriptsShopsEmpty.Text" xml:space="preserve"><value>尚未安裝任何商店來源。商店來源讓您從 Modrinth 或 CurseForge 等遠端目錄瀏覽並下載模組或外掛。</value></data>
+  <data name="Scripts_ShopNeedsKey" xml:space="preserve"><value>需要 API 金鑰 — 請在設定中設定。</value></data>
+  <data name="ScriptsConfigureButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>設定</value></data>
+  <data name="ScriptConfig_TitleNamed" xml:space="preserve"><value>設定 {name}</value></data>
+  <data name="ScriptConfig_Save" xml:space="preserve"><value>儲存</value></data>
+  <data name="ScriptConfig_Cancel" xml:space="preserve"><value>取消</value></data>
+  <data name="ScriptConfig_SecretSetPlaceholder" xml:space="preserve"><value>留空以保留目前的值</value></data>
+  <data name="ScriptConfig_SecretUnsetPlaceholder" xml:space="preserve"><value>未設定</value></data>
   <data name="Parsers_Formats" xml:space="preserve"><value>讀取：{formats}</value></data>
   <data name="ModsWebsiteLink.Content" xml:space="preserve"><value>網站</value></data>
   <data name="ScriptSectionShowInFolderButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>在資料夾中顯示腳本</value></data>
@@ -558,6 +568,20 @@
   <data name="ShopNoVersions.Text" xml:space="preserve"><value>沒有與此伺服器相容的版本，放寬篩選即可看到更多。</value></data>
   <data name="Shop_ErrorNotFound" xml:space="preserve"><value>來源已不再提供此專案或版本。</value></data>
   <data name="Shop_ErrorNotDistributable" xml:space="preserve"><value>作者不允許第三方下載此檔案，請改用「開啟網站」。</value></data>
+  <data name="Shop_CompatLoaderMismatch" xml:space="preserve"><value>此版本適用於 {modLoaders}；你的伺服器執行的是 {serverLoader}。</value></data>
+  <data name="Shop_CompatVersionMismatch" xml:space="preserve"><value>此版本適用於 Minecraft {modVersions}；你的伺服器執行的是 {serverVersion}。</value></data>
+  <data name="Shop_CompatProjectWarning" xml:space="preserve"><value>此專案可能不支援你的伺服器（{serverLoader}，Minecraft {serverVersion}）。請查看「版本」分頁。</value></data>
+  <data name="Shop_InstallButtonText" xml:space="preserve"><value>安裝</value></data>
+  <data name="Shop_InstallLatestButtonText" xml:space="preserve"><value>安裝最新發行版</value></data>
+  <data name="Shop_CreateServerButton" xml:space="preserve"><value>建立伺服器</value></data>
+  <data name="Shop_CreateServerTitle" xml:space="preserve"><value>建立伺服器</value></data>
+  <data name="Shop_CreateServerPromptBody" xml:space="preserve"><value>從 {0} 建立新的伺服器。</value></data>
+  <data name="Shop_CreateServerNameLabel" xml:space="preserve"><value>伺服器名稱</value></data>
+  <data name="Shop_CreateServerMemoryLabel" xml:space="preserve"><value>記憶體 (MB)</value></data>
+  <data name="Shop_CreateServerConfirm" xml:space="preserve"><value>建立</value></data>
+  <data name="Shop_ServerCreated" xml:space="preserve"><value>已建立伺服器。</value></data>
+  <data name="Shop_CreateServerFailed" xml:space="preserve"><value>無法建立伺服器。</value></data>
+  <data name="Shop_CreateServerNeedsKey" xml:space="preserve"><value>此整合包有託管於 CurseForge 的檔案。請在 FTB 供應器設定中新增 CurseForge API 金鑰後再試一次。</value></data>
   <data name="Shop_ErrorKeyMissing" xml:space="preserve"><value>此來源需要 API 金鑰，請到「設定」新增。</value></data>
   <data name="Shop_ErrorServerRunning" xml:space="preserve"><value>請先停止伺服器再安裝模組。</value></data>
   <data name="shop.home.popular" xml:space="preserve"><value>下載最多</value></data>

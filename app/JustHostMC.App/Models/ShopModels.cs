@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using JustHostMC.App.Services;
 using McManager.Grpc;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media.Imaging;
@@ -11,7 +12,11 @@ namespace JustHostMC.App.Models;
 /// install so the server's mod list updates.</summary>
 public sealed record ShopContext(
     string ServerId, string McVersion, string Loader, ModKind Kind,
-    Func<IReadOnlyCollection<string>> InstalledFileNames, Action OnInstalled);
+    Func<IReadOnlyCollection<string>> InstalledFileNames, Action OnInstalled,
+    // Invoked after a modpack shop creates a brand-new server so the opener
+    // can refresh its server list; null for a per-server mod shop, which only
+    // installs into the existing server.
+    Action? OnServerCreated = null);
 
 /// <summary>One project card (home/search results).</summary>
 public sealed class ShopProjectItem {
@@ -92,6 +97,23 @@ public sealed partial class ShopVersionItem : ObservableObject {
             version.Dependencies.Where(d => d.Required).ToArray();
     }
 
+    /// <summary>Overload that computes a compatibility badge against the
+    /// server the shop was opened for. <paramref name="showBadge"/> is false
+    /// when the user's version/loader filters are active — the engine already
+    /// narrowed the list, so a badge would be noise.</summary>
+    public ShopVersionItem(ShopVersion version, ShopContext context,
+                           bool showBadge, bool isModpack, ILocalizer localizer)
+        : this(version) {
+        ActionLabel = localizer.Get(isModpack ? "Shop_CreateServerButton"
+                                              : "Shop_InstallButtonText");
+        if (showBadge) {
+            Compat = ShopCompat.Evaluate(context.Loader, context.McVersion,
+                                         version.Loaders, version.GameVersions);
+            CompatToolTip =
+                BuildCompatToolTip(Compat, version, context, localizer);
+        }
+    }
+
     public ShopVersion Version { get; }
     public IReadOnlyList<ShopDependency> RequiredDependencies { get; }
 
@@ -131,6 +153,34 @@ public sealed partial class ShopVersionItem : ObservableObject {
             return string.Join("  ·  ", parts);
         }
     }
+
+    /// <summary>Client-side compatibility verdict for this listing against the
+    /// server the shop was opened for; Unknown when not evaluated.</summary>
+    public ShopCompatVerdict Compat { get; } = ShopCompatVerdict.Unknown;
+
+    /// <summary>Localized explanation shown on the warning badge; empty unless
+    /// a mismatch was detected.</summary>
+    public string CompatToolTip { get; } = "";
+
+    public Visibility CompatBadgeVisibility =>
+        Compat is ShopCompatVerdict.LoaderMismatch or
+                ShopCompatVerdict.VersionMismatch
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+
+    private static string BuildCompatToolTip(
+        ShopCompatVerdict compat, ShopVersion version, ShopContext context,
+        ILocalizer localizer) => compat switch {
+        ShopCompatVerdict.LoaderMismatch =>
+            localizer.Get("Shop_CompatLoaderMismatch",
+                          ("modLoaders", string.Join(", ", version.Loaders)),
+                          ("serverLoader", context.Loader)),
+        ShopCompatVerdict.VersionMismatch => localizer.Get(
+            "Shop_CompatVersionMismatch",
+            ("modVersions", string.Join(", ", version.GameVersions.Take(6))),
+            ("serverVersion", context.McVersion)),
+        _ => "",
+    };
 }
 
 /// <summary>Display formatting shared by the shop UI.</summary>

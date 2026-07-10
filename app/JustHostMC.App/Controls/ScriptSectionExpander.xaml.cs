@@ -63,6 +63,7 @@ public sealed partial class ScriptSectionExpander : UserControl {
     public event RoutedEventHandler? AddScriptsClick;
     public event RoutedEventHandler? ScriptToggled;
     public event RoutedEventHandler? ScriptRemoved;
+    public event RoutedEventHandler? ScriptConfigured;
 
     public object? HeaderContent {
         get => GetValue(HeaderContentProperty);
@@ -105,6 +106,9 @@ public sealed partial class ScriptSectionExpander : UserControl {
 
     private void OnScriptRemoved(object sender, RoutedEventArgs e) =>
         ScriptRemoved?.Invoke(sender, e);
+
+    private void OnScriptConfigured(object sender, RoutedEventArgs e) =>
+        ScriptConfigured?.Invoke(sender, e);
 
     private static DependencyProperty Register<T>(string name,
                                                   T defaultValue) =>

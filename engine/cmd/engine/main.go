@@ -78,6 +78,8 @@ func main() {
 	host := scripting.NewHost(nil, jreMgr.EnsureJRE, jreMgr.EnsureJDK)
 	grants := scripting.NewGrantStore(filepath.Join(paths.Base, "grants.json"))
 	providers := scripting.NewRegistry(host, grants)
+	providerConfig := scripting.NewConfigStore(filepath.Join(paths.Base, "provider-config.json"))
+	providers.SetConfigStore(providerConfig)
 	if err := scripting.LoadBuiltins(ctx, providers); err != nil {
 		log.Fatalf("[FATAL] load builtin providers: %v", err)
 	}
@@ -89,6 +91,8 @@ func main() {
 	// embedded descriptor (fabric.mod.json, mods.toml, plugin.yml, ...).
 	parserGrants := scripting.NewGrantStore(filepath.Join(paths.Base, "parser-grants.json"))
 	parsers := scripting.NewParserSet(host, parserGrants)
+	parserConfig := scripting.NewConfigStore(filepath.Join(paths.Base, "parser-config.json"))
+	parsers.SetConfigStore(parserConfig)
 	if err := scripting.LoadBuiltinParsers(ctx, parsers); err != nil {
 		log.Fatalf("[FATAL] load builtin parsers: %v", err)
 	}
@@ -140,8 +144,17 @@ func main() {
 		}
 		return bakedShopKeys[shopID]
 	}
+	// The ftb modpack provider reuses the CurseForge shop key for CF-hosted pack
+	// files, so a user who set it once for the shop needn't re-enter it. The raw
+	// providerConfig still backs GetConfig/SetConfig (the UI shows the unset
+	// value); only the ctx.config injected at install time gets the fallback.
+	providers.SetConfigStore(scripting.NewFallbackConfigReader(
+		providerConfig, "ftb", "curseforge_api_key",
+		func() string { return shopKey("curseforge") }))
 	shopGrants := scripting.NewGrantStore(filepath.Join(paths.Base, "shop-grants.json"))
 	shops := scripting.NewShopSet(host, shopGrants, shopKey)
+	shopConfig := scripting.NewConfigStore(filepath.Join(paths.Base, "shop-config.json"))
+	shops.SetConfigStore(shopConfig)
 	if err := scripting.LoadBuiltinShops(ctx, shops); err != nil {
 		log.Fatalf("[FATAL] load builtin shops: %v", err)
 	}
@@ -187,6 +200,7 @@ func main() {
 	// server service. They are sandboxed and permission-gated like providers.
 	scriptGrants := scripting.NewGrantStore(filepath.Join(paths.Base, "script-grants.json"))
 	scriptsEnabled := scripting.NewEnabledStore(filepath.Join(paths.Base, "scripts-enabled.json"))
+	scriptConfig := scripting.NewConfigStore(filepath.Join(paths.Base, "script-config.json"))
 	scripts := automation.NewManager(automation.ManagerConfig{
 		Host:    host,
 		Grants:  scriptGrants,
@@ -197,6 +211,7 @@ func main() {
 		Players: &playerManagerAdapter{events: eventBus, players: playerService},
 		Events:  eventBus,
 		KV:      scriptdata.NewKVStore(filepath.Join(paths.Base, "script-data")),
+		Config:  scriptConfig,
 	})
 	scriptsDir := paths.ScriptsRoot()
 	if err := automation.LoadUserScripts(ctx, scripts, scriptsDir); err != nil {
@@ -220,10 +235,10 @@ func main() {
 		MetricsService:  grpcsvc.NewMetricsService(serverService),
 		ModService:      modService,
 		ConfigService:   grpcsvc.NewConfigService(registry, paths),
-		ProviderService: grpcsvc.NewProviderService(providers, grants, providersDir),
-		ScriptService:   grpcsvc.NewScriptService(scripts, scriptGrants, scriptsEnabled, scriptsDir),
-		ParserService:   grpcsvc.NewParserService(parsers, parserGrants, parsersDir),
-		ShopService:     grpcsvc.NewShopService(shops, shopGrants, shopsDir, registry, modService),
+		ProviderService: grpcsvc.NewProviderService(providers, grants, providerConfig, providersDir),
+		ScriptService:   grpcsvc.NewScriptService(scripts, scriptGrants, scriptsEnabled, scriptConfig, scriptsDir),
+		ParserService:   grpcsvc.NewParserService(parsers, parserGrants, parserConfig, parsersDir),
+		ShopService:     grpcsvc.NewShopService(shops, shopGrants, shopConfig, shopsDir, registry, modService),
 	})
 	log.Printf("[INFO] engine data dir: %s", paths.Base)
 

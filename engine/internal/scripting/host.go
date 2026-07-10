@@ -62,14 +62,25 @@ type invocation struct {
 	report   func(provider.Progress)
 	lastErr  error // structured error stashed before a Lua RaiseError, for mapping
 
-	kv       KV     // jhmc.store backend (nil where no store is wired, e.g. providers)
-	scriptID string // id scoping jhmc.store access
+	kv       KV                // jhmc.store backend (nil where no store is wired, e.g. providers)
+	scriptID string            // id scoping jhmc.store access
+	config   map[string]string // typed config values surfaced as ctx.config / jhmc.config (nil = none)
 }
 
 func (inv *invocation) emit(p provider.Progress) {
 	if inv.report != nil {
 		inv.report(p)
 	}
+}
+
+// configTable builds a Lua table of the invocation's typed config values for a
+// script's ctx.config (empty table when the invocation carries no config).
+func (inv *invocation) configTable(L *lua.LState) *lua.LTable {
+	t := L.NewTable()
+	for k, v := range inv.config {
+		t.RawSetString(k, lua.LString(v))
+	}
+	return t
 }
 
 // require raises a Lua error (caught by PCall) when kind is not granted.
@@ -189,6 +200,7 @@ func (inv *invocation) install(src, dir, version string) (provider.LaunchSpec, e
 		inv.emit(provider.Progress{LogLine: L.CheckString(1)})
 		return 0
 	}))
+	ictx.RawSetString("config", inv.configTable(L))
 
 	if err := L.CallByParam(lua.P{Fn: fn, NRet: 1, Protect: true}, ictx); err != nil {
 		return provider.LaunchSpec{}, inv.mapErr(err)
@@ -210,7 +222,12 @@ func (inv *invocation) install(src, dir, version string) (provider.LaunchSpec, e
 			args = append(args, lua.LVAsString(v))
 		})
 	}
-	return provider.LaunchSpec{JavaMajor: major, Args: args}, nil
+	return provider.LaunchSpec{
+		JavaMajor: major,
+		Args:      args,
+		McVersion: strField(spec, "mc_version"),
+		Loader:    strField(spec, "loader"),
+	}, nil
 }
 
 // mapErr recovers the structured error stashed by fail(), falling back to the

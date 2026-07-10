@@ -43,6 +43,7 @@ message Server {
   ServerStatus status = 7;
   int32 sort_order = 8;
   string custom_java_args = 9;
+  string loader = 10; // effective mod loader ("fabric"/"forge"/...); empty falls back to provider_id
 }
 
 message CreateServerRequest {
@@ -159,6 +160,8 @@ message Permission {
 // which mod folder a provider uses, if any.
 message ProviderCapabilities {
   string mod_layout = 1; // "plugins" | "mods" | "none"
+  bool hidden = 2;             // not offered in the create-server UI (install is driven elsewhere, e.g. a modpack shop)
+  bool free_form_versions = 3; // Versions() is not exhaustive; version strings are opaque ids (e.g. "packId/versionId")
 }
 
 // ProviderInfo describes an installed provider script (built-in or user-imported).
@@ -173,6 +176,7 @@ message ProviderInfo {
   repeated Permission permissions = 8;  // declared/requested permissions
   repeated PermissionKind granted = 9;  // currently-granted subset
   ProviderCapabilities capabilities = 10;
+  repeated ConfigOption config_options = 11; // author-declared typed config options
 }
 
 message ProviderList {
@@ -195,6 +199,43 @@ message SetPermissionsRequest {
   repeated PermissionKind granted = 2;
 }
 
+// Types a script config option can declare (meta.config in Lua). Shared by all
+// four scriptable subsystems (providers, automation scripts, parsers, shops).
+enum ConfigOptionType {
+  CONFIG_OPTION_TYPE_UNSPECIFIED = 0;
+  CONFIG_OPTION_STRING = 1;
+  CONFIG_OPTION_NUMBER = 2;
+  CONFIG_OPTION_BOOLEAN = 3;
+  CONFIG_OPTION_SECRET = 4; // stored server-side, never returned to the client
+}
+
+// ConfigOption is one author-declared typed config field (a meta.config entry).
+message ConfigOption {
+  string key = 1;           // stable key, [a-zA-Z0-9_-]+
+  ConfigOptionType type = 2;
+  string name = 3;          // display label (script-authored, not localized)
+  string description = 4;
+  string default = 5;       // string-encoded default
+  bool required = 6;
+}
+
+// ScriptConfigValue is one stored value. In Get replies, `value` is empty for
+// secrets and `has_value` reports presence (mirrors ShopKeyInfo). In Set
+// requests an empty value clears the stored override.
+message ScriptConfigValue {
+  string key = 1;
+  string value = 2;
+  bool has_value = 3;
+}
+message ScriptConfig {
+  string id = 1;
+  repeated ScriptConfigValue values = 2;
+}
+message SetConfigRequest {
+  string id = 1;
+  repeated ScriptConfigValue values = 2;
+}
+
 // ScriptInfo describes an installed automation/control script.
 message ScriptInfo {
   string id = 1;
@@ -206,6 +247,7 @@ message ScriptInfo {
   bool enabled = 7;
   repeated Permission permissions = 8;
   repeated PermissionKind granted = 9;
+  repeated ConfigOption config_options = 10; // author-declared typed config options
 }
 
 message ScriptList {
@@ -225,6 +267,7 @@ message ParserInfo {
   repeated Permission permissions = 8;  // declared/requested permissions
   repeated PermissionKind granted = 9;  // currently-granted subset
   repeated string formats = 10;         // descriptor formats it reads, e.g. "fabric.mod.json"
+  repeated ConfigOption config_options = 11; // author-declared typed config options
 }
 
 message ParserList {
@@ -464,7 +507,9 @@ enum ModKind {
   MOD_KIND_UNSPECIFIED = 0;
   PLUGIN = 1; // Paper/Spigot -> plugins/
   MOD = 2; // Forge/NeoForge/Fabric -> mods/
+  MODPACK = 3; // shop browsing discriminator only; modpacks install a whole server, no per-server folder
 }
+
 // ModMetadata is what a parser script extracted from a jar's embedded
 // descriptor (fabric.mod.json / mods.toml / plugin.yml / ...). parsed=false
 // means no installed parser recognized the jar (UI falls back to the filename).
@@ -548,6 +593,8 @@ message ShopInfo {
   repeated PermissionKind granted = 9; // currently-granted subset
   bool needs_key = 10; // shop requires a per-shop API key (see SettingsService)
   bool ready = 11;     // false when needs_key and no key is configured
+  repeated ConfigOption config_options = 12; // author-declared typed config options
+  repeated string kinds = 13; // item kinds served: "mod"/"plugin" (default) and/or "modpack"
 }
 message ShopList {
   repeated ShopInfo shops = 1;
@@ -810,6 +857,8 @@ service ProviderService {
   rpc Import(ImportProviderRequest) returns (ProviderInfo); // import a user .lua (+ optional jar)
   rpc Remove(ProviderRef) returns (Empty);
   rpc SetPermissions(SetPermissionsRequest) returns (ProviderInfo);
+  rpc GetConfig(ProviderRef) returns (ScriptConfig);
+  rpc SetConfig(SetConfigRequest) returns (ScriptConfig);
 }
 
 // ParserService manages the Lua parser scripts that extract mod/plugin
@@ -819,6 +868,8 @@ service ParserService {
   rpc Import(ImportParserRequest) returns (ParserInfo);
   rpc Remove(ProviderRef) returns (Empty);
   rpc SetPermissions(SetPermissionsRequest) returns (ParserInfo);
+  rpc GetConfig(ProviderRef) returns (ScriptConfig);
+  rpc SetConfig(SetConfigRequest) returns (ScriptConfig);
 }
 
 // ShopService drives the Lua "shop" scripts that browse/search/download
@@ -835,6 +886,8 @@ service ShopService {
   rpc Import(ImportShopRequest) returns (ShopInfo);
   rpc Remove(ProviderRef) returns (Empty);
   rpc SetPermissions(SetPermissionsRequest) returns (ShopInfo);
+  rpc GetConfig(ProviderRef) returns (ScriptConfig);
+  rpc SetConfig(SetConfigRequest) returns (ScriptConfig);
 }
 
 // ScriptService manages automation/control scripts that drive running servers
@@ -844,6 +897,8 @@ service ScriptService {
   rpc Import(ImportScriptRequest) returns (ScriptInfo);
   rpc SetEnabled(SetScriptEnabledRequest) returns (ScriptInfo);
   rpc SetPermissions(SetPermissionsRequest) returns (ScriptInfo);
+  rpc GetConfig(ProviderRef) returns (ScriptConfig);
+  rpc SetConfig(SetConfigRequest) returns (ScriptConfig);
   rpc Remove(ProviderRef) returns (Empty);
   rpc StreamLog(Empty) returns (stream ScriptLogLine); // engine-wide automation log
 }

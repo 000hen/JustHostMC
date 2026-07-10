@@ -41,6 +41,7 @@ public sealed partial class ScriptsViewModel : ObservableObject,
     public ObservableCollection<ProviderItem> Providers { get; } = new();
     public ObservableCollection<ScriptItem> Scripts { get; }     = new();
     public ObservableCollection<ParserItem> Parsers { get; }     = new();
+    public ObservableCollection<ShopSourceItem> Shops { get; }   = new();
 
     /// <summary>
     /// Application logging sessions in reverse chronological order. The current
@@ -83,6 +84,7 @@ public sealed partial class ScriptsViewModel : ObservableObject,
             await RefreshProvidersAsync(daemon);
             await RefreshScriptsAsync(daemon);
             await RefreshParsersAsync(daemon);
+            await RefreshShopsAsync(daemon);
         } finally {
             RunOnUI(() => IsBusy = false);
         }
@@ -129,6 +131,19 @@ public sealed partial class ScriptsViewModel : ObservableObject,
                 Parsers.Clear();
                 foreach (var p in list.Parsers)
                     Parsers.Add(new ParserItem(p, _localizer));
+            });
+        } catch (RpcException ex) {
+            RunOnUI(() => StatusMessage = _localizer.Get(MapErrorKey(ex)));
+        }
+    }
+
+    private async Task RefreshShopsAsync(JustHostMC.Core.DaemonClient daemon) {
+        try {
+            var list = await daemon.Shop.ListAsync(new Empty());
+            RunOnUI(() => {
+                Shops.Clear();
+                foreach (var s in list.Shops)
+                    Shops.Add(new ShopSourceItem(s, _localizer));
             });
         } catch (RpcException ex) {
             RunOnUI(() => StatusMessage = _localizer.Get(MapErrorKey(ex)));
@@ -207,6 +222,27 @@ public sealed partial class ScriptsViewModel : ObservableObject,
         }
     }
 
+    /// <summary>Imports a mod shop source with the granted
+    /// permissions.</summary>
+    public async Task ImportShopAsync(string luaSource,
+                                      IReadOnlyList<PermissionKind> granted) {
+        RunOnUI(() => {
+            IsBusy        = true;
+            StatusMessage = "";
+        });
+        try {
+            var daemon = await App.Current.DaemonReady;
+            var info   = await daemon.Shop.ImportAsync(
+                new ImportShopRequest { LuaSource = luaSource });
+            await SetShopPermissionsAsync(daemon, info.Id, granted);
+            await RefreshShopsAsync(daemon);
+        } catch (RpcException ex) {
+            RunOnUI(() => StatusMessage = _localizer.Get(MapErrorKey(ex)));
+        } finally {
+            RunOnUI(() => IsBusy = false);
+        }
+    }
+
     public async Task SetScriptEnabledAsync(ScriptItem item, bool enabled) {
         try {
             var daemon = await App.Current.DaemonReady;
@@ -254,12 +290,85 @@ public sealed partial class ScriptsViewModel : ObservableObject,
         }
     }
 
+    public async Task RemoveShopAsync(ShopSourceItem item) {
+        try {
+            var daemon = await App.Current.DaemonReady;
+            await daemon.Shop.RemoveAsync(new ProviderRef { Id = item.Id });
+            await RefreshShopsAsync(daemon);
+        } catch (RpcException ex) {
+            RunOnUI(() => StatusMessage = _localizer.Get(MapErrorKey(ex)));
+        }
+    }
+
     private static async Task
     SetParserPermissionsAsync(JustHostMC.Core.DaemonClient daemon, string id,
                               IReadOnlyList<PermissionKind> granted) {
         var req = new SetPermissionsRequest { Id = id };
         req.Granted.AddRange(granted);
         await daemon.Parsers.SetPermissionsAsync(req);
+    }
+
+    private static async Task
+    SetShopPermissionsAsync(JustHostMC.Core.DaemonClient daemon, string id,
+                            IReadOnlyList<PermissionKind> granted) {
+        var req = new SetPermissionsRequest { Id = id };
+        req.Granted.AddRange(granted);
+        await daemon.Shop.SetPermissionsAsync(req);
+    }
+
+    /// <summary>Fetches the current config values for a scriptable item
+    /// (provider, automation script, parser or shop). Returns null on
+    /// error.</summary>
+    public async Task<ScriptConfig?> GetConfigAsync(ScriptEntryItem item) {
+        try {
+            var daemon    = await App.Current.DaemonReady;
+            var reference = new ProviderRef { Id = item.Id };
+            return item switch {
+                ProviderItem =>
+                    await daemon.Providers.GetConfigAsync(reference),
+                ScriptItem => await daemon.Scripts.GetConfigAsync(reference),
+                ParserItem => await daemon.Parsers.GetConfigAsync(reference),
+                ShopSourceItem => await daemon.Shop.GetConfigAsync(reference),
+                _              => null,
+            };
+        } catch (RpcException ex) {
+            RunOnUI(() => StatusMessage = _localizer.Get(MapErrorKey(ex)));
+            return null;
+        }
+    }
+
+    /// <summary>Persists the changed config values for a scriptable item, then
+    /// refreshes so derived state (e.g. a shop's Ready flag) updates.</summary>
+    public async Task SetConfigAsync(ScriptEntryItem item,
+                                     SetConfigRequest req) {
+        if (req.Values.Count == 0)
+            return;
+        RunOnUI(() => {
+            IsBusy        = true;
+            StatusMessage = "";
+        });
+        try {
+            var daemon = await App.Current.DaemonReady;
+            switch (item) {
+                case ProviderItem:
+                    await daemon.Providers.SetConfigAsync(req);
+                    break;
+                case ScriptItem:
+                    await daemon.Scripts.SetConfigAsync(req);
+                    break;
+                case ParserItem:
+                    await daemon.Parsers.SetConfigAsync(req);
+                    break;
+                case ShopSourceItem:
+                    await daemon.Shop.SetConfigAsync(req);
+                    break;
+            }
+            await RefreshAsync();
+        } catch (RpcException ex) {
+            RunOnUI(() => StatusMessage = _localizer.Get(MapErrorKey(ex)));
+        } finally {
+            RunOnUI(() => IsBusy = false);
+        }
     }
 
     private static async Task

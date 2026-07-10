@@ -19,13 +19,14 @@ type ProviderService struct {
 	mcmanagerv1.UnimplementedProviderServiceServer
 	registry *scripting.Registry
 	grants   *scripting.GrantStore
+	config   *scripting.ConfigStore
 	dir      string // root dir where user providers are persisted
 }
 
 // NewProviderService builds a ProviderService. dir is where imported user
 // scripts (and any bundled jars) are stored.
-func NewProviderService(reg *scripting.Registry, grants *scripting.GrantStore, dir string) *ProviderService {
-	return &ProviderService{registry: reg, grants: grants, dir: dir}
+func NewProviderService(reg *scripting.Registry, grants *scripting.GrantStore, config *scripting.ConfigStore, dir string) *ProviderService {
+	return &ProviderService{registry: reg, grants: grants, config: config, dir: dir}
 }
 
 func (s *ProviderService) List(_ context.Context, _ *mcmanagerv1.Empty) (*mcmanagerv1.ProviderList, error) {
@@ -83,6 +84,9 @@ func (s *ProviderService) Remove(_ context.Context, ref *mcmanagerv1.ProviderRef
 	if s.grants != nil {
 		_ = s.grants.Forget(ref.Id)
 	}
+	if s.config != nil {
+		_ = s.config.Forget(ref.Id)
+	}
 	_ = os.RemoveAll(filepath.Join(s.dir, ref.Id))
 	return &mcmanagerv1.Empty{}, nil
 }
@@ -125,15 +129,38 @@ func (s *ProviderService) info(e *scripting.Entry) *mcmanagerv1.ProviderInfo {
 	}
 	slices.Sort(granted)
 	return &mcmanagerv1.ProviderInfo{
-		Id:           e.Meta.ID,
-		Name:         e.Meta.Name,
-		Website:      e.Meta.Website,
-		Description:  e.Meta.Description,
-		Version:      e.Meta.Version,
-		Author:       e.Meta.Author,
-		Builtin:      e.Builtin,
-		Permissions:  perms,
-		Granted:      granted,
-		Capabilities: &mcmanagerv1.ProviderCapabilities{ModLayout: e.Meta.ModLayout},
+		Id:          e.Meta.ID,
+		Name:        e.Meta.Name,
+		Website:     e.Meta.Website,
+		Description: e.Meta.Description,
+		Version:     e.Meta.Version,
+		Author:      e.Meta.Author,
+		Builtin:     e.Builtin,
+		Permissions: perms,
+		Granted:     granted,
+		Capabilities: &mcmanagerv1.ProviderCapabilities{
+			ModLayout: e.Meta.ModLayout,
+			Hidden:    e.Meta.Hidden,
+			// v1: a hidden provider installs from an opaque version id, so its
+			// Versions() list is not a real picker either.
+			FreeFormVersions: e.Meta.Hidden,
+		},
+		ConfigOptions: configOptions(e.Meta.Config),
 	}
+}
+
+func (s *ProviderService) GetConfig(_ context.Context, ref *mcmanagerv1.ProviderRef) (*mcmanagerv1.ScriptConfig, error) {
+	e, ok := s.registry.Get(ref.Id)
+	if !ok {
+		return nil, errorStatus(codes.NotFound, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, "provider not found", nil)
+	}
+	return getConfigView(ref.Id, e.Meta.Config, s.config), nil
+}
+
+func (s *ProviderService) SetConfig(_ context.Context, req *mcmanagerv1.SetConfigRequest) (*mcmanagerv1.ScriptConfig, error) {
+	e, ok := s.registry.Get(req.Id)
+	if !ok {
+		return nil, errorStatus(codes.NotFound, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, "provider not found", nil)
+	}
+	return applyConfig(req.Id, e.Meta.Config, s.config, req)
 }

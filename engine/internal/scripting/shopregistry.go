@@ -16,6 +16,8 @@ type ShopSet struct {
 	// service layer to settings + baked-in defaults.
 	keyFn func(shopID string) string
 
+	config *ConfigStore
+
 	mu    sync.RWMutex
 	order []string
 	byID  map[string]*LuaShop
@@ -25,6 +27,16 @@ type ShopSet struct {
 // decisions; keyFn may be nil (no shop keys available).
 func NewShopSet(host *Host, grants Grants, keyFn func(shopID string) string) *ShopSet {
 	return &ShopSet{host: host, grants: grants, keyFn: keyFn, byID: map[string]*LuaShop{}}
+}
+
+// SetConfigStore wires the typed-config store the set hands to its shop scripts.
+func (ss *ShopSet) SetConfigStore(cs *ConfigStore) { ss.config = cs }
+
+func (ss *ShopSet) configValues(id string) map[string]string {
+	if ss.config == nil {
+		return nil
+	}
+	return ss.config.Values(id)
 }
 
 // AddSource compiles a shop script and registers it. A user shop (builtin
@@ -49,6 +61,7 @@ func (ss *ShopSet) AddSource(ctx context.Context, source string, builtin bool) (
 		}
 		return ss.keyFn(s.meta.ID)
 	}
+	s.configFn = func() map[string]string { return ss.configValues(s.meta.ID) }
 	ss.byID[s.meta.ID] = s
 	return s, nil
 }

@@ -156,6 +156,7 @@ type LuaShop struct {
 	builtin  bool
 	grantsFn func() GrantSet
 	keyFn    func() string // resolves the shop's API key ("" = none)
+	configFn func() map[string]string
 }
 
 // newLuaShop compiles source in a throwaway sandbox and validates its meta
@@ -194,8 +195,26 @@ func (s *LuaShop) Key() string {
 }
 
 // Ready reports whether the shop can serve requests (a key exists when the
-// script declares needs_key).
-func (s *LuaShop) Ready() bool { return !s.meta.NeedsKey || s.Key() != "" }
+// script declares needs_key). The key may come from the settings/baked chain or
+// a stored api_key config override.
+func (s *LuaShop) Ready() bool { return !s.meta.NeedsKey || s.effectiveKey() != "" }
+
+// storedConfig returns the shop's stored typed-config overrides (nil when none).
+func (s *LuaShop) storedConfig() map[string]string {
+	if s.configFn != nil {
+		return s.configFn()
+	}
+	return nil
+}
+
+// effectiveKey resolves the shop's API key: the settings/baked chain first, then
+// a stored `api_key` config override.
+func (s *LuaShop) effectiveKey() string {
+	if k := s.Key(); k != "" {
+		return k
+	}
+	return s.storedConfig()["api_key"]
+}
 
 func (s *LuaShop) grants() GrantSet {
 	if s.grantsFn != nil {
@@ -247,7 +266,14 @@ func (s *LuaShop) callFunction(ctx context.Context, fn string, optional bool, fi
 		}
 	}
 	cfg := L.NewTable()
-	cfg.RawSetString("api_key", lua.LString(s.Key()))
+	for k, v := range EffectiveConfig(s.meta.Config, s.storedConfig()) {
+		cfg.RawSetString(k, lua.LString(v))
+	}
+	// The settings/baked key chain stays authoritative for the reserved api_key
+	// when it yields one; a stored api_key config fills in otherwise.
+	if key := s.Key(); key != "" {
+		cfg.RawSetString("api_key", lua.LString(key))
+	}
 	ctxTbl.RawSetString("config", cfg)
 
 	if err := L.CallByParam(lua.P{Fn: f, NRet: 1, Protect: true}, ctxTbl); err != nil {

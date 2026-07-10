@@ -125,6 +125,35 @@ func TestHostVersionsAndInstall(t *testing.T) {
 	}
 }
 
+// TestInstallLaunchSpecReadsMcVersionAndLoader verifies a provider that resolves
+// a concrete version/loader inside install() surfaces them on the LaunchSpec —
+// the hook a modpack provider uses to override an opaque "packId/versionId".
+func TestInstallLaunchSpecReadsMcVersionAndLoader(t *testing.T) {
+	script := `
+meta = { id = "resolv", name = "Resolv", mod_layout = "mods" }
+function versions() return {} end
+function install(ctx)
+  return { java_major = 21, args = { "-jar", "server.jar", "nogui" },
+           mc_version = "1.20.1", loader = "forge" }
+end
+`
+	r := NewRegistry(NewHost(nil, nil, nil), nil)
+	e, err := r.AddSource(context.Background(), script, true)
+	if err != nil {
+		t.Fatalf("AddSource: %v", err)
+	}
+	spec, err := e.Provider.Install(context.Background(), t.TempDir(), "pack/42", nil)
+	if err != nil {
+		t.Fatalf("Install: %v", err)
+	}
+	if spec.McVersion != "1.20.1" {
+		t.Errorf("McVersion = %q, want 1.20.1", spec.McVersion)
+	}
+	if spec.Loader != "forge" {
+		t.Errorf("Loader = %q, want forge", spec.Loader)
+	}
+}
+
 // TestUngrantedNetworkDenied proves a non-builtin script with no grants cannot
 // reach the network.
 func TestUngrantedNetworkDenied(t *testing.T) {

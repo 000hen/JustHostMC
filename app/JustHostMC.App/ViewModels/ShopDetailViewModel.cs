@@ -34,10 +34,21 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
         _localizer  = localizer;
         _shopId     = card.Project.ShopId;
         _projectId  = card.Project.ProjectId;
-        SourceName =
-            shop.Shops.FirstOrDefault(s => s.Id == _shopId)?.Name ?? _shopId;
-        Card = card;
+        Card         = card;
+        var shopInfo = shop.Shops.FirstOrDefault(s => s.Id == _shopId);
+        SourceName   = shopInfo?.Name ?? _shopId;
+        IsModpack    = shopInfo?.Kinds.Contains("modpack") ?? false;
     }
+
+    /// <summary>True when this project is a modpack: its versions create whole
+    /// new servers (via the ftb provider) instead of installing a file into
+    /// one.</summary>
+    public bool IsModpack { get; }
+
+    /// <summary>Label for the header action button, matching the project
+    /// kind.</summary>
+    public string InstallActionLabel => _localizer.Get(
+        IsModpack ? "Shop_CreateServerButton" : "Shop_InstallLatestButtonText");
 
     /// <summary>The card the user clicked; the header shows it immediately
     /// while the full detail loads.</summary>
@@ -125,7 +136,28 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
         get; private set;
     } = "";
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasProjectCompatWarning))]
+    public partial string ProjectCompatMessage {
+        get; private set;
+    } = "";
+
+    /// <summary>Whether to show the project-level "may not fit your server"
+    /// banner.</summary>
+    public bool HasProjectCompatWarning => ProjectCompatMessage.Length > 0;
+
     public bool HasGallery => Gallery.Count > 0;
+
+    // A project-level mismatch means none of the project's loaders/versions
+    // fit the server, so both mismatch kinds collapse to one summary banner.
+    private string ProjectCompatText(
+        ShopCompatVerdict compat) => compat switch {
+        ShopCompatVerdict.LoaderMismatch or ShopCompatVerdict.VersionMismatch =>
+            _localizer.Get("Shop_CompatProjectWarning",
+                           ("serverLoader", _shop.Context.Loader),
+                           ("serverVersion", _shop.Context.McVersion)),
+        _ => "",
+    };
 
     /// <summary>Loads detail + versions concurrently.</summary>
     public Task LoadAsync(bool darkTheme) =>
@@ -145,6 +177,17 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
                            ? ShopBodyRenderer.ToHtml(
                                  detail.Body, detail.BodyFormat, darkTheme)
                            : "";
+            // The detail lists every loader/version the project supports; a
+            // mismatch here means none of them fits this server. Suppressed
+            // while filtering.
+            var filtersActive = _shop.UseVersionFilter || _shop.UseLoaderFilter;
+            var projectCompat =
+                filtersActive
+                    ? ShopCompatVerdict.Unknown
+                    : ShopCompat.Evaluate(_shop.Context.Loader,
+                                          _shop.Context.McVersion,
+                                          detail.Loaders, detail.GameVersions);
+            var compatMessage = ProjectCompatText(projectCompat);
             await RunOnUIAsync(() => {
                 if (detail.Project is not null &&
                     detail.Project.Title.Length > 0)
@@ -155,6 +198,7 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
                     Gallery.Add(new ShopGalleryItem(image));
                 OnPropertyChanged(nameof(HasGallery));
                 BodyHtml = html;
+                ProjectCompatMessage = compatMessage;
                 RefreshPrimaryAction();
             });
         } catch {
@@ -177,10 +221,15 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
                     Loader = _shop.UseLoaderFilter ? _shop.Context.Loader : "",
                 },
                 deadline: DateTime.UtcNow.AddSeconds(30));
+            // With a filter on, the engine already narrowed the list to
+            // matches, so a per-row badge would be redundant noise.
+            var showBadge = !_shop.UseVersionFilter && !_shop.UseLoaderFilter;
             await RunOnUIAsync(() => {
                 Versions.Clear();
                 foreach (var version in list.Versions)
-                    Versions.Add(new ShopVersionItem(version));
+                    Versions.Add(new ShopVersionItem(version, _shop.Context,
+                                                     showBadge, IsModpack,
+                                                     _localizer));
                 LatestRelease =
                     Versions
                         .Where(version => version.Version.Channel ==
@@ -282,6 +331,57 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
         foreach (var version in Versions) {
             version.ActionLabel   = label;
             version.ActionEnabled = enabled;
+        }
+    }
+
+    /// <summary>Creates a brand-new server from a modpack version, streaming
+    /// the (long) install into the shared install-progress UI.</summary>
+    public async Task CreateServerAsync(ShopVersionItem version, string name,
+                                        int memoryMb) {
+        await RunOnUIAsync(() => {
+            IsInstalling = true;
+            OnPropertyChanged(nameof(CanInstallLatest));
+            InstallSucceeded = false;
+            InstallProgress  = 0;
+            StatusMessage    = "";
+        });
+        try {
+            var daemon  = await App.Current.DaemonReady;
+            var request = new CreateServerRequest {
+                Name       = name,
+                ProviderId = "ftb",
+                McVersion  = $"{_projectId}/{version.Version.Id}",
+                MemoryMb   = memoryMb,
+                Port       = 0,
+            };
+            // A modpack install pulls hundreds of files and runs a loader
+            // installer, so stream without a tight deadline (like the main
+            // create-server flow).
+            using var call = daemon.Servers.Create(request);
+            await foreach (var progress in call.ResponseStream.ReadAllAsync()) {
+                var fraction = progress.Fraction;
+                await RunOnUIAsync(() => {
+                    if (fraction >= 0)
+                        InstallProgress = fraction;
+                });
+            }
+            await RunOnUIAsync(() => {
+                InstallSucceeded = true;
+                StatusMessage    = _localizer.Get("Shop_ServerCreated");
+            });
+            _shop.Context.OnServerCreated?.Invoke();
+        } catch (RpcException ex) when (ex.Status.Detail.Contains(
+            "CurseForge API key", StringComparison.OrdinalIgnoreCase)) {
+            await RunOnUIAsync(() => StatusMessage =
+                                   _localizer.Get("Shop_CreateServerNeedsKey"));
+        } catch {
+            await RunOnUIAsync(() => StatusMessage =
+                                   _localizer.Get("Shop_CreateServerFailed"));
+        } finally {
+            await RunOnUIAsync(() => {
+                IsInstalling = false;
+                OnPropertyChanged(nameof(CanInstallLatest));
+            });
         }
     }
 

@@ -76,6 +76,17 @@ func (inv *invocation) newJHMC(L *lua.LState) *lua.LTable {
 	fs.RawSetString("remove", L.NewFunction(inv.fsRemove))
 	t.RawSetString("fs", fs)
 
+	// jhmc.config exposes the script's typed config values. It is the config
+	// surface for automation scripts (which have no per-call ctx table); present
+	// only when a config map was supplied for this invocation.
+	if inv.config != nil {
+		cfg := L.NewTable()
+		for k, v := range inv.config {
+			cfg.RawSetString(k, lua.LString(v))
+		}
+		t.RawSetString("config", cfg)
+	}
+
 	return t
 }
 

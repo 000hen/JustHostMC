@@ -19,6 +19,12 @@ type Progress struct {
 type LaunchSpec struct {
 	JavaMajor int      // required Java feature version: 8 / 17 / 21 …
 	Args      []string // JVM/program args, e.g. ["-jar", "server.jar", "nogui"]
+	// McVersion, when non-empty, is the concrete Minecraft version the install
+	// resolved to; it overrides the request's version on the server record (a
+	// modpack provider takes an opaque "packId/versionId" and resolves the real
+	// MC version here). Loader is the effective mod loader ("fabric"/"forge"/…).
+	McVersion string
+	Loader    string
 }
 
 // JavaResolver resolves (downloading if needed) a java.exe for a Java major

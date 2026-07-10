@@ -228,7 +228,14 @@ func (s *ServerService) Create(req *mcmanagerv1.CreateServerRequest, stream grpc
 		cleanup()
 		return mapInstallError(err)
 	}
-	spec.JavaMajor = maxJavaMajor(spec.JavaMajor, req.McVersion)
+	// A modpack provider takes an opaque "packId/versionId" as req.McVersion and
+	// resolves the concrete Minecraft version in spec.McVersion; prefer it for
+	// Java selection and the stored record.
+	resolvedVersion := req.McVersion
+	if spec.McVersion != "" {
+		resolvedVersion = spec.McVersion
+	}
+	spec.JavaMajor = maxJavaMajor(spec.JavaMajor, resolvedVersion)
 	if _, err := s.cfg.JRE.EnsureJRE(installCtx, spec.JavaMajor, send); err != nil {
 		send(provider.Progress{LogLine: "[error] " + err.Error()})
 		il.recordLine("[error] jre: " + err.Error())
@@ -248,6 +255,10 @@ func (s *ServerService) Create(req *mcmanagerv1.CreateServerRequest, stream grpc
 	rec.JavaMajor = spec.JavaMajor
 	rec.LaunchArgs = spec.Args
 	rec.CustomJavaArgs = req.CustomJavaArgs
+	if spec.McVersion != "" {
+		rec.McVersion = spec.McVersion
+	}
+	rec.Loader = spec.Loader
 	rec.Status = mcmanagerv1.ServerStatus_STOPPED
 	_ = s.cfg.Store.Put(rec)
 
@@ -308,6 +319,13 @@ func (s *ServerService) Update(ctx context.Context, req *mcmanagerv1.UpdateServe
 		if !ok {
 			return nil, errorStatus(codes.Unimplemented, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED,
 				fmt.Sprintf("provider %q not installed", rec.ProviderID), nil)
+		}
+		// Hidden providers (e.g. a modpack) install from an opaque version id, so
+		// the version picker is meaningless; the app hides it, and this backstops
+		// a direct API edit.
+		if entry.Meta.Hidden {
+			return nil, errorStatus(codes.FailedPrecondition, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED,
+				"this server's version is managed by its source and cannot be changed", nil)
 		}
 		spec, err := entry.Provider.Install(ctx, dir, version, nil)
 		if err != nil {

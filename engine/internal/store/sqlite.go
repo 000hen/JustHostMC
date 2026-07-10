@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS servers (
   provider_id TEXT    NOT NULL DEFAULT '',
   mod_layout  TEXT    NOT NULL DEFAULT 'none',
   mc_version  TEXT    NOT NULL,
+  loader      TEXT    NOT NULL DEFAULT '',
   memory_mb   INTEGER NOT NULL,
   port        INTEGER NOT NULL,
   status      INTEGER NOT NULL,
@@ -60,21 +61,21 @@ func (s *SQLite) Put(srv *Server) error {
 		return err
 	}
 	_, err = s.db.Exec(`
-		INSERT INTO servers (id, name, type, provider_id, mod_layout, mc_version, memory_mb, port, status, sort_order, java_major, launch_args, custom_java_args)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		INSERT INTO servers (id, name, type, provider_id, mod_layout, mc_version, loader, memory_mb, port, status, sort_order, java_major, launch_args, custom_java_args)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 		ON CONFLICT(id) DO UPDATE SET
 			name=excluded.name, provider_id=excluded.provider_id, mod_layout=excluded.mod_layout,
-			mc_version=excluded.mc_version, memory_mb=excluded.memory_mb, port=excluded.port,
+			mc_version=excluded.mc_version, loader=excluded.loader, memory_mb=excluded.memory_mb, port=excluded.port,
 			status=excluded.status, sort_order=excluded.sort_order, java_major=excluded.java_major,
 			launch_args=excluded.launch_args, custom_java_args=excluded.custom_java_args`,
-		srv.ID, srv.Name, 0, srv.ProviderID, modLayoutOrNone(srv.ModLayout), srv.McVersion,
+		srv.ID, srv.Name, 0, srv.ProviderID, modLayoutOrNone(srv.ModLayout), srv.McVersion, srv.Loader,
 		srv.MemoryMB, srv.Port, int(srv.Status), srv.SortOrder, srv.JavaMajor, string(args), srv.CustomJavaArgs)
 	return err
 }
 
 func (s *SQLite) Get(id string) (*Server, bool) {
 	row := s.db.QueryRow(`
-		SELECT id, name, provider_id, mod_layout, mc_version, memory_mb, port, status, sort_order, java_major, launch_args, custom_java_args
+		SELECT id, name, provider_id, mod_layout, mc_version, loader, memory_mb, port, status, sort_order, java_major, launch_args, custom_java_args
 		FROM servers WHERE id = ?`, id)
 	srv, err := scanServer(row)
 	if err != nil {
@@ -85,7 +86,7 @@ func (s *SQLite) Get(id string) (*Server, bool) {
 
 func (s *SQLite) List() []*Server {
 	rows, err := s.db.Query(`
-		SELECT id, name, provider_id, mod_layout, mc_version, memory_mb, port, status, sort_order, java_major, launch_args, custom_java_args
+		SELECT id, name, provider_id, mod_layout, mc_version, loader, memory_mb, port, status, sort_order, java_major, launch_args, custom_java_args
 		FROM servers`)
 	if err != nil {
 		return nil
@@ -122,7 +123,7 @@ func scanServer(sc rowScanner) (*Server, error) {
 		status   int
 		argsJSON string
 	)
-	if err := sc.Scan(&srv.ID, &srv.Name, &srv.ProviderID, &srv.ModLayout, &srv.McVersion, &srv.MemoryMB,
+	if err := sc.Scan(&srv.ID, &srv.Name, &srv.ProviderID, &srv.ModLayout, &srv.McVersion, &srv.Loader, &srv.MemoryMB,
 		&srv.Port, &status, &srv.SortOrder, &srv.JavaMajor, &argsJSON, &srv.CustomJavaArgs); err != nil {
 		return nil, err
 	}
@@ -149,6 +150,7 @@ func ensureServerColumns(db *sql.DB) error {
 		`ALTER TABLE servers ADD COLUMN custom_java_args TEXT NOT NULL DEFAULT ''`,
 		`ALTER TABLE servers ADD COLUMN provider_id TEXT NOT NULL DEFAULT ''`,
 		`ALTER TABLE servers ADD COLUMN mod_layout TEXT NOT NULL DEFAULT 'none'`,
+		`ALTER TABLE servers ADD COLUMN loader TEXT NOT NULL DEFAULT ''`,
 	} {
 		if _, err := db.Exec(stmt); err != nil {
 			if !strings.Contains(strings.ToLower(err.Error()), "duplicate column") {

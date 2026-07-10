@@ -102,6 +102,16 @@ public sealed partial class ShopViewModel : ObservableObject {
 
         OnPropertyChanged(nameof(SelectedShopName));
         var categoryGeneration = Interlocked.Increment(ref _categoryGeneration);
+        OnPropertyChanged(nameof(SelectedShopIsModpack));
+        OnPropertyChanged(nameof(ShowVersionFilter));
+        OnPropertyChanged(nameof(ShowLoaderFilter));
+        // Modpacks browse unfiltered; clear any active compat filter so its
+        // chip (bound to Use*Filter) also disappears, not just the hidden
+        // toggle.
+        if (SelectedShopIsModpack) {
+            UseVersionFilter = false;
+            UseLoaderFilter  = false;
+        }
         CategoryFilters.Clear();
         if (value?.Id == "modrinth") {
             foreach (var id in ModrinthCategories)
@@ -164,9 +174,26 @@ public sealed partial class ShopViewModel : ObservableObject {
         foreach (var category in CategoryFilters) category.IsSelected = false;
     }
 
+    /// <summary>True when the selected shop serves modpacks (installed as
+    /// whole servers), which switches the browse kind and hides the compat
+    /// filters.</summary>
+    public bool SelectedShopIsModpack =>
+        SelectedShop?.Kinds.Contains("modpack") ?? false;
+
+    /// <summary>Version/loader filter toggles only make sense for mod/plugin
+    /// shops.</summary>
+    public bool ShowVersionFilter => !SelectedShopIsModpack && HasVersionFilter;
+    public bool ShowLoaderFilter  => !SelectedShopIsModpack && HasLoaderFilter;
+
+    private ModKind EffectiveKind =>
+        SelectedShopIsModpack ? ModKind.Modpack : Context.Kind;
+
+    // Modpacks pin their own MC version + loader, so a modpack shop always
+    // browses unfiltered regardless of the (hidden) toggle state.
     private string EffectiveVersion =>
-        UseVersionFilter ? Context.McVersion : "";
-    private string EffectiveLoader => UseLoaderFilter ? Context.Loader : "";
+        !SelectedShopIsModpack && UseVersionFilter ? Context.McVersion : "";
+    private string EffectiveLoader =>
+        !SelectedShopIsModpack && UseLoaderFilter ? Context.Loader : "";
 
     /// <summary>Loads the shop list and selects the first ready
     /// source.</summary>
@@ -205,7 +232,7 @@ public sealed partial class ShopViewModel : ObservableObject {
                     ShopId    = shop.Id,
                     McVersion = EffectiveVersion,
                     Loader    = EffectiveLoader,
-                    Kind      = Context.Kind,
+                    Kind      = EffectiveKind,
                 },
                 deadline: DateTime.UtcNow.AddSeconds(30));
 
@@ -270,7 +297,7 @@ public sealed partial class ShopViewModel : ObservableObject {
                 Query     = Query,
                 McVersion = EffectiveVersion,
                 Loader    = EffectiveLoader,
-                Kind      = Context.Kind,
+                Kind      = EffectiveKind,
                 Sort      = Sort,
                 Offset    = offset,
                 Limit     = PageSize,
@@ -305,7 +332,7 @@ public sealed partial class ShopViewModel : ObservableObject {
                 Query     = text,
                 McVersion = EffectiveVersion,
                 Loader    = EffectiveLoader,
-                Kind      = Context.Kind,
+                Kind      = EffectiveKind,
                 Sort      = ShopSort.Relevance,
                 Offset    = 0,
                 Limit     = SuggestionCount,

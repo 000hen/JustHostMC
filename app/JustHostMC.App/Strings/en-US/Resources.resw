@@ -126,6 +126,7 @@
   <data name="install.progress.extracting_jre" xml:space="preserve"><value>Extracting Java runtime</value></data>
   <data name="install.progress.downloading_installer" xml:space="preserve"><value>Downloading installer</value></data>
   <data name="install.progress.running_installer" xml:space="preserve"><value>Running installer</value></data>
+  <data name="shop.install.downloading" xml:space="preserve"><value>Downloading pack files</value></data>
   <data name="install.progress.done" xml:space="preserve"><value>Done.</value></data>
 
   <!-- Errors (mapped from ErrorCode / status) -->
@@ -428,6 +429,15 @@
   <data name="ScriptsParsersHeader.Text" xml:space="preserve"><value>Mod Metadata Parsers</value></data>
   <data name="ScriptsParsersEmpty.Text" xml:space="preserve"><value>No parsers installed. Parsers read a mod or plugin jar's embedded metadata (name, version, authors, icon) for the server Mods panel.</value></data>
   <data name="Parsers_Formats" xml:space="preserve"><value>Reads: {formats}</value></data>
+  <data name="ScriptsShopsHeader.Text" xml:space="preserve"><value>Mod Shops</value></data>
+  <data name="ScriptsShopsEmpty.Text" xml:space="preserve"><value>No shop sources installed. Shop sources let you browse and download mods or plugins from a remote catalog such as Modrinth or CurseForge.</value></data>
+  <data name="Scripts_ShopNeedsKey" xml:space="preserve"><value>Requires an API key — set it in Settings.</value></data>
+  <data name="ScriptsConfigureButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Configure</value></data>
+  <data name="ScriptConfig_TitleNamed" xml:space="preserve"><value>Configure {name}</value></data>
+  <data name="ScriptConfig_Save" xml:space="preserve"><value>Save</value></data>
+  <data name="ScriptConfig_Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="ScriptConfig_SecretSetPlaceholder" xml:space="preserve"><value>Leave blank to keep the current value</value></data>
+  <data name="ScriptConfig_SecretUnsetPlaceholder" xml:space="preserve"><value>Not set</value></data>
   <data name="ModsWebsiteLink.Content" xml:space="preserve"><value>Website</value></data>
   <data name="ScriptSectionShowInFolderButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Show scripts in folder</value></data>
   <data name="ScriptSectionShowInFolderButtonLabel.Text" xml:space="preserve"><value>Show in Folder</value></data>
@@ -569,6 +579,20 @@
   <data name="ShopNoVersions.Text" xml:space="preserve"><value>No compatible versions for this server. Relax the filters to see more.</value></data>
   <data name="Shop_ErrorNotFound" xml:space="preserve"><value>The source no longer lists this project or version.</value></data>
   <data name="Shop_ErrorNotDistributable" xml:space="preserve"><value>The author disallows third-party downloads for this file. Use “Open website” instead.</value></data>
+  <data name="Shop_CompatLoaderMismatch" xml:space="preserve"><value>Built for {modLoaders}; your server runs {serverLoader}.</value></data>
+  <data name="Shop_CompatVersionMismatch" xml:space="preserve"><value>Built for Minecraft {modVersions}; your server runs {serverVersion}.</value></data>
+  <data name="Shop_CompatProjectWarning" xml:space="preserve"><value>This project may not support your server ({serverLoader}, Minecraft {serverVersion}). Check the Versions tab.</value></data>
+  <data name="Shop_InstallButtonText" xml:space="preserve"><value>Install</value></data>
+  <data name="Shop_InstallLatestButtonText" xml:space="preserve"><value>Install latest release</value></data>
+  <data name="Shop_CreateServerButton" xml:space="preserve"><value>Create server</value></data>
+  <data name="Shop_CreateServerTitle" xml:space="preserve"><value>Create a server</value></data>
+  <data name="Shop_CreateServerPromptBody" xml:space="preserve"><value>Create a new server from {0}.</value></data>
+  <data name="Shop_CreateServerNameLabel" xml:space="preserve"><value>Server name</value></data>
+  <data name="Shop_CreateServerMemoryLabel" xml:space="preserve"><value>Memory (MB)</value></data>
+  <data name="Shop_CreateServerConfirm" xml:space="preserve"><value>Create</value></data>
+  <data name="Shop_ServerCreated" xml:space="preserve"><value>Server created.</value></data>
+  <data name="Shop_CreateServerFailed" xml:space="preserve"><value>Couldn't create the server.</value></data>
+  <data name="Shop_CreateServerNeedsKey" xml:space="preserve"><value>This modpack has files hosted on CurseForge. Add a CurseForge API key in the FTB provider settings, then try again.</value></data>
   <data name="Shop_ErrorKeyMissing" xml:space="preserve"><value>This source needs an API key. Add one in Settings.</value></data>
   <data name="Shop_ErrorServerRunning" xml:space="preserve"><value>Stop the server before installing mods.</value></data>
   <data name="shop.home.popular" xml:space="preserve"><value>Most downloaded</value></data>

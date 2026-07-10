@@ -39,6 +39,7 @@ type ShopService struct {
 	mcmanagerv1.UnimplementedShopServiceServer
 	shops  *scripting.ShopSet
 	grants *scripting.GrantStore
+	config *scripting.ConfigStore
 	dir    string // root dir where user shops are persisted
 	store  store.Store
 	mods   ModDirResolver
@@ -47,8 +48,8 @@ type ShopService struct {
 // NewShopService builds a ShopService. dir is where imported user shop
 // scripts are stored; st resolves per-server pre-filters (MC version +
 // provider/loader); mods supplies the guarded target directory for installs.
-func NewShopService(shops *scripting.ShopSet, grants *scripting.GrantStore, dir string, st store.Store, mods ModDirResolver) *ShopService {
-	return &ShopService{shops: shops, grants: grants, dir: dir, store: st, mods: mods}
+func NewShopService(shops *scripting.ShopSet, grants *scripting.GrantStore, config *scripting.ConfigStore, dir string, st store.Store, mods ModDirResolver) *ShopService {
+	return &ShopService{shops: shops, grants: grants, config: config, dir: dir, store: st, mods: mods}
 }
 
 func (s *ShopService) List(_ context.Context, _ *mcmanagerv1.Empty) (*mcmanagerv1.ShopList, error) {
@@ -322,8 +323,27 @@ func (s *ShopService) Remove(_ context.Context, ref *mcmanagerv1.ProviderRef) (*
 	if s.grants != nil {
 		_ = s.grants.Forget(ref.Id)
 	}
+	if s.config != nil {
+		_ = s.config.Forget(ref.Id)
+	}
 	_ = os.Remove(s.shopPath(ref.Id))
 	return &mcmanagerv1.Empty{}, nil
+}
+
+func (s *ShopService) GetConfig(_ context.Context, ref *mcmanagerv1.ProviderRef) (*mcmanagerv1.ScriptConfig, error) {
+	sh, ok := s.shops.Get(ref.Id)
+	if !ok {
+		return nil, errorStatus(codes.NotFound, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, "shop not found", nil)
+	}
+	return getConfigView(ref.Id, sh.Meta().Config, s.config), nil
+}
+
+func (s *ShopService) SetConfig(_ context.Context, req *mcmanagerv1.SetConfigRequest) (*mcmanagerv1.ScriptConfig, error) {
+	sh, ok := s.shops.Get(req.Id)
+	if !ok {
+		return nil, errorStatus(codes.NotFound, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, "shop not found", nil)
+	}
+	return applyConfig(req.Id, sh.Meta().Config, s.config, req)
 }
 
 func (s *ShopService) SetPermissions(_ context.Context, req *mcmanagerv1.SetPermissionsRequest) (*mcmanagerv1.ShopInfo, error) {
@@ -377,18 +397,31 @@ func (s *ShopService) info(sh *scripting.LuaShop) *mcmanagerv1.ShopInfo {
 	}
 	slices.Sort(granted)
 	return &mcmanagerv1.ShopInfo{
-		Id:          meta.ID,
-		Name:        meta.Name,
-		Website:     meta.Website,
-		Description: meta.Description,
-		Version:     meta.Version,
-		Author:      meta.Author,
-		Builtin:     sh.Builtin(),
-		Permissions: perms,
-		Granted:     granted,
-		NeedsKey:    meta.NeedsKey,
-		Ready:       sh.Ready(),
+		Id:            meta.ID,
+		Name:          meta.Name,
+		Website:       meta.Website,
+		Description:   meta.Description,
+		Version:       meta.Version,
+		Author:        meta.Author,
+		Builtin:       sh.Builtin(),
+		Permissions:   perms,
+		Granted:       granted,
+		NeedsKey:      meta.NeedsKey,
+		Ready:         sh.Ready(),
+		ConfigOptions: configOptions(meta.Config),
+		Kinds:         shopKinds(meta.Kinds),
 	}
+}
+
+// shopKinds returns the shop's declared item kinds, defaulting to the common
+// {"mod","plugin"} browser when a shop declares none.
+func shopKinds(declared []string) []string {
+	if len(declared) == 0 {
+		return []string{"mod", "plugin"}
+	}
+	out := make([]string, len(declared))
+	copy(out, declared)
+	return out
 }
 
 // mapShopError converts shop script failures into typed gRPC statuses.
@@ -411,10 +444,14 @@ func mapShopError(err error) error {
 
 // kindString maps ModKind to the script-facing string.
 func kindString(k mcmanagerv1.ModKind) string {
-	if k == mcmanagerv1.ModKind_PLUGIN {
+	switch k {
+	case mcmanagerv1.ModKind_PLUGIN:
 		return "plugin"
+	case mcmanagerv1.ModKind_MODPACK:
+		return "modpack"
+	default:
+		return "mod"
 	}
-	return "mod"
 }
 
 // sortString maps ShopSort to the script-facing string.

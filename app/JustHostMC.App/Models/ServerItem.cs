@@ -37,9 +37,23 @@ public sealed partial class ServerItem : ObservableObject {
     [NotifyPropertyChangedFor(nameof(IsNeoForgeProvider))]
     [NotifyPropertyChangedFor(nameof(IsFabricProvider))]
     [NotifyPropertyChangedFor(nameof(IsTypeUnknown))]
+    [NotifyPropertyChangedFor(nameof(EffectiveLoader))]
     public partial string ProviderId {
         get; private set;
     } = "";
+
+    /// <summary>Effective mod loader recorded at install ("fabric"/"forge"/…);
+    /// empty for providers whose loader equals their id.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(EffectiveLoader))]
+    public partial string Loader {
+        get; private set;
+    } = "";
+
+    /// <summary>The loader to reason about compatibility with: the recorded
+    /// loader when set, else the provider id (which doubles as the loader for
+    /// plain providers like fabric/paper/forge).</summary>
+    public string EffectiveLoader => Loader.Length > 0 ? Loader : ProviderId;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanStart))]
@@ -225,6 +239,7 @@ public sealed partial class ServerItem : ObservableObject {
         Name           = proto.Name;
         McVersion      = proto.McVersion;
         ProviderId     = proto.ProviderId;
+        Loader         = proto.Loader;
         Status         = proto.Status;
         Port           = proto.Port;
         MemoryMb       = proto.MemoryMb;

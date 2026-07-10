@@ -17,6 +17,7 @@ type LuaProvider struct {
 	builtin  bool
 	assetDir string // dir with files bundled alongside the script (custom jar), if any
 	grantsFn func() GrantSet
+	configFn func() map[string]string
 }
 
 // newLuaProvider parses a script's meta (in a throwaway sandbox) and returns the
@@ -45,14 +46,28 @@ func (p *LuaProvider) grants() GrantSet {
 	return nil
 }
 
+// config resolves the values the script sees as ctx.config / jhmc.config:
+// declared defaults merged with stored overrides. Returns nil (no config) when
+// the script declares none and none is stored.
+func (p *LuaProvider) config() map[string]string {
+	var stored map[string]string
+	if p.configFn != nil {
+		stored = p.configFn()
+	}
+	if len(p.meta.Config) == 0 && len(stored) == 0 {
+		return nil
+	}
+	return EffectiveConfig(p.meta.Config, stored)
+}
+
 // Versions implements provider.Provider.
 func (p *LuaProvider) Versions(ctx context.Context) ([]string, error) {
-	inv := &invocation{ctx: ctx, host: p.host, granted: p.grants(), assetDir: p.assetDir}
+	inv := &invocation{ctx: ctx, host: p.host, granted: p.grants(), assetDir: p.assetDir, config: p.config()}
 	return inv.versions(p.source)
 }
 
 // Install implements provider.Provider.
 func (p *LuaProvider) Install(ctx context.Context, dir, version string, progress func(provider.Progress)) (provider.LaunchSpec, error) {
-	inv := &invocation{ctx: ctx, host: p.host, granted: p.grants(), report: progress, assetDir: p.assetDir}
+	inv := &invocation{ctx: ctx, host: p.host, granted: p.grants(), report: progress, assetDir: p.assetDir, config: p.config()}
 	return inv.install(p.source, dir, version)
 }

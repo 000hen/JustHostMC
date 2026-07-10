@@ -88,6 +88,9 @@ public sealed partial class ServerDialog : UserControl {
             var providers = await _viewModel.GetProvidersAsync();
             TypeBox.ItemsSource =
                 providers
+                    // Hidden providers (e.g. the modpack installer) are driven
+                    // by their own shop flow, not the manual create dialog.
+                    .Where(p => p.Capabilities?.Hidden != true)
                     .Select(p => new TypeChoice(p, string.IsNullOrEmpty(p.Name)
                                                        ? p.Id
                                                        : p.Name))

@@ -84,7 +84,7 @@
                     AutomationProperties.AutomationId="ShopVersionFilter"
                     Click="OnFilterChanged"
                     IsChecked="{x:Bind ViewModel.UseVersionFilter, Mode=TwoWay}"
-                    Visibility="{x:Bind ViewModel.HasVersionFilter}">
+                    Visibility="{x:Bind ViewModel.ShowVersionFilter, Mode=OneWay}">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <FontIcon
                             FontSize="12"
@@ -98,7 +98,7 @@
                     AutomationProperties.AutomationId="ShopLoaderFilter"
                     Click="OnFilterChanged"
                     IsChecked="{x:Bind ViewModel.UseLoaderFilter, Mode=TwoWay}"
-                    Visibility="{x:Bind ViewModel.HasLoaderFilter}">
+                    Visibility="{x:Bind ViewModel.ShowLoaderFilter, Mode=OneWay}">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <FontIcon
                             FontSize="12"

@@ -157,7 +157,7 @@ public sealed partial class ShopWindow : Window {
         if (sender.SelectedItem?.Tag is ShopInfo shop) {
             ViewModel.SelectedShop = shop;
             KeyMissingBar.IsOpen   = !shop.Ready;
-            NavigateHome();
+            RefreshForSourceChange();
         }
     }
 
@@ -176,6 +176,16 @@ public sealed partial class ShopWindow : Window {
             _ = ViewModel.StartSearchAsync();
         else if (ContentFrame.SourcePageType == typeof(ShopHomePage))
             _ = ViewModel.LoadHomeAsync();
+    }
+
+    private void RefreshForSourceChange() {
+        if (ContentFrame.SourcePageType == typeof(ShopSearchPage) ||
+            ContentFrame.SourcePageType == typeof(ShopHomePage)) {
+            NavigateCurrent();
+            return;
+        }
+
+        NavigateHome();
     }
 
     private void OnTitleBarBackRequested(TitleBar sender, object args) {

@@ -252,3 +252,88 @@ function install(ctx)
     pack_version = tostring(ctx.version),
   }
 end
+
+-- server_files indexes a manifest's server-side files by relative dest path.
+local function server_files(manifest)
+  local by_dest = {}
+  for _, f in ipairs(manifest.files or {}) do
+    if type(f) == "table" and not f.clientonly and (f.name or "") ~= "" then
+      by_dest[join_path(f.path, f.name)] = f
+    end
+  end
+  return by_dest
+end
+
+-- update moves an installed pack to another version of the same pack: files
+-- only the old version listed are deleted, new/changed ones are downloaded,
+-- and the loader is reinstalled only when its pinned target changed. Files the
+-- pack never listed (the world, user-added configs) are untouched; a pack file
+-- the user edited is overwritten by the new pack version — pack files belong
+-- to the pack.
+function update(ctx)
+  local pack, ver = tostring(ctx.version):match("^([^/]+)/([^/]+)$")
+  local opack, over = tostring(ctx.old_version):match("^([^/]+)/([^/]+)$")
+  if not pack or not ver then
+    error("invalid modpack version id: " .. tostring(ctx.version))
+  end
+  if not opack or not over then
+    error("invalid modpack version id: " .. tostring(ctx.old_version))
+  end
+  if pack ~= opack then
+    error("update must stay within the same pack (" .. opack .. " -> " .. pack .. ")")
+  end
+
+  ctx.step("install.progress.resolving_version", -1)
+  local old_manifest = jhmc.http_json(FTB_API .. "/modpack/" .. opack .. "/" .. over)
+  local new_manifest = jhmc.http_json(FTB_API .. "/modpack/" .. pack .. "/" .. ver)
+  if type(old_manifest) ~= "table" or type(new_manifest) ~= "table" then
+    error("ftb: bad manifest for update " .. tostring(ctx.old_version) ..
+      " -> " .. tostring(ctx.version))
+  end
+
+  local old_files, new_files = server_files(old_manifest), server_files(new_manifest)
+
+  -- Delete files the new version dropped.
+  for dest in pairs(old_files) do
+    if not new_files[dest] and jhmc.fs.exists(dest) then
+      ctx.log("- " .. dest)
+      jhmc.fs.remove(dest)
+    end
+  end
+
+  -- Download new files and files whose pack hash changed.
+  local changed = {}
+  for dest, f in pairs(new_files) do
+    local old = old_files[dest]
+    if not old or (old.sha1 or "") ~= (f.sha1 or "") then
+      changed[#changed + 1] = f
+    end
+  end
+  install_files(ctx, changed)
+
+  local mc, loader_name, loader_version = read_targets(new_manifest)
+  if not mc or mc == "" then
+    error("ftb: modpack has no Minecraft version target")
+  end
+  if not loader_name or loader_name == "" then
+    error("ftb: modpack has no modloader target")
+  end
+  local omc, oloader_name, oloader_version = read_targets(old_manifest)
+
+  local java_major = jhmc.java_major_for(mc)
+  local args
+  if loader_name ~= oloader_name or loader_version ~= oloader_version or mc ~= omc then
+    args = install_loader(ctx, loader_name, loader_version, mc, java_major)
+  end
+
+  ctx.step("install.progress.done", 1)
+  return {
+    java_major = java_major,
+    -- args is nil when the loader target is unchanged; the engine keeps the
+    -- server's existing launch args in that case.
+    args = args,
+    mc_version = mc,
+    loader = loader_name,
+    pack_version = tostring(ctx.version),
+  }
+end

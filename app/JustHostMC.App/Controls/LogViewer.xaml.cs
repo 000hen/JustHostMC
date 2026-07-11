@@ -38,12 +38,15 @@ public sealed partial class LogViewer : UserControl {
     private ItemsStackPanel? _itemsPanel;
     private readonly DispatcherQueueTimer _tailScrollTimer;
     private bool _itemsSubscriptionAttached;
+    private bool _scrollViewerSubscribed;
     private bool _isAtBottom = true;
     private bool _scrollStateUpdateScheduled;
     private bool _tailScrollActive;
     private int _stableTailScrollAttempts;
     private long _contentVersion;
     private long _lastAttemptedVersion = -1;
+    private long _layoutVersion;
+    private long _lastAttemptedLayoutVersion = -1;
 
     public LogViewer() {
         InitializeComponent();
@@ -54,13 +57,11 @@ public sealed partial class LogViewer : UserControl {
         LogList.AddHandler(
             PointerWheelChangedEvent,
             new PointerEventHandler(OnUserScrollInput), true);
-        LogList.AddHandler(
-            PointerPressedEvent,
-            new PointerEventHandler(OnUserScrollInput), true);
         _tailScrollTimer             = DispatcherQueue.CreateTimer();
         _tailScrollTimer.Interval    = TimeSpan.FromMilliseconds(16);
         _tailScrollTimer.IsRepeating = true;
         _tailScrollTimer.Tick       += OnTailScrollTick;
+        LogList.LayoutUpdated       += OnLogListLayoutUpdated;
         Loaded   += OnLoaded;
         Unloaded += OnUnloaded;
     }
@@ -121,21 +122,30 @@ public sealed partial class LogViewer : UserControl {
         DetachItemsSource();
         if (_scrollViewer is not null)
             _scrollViewer.ViewChanged -= OnScrollViewChanged;
+        _scrollViewerSubscribed = false;
         _scrollViewer = null;
         _itemsPanel   = null;
     }
 
     private void AttachScrollViewer() {
-        if (_scrollViewer is not null || !IsLoaded)
+        if (!IsLoaded)
             return;
 
-        _scrollViewer = FindDescendant<ScrollViewer>(LogList);
-        _itemsPanel   = FindDescendant<ItemsStackPanel>(LogList);
-        if (_scrollViewer is not null) {
+        if (_scrollViewer is null) {
+            _scrollViewer = FindDescendant<ScrollViewer>(LogList);
+        }
+        if (_itemsPanel is null) {
+            _itemsPanel = FindDescendant<ItemsStackPanel>(LogList);
+        }
+
+        if (_scrollViewer is not null && !_scrollViewerSubscribed) {
             _scrollViewer.ViewChanged += OnScrollViewChanged;
-            UpdateScrollState();
-            UpdateItemsPanelMode();
-        } else {
+            _scrollViewerSubscribed = true;
+        }
+
+        UpdateScrollState();
+        UpdateItemsPanelMode();
+        if (_scrollViewer is null) {
             DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low,
                                        AttachScrollViewer);
         }
@@ -183,8 +193,14 @@ public sealed partial class LogViewer : UserControl {
     }
 
     private void OnScrollViewChanged(object? sender,
-                                     ScrollViewerViewChangedEventArgs e) =>
+                                     ScrollViewerViewChangedEventArgs e) {
+        if (e.IsIntermediate && _tailScrollActive)
+            StopTailScroll();
         UpdateScrollState();
+    }
+
+    private void OnLogListLayoutUpdated(object? sender, object e) =>
+        _layoutVersion++;
 
     private void UpdateScrollState() {
         if (_scrollViewer is null)
@@ -204,6 +220,7 @@ public sealed partial class LogViewer : UserControl {
         if (!_tailScrollActive) {
             _stableTailScrollAttempts = 0;
             _lastAttemptedVersion     = -1;
+            _lastAttemptedLayoutVersion = -1;
         }
         _tailScrollActive = true;
         UpdateItemsPanelMode();
@@ -226,7 +243,10 @@ public sealed partial class LogViewer : UserControl {
 
         AttachScrollViewer();
         UpdateScrollState();
-        if (_isAtBottom && _lastAttemptedVersion == _contentVersion) {
+        var laidOutSinceAttempt =
+            _layoutVersion > _lastAttemptedLayoutVersion;
+        if (_isAtBottom && _lastAttemptedVersion == _contentVersion &&
+            laidOutSinceAttempt) {
             StopTailScroll();
             return;
         }
@@ -242,6 +262,7 @@ public sealed partial class LogViewer : UserControl {
         }
 
         _lastAttemptedVersion = _contentVersion;
+        _lastAttemptedLayoutVersion = _layoutVersion;
         LogList.ScrollIntoView(lastItem);
         _scrollViewer?.ChangeView(null, _scrollViewer.ScrollableHeight, null,
                                   true);
@@ -277,7 +298,7 @@ public sealed partial class LogViewer : UserControl {
     }
 
     public void ScrollToBottom() {
-        if (LogList.Items.Count == 0) {
+        if (!HasItems()) {
             _isAtBottom = true;
             UpdateVisualState();
             return;

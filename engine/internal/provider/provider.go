@@ -25,6 +25,10 @@ type LaunchSpec struct {
 	// MC version here). Loader is the effective mod loader ("fabric"/"forge"/…).
 	McVersion string
 	Loader    string
+	// PackVersion is the opaque provider pack version ("packId/versionId") a
+	// modpack provider echoes back so it can be persisted for later update and
+	// export; empty for normal providers.
+	PackVersion string
 }
 
 // JavaResolver resolves (downloading if needed) a java.exe for a Java major

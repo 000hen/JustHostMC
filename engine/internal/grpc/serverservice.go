@@ -259,6 +259,7 @@ func (s *ServerService) Create(req *mcmanagerv1.CreateServerRequest, stream grpc
 		rec.McVersion = spec.McVersion
 	}
 	rec.Loader = spec.Loader
+	rec.ProviderVersion = spec.PackVersion
 	rec.Status = mcmanagerv1.ServerStatus_STOPPED
 	_ = s.cfg.Store.Put(rec)
 

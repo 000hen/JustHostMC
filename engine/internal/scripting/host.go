@@ -223,10 +223,11 @@ func (inv *invocation) install(src, dir, version string) (provider.LaunchSpec, e
 		})
 	}
 	return provider.LaunchSpec{
-		JavaMajor: major,
-		Args:      args,
-		McVersion: strField(spec, "mc_version"),
-		Loader:    strField(spec, "loader"),
+		JavaMajor:   major,
+		Args:        args,
+		McVersion:   strField(spec, "mc_version"),
+		Loader:      strField(spec, "loader"),
+		PackVersion: strField(spec, "pack_version"),
 	}, nil
 }
 

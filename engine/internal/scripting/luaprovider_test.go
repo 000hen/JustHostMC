@@ -154,6 +154,32 @@ end
 	}
 }
 
+// TestInstallLaunchSpecReadsPackVersion verifies a modpack provider can persist
+// its opaque "packId/versionId" through the launch spec.
+func TestInstallLaunchSpecReadsPackVersion(t *testing.T) {
+	script := `
+meta = { id = "packy", name = "Packy", mod_layout = "mods" }
+function versions() return {} end
+function install(ctx)
+  return { java_major = 21, args = { "-jar", "server.jar", "nogui" },
+           mc_version = "1.20.1", loader = "neoforge",
+           pack_version = tostring(ctx.version) }
+end
+`
+	r := NewRegistry(NewHost(nil, nil, nil), nil)
+	e, err := r.AddSource(context.Background(), script, true)
+	if err != nil {
+		t.Fatalf("AddSource: %v", err)
+	}
+	spec, err := e.Provider.Install(context.Background(), t.TempDir(), "95/12695", nil)
+	if err != nil {
+		t.Fatalf("Install: %v", err)
+	}
+	if spec.PackVersion != "95/12695" {
+		t.Errorf("PackVersion = %q, want 95/12695", spec.PackVersion)
+	}
+}
+
 // TestUngrantedNetworkDenied proves a non-builtin script with no grants cannot
 // reach the network.
 func TestUngrantedNetworkDenied(t *testing.T) {

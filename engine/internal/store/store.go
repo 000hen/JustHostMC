@@ -13,34 +13,38 @@ import (
 // Server is a registered server plus the launch details the engine needs to
 // start it. It carries proto enums directly to avoid an extra mapping layer.
 type Server struct {
-	ID             string
-	Name           string
-	ProviderID     string
-	ModLayout      string // "plugins" | "mods" | "none"; captured from the provider at create
-	McVersion      string
-	Loader         string // effective mod loader ("fabric"/"forge"/…); empty falls back to ProviderID
-	MemoryMB       int
-	Port           int
-	Status         mcmanagerv1.ServerStatus
-	SortOrder      int
-	JavaMajor      int
-	LaunchArgs     []string
-	CustomJavaArgs string
+	ID         string
+	Name       string
+	ProviderID string
+	ModLayout  string // "plugins" | "mods" | "none"; captured from the provider at create
+	McVersion  string
+	Loader     string // effective mod loader ("fabric"/"forge"/…); empty falls back to ProviderID
+	// ProviderVersion is the opaque pack version ("packId/versionId") for
+	// modpack servers; empty otherwise. Non-empty enables update/export.
+	ProviderVersion string
+	MemoryMB        int
+	Port            int
+	Status          mcmanagerv1.ServerStatus
+	SortOrder       int
+	JavaMajor       int
+	LaunchArgs      []string
+	CustomJavaArgs  string
 }
 
 // Proto projects a Server onto the wire type returned to the frontend.
 func (s *Server) Proto() *mcmanagerv1.Server {
 	return &mcmanagerv1.Server{
-		Id:             s.ID,
-		Name:           s.Name,
-		ProviderId:     s.ProviderID,
-		McVersion:      s.McVersion,
-		Loader:         s.Loader,
-		MemoryMb:       int32(s.MemoryMB),
-		Port:           int32(s.Port),
-		Status:         s.Status,
-		SortOrder:      int32(s.SortOrder),
-		CustomJavaArgs: s.CustomJavaArgs,
+		Id:              s.ID,
+		Name:            s.Name,
+		ProviderId:      s.ProviderID,
+		McVersion:       s.McVersion,
+		Loader:          s.Loader,
+		ProviderVersion: s.ProviderVersion,
+		MemoryMb:        int32(s.MemoryMB),
+		Port:            int32(s.Port),
+		Status:          s.Status,
+		SortOrder:       int32(s.SortOrder),
+		CustomJavaArgs:  s.CustomJavaArgs,
 	}
 }
 

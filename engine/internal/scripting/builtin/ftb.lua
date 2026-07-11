@@ -267,5 +267,6 @@ function install(ctx)
     args = args,
     mc_version = mc,
     loader = loader_name,
+    pack_version = tostring(ctx.version),
   }
 end

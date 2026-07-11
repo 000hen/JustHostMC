@@ -269,6 +269,17 @@
   <data name="ServerDelete_Title" xml:space="preserve"><value>Delete server?</value></data>
   <data name="ServerDelete_Body" xml:space="preserve"><value>This permanently deletes the server and its world. This cannot be undone.</value></data>
   <data name="ServerDelete_Confirm" xml:space="preserve"><value>Delete</value></data>
+  <data name="ServerDelete_Action" xml:space="preserve"><value>Delete server</value></data>
+  <data name="ServerInstallRemove_Title" xml:space="preserve"><value>Remove incomplete installation?</value></data>
+  <data name="ServerInstallRemove_Body" xml:space="preserve"><value>This cancels the installation and removes all files downloaded for this server.</value></data>
+  <data name="ServerInstallRemove_Confirm" xml:space="preserve"><value>Remove</value></data>
+  <data name="ServerInstallRemove_Action" xml:space="preserve"><value>Remove incomplete installation</value></data>
+  <data name="CloseBusy_Title" xml:space="preserve"><value>Current task is running</value></data>
+  <data name="CloseBusy_Body" xml:space="preserve"><value>Closing now interrupts the current task. You can keep JustHostMC running in the system tray or close it anyway.</value></data>
+  <data name="CloseBusy_HideToTray" xml:space="preserve"><value>Hide to system tray</value></data>
+  <data name="CloseBusy_CloseAnyway" xml:space="preserve"><value>Close anyway</value></data>
+  <data name="Tray_Restore" xml:space="preserve"><value>Open JustHostMC</value></data>
+  <data name="Tray_Exit" xml:space="preserve"><value>Exit</value></data>
   <data name="Common_Cancel" xml:space="preserve"><value>Cancel</value></data>
   <!-- Players -->
   <data name="Players_Header" xml:space="preserve"><value>Players ({count})</value></data>

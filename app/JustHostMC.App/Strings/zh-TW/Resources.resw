@@ -267,6 +267,17 @@
   <data name="ServerDelete_Title" xml:space="preserve"><value>要刪除伺服器嗎？</value></data>
   <data name="ServerDelete_Body" xml:space="preserve"><value>這會永久刪除伺服器及其世界。此動作無法復原。</value></data>
   <data name="ServerDelete_Confirm" xml:space="preserve"><value>刪除</value></data>
+  <data name="ServerDelete_Action" xml:space="preserve"><value>刪除伺服器</value></data>
+  <data name="ServerInstallRemove_Title" xml:space="preserve"><value>要移除未完成的安裝嗎？</value></data>
+  <data name="ServerInstallRemove_Body" xml:space="preserve"><value>這會取消安裝，並移除此伺服器已下載的所有檔案。</value></data>
+  <data name="ServerInstallRemove_Confirm" xml:space="preserve"><value>移除</value></data>
+  <data name="ServerInstallRemove_Action" xml:space="preserve"><value>移除未完成的安裝</value></data>
+  <data name="CloseBusy_Title" xml:space="preserve"><value>目前工作仍在執行</value></data>
+  <data name="CloseBusy_Body" xml:space="preserve"><value>現在關閉會中斷目前的工作。您可以讓 JustHostMC 繼續在系統匣執行，或仍然關閉。</value></data>
+  <data name="CloseBusy_HideToTray" xml:space="preserve"><value>隱藏到系統匣</value></data>
+  <data name="CloseBusy_CloseAnyway" xml:space="preserve"><value>仍然關閉</value></data>
+  <data name="Tray_Restore" xml:space="preserve"><value>開啟 JustHostMC</value></data>
+  <data name="Tray_Exit" xml:space="preserve"><value>結束</value></data>
   <data name="Common_Cancel" xml:space="preserve"><value>取消</value></data>
   <!-- Players -->
   <data name="Players_Header" xml:space="preserve"><value>玩家（{count}）</value></data>

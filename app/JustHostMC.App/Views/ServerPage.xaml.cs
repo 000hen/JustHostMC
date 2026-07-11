@@ -270,11 +270,16 @@ public sealed partial class ServerPage : Page {
     }
 
     private async void OnDeleteClick(object sender, RoutedEventArgs e) {
+        var incomplete = Server.IsIncompleteInstallation;
         var confirm = new ContentDialog {
             XamlRoot          = XamlRoot,
-            Title             = _localizer.Get("ServerDelete_Title"),
-            Content           = _localizer.Get("ServerDelete_Body"),
-            PrimaryButtonText = _localizer.Get("ServerDelete_Confirm"),
+            Title = _localizer.Get(incomplete ? "ServerInstallRemove_Title"
+                                             : "ServerDelete_Title"),
+            Content = _localizer.Get(incomplete ? "ServerInstallRemove_Body"
+                                               : "ServerDelete_Body"),
+            PrimaryButtonText = _localizer.Get(
+                incomplete ? "ServerInstallRemove_Confirm"
+                           : "ServerDelete_Confirm"),
             CloseButtonText   = _localizer.Get("Common_Cancel"),
             DefaultButton     = ContentDialogButton.Close,
         };

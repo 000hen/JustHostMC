@@ -54,6 +54,8 @@ public partial class MainViewModel : ObservableObject {
     public int BusyServers =>
         Servers.Count(s => s.Status is ServerStatus.Installing or
                                ServerStatus.Starting or ServerStatus.Stopping);
+    public bool HasRunningTasks =>
+        IsInstalling || BusyServers > 0 || ProgressService.HasActiveTracker;
 
     [ObservableProperty]
     public partial string EngineStatus { get; private set; }
@@ -225,6 +227,7 @@ public partial class MainViewModel : ObservableObject {
             var key    = MapErrorKey(ex);
             var detail = ex.Status.Detail;
             RunOnUI(() => {
+                IsInstalling             = false;
                 InstallFailed          = true;
                 InstallIsIndeterminate = false;
                 InstallStep = string.IsNullOrEmpty(detail)
@@ -232,6 +235,7 @@ public partial class MainViewModel : ObservableObject {
                                   : $"{_localizer.Get(key)}: {detail}";
 
                 tracker.HasFailed       = true;
+                tracker.IsInstalling    = false;
                 tracker.IsIndeterminate = false;
                 tracker.IsActive        = false;
                 tracker.CurrentStep     = InstallStep;

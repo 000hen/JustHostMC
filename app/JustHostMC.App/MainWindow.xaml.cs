@@ -18,6 +18,8 @@ namespace JustHostMC.App;
 
 public sealed partial class MainWindow : Window {
     private const int WmGetMinMaxInfo       = 0x0024;
+    private const int SwHide                = 0;
+    private const int SwShow                = 5;
     private const int MinWindowDipWidth     = 900;
     private const int MinWindowDipHeight    = 640;
     private const nuint MinWindowSubclassId = 1;
@@ -28,6 +30,12 @@ public sealed partial class MainWindow : Window {
 
     [DllImport("user32.dll")]
     private static extern uint GetDpiForWindow(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    private static extern bool ShowWindow(IntPtr hWnd, int command);
+
+    [DllImport("user32.dll")]
+    private static extern bool SetForegroundWindow(IntPtr hWnd);
 
     [DllImport("Comctl32.dll", SetLastError = true)]
     private static extern bool SetWindowSubclass(IntPtr hWnd,
@@ -66,8 +74,11 @@ public sealed partial class MainWindow : Window {
     private readonly SubclassProc _subclassProc;
     private readonly ILocalizer _localizer;
     private ServerTipNotification? _currentServerTip;
+    private TrayIconService? _trayIcon;
     private IntPtr _hwnd;
     private long _paneFooterVisibilityCallbackToken;
+    private bool _allowClose;
+    private bool _closePromptOpen;
 
     private enum ServerTipKind { Installed, Started, Stopped, Crashed }
 
@@ -97,8 +108,11 @@ public sealed partial class MainWindow : Window {
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(SimpleTitleBar);
         InstallMinimumWindowSizeHook();
+        _trayIcon = new TrayIconService(_hwnd, _localizer, RestoreFromTray,
+                                        ExitFromTray);
         ResizeToContent(1200, 820);
         Closed += OnClosed;
+        AppWindow.Closing += OnAppWindowClosing;
 
         Shell.OpenServerRequested += OnOpenServerRequested;
         Shell.HomeRequested += () => Nav.SelectedItem =
@@ -125,6 +139,8 @@ public sealed partial class MainWindow : Window {
     }
 
     private void OnClosed(object sender, WindowEventArgs args) {
+        AppWindow.Closing -= OnAppWindowClosing;
+        _trayIcon?.Dispose();
         if (_hwnd != IntPtr.Zero)
             RemoveWindowSubclass(_hwnd, _subclassProc, MinWindowSubclassId);
 
@@ -139,6 +155,10 @@ public sealed partial class MainWindow : Window {
     private IntPtr WindowSubclassProc(IntPtr hWnd, uint uMsg, IntPtr wParam,
                                       IntPtr lParam, nuint uIdSubclass,
                                       nuint dwRefData) {
+        if (uMsg == TrayIconService.CallbackMessage &&
+            _trayIcon?.HandleMessage(lParam) == true)
+            return IntPtr.Zero;
+
         if (uMsg == WmGetMinMaxInfo) {
             var scale = GetDpiForWindow(hWnd) / 96.0;
             var info  = Marshal.PtrToStructure<MinMaxInfo>(lParam);
@@ -153,6 +173,55 @@ public sealed partial class MainWindow : Window {
         }
 
         return DefSubclassProc(hWnd, uMsg, wParam, lParam);
+    }
+
+    private async void OnAppWindowClosing(AppWindow sender,
+                                           AppWindowClosingEventArgs args) {
+        if (_allowClose || !Shell.Main.HasRunningTasks)
+            return;
+
+        args.Cancel = true;
+        if (_closePromptOpen)
+            return;
+
+        _closePromptOpen = true;
+        try {
+            var dialog = new ContentDialog {
+                XamlRoot = Content.XamlRoot,
+                Title = _localizer.Get("CloseBusy_Title"),
+                Content = _localizer.Get("CloseBusy_Body"),
+                PrimaryButtonText = _localizer.Get("CloseBusy_HideToTray"),
+                SecondaryButtonText = _localizer.Get("CloseBusy_CloseAnyway"),
+                CloseButtonText = _localizer.Get("Common_Cancel"),
+                DefaultButton = ContentDialogButton.Primary,
+            };
+            var result = await dialog.ShowAsync();
+            if (result == ContentDialogResult.Primary)
+                HideToTray();
+            else if (result == ContentDialogResult.Secondary) {
+                _allowClose = true;
+                Close();
+            }
+        } finally {
+            _closePromptOpen = false;
+        }
+    }
+
+    private void HideToTray() {
+        _trayIcon?.Show();
+        ShowWindow(_hwnd, SwHide);
+    }
+
+    private void RestoreFromTray() {
+        ShowWindow(_hwnd, SwShow);
+        SetForegroundWindow(_hwnd);
+        _trayIcon?.Hide();
+    }
+
+    private void ExitFromTray() {
+        _allowClose = true;
+        _trayIcon?.Hide();
+        Close();
     }
 
     private void OnServersChanged(object? sender,

@@ -110,7 +110,9 @@
                             </MenuFlyoutItem.Icon>
                         </MenuFlyoutItem>
                         <MenuFlyoutSeparator />
-                        <MenuFlyoutItem x:Uid="ServerDeleteMenuItem" Click="OnDeleteClick">
+                        <MenuFlyoutItem
+                            Click="OnDeleteClick"
+                            Text="{x:Bind Server.DeleteActionText, Mode=OneWay}">
                             <MenuFlyoutItem.Icon>
                                 <FontIcon Glyph="&#xE74D;" />
                             </MenuFlyoutItem.Icon>

@@ -44,6 +44,9 @@ message Server {
   int32 sort_order = 8;
   string custom_java_args = 9;
   string loader = 10; // effective mod loader ("fabric"/"forge"/...); empty falls back to provider_id
+  // Opaque provider pack version ("packId/versionId") for modpack servers;
+  // empty for normal servers. Non-empty means update/export are available.
+  string provider_version = 11;
 }
 
 message CreateServerRequest {
@@ -63,6 +66,15 @@ message UpdateServerRequest {
   int32 sort_order = 5;
   int32 memory_mb = 6;
   string custom_java_args = 7;
+}
+
+message UpdateModpackRequest {
+  string id = 1;
+  string version = 2; // new opaque "packId/versionId"
+}
+message ExportModpackRequest {
+  string id = 1;
+  string dest_path = 2; // absolute .zip path chosen by the user
 }
 
 // -- i18n / message strategy --------------------------------------------------
@@ -796,6 +808,8 @@ service ServerService {
   rpc WatchChanges(Empty) returns (stream ServerChangeEvent);
   rpc Create(CreateServerRequest) returns (stream InstallProgress); // last message implies done
   rpc Update(UpdateServerRequest) returns (Server);
+  rpc UpdateModpack(UpdateModpackRequest) returns (stream InstallProgress); // manifest-diff move to another pack version
+  rpc ExportModpack(ExportModpackRequest) returns (stream InstallProgress); // CurseForge client pack zip
   rpc Start(ServerId) returns (Empty);
   rpc Stop(ServerId) returns (Empty);
   rpc Delete(ServerId) returns (Empty);

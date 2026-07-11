@@ -12,6 +12,16 @@ servers, distributed via the Microsoft Store. **Zero config** — no pre-install
 Java, Docker, or WSL required. The app downloads runtime dependencies
 (per-version OpenJDK, server software) on demand and caches them.
 
+## Installation
+
+**[Get it from the Microsoft Store](https://apps.microsoft.com/detail/9NB5ZHPKMBDS)** (Recommended)  
+The Microsoft Store version is fully signed, automatically updated, and verified.
+
+**[Download from GitHub Releases](https://github.com/000hen/JustHostMC/releases)**  
+Portable EXEs and MSI installers are available for x64, x86, and ARM64.  
+> [!WARNING]  
+> GitHub release binaries are currently unsigned. You may see a SmartScreen or "Unknown publisher" warning. If you have security considerations, please download from the Microsoft Store instead. Verify downloads using the provided `SHA256SUMS.txt`.
+
 ## Features
 
 - **Zero configuration** — downloads the correct JRE (Adoptium) and server jar

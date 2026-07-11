@@ -97,3 +97,86 @@ or use the `winapp` flow). Never commit private signing keys or their passwords.
 - Keep only manifest namespace declarations that are needed by manifest
   elements; older Visual Studio installations may not understand newer schema
   namespaces.
+
+## GitHub Release (Portable & MSI)
+
+JustHostMC also publishes portable EXE and MSI installer builds via
+[GitHub Releases](https://github.com/000hen/JustHostMC/releases). These are
+built automatically by the `release.yml` workflow whenever a version tag
+(`v*.*.*`) is pushed.
+
+### Artifact types
+
+| Artifact | Description |
+|----------|-------------|
+| `*-portable.exe` | Self-contained single-file executable. Extract-and-run, no installation needed. |
+| `*.msi` | Windows Installer package. Installs to Program Files, creates Start Menu shortcut, supports upgrades and uninstall via Add/Remove Programs. |
+| `SHA256SUMS.txt` | SHA-256 checksums for all release artifacts. |
+
+Architectures: x64, x86, ARM64.
+
+### Unsigned artifacts
+
+GitHub release binaries are **not** code-signed. Users may encounter:
+
+- **Microsoft Defender SmartScreen**: "Windows protected your PC" warning when
+  running the portable EXE. Click **More info → Run anyway** after verifying
+  the checksum.
+- **Windows Installer**: "Unknown publisher" dialog when installing the MSI.
+
+Always verify downloaded artifacts against the published `SHA256SUMS.txt`:
+
+```powershell
+# Verify a downloaded file
+(Get-FileHash .\JustHostMC-1.0.0-windows-x64-portable.exe -Algorithm SHA256).Hash
+# Compare with the hash in SHA256SUMS.txt
+```
+
+Do **not** permanently disable SmartScreen or other Windows security features.
+If unsigned binaries are a concern, install from the
+[Microsoft Store](https://apps.microsoft.com/detail/9NB5ZHPKMBDS) instead —
+Store builds are signed by Microsoft.
+
+### Adding code signing later
+
+To sign release artifacts in the future:
+
+1. Obtain an Authenticode code-signing certificate (EV recommended for
+   SmartScreen reputation).
+2. Store the certificate as a GitHub Actions encrypted secret
+   (e.g. `CODE_SIGNING_CERT`).
+3. Add a signing step in `release.yml` between the build and release jobs:
+   use `signtool sign` to sign the EXE, DLLs, and MSI before uploading.
+4. Update the MSI to display the publisher name from the certificate.
+
+No workflow redesign is needed — signing slots naturally between the existing
+build and release stages.
+
+### Triggering a release
+
+```bash
+git tag v1.2.3
+git push origin v1.2.3
+```
+
+The `release.yml` workflow validates the tag format, builds all architectures,
+and publishes a GitHub Release with all artifacts attached.
+
+### Distribution channel property
+
+The `DistributionChannel` MSBuild property selects the build profile:
+
+| Value | Behavior |
+|-------|----------|
+| `Dev` (default) | Unpackaged, self-contained, for F5 / local development |
+| `GitHubPortable` | Single-file EXE, self-contained, no MSIX tooling |
+| `GitHubMsi` | Folder-based publish output for MSI packaging |
+| _(Store/MSIX)_ | Governed by `GenerateAppxPackageOnBuild` / `WindowsPackageType=MSIX` |
+
+Example:
+
+```powershell
+dotnet publish app/JustHostMC.App/JustHostMC.App.csproj `
+  --configuration Release --runtime win-x64 --self-contained true `
+  -p:Platform=x64 -p:DistributionChannel=GitHubPortable -p:Version=1.2.3
+```

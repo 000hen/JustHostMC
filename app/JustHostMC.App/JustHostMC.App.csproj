@@ -22,6 +22,39 @@
     <DefaultLanguage>en-US</DefaultLanguage>
   </PropertyGroup>
 
+  <!-- Distribution channel: Dev (default for F5 / local), GitHubPortable
+       (single-file EXE release), GitHubMsi (folder-based MSI payload).
+       Store/MSIX builds are orthogonal — they are governed by
+       GenerateAppxPackageOnBuild / WindowsPackageType=MSIX, not this property. -->
+  <PropertyGroup>
+    <DistributionChannel Condition="'$(DistributionChannel)' == ''">Dev</DistributionChannel>
+  </PropertyGroup>
+
+  <!-- GitHub Portable: self-contained single-file EXE, no MSIX tooling. -->
+  <PropertyGroup Condition="'$(DistributionChannel)' == 'GitHubPortable'">
+    <WindowsPackageType>None</WindowsPackageType>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+    <PublishTrimmed>false</PublishTrimmed>
+    <DebugType>None</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <EnableMsixTooling>false</EnableMsixTooling>
+  </PropertyGroup>
+
+  <!-- GitHub MSI: self-contained folder-based payload for WiX packaging. -->
+  <PropertyGroup Condition="'$(DistributionChannel)' == 'GitHubMsi'">
+    <WindowsPackageType>None</WindowsPackageType>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>false</PublishSingleFile>
+    <PublishTrimmed>false</PublishTrimmed>
+    <DebugType>None</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <EnableMsixTooling>false</EnableMsixTooling>
+  </PropertyGroup>
+
   <!-- Unpackaged builds bundle the Windows App SDK runtime next to the app
        (self-contained), so F5 / `dotnet run` need no machine-wide WinAppSDK runtime
        install. MSIX builds stay framework-dependent (the runtime is a package
@@ -70,7 +103,10 @@
        MSIX payload. -->
   <Import Project="..\Engine.targets" />
   <ItemGroup>
-    <Content Include="..\..\build\engine.exe" Link="engine\engine.exe" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+    <Content Include="..\..\build\engine.exe" Link="engine\engine.exe"
+             CopyToOutputDirectory="PreserveNewest"
+             CopyToPublishDirectory="PreserveNewest"
+             Visible="false" />
   </ItemGroup>
 
   <!-- MSIX tooling discovers manifest assets for packages, but unpackaged builds

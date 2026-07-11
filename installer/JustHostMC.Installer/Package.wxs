@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+
+  <Package Name="JustHostMC"
+           Manufacturer="Muisnow Devs"
+           Version="$(ProductVersion)"
+           UpgradeCode="7B2C4F5E-1A8D-4E6F-9C3B-2D5E8F0A1B4C"
+           Scope="perMachine"
+           Compressed="yes">
+
+    <SummaryInformation Description="JustHostMC — Minecraft Server Manager for Windows" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of JustHostMC is already installed."
+                  Schedule="afterInstallInitialize" />
+
+    <MediaTemplate EmbedCab="yes" />
+
+    <ui:WixUI Id="WixUI_Minimal" />
+
+    <!-- Install to Program Files\JustHostMC -->
+    <StandardDirectory Id="ProgramFiles6432Folder">
+      <Directory Id="INSTALLFOLDER" Name="JustHostMC" />
+    </StandardDirectory>
+
+    <!-- Harvest all published files, excluding PDBs -->
+    <ComponentGroup Id="PublishFiles" Directory="INSTALLFOLDER">
+      <Files Include="$(PublishDir)\**"
+             Exclude="$(PublishDir)\**\*.pdb" />
+    </ComponentGroup>
+
+    <!-- Start Menu shortcut -->
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="ProgramMenuDir" Name="JustHostMC">
+        <Component Id="StartMenuShortcut" Guid="A1B2C3D4-E5F6-7890-ABCD-EF1234567890">
+          <Shortcut Id="AppShortcut"
+                    Name="JustHostMC"
+                    Description="Minecraft Server Manager for Windows"
+                    Target="[INSTALLFOLDER]JustHostMC.App.exe"
+                    WorkingDirectory="INSTALLFOLDER" />
+          <RemoveFolder Id="RemoveProgramMenuDir" On="uninstall" />
+          <RegistryValue Root="HKCU"
+                         Key="Software\MuisnowDevs\JustHostMC"
+                         Name="StartMenuShortcut"
+                         Type="integer"
+                         Value="1"
+                         KeyPath="yes" />
+        </Component>
+      </Directory>
+    </StandardDirectory>
+
+    <Feature Id="Main" Title="JustHostMC" Level="1">
+      <ComponentGroupRef Id="PublishFiles" />
+      <ComponentRef Id="StartMenuShortcut" />
+    </Feature>
+
+  </Package>
+</Wix>

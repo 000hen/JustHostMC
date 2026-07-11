@@ -63,58 +63,40 @@ local function join_path(path, name)
   return dest
 end
 
--- download_file fetches one manifest file to dest. Directly-hosted files carry a
--- url; CurseForge-hosted files are resolved through the download-url endpoint
--- with the configured key (files whose author disabled third-party downloads
--- return 403).
-local function download_file(ctx, f, dest)
-  if (f.url or "") ~= "" then
-    jhmc.download(f.url, { dest = dest, sha1 = f.sha1 })
-    return
-  end
-
-  local cf = f.curseforge
-  if type(cf) == "table" and cf.project and cf.file then
-    local key = curseforge_key(ctx)
-    if key == "" then
-      error("install failed: file " .. (f.name or dest) ..
-        " is hosted on CurseForge and needs a CurseForge API key (set it in the FTB provider settings)")
-    end
-    local res = jhmc.http({
-      url = "https://api.curseforge.com/v1/mods/" .. cf.project ..
-        "/files/" .. cf.file .. "/download-url",
-      headers = { ["x-api-key"] = key },
-    })
-    if res.status == 403 then
-      error("install failed: CurseForge denied downloading " .. (f.name or dest) ..
-        " (the author disallows third-party downloads)")
-    end
-    if res.status < 200 or res.status >= 300 then
-      error("install failed: CurseForge API returned HTTP " .. res.status .. " for " .. (f.name or dest))
-    end
-    local body = jhmc.json_decode(res.body)
-    local url = body and body.data
-    if type(url) ~= "string" or url == "" then
-      error("install failed: no download url for " .. (f.name or dest))
-    end
-    jhmc.download(url, { dest = dest, sha1 = f.sha1 })
-    return
-  end
-
-  error("install failed: file " .. (f.name or dest) .. " has no download source")
-end
-
--- install_files writes every server-side file in the manifest, reporting
--- progress as a fraction of the file count.
+-- install_files downloads every server-side file in the manifest through one
+-- parallel jhmc.download_all batch. Directly-hosted files carry a url;
+-- CurseForge-hosted ones resolve their real URL inside the batch workers via
+-- the download-url endpoint (403 = the author disallows third-party
+-- downloads). The missing-key check runs up front, before anything downloads.
 local function install_files(ctx, files)
-  local total = #files
-  for i, f in ipairs(files) do
+  local key = curseforge_key(ctx)
+  local items = {}
+  for _, f in ipairs(files) do
     if type(f) == "table" and not f.clientonly and (f.name or "") ~= "" then
-      ctx.step("shop.install.downloading", total > 0 and (i / total) or 0)
-      ctx.log(f.name)
-      download_file(ctx, f, join_path(f.path, f.name))
+      local dest = join_path(f.path, f.name)
+      if (f.url or "") ~= "" then
+        items[#items + 1] = { dest = dest, sha1 = f.sha1, url = f.url }
+      else
+        local cf = f.curseforge
+        if type(cf) == "table" and cf.project and cf.file then
+          if key == "" then
+            error("install failed: file " .. (f.name or dest) ..
+              " is hosted on CurseForge and needs a CurseForge API key (set it in the FTB provider settings)")
+          end
+          items[#items + 1] = { dest = dest, sha1 = f.sha1, resolve = {
+            url = "https://api.curseforge.com/v1/mods/" .. cf.project ..
+              "/files/" .. cf.file .. "/download-url",
+            headers = { ["x-api-key"] = key },
+          } }
+        else
+          error("install failed: file " .. (f.name or dest) .. " has no download source")
+        end
+      end
     end
   end
+  if #items == 0 then return end
+  ctx.step("shop.install.downloading", 0)
+  jhmc.download_all(items)
 end
 
 -- find_args_file walks libraries/ for a generated win_args.txt. jhmc.fs.glob is

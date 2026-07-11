@@ -191,13 +191,10 @@
                     </toolkit:SettingsExpander.HeaderIcon>
                     <toolkit:SettingsExpander.Items>
 
-                        <toolkit:SettingsCard IsClickEnabled="True">
+                        <toolkit:SettingsCard>
                             <toolkit:SettingsCard.Header>
                                 <TextBlock x:Uid="SettingsAboutRepo" />
                             </toolkit:SettingsCard.Header>
-                            <toolkit:SettingsCard.ActionIcon>
-                                <FontIcon Glyph="&#xE8A7;" />
-                            </toolkit:SettingsCard.ActionIcon>
                             <HyperlinkButton NavigateUri="https://github.com/000hen/JustHostMC">
                                 <StackPanel Orientation="Horizontal" Spacing="6">
                                     <TextBlock VerticalAlignment="Center" Text="github.com/000hen/JustHostMC" />
@@ -209,13 +206,10 @@
                             </HyperlinkButton>
                         </toolkit:SettingsCard>
 
-                        <toolkit:SettingsCard IsClickEnabled="True">
+                        <toolkit:SettingsCard>
                             <toolkit:SettingsCard.Header>
                                 <TextBlock x:Uid="SettingsAboutIssues" />
                             </toolkit:SettingsCard.Header>
-                            <toolkit:SettingsCard.ActionIcon>
-                                <FontIcon Glyph="&#xE8A7;" />
-                            </toolkit:SettingsCard.ActionIcon>
                             <HyperlinkButton NavigateUri="https://github.com/000hen/JustHostMC/issues">
                                 <StackPanel Orientation="Horizontal" Spacing="6">
                                     <TextBlock VerticalAlignment="Center" Text="github.com/000hen/JustHostMC/issues" />

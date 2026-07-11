@@ -72,6 +72,21 @@
                                 SpinButtonPlacementMode="Inline"
                                 Value="{x:Bind ViewModel.MaxTotalMb, Mode=TwoWay}" />
                         </toolkit:SettingsCard>
+
+                        <toolkit:SettingsCard>
+                            <toolkit:SettingsCard.Header>
+                                <TextBlock x:Uid="SettingsIncompleteInstallationsHeader" />
+                            </toolkit:SettingsCard.Header>
+                            <toolkit:SettingsCard.Description>
+                                <TextBlock
+                                    Text="{x:Bind ViewModel.IncompleteInstallationDescription, Mode=OneWay}"
+                                    TextWrapping="Wrap" />
+                            </toolkit:SettingsCard.Description>
+                            <Button
+                                x:Uid="SettingsRemoveIncompleteInstallationsButton"
+                                Command="{x:Bind ViewModel.RemoveIncompleteInstallationsCommand}"
+                                IsEnabled="{x:Bind ViewModel.HasIncompleteInstallations, Mode=OneWay}" />
+                        </toolkit:SettingsCard>
                     </toolkit:SettingsExpander.Items>
                 </toolkit:SettingsExpander>
 

@@ -21,6 +21,7 @@ public partial class MainViewModel : ObservableObject {
 
     private readonly ILocalizer _localizer;
     private readonly DispatcherQueue _dispatcher;
+    private readonly BackgroundTaskService _backgroundTasks;
     private readonly object _pendingUpdatesGate = new();
     private readonly Dictionary<string, UpdateServerRequest> _pendingUpdates =
         new();
@@ -54,9 +55,6 @@ public partial class MainViewModel : ObservableObject {
     public int BusyServers =>
         Servers.Count(s => s.Status is ServerStatus.Installing or
                                ServerStatus.Starting or ServerStatus.Stopping);
-    public bool HasRunningTasks =>
-        IsInstalling || BusyServers > 0 || ProgressService.HasActiveTracker;
-
     [ObservableProperty]
     public partial string EngineStatus { get; private set; }
 
@@ -85,9 +83,11 @@ public partial class MainViewModel : ObservableObject {
         get; private set;
     } = true;
 
-    public MainViewModel(ILocalizer localizer, DispatcherQueue dispatcher) {
+    public MainViewModel(ILocalizer localizer, DispatcherQueue dispatcher,
+                         BackgroundTaskService backgroundTasks) {
         _localizer      = localizer;
         _dispatcher     = dispatcher;
+        _backgroundTasks = backgroundTasks;
         ProgressService = new ServerProgressService(_dispatcher);
         ProviderCatalog = new ProviderCatalog(FetchProvidersAsync);
         EngineStatus    = _localizer.Get("EngineStatus_Connecting");
@@ -174,6 +174,7 @@ public partial class MainViewModel : ObservableObject {
     /// <summary>Creates a server, streaming localized install progress + raw
     /// log.</summary>
     public async Task InstallServerAsync(CreateServerRequest request) {
+        using var backgroundTask = _backgroundTasks.Begin("server-install");
         var tracker = ProgressService.GetOrCreateTracker(null, request.Name);
         RunOnUI(() => {
             tracker.InstallLog.Clear();
@@ -302,6 +303,7 @@ public partial class MainViewModel : ObservableObject {
     private async Task StartServer(ServerItem? item) {
         if (item is null)
             return;
+        using var backgroundTask = _backgroundTasks.Begin("server-start");
         var tracker = item.ProgressTracker;
         RunOnUI(() => {
             if (tracker is not null) {
@@ -325,6 +327,7 @@ public partial class MainViewModel : ObservableObject {
     private async Task StopServer(ServerItem? item) {
         if (item is null)
             return;
+        using var backgroundTask = _backgroundTasks.Begin("server-stop");
         var tracker = item.ProgressTracker;
         RunOnUI(() => {
             if (tracker is not null) {
@@ -383,6 +386,7 @@ public partial class MainViewModel : ObservableObject {
     private void MergeServers(
         System.Collections.Generic.IEnumerable<Server> incoming) {
         var list     = incoming.ToList();
+        _backgroundTasks.SynchronizeServers(list);
         var existing = Servers.ToDictionary(s => s.Id);
 
         foreach (var proto in list) {

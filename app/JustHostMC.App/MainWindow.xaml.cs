@@ -94,7 +94,8 @@ public sealed partial class MainWindow : Window {
 
         _localizer = new LocalizationService();
         Shell      = new NavShellViewModel(
-            new MainViewModel(_localizer, DispatcherQueue));
+            new MainViewModel(_localizer, DispatcherQueue,
+                              App.Current.BackgroundTasks));
 
         InitializeComponent();
         _paneFooterVisibilityCallbackToken =
@@ -177,7 +178,7 @@ public sealed partial class MainWindow : Window {
 
     private async void OnAppWindowClosing(AppWindow sender,
                                            AppWindowClosingEventArgs args) {
-        if (_allowClose || !Shell.Main.HasRunningTasks)
+        if (_allowClose || !App.Current.BackgroundTasks.HasActiveTasks)
             return;
 
         args.Cancel = true;
@@ -197,7 +198,7 @@ public sealed partial class MainWindow : Window {
             };
             var result = await dialog.ShowAsync();
             if (result == ContentDialogResult.Primary)
-                HideToTray();
+                await HideToTrayAsync();
             else if (result == ContentDialogResult.Secondary) {
                 _allowClose = true;
                 Close();
@@ -207,8 +208,9 @@ public sealed partial class MainWindow : Window {
         }
     }
 
-    private void HideToTray() {
-        _trayIcon?.Show();
+    private async Task HideToTrayAsync() {
+        if (_trayIcon is not null)
+            await _trayIcon.ShowAsync();
         ShowWindow(_hwnd, SwHide);
     }
 

@@ -1,4 +1,6 @@
 using System.Runtime.InteropServices;
+using Windows.Graphics.Imaging;
+using Windows.Storage;
 
 namespace JustHostMC.App.Services;
 
@@ -53,12 +55,61 @@ internal sealed class TrayIconService : IDisposable {
         public int Y;
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    private struct IconInfo {
+        [MarshalAs(UnmanagedType.Bool)]
+        public bool IsIcon;
+        public uint XHotspot;
+        public uint YHotspot;
+        public IntPtr MaskBitmap;
+        public IntPtr ColorBitmap;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct BitmapInfoHeader {
+        public uint Size;
+        public int Width;
+        public int Height;
+        public ushort Planes;
+        public ushort BitCount;
+        public uint Compression;
+        public uint SizeImage;
+        public int XPelsPerMeter;
+        public int YPelsPerMeter;
+        public uint ClrUsed;
+        public uint ClrImportant;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct BitmapInfo {
+        public BitmapInfoHeader Header;
+        public uint Colors;
+    }
+
     [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
     private static extern bool Shell_NotifyIcon(uint message,
                                                 ref NotifyIconData data);
 
     [DllImport("user32.dll")]
     private static extern IntPtr LoadIcon(IntPtr instance, IntPtr iconName);
+
+    [DllImport("gdi32.dll")]
+    private static extern IntPtr CreateDIBSection(
+        IntPtr deviceContext, ref BitmapInfo bitmapInfo, uint usage,
+        out IntPtr bits, IntPtr section, uint offset);
+
+    [DllImport("gdi32.dll", EntryPoint = "CreateBitmap")]
+    private static extern IntPtr CreateEmptyBitmap(
+        int width, int height, uint planes, uint bitsPerPixel, IntPtr pixels);
+
+    [DllImport("gdi32.dll")]
+    private static extern bool DeleteObject(IntPtr handle);
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr CreateIconIndirect(ref IconInfo iconInfo);
+
+    [DllImport("user32.dll")]
+    private static extern bool DestroyIcon(IntPtr icon);
 
     [DllImport("user32.dll")]
     private static extern IntPtr CreatePopupMenu();
@@ -85,6 +136,7 @@ internal sealed class TrayIconService : IDisposable {
     private readonly ILocalizer _localizer;
     private readonly Action _restore;
     private readonly Action _exit;
+    private IntPtr _icon;
     private bool _visible;
 
     public TrayIconService(IntPtr window, ILocalizer localizer, Action restore,
@@ -95,9 +147,12 @@ internal sealed class TrayIconService : IDisposable {
         _exit      = exit;
     }
 
-    public void Show() {
+    public async Task ShowAsync() {
         if (_visible)
             return;
+
+        if (_icon == IntPtr.Zero)
+            _icon = await LoadApplicationIconAsync();
 
         var data = CreateData();
         if (!Shell_NotifyIcon(NimAdd, ref data))
@@ -132,7 +187,13 @@ internal sealed class TrayIconService : IDisposable {
         }
     }
 
-    public void Dispose() => Hide();
+    public void Dispose() {
+        Hide();
+        if (_icon != IntPtr.Zero) {
+            DestroyIcon(_icon);
+            _icon = IntPtr.Zero;
+        }
+    }
 
     private NotifyIconData CreateData() => new() {
         CbSize          = Marshal.SizeOf<NotifyIconData>(),
@@ -140,11 +201,69 @@ internal sealed class TrayIconService : IDisposable {
         UId             = 1,
         UFlags          = NifMessage | NifIcon | NifTip,
         UCallbackMessage = CallbackMessage,
-        HIcon = LoadIcon(IntPtr.Zero, new IntPtr(IdiApplication)),
+        HIcon = _icon != IntPtr.Zero
+                    ? _icon
+                    : LoadIcon(IntPtr.Zero, new IntPtr(IdiApplication)),
         SzTip            = _localizer.Get("AppTitle"),
         SzInfo           = "",
         SzInfoTitle      = "",
     };
+
+    private static async Task<IntPtr> LoadApplicationIconAsync() {
+        try {
+            const int size = 32;
+            var path = Path.Combine(
+                AppContext.BaseDirectory, "Assets",
+                "StoreLogo.png");
+            var file = await StorageFile.GetFileFromPathAsync(path);
+            using var stream = await file.OpenReadAsync();
+            var decoder = await BitmapDecoder.CreateAsync(stream);
+            var pixels = await decoder.GetPixelDataAsync(
+                BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied,
+                new BitmapTransform {
+                    ScaledWidth  = size,
+                    ScaledHeight = size,
+                },
+                ExifOrientationMode.IgnoreExifOrientation,
+                ColorManagementMode.DoNotColorManage);
+
+            var pixelBytes = pixels.DetachPixelData();
+            var bitmapInfo = new BitmapInfo {
+                Header = new BitmapInfoHeader {
+                    Size      = (uint)Marshal.SizeOf<BitmapInfoHeader>(),
+                    Width     = size,
+                    Height    = -size,
+                    Planes    = 1,
+                    BitCount  = 32,
+                    SizeImage = (uint)pixelBytes.Length,
+                },
+            };
+            var color = CreateDIBSection(IntPtr.Zero, ref bitmapInfo, 0,
+                                         out var colorBits, IntPtr.Zero, 0);
+            if (color != IntPtr.Zero && colorBits != IntPtr.Zero)
+                Marshal.Copy(pixelBytes, 0, colorBits, pixelBytes.Length);
+            var mask = CreateEmptyBitmap(size, size, 1, 1, IntPtr.Zero);
+            if (color == IntPtr.Zero || mask == IntPtr.Zero) {
+                if (color != IntPtr.Zero) DeleteObject(color);
+                if (mask != IntPtr.Zero) DeleteObject(mask);
+                return IntPtr.Zero;
+            }
+
+            try {
+                var info = new IconInfo {
+                    IsIcon      = true,
+                    ColorBitmap = color,
+                    MaskBitmap  = mask,
+                };
+                return CreateIconIndirect(ref info);
+            } finally {
+                DeleteObject(color);
+                DeleteObject(mask);
+            }
+        } catch {
+            return IntPtr.Zero;
+        }
+    }
 
     private void ShowContextMenu() {
         var menu = CreatePopupMenu();

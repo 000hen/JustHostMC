@@ -71,3 +71,10 @@ func (p *LuaProvider) Install(ctx context.Context, dir, version string, progress
 	inv := &invocation{ctx: ctx, host: p.host, granted: p.grants(), report: progress, assetDir: p.assetDir, config: p.config()}
 	return inv.install(p.source, dir, version)
 }
+
+// Update implements provider.Updater; scripts without an update() function
+// yield provider.ErrUpdateUnsupported.
+func (p *LuaProvider) Update(ctx context.Context, dir, version, oldVersion string, progress func(provider.Progress)) (provider.LaunchSpec, error) {
+	inv := &invocation{ctx: ctx, host: p.host, granted: p.grants(), report: progress, assetDir: p.assetDir, config: p.config()}
+	return inv.update(p.source, dir, version, oldVersion)
+}

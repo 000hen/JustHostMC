@@ -11,4 +11,6 @@ var (
 	ErrChecksumMismatch = errors.New("downloaded file failed checksum verification")
 	// ErrInstallerFailed means an installer (Forge/NeoForge) did not complete.
 	ErrInstallerFailed = errors.New("server installer failed")
+	// ErrUpdateUnsupported means the provider has no update() entry point.
+	ErrUpdateUnsupported = errors.New("provider does not support update")
 )

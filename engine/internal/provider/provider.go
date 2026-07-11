@@ -46,6 +46,14 @@ type Provider interface {
 	Install(ctx context.Context, dir, version string, progress func(Progress)) (LaunchSpec, error)
 }
 
+// Updater is optionally implemented by providers that can move an installed
+// server to another version in place (e.g. a modpack manifest diff).
+// Implementations return ErrUpdateUnsupported when the underlying script has
+// no update() entry point.
+type Updater interface {
+	Update(ctx context.Context, dir, version, oldVersion string, progress func(Progress)) (LaunchSpec, error)
+}
+
 // report sends progress if a sink is set; it keeps call sites terse.
 func report(progress func(Progress), p Progress) {
 	if progress != nil {

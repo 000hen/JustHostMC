@@ -172,21 +172,9 @@ func (inv *invocation) versions(src string) ([]string, error) {
 	return out, nil
 }
 
-// install loads src and calls install(ctx), returning the launch spec. dir is
-// the server directory; downloads and fs access are confined to it.
-func (inv *invocation) install(src, dir, version string) (provider.LaunchSpec, error) {
-	inv.baseDir = dir
-	L, err := inv.prepare(src)
-	if err != nil {
-		return provider.LaunchSpec{}, err
-	}
-	defer L.Close()
-
-	fn := L.GetGlobal("install")
-	if fn.Type() != lua.LTFunction {
-		return provider.LaunchSpec{}, fmt.Errorf("script defines no install() function")
-	}
-
+// installCtxTable builds the ctx table shared by install(ctx) and update(ctx):
+// dir/version, the step/log progress bridges, and the script config.
+func (inv *invocation) installCtxTable(L *lua.LState, dir, version string) *lua.LTable {
 	ictx := L.NewTable()
 	ictx.RawSetString("dir", lua.LString(dir))
 	ictx.RawSetString("version", lua.LString(version))
@@ -201,17 +189,16 @@ func (inv *invocation) install(src, dir, version string) (provider.LaunchSpec, e
 		return 0
 	}))
 	ictx.RawSetString("config", inv.configTable(L))
+	return ictx
+}
 
-	if err := L.CallByParam(lua.P{Fn: fn, NRet: 1, Protect: true}, ictx); err != nil {
-		return provider.LaunchSpec{}, inv.mapErr(err)
-	}
-	ret := L.Get(-1)
-	L.Pop(1)
+// parseLaunchSpec converts the table returned by install()/update() into a
+// LaunchSpec.
+func parseLaunchSpec(ret lua.LValue, fnName string) (provider.LaunchSpec, error) {
 	spec, ok := ret.(*lua.LTable)
 	if !ok {
-		return provider.LaunchSpec{}, fmt.Errorf("install() must return a launch spec table")
+		return provider.LaunchSpec{}, fmt.Errorf("%s() must return a launch spec table", fnName)
 	}
-
 	major := 0
 	if n, ok := spec.RawGetString("java_major").(lua.LNumber); ok {
 		major = int(n)
@@ -229,6 +216,53 @@ func (inv *invocation) install(src, dir, version string) (provider.LaunchSpec, e
 		Loader:      strField(spec, "loader"),
 		PackVersion: strField(spec, "pack_version"),
 	}, nil
+}
+
+// install loads src and calls install(ctx), returning the launch spec. dir is
+// the server directory; downloads and fs access are confined to it.
+func (inv *invocation) install(src, dir, version string) (provider.LaunchSpec, error) {
+	inv.baseDir = dir
+	L, err := inv.prepare(src)
+	if err != nil {
+		return provider.LaunchSpec{}, err
+	}
+	defer L.Close()
+
+	fn := L.GetGlobal("install")
+	if fn.Type() != lua.LTFunction {
+		return provider.LaunchSpec{}, fmt.Errorf("script defines no install() function")
+	}
+	ictx := inv.installCtxTable(L, dir, version)
+	if err := L.CallByParam(lua.P{Fn: fn, NRet: 1, Protect: true}, ictx); err != nil {
+		return provider.LaunchSpec{}, inv.mapErr(err)
+	}
+	ret := L.Get(-1)
+	L.Pop(1)
+	return parseLaunchSpec(ret, "install")
+}
+
+// update loads src and calls update(ctx) — the optional in-place move of an
+// installed server to another version. ctx additionally carries old_version.
+func (inv *invocation) update(src, dir, version, oldVersion string) (provider.LaunchSpec, error) {
+	inv.baseDir = dir
+	L, err := inv.prepare(src)
+	if err != nil {
+		return provider.LaunchSpec{}, err
+	}
+	defer L.Close()
+
+	fn := L.GetGlobal("update")
+	if fn.Type() != lua.LTFunction {
+		return provider.LaunchSpec{}, provider.ErrUpdateUnsupported
+	}
+	ictx := inv.installCtxTable(L, dir, version)
+	ictx.RawSetString("old_version", lua.LString(oldVersion))
+	if err := L.CallByParam(lua.P{Fn: fn, NRet: 1, Protect: true}, ictx); err != nil {
+		return provider.LaunchSpec{}, inv.mapErr(err)
+	}
+	ret := L.Get(-1)
+	L.Pop(1)
+	return parseLaunchSpec(ret, "update")
 }
 
 // mapErr recovers the structured error stashed by fail(), falling back to the

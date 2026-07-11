@@ -7,6 +7,7 @@ require (
 	github.com/Microsoft/go-winio v0.6.2
 	github.com/Tnze/go-mc v1.20.2
 	github.com/yuin/gopher-lua v1.1.2
+	golang.org/x/sync v0.20.0
 	golang.org/x/sys v0.46.0
 	google.golang.org/grpc v1.81.1
 	google.golang.org/protobuf v1.36.11

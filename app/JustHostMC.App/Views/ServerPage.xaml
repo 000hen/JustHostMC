@@ -84,7 +84,6 @@
                     x:Name="ModsPanel"
                     Mods="{x:Bind Mods, Mode=OneWay}"
                     Server="{x:Bind Server, Mode=OneWay}"
-                    ServerCreated="OnShopServerCreated"
                     Visibility="Collapsed" />
             </Grid>
 

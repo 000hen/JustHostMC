@@ -198,10 +198,12 @@
                                 VerticalAlignment="Center"
                                 Spacing="10">
                                 <TextBlock
+                                    x:Name="DiscoverTitle"
                                     x:Uid="ShopDiscoverTitle"
                                     Style="{StaticResource TitleTextBlockStyle}"
                                     TextWrapping="Wrap" />
                                 <TextBlock
+                                    x:Name="DiscoverSubtitle"
                                     x:Uid="ShopDiscoverSubtitle"
                                     FontSize="15"
                                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"

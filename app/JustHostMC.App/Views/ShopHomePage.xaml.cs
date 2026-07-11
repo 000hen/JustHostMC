@@ -1,4 +1,5 @@
 using JustHostMC.App.Models;
+using JustHostMC.App.Services;
 using JustHostMC.App.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -8,6 +9,7 @@ namespace JustHostMC.App.Views;
 
 /// <summary>Shop landing page: trending / most-downloaded sections.</summary>
 public sealed partial class ShopHomePage : Page {
+    private readonly ILocalizer _localizer = new LocalizationService();
     private ShopWindow? _window;
 
     public ShopViewModel ViewModel { get; private set; } = null!;
@@ -24,6 +26,13 @@ public sealed partial class ShopHomePage : Page {
         _window   = args.Window;
         ViewModel = args.Shop;
         Bindings.Update();
+        // The x:Uid welcome copy is written for the server-scoped shop; the
+        // home-page modpack shop gets its own wording.
+        if (!ViewModel.Context.IsServerScoped) {
+            DiscoverTitle.Text    = _localizer.Get("Shop_DiscoverTitleGlobal");
+            DiscoverSubtitle.Text =
+                _localizer.Get("Shop_DiscoverSubtitleGlobal");
+        }
         if (ViewModel.HomeSections.Count == 0)
             _ = ViewModel.LoadHomeAsync();
     }

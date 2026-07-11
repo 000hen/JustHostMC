@@ -115,6 +115,14 @@ public sealed partial class HomePage : Page {
             await Main.InstallServerAsync(request);
     }
 
+    /// <summary>Opens the server-less modpack shop; installs create brand-new
+    /// servers through the global install-progress flow.</summary>
+    private void OnBrowseModpacksClick(object sender, RoutedEventArgs e) {
+        var context = ShopContext.ForModpackBrowsing(
+            request => Main.InstallServerAsync(request));
+        new ShopWindow(context).Activate();
+    }
+
     private void OnMachineNoticeClosed(InfoBar sender, object args) =>
         _firstRun.MarkOnMachineNoticeShown();
 

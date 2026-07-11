@@ -79,7 +79,12 @@ public sealed partial class ShopWindow : Window {
         InitializeComponent();
         Title = ShopTitleBar.Title;
 
-        ExtendsContentIntoTitleBar               = true;
+        if (!context.IsServerScoped) {
+            var title          = _localizer.Get("ShopWindow_TitleModpacks");
+            Title              = title;
+            ShopTitleBar.Title = title;
+        }
+        ExtendsContentIntoTitleBar = true;
         AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
         SetTitleBar(ShopTitleBar);
         InstallMinimumWindowSizeHook();

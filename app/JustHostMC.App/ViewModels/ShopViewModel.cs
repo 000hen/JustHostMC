@@ -195,17 +195,27 @@ public sealed partial class ShopViewModel : ObservableObject {
     private string EffectiveLoader =>
         !SelectedShopIsModpack && UseLoaderFilter ? Context.Loader : "";
 
-    /// <summary>Loads the shop list and selects the first ready
-    /// source.</summary>
+    /// <summary>Loads the shop list and selects the first ready source.
+    /// Modpack sources create brand-new servers, so they only appear in the
+    /// server-less shop; a server-scoped shop lists mod/plugin sources
+    /// only.</summary>
     public async Task LoadShopsAsync() {
         try {
             var daemon = await App.Current.DaemonReady;
             var list   = await daemon.Shop.ListAsync(new Empty());
+            var visible =
+                Context.IsServerScoped
+                    ? list.Shops.Where(s => !s.Kinds.Contains("modpack"))
+                          .ToArray()
+                    : list.Shops.Where(s => s.Kinds.Contains("modpack"))
+                          .ToArray();
             await RunOnUIAsync(() => {
                 Shops.Clear();
-                foreach (var shop in list.Shops) Shops.Add(shop);
-                SelectedShop = list.Shops.FirstOrDefault(s => s.Ready) ??
-                               list.Shops.FirstOrDefault();
+                foreach (var shop in visible) Shops.Add(shop);
+                SelectedShop = visible.FirstOrDefault(s => s.Ready) ??
+                               visible.FirstOrDefault();
+                if (visible.Length == 0)
+                    StatusMessage = _localizer.Get("Shop_NoSources");
             });
         } catch {
             await RunOnUIAsync(() => HasLoadFailure = true);

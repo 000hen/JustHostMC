@@ -81,9 +81,7 @@ public sealed partial class ServerModsPanel : UserControl {
 
         var context = new ShopContext(
             Server.Id, Server.McVersion, Server.EffectiveLoader, Mods.Kind,
-            Mods.InstalledFileNames, () => _ = Mods.RefreshAsync(),
-            OnServerCreated: () =>
-                ServerCreated?.Invoke(this, new RoutedEventArgs()));
+            Mods.InstalledFileNames, () => _ = Mods.RefreshAsync());
         new ShopWindow(context).Activate();
     }
 

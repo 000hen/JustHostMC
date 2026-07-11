@@ -334,55 +334,31 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
         }
     }
 
-    /// <summary>Creates a brand-new server from a modpack version, streaming
-    /// the (long) install into the shared install-progress UI.</summary>
+    /// <summary>Creates a brand-new server from a modpack version by handing
+    /// the request to the main window's global install flow, which owns the
+    /// stream: the install survives this window closing, and the global
+    /// progress UI shows steps, logs, and errors.</summary>
     public async Task CreateServerAsync(ShopVersionItem version, string name,
                                         int memoryMb) {
-        await RunOnUIAsync(() => {
-            IsInstalling = true;
-            OnPropertyChanged(nameof(CanInstallLatest));
-            InstallSucceeded = false;
-            InstallProgress  = 0;
-            StatusMessage    = "";
-        });
-        try {
-            var daemon  = await App.Current.DaemonReady;
-            var request = new CreateServerRequest {
-                Name       = name,
-                ProviderId = "ftb",
-                McVersion  = $"{_projectId}/{version.Version.Id}",
-                MemoryMb   = memoryMb,
-                Port       = 0,
-            };
-            // A modpack install pulls hundreds of files and runs a loader
-            // installer, so stream without a tight deadline (like the main
-            // create-server flow).
-            using var call = daemon.Servers.Create(request);
-            await foreach (var progress in call.ResponseStream.ReadAllAsync()) {
-                var fraction = progress.Fraction;
-                await RunOnUIAsync(() => {
-                    if (fraction >= 0)
-                        InstallProgress = fraction;
-                });
-            }
-            await RunOnUIAsync(() => {
-                InstallSucceeded = true;
-                StatusMessage    = _localizer.Get("Shop_ServerCreated");
-            });
-            _shop.Context.OnServerCreated?.Invoke();
-        } catch (RpcException ex) when (ex.Status.Detail.Contains(
-            "CurseForge API key", StringComparison.OrdinalIgnoreCase)) {
-            await RunOnUIAsync(() => StatusMessage =
-                                   _localizer.Get("Shop_CreateServerNeedsKey"));
-        } catch {
+        if (_shop.Context.CreateServer is null) {
             await RunOnUIAsync(() => StatusMessage =
                                    _localizer.Get("Shop_CreateServerFailed"));
-        } finally {
-            await RunOnUIAsync(() => {
-                IsInstalling = false;
-                OnPropertyChanged(nameof(CanInstallLatest));
-            });
+            return;
         }
+        var request = new CreateServerRequest {
+            Name = name,
+            // A modpack shop's id doubles as its whole-server provider id
+            // (e.g. "ftb"); the provider parses "{projectId}/{versionId}".
+            ProviderId = _shopId,
+            McVersion  = $"{_projectId}/{version.Version.Id}",
+            MemoryMb   = memoryMb,
+            Port       = 0,
+        };
+        _ = _shop.Context.CreateServer(request);
+        await RunOnUIAsync(() => {
+            InstallSucceeded = true;
+            StatusMessage    = _localizer.Get("Shop_ServerCreateStarted");
+        });
     }
 
     // Follows the app's StatusCode-level mapping convention (see

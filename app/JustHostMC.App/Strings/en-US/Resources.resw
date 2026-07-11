@@ -497,6 +497,10 @@
   <data name="SettingsAboutRepo.Text" xml:space="preserve"><value>GitHub Repository</value></data>
   <data name="SettingsAboutIssues.Text" xml:space="preserve"><value>Report an Issue</value></data>
 <data name="ShopTitleBar.Title" xml:space="preserve"><value>Mod Shop</value><comment>Canonical Mod Shop window title; copied to Window.Title after XAML initialization.</comment></data>
+  <data name="ShopWindow_TitleModpacks" xml:space="preserve"><value>Modpack Shop</value></data>
+  <data name="HomeShopButtonLabel.Text" xml:space="preserve"><value>Modpack shop</value></data>
+  <data name="Shop_DiscoverTitleGlobal" xml:space="preserve"><value>Start a new server from a modpack</value></data>
+  <data name="Shop_DiscoverSubtitleGlobal" xml:space="preserve"><value>Browse community modpacks. Installing one creates a brand-new server, fully set up.</value></data>
   <data name="ShopDiscoverTitle.Text" xml:space="preserve"><value>Find something brilliant for your server</value></data>
   <data name="ShopDiscoverSubtitle.Text" xml:space="preserve"><value>Explore community projects selected for this server. Compatibility filters are on by default, so what you see is ready to fit.</value></data>
   <data name="ShopDismissWelcome.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Dismiss</value><comment>Same visible value as InstallDismissButton.Content; kept separate for this property or translation context.</comment></data>
@@ -590,9 +594,9 @@
   <data name="Shop_CreateServerNameLabel" xml:space="preserve"><value>Server name</value></data>
   <data name="Shop_CreateServerMemoryLabel" xml:space="preserve"><value>Memory (MB)</value></data>
   <data name="Shop_CreateServerConfirm" xml:space="preserve"><value>Create</value></data>
-  <data name="Shop_ServerCreated" xml:space="preserve"><value>Server created.</value></data>
+  <data name="Shop_ServerCreateStarted" xml:space="preserve"><value>Server creation started. Track progress in the main window.</value></data>
   <data name="Shop_CreateServerFailed" xml:space="preserve"><value>Couldn't create the server.</value></data>
-  <data name="Shop_CreateServerNeedsKey" xml:space="preserve"><value>This modpack has files hosted on CurseForge. Add a CurseForge API key in the FTB provider settings, then try again.</value></data>
+  <data name="Shop_NoSources" xml:space="preserve"><value>No shop sources are available here.</value></data>
   <data name="Shop_ErrorKeyMissing" xml:space="preserve"><value>This source needs an API key. Add one in Settings.</value></data>
   <data name="Shop_ErrorServerRunning" xml:space="preserve"><value>Stop the server before installing mods.</value></data>
   <data name="shop.home.popular" xml:space="preserve"><value>Most downloaded</value></data>

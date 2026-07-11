@@ -6,17 +6,32 @@ using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace JustHostMC.App.Models;
 
-/// <summary>Everything the shop window needs to know about the server it was
-/// opened for: the compatibility pre-filter, the installed-jar lookup used to
-/// mark dependencies as already present, and the refresh hook fired after an
-/// install so the server's mod list updates.</summary>
+/// <summary>Everything the shop window needs to know about where it was opened
+/// from. Server-scoped (from a server's mods panel): the compatibility
+/// pre-filter, the installed-jar lookup used to mark dependencies as already
+/// present, and the refresh hook fired after an install so the server's mod
+/// list updates. Server-less (from the home page, see
+/// <see cref="ForModpackBrowsing"/>): modpack sources only.</summary>
 public sealed record ShopContext(
     string ServerId, string McVersion, string Loader, ModKind Kind,
     Func<IReadOnlyCollection<string>> InstalledFileNames, Action OnInstalled,
-    // Invoked after a modpack shop creates a brand-new server so the opener
-    // can refresh its server list; null for a per-server mod shop, which only
-    // installs into the existing server.
-    Action? OnServerCreated = null);
+    // Starts a whole-server modpack install in the main window's global
+    // install-progress flow; null for a server-scoped shop, which never lists
+    // modpack sources.
+    Func<CreateServerRequest, Task>? CreateServer = null) {
+
+    /// <summary>True when the shop was opened for an existing server (mods and
+    /// plugins); false for the home-page modpack shop.</summary>
+    public bool IsServerScoped => ServerId.Length > 0;
+
+    /// <summary>Context for the server-less, home-page shop: modpack sources
+    /// only, installs create a brand-new server via
+    /// <paramref name="createServer"/>.</summary>
+    public static ShopContext ForModpackBrowsing(
+        Func<CreateServerRequest, Task> createServer) =>
+        new("", "", "", ModKind.Modpack, () => Array.Empty<string>(), () => { },
+            createServer);
+}
 
 /// <summary>One project card (home/search results).</summary>
 public sealed class ShopProjectItem {

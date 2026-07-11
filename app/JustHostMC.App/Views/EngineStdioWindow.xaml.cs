@@ -206,7 +206,7 @@ public sealed partial class EngineStdioWindow : Window {
 
     private void UpdateStatus() {
         var pid         = _host.ProcessId?.ToString() ?? "—";
-        StatusText.Text      = _localizer.Get(
+        StatusText.Text = _localizer.Get(
             _isPaused ? "EngineMonitor_StatusPaused" : "EngineMonitor_Status",
             ("pid", pid), ("visible", VisibleEntries.Count.ToString()),
             ("total", _allEntries.Count.ToString()));

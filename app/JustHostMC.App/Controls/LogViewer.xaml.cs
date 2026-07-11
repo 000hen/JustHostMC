@@ -15,7 +15,7 @@ namespace JustHostMC.App.Controls;
 /// the bottom. A compact jump button appears when older entries are visible.
 /// </summary>
 public sealed partial class LogViewer : UserControl {
-    private const double BottomTolerance = 2;
+    private const double BottomTolerance          = 2;
     private const int MaxStableTailScrollAttempts = 120;
 
     public static readonly DependencyProperty ItemsSourceProperty =
@@ -54,15 +54,14 @@ public sealed partial class LogViewer : UserControl {
         AutomationProperties.SetName(
             JumpToLatestButton,
             new LocalizationService().Get("LogViewer_JumpToLatest"));
-        LogList.AddHandler(
-            PointerWheelChangedEvent,
-            new PointerEventHandler(OnUserScrollInput), true);
+        LogList.AddHandler(PointerWheelChangedEvent,
+                           new PointerEventHandler(OnUserScrollInput), true);
         _tailScrollTimer             = DispatcherQueue.CreateTimer();
         _tailScrollTimer.Interval    = TimeSpan.FromMilliseconds(16);
         _tailScrollTimer.IsRepeating = true;
-        _tailScrollTimer.Tick       += OnTailScrollTick;
-        LogList.LayoutUpdated       += OnLogListLayoutUpdated;
-        Loaded   += OnLoaded;
+        _tailScrollTimer.Tick += OnTailScrollTick;
+        LogList.LayoutUpdated += OnLogListLayoutUpdated;
+        Loaded += OnLoaded;
         Unloaded += OnUnloaded;
     }
 
@@ -92,7 +91,7 @@ public sealed partial class LogViewer : UserControl {
         if (viewer.IsLoaded)
             viewer.AttachItemsSource();
 
-        viewer._isAtBottom = true;
+        viewer._isAtBottom       = true;
         viewer._tailScrollActive = false;
         viewer.UpdateVisualState();
         if (viewer.IsLoaded)
@@ -102,8 +101,8 @@ public sealed partial class LogViewer : UserControl {
     private static void OnItemTemplateChanged(
         DependencyObject d, DependencyPropertyChangedEventArgs e) {
         var viewer = (LogViewer)d;
-        viewer.LogList.ItemTemplate = e.NewValue as DataTemplate ??
-                                      viewer.DefaultItemTemplate;
+        viewer.LogList.ItemTemplate =
+            e.NewValue as DataTemplate ?? viewer.DefaultItemTemplate;
     }
 
     private static void OnEmptyContentChanged(
@@ -123,8 +122,8 @@ public sealed partial class LogViewer : UserControl {
         if (_scrollViewer is not null)
             _scrollViewer.ViewChanged -= OnScrollViewChanged;
         _scrollViewerSubscribed = false;
-        _scrollViewer = null;
-        _itemsPanel   = null;
+        _scrollViewer           = null;
+        _itemsPanel             = null;
     }
 
     private void AttachScrollViewer() {
@@ -171,8 +170,8 @@ public sealed partial class LogViewer : UserControl {
                                      NotifyCollectionChangedEventArgs e) {
         if (!DispatcherQueue.HasThreadAccess) {
             var followTail = _isAtBottom;
-            DispatcherQueue.TryEnqueue(
-                () => HandleCollectionChanged(followTail));
+            DispatcherQueue.TryEnqueue(() =>
+                                           HandleCollectionChanged(followTail));
             return;
         }
 
@@ -199,8 +198,8 @@ public sealed partial class LogViewer : UserControl {
         UpdateScrollState();
     }
 
-    private void OnLogListLayoutUpdated(object? sender, object e) =>
-        _layoutVersion++;
+    private void OnLogListLayoutUpdated(object? sender,
+                                        object e) => _layoutVersion++;
 
     private void UpdateScrollState() {
         if (_scrollViewer is null)
@@ -208,7 +207,7 @@ public sealed partial class LogViewer : UserControl {
 
         _isAtBottom = _scrollViewer.ScrollableHeight <= BottomTolerance ||
                       _scrollViewer.VerticalOffset >=
-                      _scrollViewer.ScrollableHeight - BottomTolerance;
+                          _scrollViewer.ScrollableHeight - BottomTolerance;
         UpdateItemsPanelMode();
         UpdateVisualState();
     }
@@ -218,8 +217,8 @@ public sealed partial class LogViewer : UserControl {
             return;
 
         if (!_tailScrollActive) {
-            _stableTailScrollAttempts = 0;
-            _lastAttemptedVersion     = -1;
+            _stableTailScrollAttempts   = 0;
+            _lastAttemptedVersion       = -1;
             _lastAttemptedLayoutVersion = -1;
         }
         _tailScrollActive = true;
@@ -243,8 +242,7 @@ public sealed partial class LogViewer : UserControl {
 
         AttachScrollViewer();
         UpdateScrollState();
-        var laidOutSinceAttempt =
-            _layoutVersion > _lastAttemptedLayoutVersion;
+        var laidOutSinceAttempt = _layoutVersion > _lastAttemptedLayoutVersion;
         if (_isAtBottom && _lastAttemptedVersion == _contentVersion &&
             laidOutSinceAttempt) {
             StopTailScroll();
@@ -261,7 +259,7 @@ public sealed partial class LogViewer : UserControl {
             _stableTailScrollAttempts = 0;
         }
 
-        _lastAttemptedVersion = _contentVersion;
+        _lastAttemptedVersion       = _contentVersion;
         _lastAttemptedLayoutVersion = _layoutVersion;
         LogList.ScrollIntoView(lastItem);
         _scrollViewer?.ChangeView(null, _scrollViewer.ScrollableHeight, null,
@@ -307,22 +305,22 @@ public sealed partial class LogViewer : UserControl {
         RequestScrollToBottom();
     }
 
-    private void OnJumpToLatestClick(object sender, RoutedEventArgs e) =>
-        ScrollToBottom();
+    private void OnJumpToLatestClick(object sender,
+                                     RoutedEventArgs e) => ScrollToBottom();
 
     private void OnUserScrollInput(object sender, PointerRoutedEventArgs e) {
         StopTailScroll();
     }
 
     private void UpdateVisualState() {
-        var hasItems = HasItems();
+        var hasItems              = HasItems();
         EmptyPresenter.Visibility = !hasItems && EmptyContent is not null
                                         ? Visibility.Visible
                                         : Visibility.Collapsed;
-        JumpToLatestButton.Visibility = hasItems && !_isAtBottom &&
-                                        !_tailScrollActive
-                                            ? Visibility.Visible
-                                            : Visibility.Collapsed;
+        JumpToLatestButton.Visibility =
+            hasItems && !_isAtBottom && !_tailScrollActive
+                ? Visibility.Visible
+                : Visibility.Collapsed;
     }
 
     private bool HasItems() {

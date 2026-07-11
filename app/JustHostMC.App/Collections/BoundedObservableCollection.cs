@@ -24,8 +24,7 @@ public sealed class BoundedObservableCollection<T>(int capacity)
         var removeCount = Math.Max(0, Items.Count + added.Count - capacity);
         if (removeCount > 0) {
             var removed = Items.Take(removeCount).ToList();
-            for (var i = 0; i < removeCount; i++)
-                Items.RemoveAt(0);
+            for (var i = 0; i < removeCount; i++) Items.RemoveAt(0);
 
             NotifyCountAndItemsChanged();
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(
@@ -33,8 +32,7 @@ public sealed class BoundedObservableCollection<T>(int capacity)
         }
 
         var startIndex = Items.Count;
-        foreach (var item in added)
-            Items.Add(item);
+        foreach (var item in added) Items.Add(item);
 
         NotifyCountAndItemsChanged();
         OnCollectionChanged(new NotifyCollectionChangedEventArgs(

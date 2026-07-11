@@ -106,69 +106,69 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                            <TextBlock
-                                Style="{StaticResource TitleTextBlockStyle}"
-                                Text="{Binding Title}"
-                                TextWrapping="Wrap" />
-                            <TextBlock
-                                Grid.Row="1"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                Text="{Binding StartedAtFormatted}" />
+                        <TextBlock
+                            Style="{StaticResource TitleTextBlockStyle}"
+                            Text="{Binding Title}"
+                            TextWrapping="Wrap" />
+                        <TextBlock
+                            Grid.Row="1"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Text="{Binding StartedAtFormatted}" />
 
-                            <Rectangle
-                                Grid.Row="2"
-                                Height="1"
-                                Margin="0,4"
-                                Fill="{ThemeResource DividerStrokeColorDefaultBrush}" />
+                        <Rectangle
+                            Grid.Row="2"
+                            Height="1"
+                            Margin="0,4"
+                            Fill="{ThemeResource DividerStrokeColorDefaultBrush}" />
 
-                            <TextBlock
-                                x:Uid="ScriptLogsWindowDetailHeader"
-                                Grid.Row="3"
-                                Margin="0,8,0,0"
-                                Style="{StaticResource SubtitleTextBlockStyle}" />
-                            <controls:LogViewer Grid.Row="4" ItemsSource="{Binding Entries}">
-                                <controls:LogViewer.ItemTemplate>
-                                    <DataTemplate x:DataType="models:ScriptLogEntry">
-                                        <Border
-                                            Margin="0,0,0,8"
-                                            Padding="14"
-                                            Background="{ThemeResource ControlFillColorDefaultBrush}"
-                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                            BorderThickness="1"
-                                            CornerRadius="6">
-                                            <StackPanel Spacing="6">
-                                                <Grid ColumnSpacing="12">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*" />
-                                                        <ColumnDefinition Width="Auto" />
-                                                    </Grid.ColumnDefinitions>
-                                                    <TextBlock
-                                                        FontWeight="SemiBold"
-                                                        Text="{x:Bind ScriptName}"
-                                                        TextTrimming="CharacterEllipsis" />
-                                                    <TextBlock
-                                                        Grid.Column="1"
-                                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                        Style="{StaticResource CaptionTextBlockStyle}"
-                                                        Text="{x:Bind TimestampFormatted}" />
-                                                </Grid>
+                        <TextBlock
+                            x:Uid="ScriptLogsWindowDetailHeader"
+                            Grid.Row="3"
+                            Margin="0,8,0,0"
+                            Style="{StaticResource SubtitleTextBlockStyle}" />
+                        <controls:LogViewer Grid.Row="4" ItemsSource="{Binding Entries}">
+                            <controls:LogViewer.ItemTemplate>
+                                <DataTemplate x:DataType="models:ScriptLogEntry">
+                                    <Border
+                                        Margin="0,0,0,8"
+                                        Padding="14"
+                                        Background="{ThemeResource ControlFillColorDefaultBrush}"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="6">
+                                        <StackPanel Spacing="6">
+                                            <Grid ColumnSpacing="12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
                                                 <TextBlock
-                                                    FontFamily="Consolas"
+                                                    FontWeight="SemiBold"
+                                                    Text="{x:Bind ScriptName}"
+                                                    TextTrimming="CharacterEllipsis" />
+                                                <TextBlock
+                                                    Grid.Column="1"
                                                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                    IsTextSelectionEnabled="True"
                                                     Style="{StaticResource CaptionTextBlockStyle}"
-                                                    Text="{x:Bind ScriptId}" />
-                                                <TextBlock
-                                                    FontFamily="Consolas"
-                                                    FontSize="12"
-                                                    IsTextSelectionEnabled="True"
-                                                    Text="{x:Bind Detail}"
-                                                    TextWrapping="Wrap" />
-                                            </StackPanel>
-                                        </Border>
-                                    </DataTemplate>
-                                </controls:LogViewer.ItemTemplate>
-                            </controls:LogViewer>
+                                                    Text="{x:Bind TimestampFormatted}" />
+                                            </Grid>
+                                            <TextBlock
+                                                FontFamily="Consolas"
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                IsTextSelectionEnabled="True"
+                                                Style="{StaticResource CaptionTextBlockStyle}"
+                                                Text="{x:Bind ScriptId}" />
+                                            <TextBlock
+                                                FontFamily="Consolas"
+                                                FontSize="12"
+                                                IsTextSelectionEnabled="True"
+                                                Text="{x:Bind Detail}"
+                                                TextWrapping="Wrap" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </controls:LogViewer.ItemTemplate>
+                        </controls:LogViewer>
                     </Grid>
                 </Grid>
             </Border>

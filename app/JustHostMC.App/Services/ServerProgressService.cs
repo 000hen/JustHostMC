@@ -70,8 +70,9 @@ public partial class ServerProgressTracker : ObservableObject {
 
     partial void OnIsActiveChanged(bool value) => IsActiveChanged?.Invoke(this);
 
-    public BoundedObservableCollection<string> InstallLog { get; } =
-        new(MaxLogLines);
+    public BoundedObservableCollection<string> InstallLog {
+        get;
+    } = new(MaxLogLines);
 
     public double ProgressPercentage => ProgressFraction * 100;
 
@@ -104,14 +105,15 @@ public partial class ServerProgressTracker : ObservableObject {
 
     public void AppendLogs(IEnumerable<string> lines) {
         RunOnUI(() => {
-            var normalized = lines.Select(line =>
-                line.Length > MaxLogLineLength
-                    ? line[..MaxLogLineLength] + "…"
-                    : line).ToArray();
+            var normalized =
+                lines
+                    .Select(line => line.Length > MaxLogLineLength
+                                        ? line[..MaxLogLineLength] + "…"
+                                        : line)
+                    .ToArray();
             InstallLog.AddRange(normalized);
 
-            foreach (var line in normalized)
-                LogAppended?.Invoke(line);
+            foreach (var line in normalized) LogAppended?.Invoke(line);
         });
     }
 

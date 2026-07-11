@@ -18,7 +18,7 @@ public partial class ConsoleViewModel : ObservableObject, IAsyncDisposable {
 
     private readonly string _serverId;
     private readonly DispatcherQueue _dispatcher;
-    private readonly object _pendingLinesGate = new();
+    private readonly object _pendingLinesGate    = new();
     private readonly Queue<string> _pendingLines = new();
     private bool _lineFlushScheduled;
     private bool _disposed;
@@ -26,8 +26,7 @@ public partial class ConsoleViewModel : ObservableObject, IAsyncDisposable {
     private AsyncDuplexStreamingCall<ConsoleInput, ConsoleEvent>? _call;
     private CancellationTokenSource? _cts;
 
-    public BoundedObservableCollection<string> Lines { get; } =
-        new(MaxLines);
+    public BoundedObservableCollection<string> Lines { get; } = new(MaxLines);
 
     [ObservableProperty]
     public partial string ServerName {
@@ -95,8 +94,7 @@ public partial class ConsoleViewModel : ObservableObject, IAsyncDisposable {
                 return;
 
             _pendingLines.Enqueue(line);
-            while (_pendingLines.Count > MaxLines)
-                _pendingLines.Dequeue();
+            while (_pendingLines.Count > MaxLines) _pendingLines.Dequeue();
 
             if (_lineFlushScheduled)
                 return;

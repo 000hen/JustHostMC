@@ -40,8 +40,9 @@ public partial class MainViewModel : ObservableObject {
         NavigationDestination.Scripts,
         NavigationDestination.Settings,
     };
-    public BoundedObservableCollection<string> InstallLog { get; } =
-        new(MaxLogLines);
+    public BoundedObservableCollection<string> InstallLog {
+        get;
+    } = new(MaxLogLines);
     public ServerProgressService ProgressService { get; }
 
     /// <summary>Cached provider list, shared with ServerItems for friendly
@@ -194,9 +195,8 @@ public partial class MainViewModel : ObservableObject {
         });
 
         var progressBuffer = new InstallProgressBuffer(
-            _dispatcher,
-            (step, fraction, logLines) =>
-                ApplyInstallProgress(step, fraction, logLines, tracker));
+            _dispatcher, (step, fraction, logLines) => ApplyInstallProgress(
+                             step, fraction, logLines, tracker));
 
         try {
             var daemon     = await App.Current.DaemonReady;
@@ -354,24 +354,26 @@ public partial class MainViewModel : ObservableObject {
                                       IReadOnlyList<string> logLines,
                                       ServerProgressTracker tracker) {
         if (step is { Key.Length : > 0 }) {
-            InstallStep = _localizer.Get(step.Key);
+            InstallStep         = _localizer.Get(step.Key);
             tracker.CurrentStep = InstallStep;
         }
 
         if (fraction >= 0) {
-            InstallIsIndeterminate = false;
-            InstallFraction        = fraction;
+            InstallIsIndeterminate   = false;
+            InstallFraction          = fraction;
             tracker.IsIndeterminate  = false;
             tracker.ProgressFraction = fraction;
         } else {
-            InstallIsIndeterminate = true;
+            InstallIsIndeterminate  = true;
             tracker.IsIndeterminate = true;
         }
 
-        var normalized = logLines.Select(line =>
-            line.Length > MaxLogLineLength
-                ? line[..MaxLogLineLength] + "…"
-                : line).ToArray();
+        var normalized =
+            logLines
+                .Select(line => line.Length > MaxLogLineLength
+                                    ? line[..MaxLogLineLength] + "…"
+                                    : line)
+                .ToArray();
         InstallLog.AddRange(normalized);
         tracker.AppendLogs(normalized);
     }
@@ -498,7 +500,7 @@ public partial class MainViewModel : ObservableObject {
     private sealed class InstallProgressBuffer(
         DispatcherQueue dispatcher,
         Action<LocalizedMessage?, double, IReadOnlyList<string>> apply) {
-        private readonly object _gate = new();
+        private readonly object _gate           = new();
         private readonly List<string> _logLines = new();
         private LocalizedMessage? _step;
         private double _fraction = -1;
@@ -509,7 +511,7 @@ public partial class MainViewModel : ObservableObject {
             lock (_gate) {
                 if (progress.Step is { Key.Length : > 0 })
                     _step = progress.Step;
-                _fraction = progress.Fraction;
+                _fraction    = progress.Fraction;
                 _hasProgress = true;
                 if (!string.IsNullOrEmpty(progress.LogLine))
                     _logLines.Add(progress.LogLine);
@@ -546,12 +548,12 @@ public partial class MainViewModel : ObservableObject {
             string[] lines;
             bool hasProgress;
             lock (_gate) {
-                hasProgress = _hasProgress;
-                step      = _step;
-                fraction  = _fraction;
-                lines     = _logLines.ToArray();
-                _step     = null;
-                _fraction = -1;
+                hasProgress  = _hasProgress;
+                step         = _step;
+                fraction     = _fraction;
+                lines        = _logLines.ToArray();
+                _step        = null;
+                _fraction    = -1;
                 _hasProgress = false;
                 _logLines.Clear();
                 _scheduled = false;

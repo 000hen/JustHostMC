@@ -78,21 +78,42 @@
                         Background="Transparent"
                         ItemsSource="{x:Bind VisibleEntries}">
                         <controls:LogViewer.EmptyContent>
-                        <TextBlock
-                            x:Uid="EngineMonitorEmptyText"
-                            Margin="24"
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                            TextAlignment="Center" />
+                            <TextBlock
+                                x:Uid="EngineMonitorEmptyText"
+                                Margin="24"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                TextAlignment="Center" />
                         </controls:LogViewer.EmptyContent>
                         <controls:LogViewer.ItemTemplate>
                             <DataTemplate x:DataType="local:EngineStdioDisplayEntry">
                                 <StackPanel Padding="9,5" Spacing="1">
                                     <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <TextBlock FontFamily="Consolas" FontSize="12" FontWeight="SemiBold" Text="{x:Bind LevelLabel}" />
-                                        <TextBlock FontFamily="Consolas" FontSize="12" Foreground="{ThemeResource TextFillColorTertiaryBrush}" Text="|" />
-                                        <TextBlock FontFamily="Consolas" FontSize="12" FontWeight="SemiBold" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind StreamLabel}" />
-                                        <TextBlock FontFamily="Consolas" FontSize="12" Foreground="{ThemeResource TextFillColorTertiaryBrush}" Text="|" />
-                                        <TextBlock FontFamily="Consolas" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind TimestampText}" />
+                                        <TextBlock
+                                            FontFamily="Consolas"
+                                            FontSize="12"
+                                            FontWeight="SemiBold"
+                                            Text="{x:Bind LevelLabel}" />
+                                        <TextBlock
+                                            FontFamily="Consolas"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                            Text="|" />
+                                        <TextBlock
+                                            FontFamily="Consolas"
+                                            FontSize="12"
+                                            FontWeight="SemiBold"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                            Text="{x:Bind StreamLabel}" />
+                                        <TextBlock
+                                            FontFamily="Consolas"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                            Text="|" />
+                                        <TextBlock
+                                            FontFamily="Consolas"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                            Text="{x:Bind TimestampText}" />
                                     </StackPanel>
                                     <TextBlock
                                         FontFamily="Consolas"

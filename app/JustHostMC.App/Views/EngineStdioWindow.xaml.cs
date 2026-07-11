@@ -75,8 +75,6 @@ public sealed partial class EngineStdioWindow : Window {
 
         if (!_isPaused && MatchesFilter(entry)) {
             VisibleEntries.Add(new EngineStdioDisplayEntry(entry));
-            if (AutoScrollCheckBox.IsChecked == true)
-                LogListView.ScrollIntoView(VisibleEntries[^1]);
         }
 
         UpdateStatus();
@@ -101,8 +99,6 @@ public sealed partial class EngineStdioWindow : Window {
                 VisibleEntries.Add(new EngineStdioDisplayEntry(entry));
         }
 
-        if (VisibleEntries.Count > 0 && AutoScrollCheckBox.IsChecked == true)
-            LogListView.ScrollIntoView(VisibleEntries[^1]);
         UpdateStatus();
     }
 
@@ -209,9 +205,7 @@ public sealed partial class EngineStdioWindow : Window {
     }
 
     private void UpdateStatus() {
-        EmptyText.Visibility = VisibleEntries.Count == 0 ? Visibility.Visible
-                                                         : Visibility.Collapsed;
-        var pid              = _host.ProcessId?.ToString() ?? "—";
+        var pid         = _host.ProcessId?.ToString() ?? "—";
         StatusText.Text      = _localizer.Get(
             _isPaused ? "EngineMonitor_StatusPaused" : "EngineMonitor_Status",
             ("pid", pid), ("visible", VisibleEntries.Count.ToString()),

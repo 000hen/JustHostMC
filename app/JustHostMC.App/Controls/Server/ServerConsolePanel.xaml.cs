@@ -1,4 +1,3 @@
-using System.Collections.Specialized;
 using JustHostMC.App.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -27,22 +26,8 @@ public sealed partial class ServerConsolePanel : UserControl {
                                          DependencyPropertyChangedEventArgs e) {
         var panel = (ServerConsolePanel)d;
 
-        if (e.OldValue is ConsoleViewModel oldConsole) {
-            oldConsole.Lines.CollectionChanged -= panel.OnConsoleLinesChanged;
-        }
-
-        if (e.NewValue is ConsoleViewModel newConsole) {
-            newConsole.Lines.CollectionChanged += panel.OnConsoleLinesChanged;
+        if (e.NewValue is ConsoleViewModel)
             panel.Bindings.Update();
-        }
-    }
-
-    private void OnConsoleLinesChanged(object? sender,
-                                       NotifyCollectionChangedEventArgs e) {
-        DispatcherQueue.TryEnqueue(() => {
-            ConsoleLogScroller.ChangeView(
-                null, ConsoleLogScroller.ScrollableHeight, null);
-        });
     }
 
     private void OnCommandKeyDown(object sender, KeyRoutedEventArgs e) {

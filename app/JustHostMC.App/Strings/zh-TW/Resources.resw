@@ -211,7 +211,6 @@
 <data name="EngineMonitorCopyButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>複製顯示中的引擎輸出</value></data>
 <data name="EngineMonitorCopyButtonLabel.Text" xml:space="preserve"><value>複製</value></data>
 <data name="EngineMonitorPauseButton.Content" xml:space="preserve"><value>暫停</value></data>
-<data name="EngineMonitorAutoScrollCheckBox.Content" xml:space="preserve"><value>自動捲動</value></data>
 <data name="EngineMonitorSearchBox.PlaceholderText" xml:space="preserve"><value>篩選訊息</value></data>
 <data name="EngineMonitorSearchBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>篩選引擎訊息</value></data>
 <data name="EngineMonitorStdinHint.Text" xml:space="preserve"><value>標準輸入保留給父行程監看機制，因此在此僅供檢視。</value></data>
@@ -656,4 +655,7 @@
   <data name="Settings_ShopKeyNone" xml:space="preserve"><value>尚未設定 CurseForge 金鑰，CurseForge 分頁將維持停用。</value></data>
   <data name="Settings_ShopKeyUser" xml:space="preserve"><value>已設定個人 CurseForge 金鑰。儲存空白金鑰即可移除。</value></data>
   <data name="Settings_ShopKeyBuiltin" xml:space="preserve"><value>正在使用此版本內建的 CurseForge 金鑰，個人金鑰可覆蓋它。</value></data>
+  <data name="LogViewer_JumpToLatest" xml:space="preserve">
+    <value>跳至最新記錄</value>
+  </data>
 </root>

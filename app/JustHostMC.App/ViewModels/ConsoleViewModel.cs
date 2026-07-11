@@ -1,7 +1,7 @@
-using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Grpc.Core;
+using JustHostMC.App.Collections;
 using McManager.Grpc;
 using Microsoft.UI.Dispatching;
 
@@ -18,11 +18,16 @@ public partial class ConsoleViewModel : ObservableObject, IAsyncDisposable {
 
     private readonly string _serverId;
     private readonly DispatcherQueue _dispatcher;
+    private readonly object _pendingLinesGate = new();
+    private readonly Queue<string> _pendingLines = new();
+    private bool _lineFlushScheduled;
+    private bool _disposed;
 
     private AsyncDuplexStreamingCall<ConsoleInput, ConsoleEvent>? _call;
     private CancellationTokenSource? _cts;
 
-    public ObservableCollection<string> Lines { get; } = new();
+    public BoundedObservableCollection<string> Lines { get; } =
+        new(MaxLines);
 
     [ObservableProperty]
     public partial string ServerName {
@@ -61,8 +66,7 @@ public partial class ConsoleViewModel : ObservableObject, IAsyncDisposable {
         try {
             await foreach (var ev in call.ResponseStream.ReadAllAsync(token)
                                .ConfigureAwait(false)) {
-                var line = ev.Line;
-                RunOnUI(() => AppendLine(line));
+                QueueLine(ev.Line);
             }
         } catch (OperationCanceledException) {
         } catch (RpcException) {
@@ -82,15 +86,46 @@ public partial class ConsoleViewModel : ObservableObject, IAsyncDisposable {
         CommandText = "";
     }
 
-    private void AppendLine(string line) {
+    private void QueueLine(string line) {
         if (line.Length > MaxLineLength)
             line = line[..MaxLineLength] + "…";
-        Lines.Add(line);
-        while (Lines.Count > MaxLines) Lines.RemoveAt(0);
+
+        lock (_pendingLinesGate) {
+            if (_disposed)
+                return;
+
+            _pendingLines.Enqueue(line);
+            while (_pendingLines.Count > MaxLines)
+                _pendingLines.Dequeue();
+
+            if (_lineFlushScheduled)
+                return;
+
+            _lineFlushScheduled = true;
+            if (!_dispatcher.TryEnqueue(DispatcherQueuePriority.Low,
+                                        FlushPendingLines))
+                _lineFlushScheduled = false;
+        }
     }
 
-    public void AppendExternalLine(string line) =>
-        RunOnUI(() => AppendLine(line));
+    private void FlushPendingLines() {
+        string[] lines;
+        lock (_pendingLinesGate) {
+            if (_disposed) {
+                _pendingLines.Clear();
+                _lineFlushScheduled = false;
+                return;
+            }
+
+            lines = _pendingLines.ToArray();
+            _pendingLines.Clear();
+            _lineFlushScheduled = false;
+        }
+
+        Lines.AddRange(lines);
+    }
+
+    public void AppendExternalLine(string line) => QueueLine(line);
 
     private void RunOnUI(Action action) {
         if (_dispatcher.HasThreadAccess)
@@ -100,6 +135,10 @@ public partial class ConsoleViewModel : ObservableObject, IAsyncDisposable {
     }
 
     public async ValueTask DisposeAsync() {
+        lock (_pendingLinesGate) {
+            _disposed = true;
+            _pendingLines.Clear();
+        }
         try {
             _cts?.Cancel();
             if (_call is not null) {

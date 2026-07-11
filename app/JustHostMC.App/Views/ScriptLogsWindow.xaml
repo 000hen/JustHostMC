@@ -3,6 +3,7 @@
     x:Class="JustHostMC.App.Views.ScriptLogsWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:JustHostMC.App.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:JustHostMC.App.Models"
@@ -94,25 +95,39 @@
                         TextAlignment="Center"
                         Visibility="{Binding SelectedItem, ElementName=LogList, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
 
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Visibility="{Binding SelectedItem, ElementName=LogList, Converter={StaticResource BoolToVis}}">
-                        <StackPanel DataContext="{Binding SelectedItem, ElementName=LogList}" Spacing="12">
+                    <Grid
+                        DataContext="{Binding SelectedItem, ElementName=LogList}"
+                        RowSpacing="12"
+                        Visibility="{Binding SelectedItem, ElementName=LogList, Converter={StaticResource BoolToVis}}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
                             <TextBlock
                                 Style="{StaticResource TitleTextBlockStyle}"
                                 Text="{Binding Title}"
                                 TextWrapping="Wrap" />
-                            <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{Binding StartedAtFormatted}" />
+                            <TextBlock
+                                Grid.Row="1"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                Text="{Binding StartedAtFormatted}" />
 
                             <Rectangle
+                                Grid.Row="2"
                                 Height="1"
                                 Margin="0,4"
                                 Fill="{ThemeResource DividerStrokeColorDefaultBrush}" />
 
                             <TextBlock
                                 x:Uid="ScriptLogsWindowDetailHeader"
+                                Grid.Row="3"
                                 Margin="0,8,0,0"
                                 Style="{StaticResource SubtitleTextBlockStyle}" />
-                            <ItemsControl ItemsSource="{Binding Entries}">
-                                <ItemsControl.ItemTemplate>
+                            <controls:LogViewer Grid.Row="4" ItemsSource="{Binding Entries}">
+                                <controls:LogViewer.ItemTemplate>
                                     <DataTemplate x:DataType="models:ScriptLogEntry">
                                         <Border
                                             Margin="0,0,0,8"
@@ -152,10 +167,9 @@
                                             </StackPanel>
                                         </Border>
                                     </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </StackPanel>
-                    </ScrollViewer>
+                                </controls:LogViewer.ItemTemplate>
+                            </controls:LogViewer>
+                    </Grid>
                 </Grid>
             </Border>
         </Grid>

@@ -32,14 +32,12 @@ public sealed partial class HomePage : Page {
 
         OnMachineInfoBar.IsOpen = _firstRun.ShouldShowOnMachineNotice();
         Main.Servers.CollectionChanged += OnServersChanged;
-        Main.InstallLog.CollectionChanged += OnInstallLogChanged;
         RebuildCards();
         Bindings.Update();
     }
 
     protected override void OnNavigatedFrom(NavigationEventArgs e) {
         Main.Servers.CollectionChanged -= OnServersChanged;
-        Main.InstallLog.CollectionChanged -= OnInstallLogChanged;
     }
 
     private void OnServersChanged(
@@ -50,12 +48,6 @@ public sealed partial class HomePage : Page {
         foreach (var server in Main.Servers) Cards.Add(server);
         Cards.Add(_addCard);
     }
-
-    private void OnInstallLogChanged(object? sender,
-                                     NotifyCollectionChangedEventArgs e) =>
-        DispatcherQueue.TryEnqueue(
-            () => LogScroller.ChangeView(null, LogScroller.ScrollableHeight,
-                                         null));
 
     private void OnCardOpenClick(object sender, RoutedEventArgs e) {
         if (TryGetServerItem(sender, out var item))

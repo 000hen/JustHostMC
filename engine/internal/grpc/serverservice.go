@@ -359,6 +359,92 @@ func (s *ServerService) Update(ctx context.Context, req *mcmanagerv1.UpdateServe
 	return rec.Proto(), nil
 }
 
+// UpdateModpack moves a modpack server to another pack version in place,
+// streaming progress like Create. Unlike Create, a failure leaves the existing
+// install untouched (no cleanup wipe) — the old version keeps working.
+func (s *ServerService) UpdateModpack(req *mcmanagerv1.UpdateModpackRequest, stream grpc.ServerStreamingServer[mcmanagerv1.InstallProgress]) error {
+	ctx := stream.Context()
+	rec, ok := s.cfg.Store.Get(req.Id)
+	if !ok {
+		return status.Error(codes.NotFound, "server not found")
+	}
+	if rec.ProviderVersion == "" {
+		return errorStatus(codes.FailedPrecondition, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED,
+			"server was not installed from a modpack", nil)
+	}
+	if rec.Status != mcmanagerv1.ServerStatus_STOPPED {
+		return errorStatus(codes.FailedPrecondition, mcmanagerv1.ErrorCode_SERVER_RUNNING,
+			"server must be stopped before updating the modpack", nil)
+	}
+	newVersion := strings.TrimSpace(req.Version)
+	if newVersion == "" {
+		return status.Error(codes.InvalidArgument, "version is required")
+	}
+	entry, ok := s.cfg.Providers.Get(rec.ProviderID)
+	if !ok {
+		return status.Errorf(codes.Unimplemented, "provider %q not installed", rec.ProviderID)
+	}
+	up, ok := entry.Provider.(provider.Updater)
+	if !ok {
+		return status.Error(codes.Unimplemented, "provider does not support update")
+	}
+
+	oldVersion := rec.ProviderVersion
+	rec.Status = mcmanagerv1.ServerStatus_INSTALLING
+	_ = s.cfg.Store.Put(rec)
+	restore := func() {
+		rec.Status = mcmanagerv1.ServerStatus_STOPPED
+		_ = s.cfg.Store.Put(rec)
+	}
+
+	il := s.openInstallLog(rec.ID)
+	defer il.Close()
+	il.recordLine("[update] " + oldVersion + " -> " + newVersion)
+	base := newProgressSender(stream)
+	send := func(p provider.Progress) {
+		il.record(p)
+		base(p)
+	}
+
+	spec, err := up.Update(ctx, s.cfg.Paths.ServerDir(rec.ID), newVersion, oldVersion, send)
+	if err != nil {
+		send(provider.Progress{LogLine: "[error] " + err.Error()})
+		il.recordLine("[error] update: " + err.Error())
+		restore()
+		return mapInstallError(err)
+	}
+	resolved := rec.McVersion
+	if spec.McVersion != "" {
+		resolved = spec.McVersion
+	}
+	spec.JavaMajor = maxJavaMajor(spec.JavaMajor, resolved)
+	if _, err := s.cfg.JRE.EnsureJRE(ctx, spec.JavaMajor, send); err != nil {
+		send(provider.Progress{LogLine: "[error] " + err.Error()})
+		il.recordLine("[error] jre: " + err.Error())
+		restore()
+		return mapInstallError(err)
+	}
+
+	rec.JavaMajor = spec.JavaMajor
+	if len(spec.Args) > 0 {
+		rec.LaunchArgs = spec.Args
+	}
+	if spec.McVersion != "" {
+		rec.McVersion = spec.McVersion
+	}
+	if spec.Loader != "" {
+		rec.Loader = spec.Loader
+	}
+	if spec.PackVersion != "" {
+		rec.ProviderVersion = spec.PackVersion
+	}
+	rec.Status = mcmanagerv1.ServerStatus_STOPPED
+	_ = s.cfg.Store.Put(rec)
+
+	send(provider.Progress{Step: "install.progress.done", Fraction: 1})
+	return nil
+}
+
 // Start launches a previously created server.
 func (s *ServerService) Start(ctx context.Context, req *mcmanagerv1.ServerId) (*mcmanagerv1.Empty, error) {
 	rec, ok := s.cfg.Store.Get(req.Id)

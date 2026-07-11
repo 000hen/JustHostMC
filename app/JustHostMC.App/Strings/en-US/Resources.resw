@@ -214,7 +214,6 @@
 <data name="EngineMonitorCopyButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Copy visible engine output</value></data>
 <data name="EngineMonitorCopyButtonLabel.Text" xml:space="preserve"><value>Copy</value></data>
 <data name="EngineMonitorPauseButton.Content" xml:space="preserve"><value>Pause</value></data>
-<data name="EngineMonitorAutoScrollCheckBox.Content" xml:space="preserve"><value>Auto-scroll</value></data>
 <data name="EngineMonitorSearchBox.PlaceholderText" xml:space="preserve"><value>Filter messages</value></data>
 <data name="EngineMonitorSearchBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Filter engine messages</value></data>
 <data name="EngineMonitorStdinHint.Text" xml:space="preserve"><value>Stdin is reserved for the parent-process watchdog; it is intentionally read-only here.</value></data>
@@ -671,4 +670,7 @@
   <data name="Settings_ShopKeyNone" xml:space="preserve"><value>No CurseForge key is configured — the CurseForge tab stays disabled.</value></data>
   <data name="Settings_ShopKeyUser" xml:space="preserve"><value>A personal CurseForge key is configured. Save an empty key to remove it.</value></data>
   <data name="Settings_ShopKeyBuiltin" xml:space="preserve"><value>Using this build's bundled CurseForge key. A personal key overrides it.</value></data>
+  <data name="LogViewer_JumpToLatest" xml:space="preserve">
+    <value>Jump to latest log</value>
+  </data>
 </root>

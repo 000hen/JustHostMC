@@ -503,27 +503,14 @@
                         Maximum="1"
                         Minimum="0"
                         Value="{Binding CurrentActiveTracker.ProgressFraction, Mode=OneWay}" />
-                    <ScrollViewer
-                        x:Name="LogScroller"
+                    <controls:LogViewer
                         Height="140"
                         Padding="8"
                         Background="{ThemeResource ControlFillColorDefaultBrush}"
                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                         BorderThickness="1"
-                        CornerRadius="4">
-                        <ItemsControl ItemsSource="{Binding CurrentActiveTracker.InstallLog, Mode=OneWay}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock
-                                        FontFamily="Consolas"
-                                        FontSize="12"
-                                        IsTextSelectionEnabled="True"
-                                        Text="{Binding}"
-                                        TextWrapping="NoWrap" />
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
+                        CornerRadius="4"
+                        ItemsSource="{Binding CurrentActiveTracker.InstallLog, Mode=OneWay}" />
                     <Button
                         x:Uid="InstallDismissButton"
                         HorizontalAlignment="Right"

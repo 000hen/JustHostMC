@@ -2,6 +2,7 @@
     x:Class="JustHostMC.App.Controls.Server.ServerConsolePanel"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:JustHostMC.App.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:server="using:JustHostMC.App.Controls.Server"
@@ -56,24 +57,11 @@
                             </Grid>
                         </Grid>
 
-                        <ScrollViewer
-                            x:Name="ConsoleLogScroller"
+                        <controls:LogViewer
                             Grid.Row="1"
                             Padding="8"
-                            Background="{ThemeResource ControlFillColorDefaultBrush}">
-                            <ItemsControl ItemsSource="{x:Bind Console.Lines, Mode=OneWay}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock
-                                            FontFamily="Consolas"
-                                            FontSize="12"
-                                            IsTextSelectionEnabled="True"
-                                            Text="{Binding}"
-                                            TextWrapping="Wrap" />
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </ScrollViewer>
+                            Background="{ThemeResource ControlFillColorDefaultBrush}"
+                            ItemsSource="{x:Bind Console.Lines, Mode=OneWay}" />
                     </Grid>
                 </Border>
                 <Grid Grid.Row="1" ColumnSpacing="8">

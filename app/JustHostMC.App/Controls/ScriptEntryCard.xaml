@@ -3,6 +3,7 @@
     x:Class="JustHostMC.App.Controls.ScriptEntryCard"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:JustHostMC.App.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     x:Name="Root"
@@ -93,31 +94,18 @@
                 <Expander.Header>
                     <TextBlock x:Uid="ScriptsScriptLogsHeader" Style="{StaticResource BodyStrongTextBlockStyle}" />
                 </Expander.Header>
-                <Border MinHeight="72" MaxHeight="360">
-                    <Grid>
+                <controls:LogViewer
+                    MinHeight="72"
+                    MaxHeight="360"
+                    Padding="10"
+                    ItemsSource="{Binding Item.LogLines, ElementName=Root}">
+                    <controls:LogViewer.EmptyContent>
                         <TextBlock
                             x:Uid="ScriptsScriptLogsEmpty"
                             Margin="12"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                            Visibility="{Binding Item.LogLines.Count, ElementName=Root, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
-                        <ScrollViewer VerticalScrollBarVisibility="Auto">
-                            <ItemsControl Padding="10" ItemsSource="{Binding Item.LogLines, ElementName=Root}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate x:DataType="x:String">
-                                        <TextBlock
-                                            FontFamily="Consolas"
-                                            FontSize="12"
-                                            IsTextSelectionEnabled="True"
-                                            Text="{x:Bind}"
-                                            TextWrapping="Wrap" />
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </ScrollViewer>
-                    </Grid>
-                </Border>
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    </controls:LogViewer.EmptyContent>
+                </controls:LogViewer>
             </Expander>
         </Grid>
     </Border>

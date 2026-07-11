@@ -187,10 +187,9 @@
                 <!--  About Section  -->
                 <toolkit:SettingsExpander Description="{x:Bind ViewModel.AppVersionText, Mode=OneWay}" Header="{x:Bind ViewModel.AppName, Mode=OneWay}">
                     <toolkit:SettingsExpander.HeaderIcon>
-                        <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///Assets/Square44x44Logo.png" />
+                        <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///Assets/StoreLogo.png" />
                     </toolkit:SettingsExpander.HeaderIcon>
                     <toolkit:SettingsExpander.Items>
-
                         <toolkit:SettingsCard>
                             <toolkit:SettingsCard.Header>
                                 <TextBlock x:Uid="SettingsAboutRepo" />

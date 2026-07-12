@@ -5,9 +5,9 @@ Baseline captured 2026-07-13. The baseline is **186** `ILocalizer.Get` occurrenc
 | Classification | Count |
 |---|---:|
 | StaticXaml | 56 |
-| DynamicState | 100 |
+| DynamicState | 99 |
 | BackendKey | 5 |
-| RuntimeFormat | 24 |
+| RuntimeFormat | 25 |
 | ImperativeException | 1 |
 | **Total lookups** | **186** |
 
@@ -63,7 +63,7 @@ Baseline captured 2026-07-13. The baseline is **186** `ILocalizer.Get` occurrenc
 | `Models/ServerItem.cs:154` | `"ServerType_Unknown"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
 | `Models/ServerItem.cs:172` | `"Server_PortLabel"` | RuntimeFormat | Runtime values or runtime-selected arguments must be inserted after lookup | Retain formatted lookup |
 | `Models/ServerItem.cs:174` | `"Server_PortAutoValue"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
-| `Models/ServerItem.cs:175` | `ServerAction_* selected by Status` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
+| `Models/ServerItem.cs:175` | `ServerState_Stop / ServerState_Starting / ServerState_Stopping / ServerState_Installing / ServerState_Start` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
 | `ViewModels/BackupsViewModel.cs:67` | `MapBackupError(ex)` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
 | `ViewModels/BackupsViewModel.cs:75` | `"Backups_Creating"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
 | `ViewModels/BackupsViewModel.cs:84` | `"Backups_Created"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
@@ -121,12 +121,12 @@ Baseline captured 2026-07-13. The baseline is **186** `ILocalizer.Get` occurrenc
 | `ViewModels/SettingsViewModel.cs:128` | `status` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
 | `ViewModels/SettingsViewModel.cs:146` | `"Settings_Saved"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
 | `ViewModels/SettingsViewModel.cs:151` | `"Settings_SaveFailed"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
-| `ViewModels/SettingsViewModel.cs:161` | `Backend_ActiveDocker / Backend_ActiveJobObject` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
+| `ViewModels/SettingsViewModel.cs:161` | `Backend_Mode_Docker / Backend_Mode_OnMachine` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
 | `ViewModels/SettingsViewModel.cs:166` | `Backend_DockerAvailable(version)` | RuntimeFormat | Runtime values or runtime-selected arguments must be inserted after lookup | Retain formatted lookup |
 | `ViewModels/SettingsViewModel.cs:168` | `"Backend_DockerUnavailable"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
 | `ViewModels/SettingsViewModel.cs:185` | `"Backend_DockerPrefSaved"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
 | `ViewModels/SettingsViewModel.cs:188` | `"Settings_SaveFailed"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
-| `ViewModels/SettingsViewModel.cs:228` | `Settings_PurgeResult; {count}, {size}` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
+| `ViewModels/SettingsViewModel.cs:228` | `Settings_PurgeResult; {count}, {size}` | RuntimeFormat | Runtime values or runtime-selected arguments must be inserted after lookup | Retain formatted lookup |
 | `ViewModels/SettingsViewModel.cs:234` | `"Settings_PurgeFailed"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
 | `ViewModels/SettingsViewModel.cs:244` | `"Settings_RemovingData"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
 | `ViewModels/SettingsViewModel.cs:251` | `"Settings_DataRemoved"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |

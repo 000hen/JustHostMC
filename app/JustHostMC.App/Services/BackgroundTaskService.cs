@@ -5,14 +5,12 @@ namespace JustHostMC.App.Services;
 /// <summary>Central registry for work that must keep the engine alive when the
 /// main window is closed or hidden.</summary>
 public sealed class BackgroundTaskService {
-    private const string ServerPrefix = "server:";
-    private readonly object _gate = new();
+    private const string ServerPrefix       = "server:";
+    private readonly object _gate           = new();
     private readonly HashSet<string> _tasks = new(StringComparer.Ordinal);
 
     public bool HasActiveTasks {
-        get {
-            lock (_gate) return _tasks.Count > 0;
-        }
+        get { lock (_gate) return _tasks.Count > 0; }
     }
 
     /// <summary>Tracks a scoped operation until the returned lease is
@@ -31,8 +29,8 @@ public sealed class BackgroundTaskService {
                                    ServerPrefix, StringComparison.Ordinal));
             foreach (var server in servers) {
                 if (server.Status is ServerStatus.Running or
-                    ServerStatus.Installing or ServerStatus.Starting or
-                    ServerStatus.Stopping)
+                        ServerStatus.Installing or
+                            ServerStatus.Starting or ServerStatus.Stopping)
                     _tasks.Add(ServerPrefix + server.Id);
             }
         }

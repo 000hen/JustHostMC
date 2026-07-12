@@ -78,9 +78,7 @@
                                 <TextBlock x:Uid="SettingsIncompleteInstallationsHeader" />
                             </toolkit:SettingsCard.Header>
                             <toolkit:SettingsCard.Description>
-                                <TextBlock
-                                    Text="{x:Bind ViewModel.IncompleteInstallationDescription, Mode=OneWay}"
-                                    TextWrapping="Wrap" />
+                                <TextBlock Text="{x:Bind ViewModel.IncompleteInstallationDescription, Mode=OneWay}" TextWrapping="Wrap" />
                             </toolkit:SettingsCard.Description>
                             <Button
                                 x:Uid="SettingsRemoveIncompleteInstallationsButton"

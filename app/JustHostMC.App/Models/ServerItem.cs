@@ -163,13 +163,12 @@ public sealed partial class ServerItem : ObservableObject {
         Status is ServerStatus.Stopped or ServerStatus.Crashed;
     public bool CanStop =>
         Status is ServerStatus.Running or ServerStatus.Starting;
-    public bool CanToggleState => CanStart || CanStop;
-    public bool IsRunning      => Status is ServerStatus.Running;
-    public bool IsIncompleteInstallation =>
-        Status is ServerStatus.Installing;
-    public string DeleteActionText => _localizer.Get(
-        IsIncompleteInstallation ? "ServerInstallRemove_Action"
-                                 : "ServerDelete_Action");
+    public bool CanToggleState           => CanStart || CanStop;
+    public bool IsRunning                => Status is ServerStatus.Running;
+    public bool IsIncompleteInstallation => Status is ServerStatus.Installing;
+    public string DeleteActionText =>
+        _localizer.Get(IsIncompleteInstallation ? "ServerInstallRemove_Action"
+                                                : "ServerDelete_Action");
     public bool CanEditLaunchSettings =>
         Status is ServerStatus.Stopped or ServerStatus.Crashed;
     public string EndpointText     => Port > 0? ConnectHost.Value

@@ -85,12 +85,12 @@ public partial class MainViewModel : ObservableObject {
 
     public MainViewModel(ILocalizer localizer, DispatcherQueue dispatcher,
                          BackgroundTaskService backgroundTasks) {
-        _localizer      = localizer;
-        _dispatcher     = dispatcher;
+        _localizer       = localizer;
+        _dispatcher      = dispatcher;
         _backgroundTasks = backgroundTasks;
-        ProgressService = new ServerProgressService(_dispatcher);
-        ProviderCatalog = new ProviderCatalog(FetchProvidersAsync);
-        EngineStatus    = _localizer.Get("EngineStatus_Connecting");
+        ProgressService  = new ServerProgressService(_dispatcher);
+        ProviderCatalog  = new ProviderCatalog(FetchProvidersAsync);
+        EngineStatus     = _localizer.Get("EngineStatus_Connecting");
     }
 
     /// <summary>Waits for the engine, probes Health, loads servers, polls
@@ -228,7 +228,7 @@ public partial class MainViewModel : ObservableObject {
             var key    = MapErrorKey(ex);
             var detail = ex.Status.Detail;
             RunOnUI(() => {
-                IsInstalling             = false;
+                IsInstalling           = false;
                 InstallFailed          = true;
                 InstallIsIndeterminate = false;
                 InstallStep = string.IsNullOrEmpty(detail)
@@ -304,7 +304,7 @@ public partial class MainViewModel : ObservableObject {
         if (item is null)
             return;
         using var backgroundTask = _backgroundTasks.Begin("server-start");
-        var tracker = item.ProgressTracker;
+        var tracker              = item.ProgressTracker;
         RunOnUI(() => {
             if (tracker is not null) {
                 tracker.IsReadyToRun    = false;
@@ -328,7 +328,7 @@ public partial class MainViewModel : ObservableObject {
         if (item is null)
             return;
         using var backgroundTask = _backgroundTasks.Begin("server-stop");
-        var tracker = item.ProgressTracker;
+        var tracker              = item.ProgressTracker;
         RunOnUI(() => {
             if (tracker is not null) {
                 tracker.IsReadyToRun    = false;
@@ -385,7 +385,7 @@ public partial class MainViewModel : ObservableObject {
 
     private void MergeServers(
         System.Collections.Generic.IEnumerable<Server> incoming) {
-        var list     = incoming.ToList();
+        var list = incoming.ToList();
         _backgroundTasks.SynchronizeServers(list);
         var existing = Servers.ToDictionary(s => s.Id);
 

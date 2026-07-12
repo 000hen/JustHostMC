@@ -5,27 +5,28 @@ using Windows.Storage;
 namespace JustHostMC.App.Services;
 
 /// <summary>Small Win32 notification-area icon used while the main window is
-/// hidden. The window's existing subclass forwards the callback message.</summary>
+/// hidden. The window's existing subclass forwards the callback
+/// message.</summary>
 internal sealed class TrayIconService : IDisposable {
     public const uint CallbackMessage = 0x8001;
 
-    private const uint NimAdd        = 0x00000000;
-    private const uint NimDelete     = 0x00000002;
-    private const uint NimSetVersion = 0x00000004;
-    private const uint NifMessage    = 0x00000001;
-    private const uint NifIcon       = 0x00000002;
-    private const uint NifTip        = 0x00000004;
-    private const uint NotifyVersion = 4;
+    private const uint NimAdd          = 0x00000000;
+    private const uint NimDelete       = 0x00000002;
+    private const uint NimSetVersion   = 0x00000004;
+    private const uint NifMessage      = 0x00000001;
+    private const uint NifIcon         = 0x00000002;
+    private const uint NifTip          = 0x00000004;
+    private const uint NotifyVersion   = 4;
     private const uint WmLButtonDblClk = 0x0203;
     private const uint WmRButtonUp     = 0x0205;
-    private const uint WmContextMenu    = 0x007B;
-    private const uint MfString         = 0x00000000;
-    private const uint MfSeparator      = 0x00000800;
-    private const uint TpmRightButton   = 0x0002;
-    private const uint TpmReturnCmd     = 0x0100;
-    private const uint RestoreCommand   = 1;
-    private const uint ExitCommand      = 2;
-    private const int IdiApplication    = 32512;
+    private const uint WmContextMenu   = 0x007B;
+    private const uint MfString        = 0x00000000;
+    private const uint MfSeparator     = 0x00000800;
+    private const uint TpmRightButton  = 0x0002;
+    private const uint TpmReturnCmd    = 0x0100;
+    private const uint RestoreCommand  = 1;
+    private const uint ExitCommand     = 2;
+    private const int IdiApplication   = 32512;
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     private struct NotifyIconData {
@@ -94,13 +95,16 @@ internal sealed class TrayIconService : IDisposable {
     private static extern IntPtr LoadIcon(IntPtr instance, IntPtr iconName);
 
     [DllImport("gdi32.dll")]
-    private static extern IntPtr CreateDIBSection(
-        IntPtr deviceContext, ref BitmapInfo bitmapInfo, uint usage,
-        out IntPtr bits, IntPtr section, uint offset);
+    private static extern IntPtr CreateDIBSection(IntPtr deviceContext,
+                                                  ref BitmapInfo bitmapInfo,
+                                                  uint usage, out IntPtr bits,
+                                                  IntPtr section, uint offset);
 
     [DllImport("gdi32.dll", EntryPoint = "CreateBitmap")]
-    private static extern IntPtr CreateEmptyBitmap(
-        int width, int height, uint planes, uint bitsPerPixel, IntPtr pixels);
+    private static extern IntPtr CreateEmptyBitmap(int width, int height,
+                                                   uint planes,
+                                                   uint bitsPerPixel,
+                                                   IntPtr pixels);
 
     [DllImport("gdi32.dll")]
     private static extern bool DeleteObject(IntPtr handle);
@@ -115,8 +119,8 @@ internal sealed class TrayIconService : IDisposable {
     private static extern IntPtr CreatePopupMenu();
 
     [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-    private static extern bool AppendMenu(IntPtr menu, uint flags,
-                                          nuint item, string? text);
+    private static extern bool AppendMenu(IntPtr menu, uint flags, nuint item,
+                                          string? text);
 
     [DllImport("user32.dll")]
     private static extern uint TrackPopupMenu(IntPtr menu, uint flags, int x,
@@ -196,29 +200,28 @@ internal sealed class TrayIconService : IDisposable {
     }
 
     private NotifyIconData CreateData() => new() {
-        CbSize          = Marshal.SizeOf<NotifyIconData>(),
-        HWnd            = _window,
-        UId             = 1,
-        UFlags          = NifMessage | NifIcon | NifTip,
+        CbSize           = Marshal.SizeOf<NotifyIconData>(),
+        HWnd             = _window,
+        UId              = 1,
+        UFlags           = NifMessage | NifIcon | NifTip,
         UCallbackMessage = CallbackMessage,
-        HIcon = _icon != IntPtr.Zero
-                    ? _icon
-                    : LoadIcon(IntPtr.Zero, new IntPtr(IdiApplication)),
-        SzTip            = _localizer.Get("AppTitle"),
-        SzInfo           = "",
-        SzInfoTitle      = "",
+        HIcon       = _icon != IntPtr.Zero
+                          ? _icon
+                          : LoadIcon(IntPtr.Zero, new IntPtr(IdiApplication)),
+        SzTip       = _localizer.Get("AppTitle"),
+        SzInfo      = "",
+        SzInfoTitle = "",
     };
 
     private static async Task<IntPtr> LoadApplicationIconAsync() {
         try {
-            const int size = 32;
-            var path = Path.Combine(
-                AppContext.BaseDirectory, "Assets",
-                "StoreLogo.png");
-            var file = await StorageFile.GetFileFromPathAsync(path);
+            const int size   = 32;
+            var path         = Path.Combine(AppContext.BaseDirectory, "Assets",
+                                            "StoreLogo.png");
+            var file         = await StorageFile.GetFileFromPathAsync(path);
             using var stream = await file.OpenReadAsync();
-            var decoder = await BitmapDecoder.CreateAsync(stream);
-            var pixels = await decoder.GetPixelDataAsync(
+            var decoder      = await BitmapDecoder.CreateAsync(stream);
+            var pixels       = await decoder.GetPixelDataAsync(
                 BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied,
                 new BitmapTransform {
                     ScaledWidth  = size,
@@ -229,14 +232,15 @@ internal sealed class TrayIconService : IDisposable {
 
             var pixelBytes = pixels.DetachPixelData();
             var bitmapInfo = new BitmapInfo {
-                Header = new BitmapInfoHeader {
-                    Size      = (uint)Marshal.SizeOf<BitmapInfoHeader>(),
-                    Width     = size,
-                    Height    = -size,
-                    Planes    = 1,
-                    BitCount  = 32,
-                    SizeImage = (uint)pixelBytes.Length,
-                },
+                Header =
+                    new BitmapInfoHeader {
+                                          Size      = (uint)Marshal.SizeOf<BitmapInfoHeader>(),
+                                          Width     = size,
+                                          Height    = -size,
+                                          Planes    = 1,
+                                          BitCount  = 32,
+                                          SizeImage = (uint)pixelBytes.Length,
+                                          },
             };
             var color = CreateDIBSection(IntPtr.Zero, ref bitmapInfo, 0,
                                          out var colorBits, IntPtr.Zero, 0);
@@ -244,8 +248,10 @@ internal sealed class TrayIconService : IDisposable {
                 Marshal.Copy(pixelBytes, 0, colorBits, pixelBytes.Length);
             var mask = CreateEmptyBitmap(size, size, 1, 1, IntPtr.Zero);
             if (color == IntPtr.Zero || mask == IntPtr.Zero) {
-                if (color != IntPtr.Zero) DeleteObject(color);
-                if (mask != IntPtr.Zero) DeleteObject(mask);
+                if (color != IntPtr.Zero)
+                    DeleteObject(color);
+                if (mask != IntPtr.Zero)
+                    DeleteObject(mask);
                 return IntPtr.Zero;
             }
 
@@ -278,9 +284,9 @@ internal sealed class TrayIconService : IDisposable {
                        _localizer.Get("Tray_Exit"));
             GetCursorPos(out var point);
             SetForegroundWindow(_window);
-            var command = TrackPopupMenu(menu, TpmRightButton | TpmReturnCmd,
-                                         point.X, point.Y, 0, _window,
-                                         IntPtr.Zero);
+            var command =
+                TrackPopupMenu(menu, TpmRightButton | TpmReturnCmd, point.X,
+                               point.Y, 0, _window, IntPtr.Zero);
             if (command == RestoreCommand)
                 _restore();
             else if (command == ExitCommand)

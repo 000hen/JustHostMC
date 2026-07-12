@@ -93,9 +93,8 @@ public sealed partial class MainWindow : Window {
         _subclassProc = WindowSubclassProc;
 
         _localizer = new LocalizationService();
-        Shell      = new NavShellViewModel(
-            new MainViewModel(_localizer, DispatcherQueue,
-                              App.Current.BackgroundTasks));
+        Shell      = new NavShellViewModel(new MainViewModel(
+            _localizer, DispatcherQueue, App.Current.BackgroundTasks));
 
         InitializeComponent();
         _paneFooterVisibilityCallbackToken =
@@ -177,7 +176,7 @@ public sealed partial class MainWindow : Window {
     }
 
     private async void OnAppWindowClosing(AppWindow sender,
-                                           AppWindowClosingEventArgs args) {
+                                          AppWindowClosingEventArgs args) {
         if (_allowClose || !App.Current.BackgroundTasks.HasActiveTasks)
             return;
 
@@ -188,13 +187,13 @@ public sealed partial class MainWindow : Window {
         _closePromptOpen = true;
         try {
             var dialog = new ContentDialog {
-                XamlRoot = Content.XamlRoot,
-                Title = _localizer.Get("CloseBusy_Title"),
-                Content = _localizer.Get("CloseBusy_Body"),
-                PrimaryButtonText = _localizer.Get("CloseBusy_HideToTray"),
+                XamlRoot            = Content.XamlRoot,
+                Title               = _localizer.Get("CloseBusy_Title"),
+                Content             = _localizer.Get("CloseBusy_Body"),
+                PrimaryButtonText   = _localizer.Get("CloseBusy_HideToTray"),
                 SecondaryButtonText = _localizer.Get("CloseBusy_CloseAnyway"),
-                CloseButtonText = _localizer.Get("Common_Cancel"),
-                DefaultButton = ContentDialogButton.Primary,
+                CloseButtonText     = _localizer.Get("Common_Cancel"),
+                DefaultButton       = ContentDialogButton.Primary,
             };
             var result = await dialog.ShowAsync();
             if (result == ContentDialogResult.Primary)

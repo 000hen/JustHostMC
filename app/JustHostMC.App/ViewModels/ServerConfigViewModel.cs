@@ -130,7 +130,7 @@ public sealed partial class ServerConfigViewModel : ObservableObject {
                 OnPropertyChanged(nameof(IsInitialLoading));
             });
         } catch (RpcException) {
-            RunOnUI(() => StatusMessage = _localizer.Get("Config_LoadFailed"));
+            RunOnUI(() => StatusMessage = _localizer.Get("Config.LoadFailed"));
         } finally {
             RunOnUI(() => IsBusy = false);
         }
@@ -152,13 +152,13 @@ public sealed partial class ServerConfigViewModel : ObservableObject {
             var saved = await daemon.Config.UpdateServerPropertiesAsync(req);
             RunOnUI(() => {
                 Replace(Properties, saved.Entries, _localizer);
-                StatusMessage = _localizer.Get("Config_Saved");
+                StatusMessage = _localizer.Get("Config.Saved");
             });
         } catch (RpcException ex) {
             RunOnUI(() => StatusMessage =
                         ex.Status.Detail.Length > 0
                             ? ex.Status.Detail
-                            : _localizer.Get("Config_SaveFailed"));
+                            : _localizer.Get("Config.SaveFailed"));
         } finally {
             RunOnUI(() => IsBusy = false);
         }
@@ -181,13 +181,13 @@ public sealed partial class ServerConfigViewModel : ObservableObject {
                 Replace(GameRules, saved.Entries, _localizer);
                 GameRulesWorldExists = saved.WorldExists;
                 GameRulesMessage     = saved.Message;
-                StatusMessage        = _localizer.Get("Config_Saved");
+                StatusMessage        = _localizer.Get("Config.Saved");
             });
         } catch (RpcException ex) {
             RunOnUI(() => StatusMessage =
                         ex.Status.Detail.Length > 0
                             ? ex.Status.Detail
-                            : _localizer.Get("Config_SaveFailed"));
+                            : _localizer.Get("Config.SaveFailed"));
         } finally {
             RunOnUI(() => IsBusy = false);
         }

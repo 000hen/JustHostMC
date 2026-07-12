@@ -24,10 +24,10 @@ public sealed partial class ServerPerformancePanel : UserControl {
     }
 
     private string PerformanceTitle() =>
-        _localizer.Get("ServerSectionPerformance/Text");
+        _localizer.Get("ServerSectionPerformance.Text");
 
     private string PerformanceDescription() =>
-        _localizer.Get("ServerSectionPerformanceHint/Text");
+        _localizer.Get("ServerSectionPerformanceHint.Text");
 
     private static void OnMetricsChanged(DependencyObject d,
                                          DependencyPropertyChangedEventArgs e) {

@@ -29,10 +29,10 @@ public sealed partial class ScriptEntryCard : UserControl {
 
     private void OnRemoveFlyoutOpening(object sender, object e) {
         if (Item is not null) {
-            RemoveConfirmText.Text = _localizer.Get("Scripts_RemoveConfirmBody",
+            RemoveConfirmText.Text = _localizer.Get("Scripts.RemoveConfirmBody",
                                                     ("name", Item.Name));
             RemoveConfirmButton.Content =
-                _localizer.Get("Scripts_RemoveConfirmPrimary");
+                _localizer.Get("Scripts.RemoveConfirmPrimary");
         }
     }
 

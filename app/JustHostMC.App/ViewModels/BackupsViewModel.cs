@@ -72,7 +72,7 @@ public sealed partial class BackupsViewModel : ObservableObject {
     private async Task CreateBackup() {
         RunOnUI(() => {
             IsBusy        = true;
-            StatusMessage = _localizer.Get("Backups_Creating");
+            StatusMessage = _localizer.Get("Backups.Creating");
         });
         try {
             var daemon = await App.Current.DaemonReady;
@@ -81,7 +81,7 @@ public sealed partial class BackupsViewModel : ObservableObject {
                                           SafeOnline = SafeOnline },
                 deadline: DateTime.UtcNow.AddMinutes(10));
             await LoadAsync();
-            RunOnUI(() => StatusMessage = _localizer.Get("Backups_Created"));
+            RunOnUI(() => StatusMessage = _localizer.Get("Backups.Created"));
         } catch (RpcException ex) {
             RunOnUI(() => StatusMessage = _localizer.Get(MapBackupError(ex)));
         } finally {
@@ -95,7 +95,7 @@ public sealed partial class BackupsViewModel : ObservableObject {
             return;
         RunOnUI(() => {
             IsBusy        = true;
-            StatusMessage = _localizer.Get("Backups_Restoring");
+            StatusMessage = _localizer.Get("Backups.Restoring");
         });
         try {
             var daemon = await App.Current.DaemonReady;
@@ -103,7 +103,7 @@ public sealed partial class BackupsViewModel : ObservableObject {
                 new RestoreBackupRequest { ServerId = _serverId,
                                            BackupId = item.Id },
                 deadline: DateTime.UtcNow.AddMinutes(10));
-            RunOnUI(() => StatusMessage = _localizer.Get("Backups_Restored"));
+            RunOnUI(() => StatusMessage = _localizer.Get("Backups.Restored"));
         } catch (RpcException ex) {
             RunOnUI(() => StatusMessage = _localizer.Get(MapBackupError(ex)));
         } finally {
@@ -117,14 +117,14 @@ public sealed partial class BackupsViewModel : ObservableObject {
             return;
         RunOnUI(() => {
             IsBusy        = true;
-            StatusMessage = _localizer.Get("Backups_Deleting");
+            StatusMessage = _localizer.Get("Backups.Deleting");
         });
         try {
             var daemon = await App.Current.DaemonReady;
             await daemon.Backups.DeleteAsync(
                 item.ToProto(), deadline: DateTime.UtcNow.AddSeconds(30));
             await LoadAsync();
-            RunOnUI(() => StatusMessage = _localizer.Get("Backups_Deleted"));
+            RunOnUI(() => StatusMessage = _localizer.Get("Backups.Deleted"));
         } catch (RpcException ex) {
             RunOnUI(() => StatusMessage = _localizer.Get(MapBackupError(ex)));
         } finally {

@@ -176,8 +176,8 @@ public sealed partial class ModsViewModel : ObservableObject {
                 Kind           = list.Kind;
                 AcceptsLiteMod = list.Kind == ModKind.Mod;
                 KindLabel      = _localizer.Get(list.Kind == ModKind.Mod
-                                                    ? "Mods_KindMods"
-                                                    : "Mods_KindPlugins");
+                                                    ? "Mods.KindMods"
+                                                    : "Mods.KindPlugins");
                 ApplyFileDiff(files);
                 _nextOffset  = list.NextOffset;
                 HasMoreFiles = list.HasMore;
@@ -390,29 +390,29 @@ public sealed partial class ModsViewModel : ObservableObject {
                     DestPath = destPath,
                 },
                 deadline: DateTime.UtcNow.AddMinutes(2));
-            RunOnUI(() => StatusMessage = _localizer.Get("Mods_ExportDone"));
+            RunOnUI(() => StatusMessage = _localizer.Get("Mods.ExportDone"));
         } catch (RpcException) {
-            RunOnUI(() => StatusMessage = _localizer.Get("Mods_ExportFailed"));
+            RunOnUI(() => StatusMessage = _localizer.Get("Mods.ExportFailed"));
         } finally {
             RunOnUI(() => IsBusy = false);
         }
     }
 
     private static string MapErrorKey(RpcException ex) => ex.StatusCode switch {
-        StatusCode.FailedPrecondition => "Mods_StoppedRequired",
-        _                             => "Mods_OperationFailed",
+        StatusCode.FailedPrecondition => "Mods.StoppedRequired",
+        _                             => "Mods.OperationFailed",
     };
 
     private string FormatRpcError(RpcException ex) => _localizer.Get(
-        "Mods_OperationFailedDetail",
+        "Mods.OperationFailedDetail",
         ("summary", _localizer.Get(MapErrorKey(ex))),
         ("code", ex.StatusCode.ToString()),
         ("detail", string.IsNullOrWhiteSpace(
                              ex.Status.Detail)? ex.Message: ex.Status.Detail));
 
     private string FormatUnexpectedError(Exception ex) =>
-        _localizer.Get("Mods_OperationFailedDetail",
-                       ("summary", _localizer.Get("Mods_OperationFailed")),
+        _localizer.Get("Mods.OperationFailedDetail",
+                       ("summary", _localizer.Get("Mods.OperationFailed")),
                        ("code", ex.GetType().Name), ("detail", ex.Message));
 
     private void RunOnUI(Action action) {

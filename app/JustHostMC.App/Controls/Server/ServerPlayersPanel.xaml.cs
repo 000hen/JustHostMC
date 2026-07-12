@@ -53,11 +53,11 @@ public sealed partial class ServerPlayersPanel : UserControl {
     }
 
     private string PlayersHeader(int count) =>
-        _localizer.Get("Players_Header", ("count", count.ToString()));
+        _localizer.Get("Players.Header", ("count", count.ToString()));
 
     private string PlayersDescription(int count) =>
-        count == 0 ? _localizer.Get("PlayersEmptyHint/Text")
-                   : _localizer.Get("ServerSectionPlayersHint/Text");
+        count == 0 ? _localizer.Get("PlayersEmptyHint.Text")
+                   : _localizer.Get("ServerSectionPlayersHint.Text");
 
     private Visibility HasNoPlayers(int count) => count == 0
                                                       ? Visibility.Visible
@@ -84,7 +84,7 @@ public sealed partial class ServerPlayersPanel : UserControl {
         var view    = new PlayerDataDialog(Server.Id, player);
         var content = new PlayerDialogBase(player, view);
         var dialog  = CreatePlayerDialog(
-            _localizer.Get("PlayerDataDialog_ActionName"), player, content);
+            _localizer.Get("PlayerDataDialog.ActionName"), player, content);
         view.OnHeaderUpdated = content.UpdateHeader;
         await dialog.ShowAsync();
     }
@@ -96,7 +96,7 @@ public sealed partial class ServerPlayersPanel : UserControl {
         var view    = new PlayerInventoryDialog(Server.Id, player);
         var content = new PlayerDialogBase(player, view);
         var dialog  = CreatePlayerDialog(
-            _localizer.Get("PlayerInventoryDialog_ActionName"), player,
+            _localizer.Get("PlayerInventoryDialog.ActionName"), player,
             content);
         view.OnHeaderUpdated = content.UpdateHeader;
         await dialog.ShowAsync();
@@ -110,11 +110,11 @@ public sealed partial class ServerPlayersPanel : UserControl {
             Style    = Application.Current
                            .Resources["DefaultContentDialogStyle"] as Style,
             Title =
-                string.Format(_localizer.Get("PlayerDialogBase_TitleFormat"),
+                string.Format(_localizer.Get("PlayerDialogBase.TitleFormat"),
                               actionName, player.Name),
             Content = content,
             CloseButtonText =
-                _localizer.Get("PlayerDialogBase_CloseButtonText"),
+                _localizer.Get("PlayerDialogBase.CloseButtonText"),
             DefaultButton = ContentDialogButton.Close,
         };
         ContentDialogSizing.Apply(dialog, useWideLayout: true);
@@ -132,9 +132,9 @@ public sealed partial class ServerPlayersPanel : UserControl {
             XamlRoot = XamlRoot,
             Style    = Application.Current
                            .Resources["DefaultContentDialogStyle"] as Style,
-            Title    = _localizer.Get("BanListDialog_Title"),
+            Title    = _localizer.Get("BanListDialog.Title"),
             Content  = content,
-            CloseButtonText = _localizer.Get("BanListDialog_CloseButtonText"),
+            CloseButtonText = _localizer.Get("BanListDialog.CloseButtonText"),
             DefaultButton   = ContentDialogButton.Close,
         };
         dialog.Opened += async (_, _) => await content.LoadAsync();

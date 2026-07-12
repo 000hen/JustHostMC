@@ -112,13 +112,13 @@ public sealed partial class ServerItem : ObservableObject {
     public ServerProgressTracker ProgressTracker { get; set; } = null!;
 
     public string StatusText => _localizer.Get(Status switch {
-        ServerStatus.Running    => "ServerStatus_Running",
-        ServerStatus.Stopped    => "ServerStatus_Stopped",
-        ServerStatus.Installing => "ServerStatus_Installing",
-        ServerStatus.Starting   => "ServerStatus_Starting",
-        ServerStatus.Stopping   => "ServerStatus_Stopping",
-        ServerStatus.Crashed    => "ServerStatus_Crashed",
-        _                       => "ServerStatus_Unknown",
+        ServerStatus.Running    => "ServerStatus.Running",
+        ServerStatus.Stopped    => "ServerStatus.Stopped",
+        ServerStatus.Installing => "ServerStatus.Installing",
+        ServerStatus.Starting   => "ServerStatus.Starting",
+        ServerStatus.Stopping   => "ServerStatus.Stopping",
+        ServerStatus.Crashed    => "ServerStatus.Crashed",
+        _                       => "ServerStatus.Unknown",
     });
 
     public Visibility NavigationInfoBadgeVisibility =>
@@ -134,8 +134,8 @@ public sealed partial class ServerItem : ObservableObject {
         }];
 
     public string NavigationAutomationName => _localizer.Get(
-        HasUnreadStateChange ? "ServerNav_StateChangedAutomationName"
-                             : "ServerNav_AutomationName",
+        HasUnreadStateChange ? "ServerNav.StateChangedAutomationName"
+                             : "ServerNav.AutomationName",
         ("name", Name), ("status", StatusText));
 
     // Prefer the live provider list's friendly name; fall back to the built-in
@@ -145,13 +145,13 @@ public sealed partial class ServerItem : ObservableObject {
             if (_providers?.NameFor(ProviderId) is { Length : > 0 } name)
                 return name;
             return ProviderId switch {
-                "vanilla"  => _localizer.Get("ServerType_Vanilla"),
-                "paper"    => _localizer.Get("ServerType_Paper"),
-                "spigot"   => _localizer.Get("ServerType_Spigot"),
-                "forge"    => _localizer.Get("ServerType_Forge"),
-                "neoforge" => _localizer.Get("ServerType_NeoForge"),
-                "fabric"   => _localizer.Get("ServerType_Fabric"),
-                ""         => _localizer.Get("ServerType_Unknown"),
+                "vanilla"  => _localizer.Get("ServerType.Vanilla"),
+                "paper"    => _localizer.Get("ServerType.Paper"),
+                "spigot"   => _localizer.Get("ServerType.Spigot"),
+                "forge"    => _localizer.Get("ServerType.Forge"),
+                "neoforge" => _localizer.Get("ServerType.NeoForge"),
+                "fabric"   => _localizer.Get("ServerType.Fabric"),
+                ""         => _localizer.Get("ServerType.Unknown"),
                 _          => ProviderId,
             };
         }
@@ -169,15 +169,15 @@ public sealed partial class ServerItem : ObservableObject {
                                               is { Length : > 0 } host
                                           ? $"{host}:{Port}"
                                           : _localizer
-                                                .Get("Server_PortLabel",
+                                                .Get("Server.PortLabel",
                                                      ("port", Port.ToString()))
-        : _localizer.Get("Server_PortAutoValue");
+        : _localizer.Get("Server.PortAutoValue");
     public string StateActionText  => _localizer.Get(Status switch {
-        ServerStatus.Running    => "ServerState_Stop",
-        ServerStatus.Starting   => "ServerState_Starting",
-        ServerStatus.Stopping   => "ServerState_Stopping",
-        ServerStatus.Installing => "ServerState_Installing",
-        _                       => "ServerState_Start",
+        ServerStatus.Running    => "ServerState.Stop",
+        ServerStatus.Starting   => "ServerState.Starting",
+        ServerStatus.Stopping   => "ServerState.Stopping",
+        ServerStatus.Installing => "ServerState.Installing",
+        _                       => "ServerState.Start",
     });
     public string StateActionGlyph => Status switch {
         ServerStatus.Running => "\uE71A",

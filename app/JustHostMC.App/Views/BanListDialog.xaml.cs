@@ -22,8 +22,8 @@ public sealed partial class BanListDialog : UserControl {
     public BanListDialog(string serverId, bool canModify) {
         _serverId            = serverId;
         CanModify            = canModify;
-        StoppedNoticeTitle   = _localizer.Get("BanListStoppedNotice_Title");
-        StoppedNoticeMessage = _localizer.Get("BanListStoppedNotice_Message");
+        StoppedNoticeTitle   = _localizer.Get("BanListStoppedNotice.Title");
+        StoppedNoticeMessage = _localizer.Get("BanListStoppedNotice.Message");
         InitializeComponent();
     }
 
@@ -41,7 +41,7 @@ public sealed partial class BanListDialog : UserControl {
         } catch (RpcException ex) {
             StatusText.Text = ex.Status.Detail.Length > 0
                                   ? ex.Status.Detail
-                                  : _localizer.Get("BanList_LoadFailed");
+                                  : _localizer.Get("BanList.LoadFailed");
         } finally {
             BusyBar.Visibility = Visibility.Collapsed;
         }
@@ -52,7 +52,7 @@ public sealed partial class BanListDialog : UserControl {
             return;
         var target = TargetBox.Text.Trim();
         if (target.Length == 0) {
-            StatusText.Text = _localizer.Get("BanList_TargetRequired");
+            StatusText.Text = _localizer.Get("BanList.TargetRequired");
             return;
         }
 
@@ -73,7 +73,7 @@ public sealed partial class BanListDialog : UserControl {
         } catch (RpcException ex) {
             StatusText.Text = ex.Status.Detail.Length > 0
                                   ? ex.Status.Detail
-                                  : _localizer.Get("BanList_AddFailed");
+                                  : _localizer.Get("BanList.AddFailed");
         } finally {
             BusyBar.Visibility = Visibility.Collapsed;
         }
@@ -81,7 +81,7 @@ public sealed partial class BanListDialog : UserControl {
 
     private async void OnRemoveClick(object sender, RoutedEventArgs e) {
         if (!CanModify) {
-            StatusText.Text = _localizer.Get("BanList_StoppedRequired");
+            StatusText.Text = _localizer.Get("BanList.StoppedRequired");
             return;
         }
         if (sender is not FrameworkElement { Tag : BanEntryItem item })
@@ -100,7 +100,7 @@ public sealed partial class BanListDialog : UserControl {
         } catch (RpcException ex) {
             StatusText.Text = ex.Status.Detail.Length > 0
                                   ? ex.Status.Detail
-                                  : _localizer.Get("BanList_RemoveFailed");
+                                  : _localizer.Get("BanList.RemoveFailed");
         } finally {
             BusyBar.Visibility = Visibility.Collapsed;
         }

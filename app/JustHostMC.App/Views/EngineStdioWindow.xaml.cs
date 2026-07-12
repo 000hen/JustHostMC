@@ -39,7 +39,7 @@ public sealed partial class EngineStdioWindow : Window {
         InitializeFilterGroups();
         _isInitialized = true;
 
-        var title                  = _localizer.Get("EngineMonitor_Title");
+        var title                  = _localizer.Get("EngineMonitor.Title");
         Title                      = title;
         MonitorTitleBar.Title      = title;
         ExtendsContentIntoTitleBar = true;
@@ -213,7 +213,7 @@ public sealed partial class EngineStdioWindow : Window {
                                                          : Visibility.Collapsed;
         var pid              = _host.ProcessId?.ToString() ?? "—";
         StatusText.Text      = _localizer.Get(
-            _isPaused ? "EngineMonitor_StatusPaused" : "EngineMonitor_Status",
+            _isPaused ? "EngineMonitor.StatusPaused" : "EngineMonitor.Status",
             ("pid", pid), ("visible", VisibleEntries.Count.ToString()),
             ("total", _allEntries.Count.ToString()));
     }

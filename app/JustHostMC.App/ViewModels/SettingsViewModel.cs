@@ -105,7 +105,7 @@ public sealed partial class SettingsViewModel : ObservableObject {
             });
         } catch (RpcException) {
             RunOnUI(() => StatusMessage =
-                        _localizer.Get("Settings_LoadFailed"));
+                        _localizer.Get("Settings.LoadFailed"));
         }
 
         await LoadBackendAsync();
@@ -117,13 +117,13 @@ public sealed partial class SettingsViewModel : ObservableObject {
             var daemon = await App.Current.DaemonReady;
             var keys   = await daemon.Settings.GetShopKeysAsync(
                 new Empty(), deadline: DateTime.UtcNow.AddSeconds(30));
-            var status = "Settings_ShopKeyNone";
+            var status = "Settings.ShopKeyNone";
             foreach (var key in keys.Keys) {
                 if (key.ShopId != "curseforge")
                     continue;
-                status = key.HasUserKey      ? "Settings_ShopKeyUser"
-                         : key.HasBuiltinKey ? "Settings_ShopKeyBuiltin"
-                                             : "Settings_ShopKeyNone";
+                status = key.HasUserKey      ? "Settings.ShopKeyUser"
+                         : key.HasBuiltinKey ? "Settings.ShopKeyBuiltin"
+                                             : "Settings.ShopKeyNone";
             }
             RunOnUI(() => CurseForgeKeyStatus = _localizer.Get(status));
         } catch (RpcException) {
@@ -143,12 +143,12 @@ public sealed partial class SettingsViewModel : ObservableObject {
                 deadline: DateTime.UtcNow.AddSeconds(30));
             RunOnUI(() => {
                 CurseForgeKey = "";
-                StatusMessage = _localizer.Get("Settings_Saved");
+                StatusMessage = _localizer.Get("Settings.Saved");
             });
             await LoadShopKeysAsync();
         } catch (RpcException) {
             RunOnUI(() => StatusMessage =
-                        _localizer.Get("Settings_SaveFailed"));
+                        _localizer.Get("Settings.SaveFailed"));
         }
     }
 
@@ -159,13 +159,13 @@ public sealed partial class SettingsViewModel : ObservableObject {
                 new Empty(), deadline: DateTime.UtcNow.AddSeconds(30));
             RunOnUI(() => {
                 ActiveModeText = _localizer.Get(info.ActiveMode == "docker"
-                                                    ? "Backend_Mode_Docker"
-                                                    : "Backend_Mode_OnMachine");
+                                                    ? "Backend.Mode.Docker"
+                                                    : "Backend.Mode.OnMachine");
                 DockerStatusText =
                     info.DockerAvailable
-                        ? _localizer.Get("Backend_DockerAvailable",
+                        ? _localizer.Get("Backend.DockerAvailable",
                                          ("version", info.DockerVersion))
-                        : _localizer.Get("Backend_DockerUnavailable");
+                        : _localizer.Get("Backend.DockerUnavailable");
                 _loadingBackend = true;
                 UseDocker       = info.UseDocker;
                 _loadingBackend = false;
@@ -182,10 +182,10 @@ public sealed partial class SettingsViewModel : ObservableObject {
                 new UseDocker { Enabled = enabled },
                 deadline: DateTime.UtcNow.AddSeconds(30));
             RunOnUI(() => StatusMessage =
-                        _localizer.Get("Backend_DockerPrefSaved"));
+                        _localizer.Get("Backend.DockerPrefSaved"));
         } catch (RpcException) {
             RunOnUI(() => StatusMessage =
-                        _localizer.Get("Settings_SaveFailed"));
+                        _localizer.Get("Settings.SaveFailed"));
         }
     }
 
@@ -226,12 +226,12 @@ public sealed partial class SettingsViewModel : ObservableObject {
             var result = await daemon.Settings.PurgeLogsAsync(
                 new Empty(), deadline: DateTime.UtcNow.AddMinutes(2));
             RunOnUI(() => StatusMessage = _localizer.Get(
-                        "Settings_PurgeResult",
+                        "Settings.PurgeResult",
                         ("count", result.RemovedFiles.ToString()),
                         ("size", FormatSize(result.FreedBytes))));
         } catch (RpcException) {
             RunOnUI(() => StatusMessage =
-                        _localizer.Get("Settings_PurgeFailed"));
+                        _localizer.Get("Settings.PurgeFailed"));
         } finally {
             RunOnUI(() => IsBusy = false);
         }
@@ -241,17 +241,17 @@ public sealed partial class SettingsViewModel : ObservableObject {
     private async Task RemoveAllData() {
         RunOnUI(() => {
             IsBusy        = true;
-            StatusMessage = _localizer.Get("Settings_RemovingData");
+            StatusMessage = _localizer.Get("Settings.RemovingData");
         });
         try {
             var daemon = await App.Current.DaemonReady;
             await daemon.Servers.RemoveAllDataAsync(
                 new Empty(), deadline: DateTime.UtcNow.AddMinutes(2));
             RunOnUI(() => StatusMessage =
-                        _localizer.Get("Settings_DataRemoved"));
+                        _localizer.Get("Settings.DataRemoved"));
         } catch (RpcException) {
             RunOnUI(() => StatusMessage =
-                        _localizer.Get("Settings_RemoveDataFailed"));
+                        _localizer.Get("Settings.RemoveDataFailed"));
         } finally {
             RunOnUI(() => IsBusy = false);
         }

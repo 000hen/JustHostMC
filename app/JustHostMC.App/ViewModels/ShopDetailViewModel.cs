@@ -120,7 +120,7 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
             });
         } catch {
             await RunOnUIAsync(() => StatusMessage =
-                                   _localizer.Get("Shop_LoadFailed"));
+                                   _localizer.Get("Shop.LoadFailed"));
         } finally {
             await RunOnUIAsync(() => IsLoading = false);
         }
@@ -153,7 +153,7 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
             });
         } catch {
             await RunOnUIAsync(() => StatusMessage =
-                                   _localizer.Get("Shop_LoadFailed"));
+                                   _localizer.Get("Shop.LoadFailed"));
         } finally {
             await RunOnUIAsync(() => IsVersionsLoading = false);
         }
@@ -212,7 +212,7 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
             }
             await RunOnUIAsync(() => {
                 InstallSucceeded = true;
-                StatusMessage    = _localizer.Get("Shop_InstallDone");
+                StatusMessage    = _localizer.Get("Shop.InstallDone");
             });
             _shop.Context.OnInstalled();
         } catch (RpcException ex) {
@@ -220,7 +220,7 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
             await RunOnUIAsync(() => StatusMessage = _localizer.Get(key));
         } catch {
             await RunOnUIAsync(() => StatusMessage =
-                                   _localizer.Get("Shop_InstallFailed"));
+                                   _localizer.Get("Shop.InstallFailed"));
         } finally {
             await RunOnUIAsync(() => {
                 IsInstalling = false;
@@ -233,15 +233,15 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
     // ModsViewModel.MapErrorKey); the diagnostic text disambiguates the two
     // FailedPrecondition causes without unpacking ErrorDetail.
     private static string ErrorKey(RpcException ex) => ex.StatusCode switch {
-        StatusCode.NotFound => "Shop_ErrorNotFound",
+        StatusCode.NotFound => "Shop.ErrorNotFound",
         StatusCode.FailedPrecondition when ex.Status.Detail.Contains(
             "not distributable",
-            StringComparison.OrdinalIgnoreCase) => "Shop_ErrorNotDistributable",
+            StringComparison.OrdinalIgnoreCase) => "Shop.ErrorNotDistributable",
         StatusCode.FailedPrecondition when ex.Status.Detail.Contains(
             "key",
-            StringComparison.OrdinalIgnoreCase) => "Shop_ErrorKeyMissing",
-        StatusCode.FailedPrecondition           => "Shop_ErrorServerRunning",
-        _                                       => "Shop_InstallFailed",
+            StringComparison.OrdinalIgnoreCase) => "Shop.ErrorKeyMissing",
+        StatusCode.FailedPrecondition           => "Shop.ErrorServerRunning",
+        _                                       => "Shop.InstallFailed",
     };
 
     private Task RunOnUIAsync(Action action) {

@@ -26,7 +26,7 @@ public sealed class ParserItem : ScriptEntryItem {
         if (info.Formats.Count == 0)
             return info.Description;
         var formats = localizer.Get(
-            "Parsers_Formats", ("formats", string.Join(", ", info.Formats)));
+            "Parsers.Formats", ("formats", string.Join(", ", info.Formats)));
         return info.Description.Length == 0 ? formats
                                             : $"{info.Description}\n{formats}";
     }

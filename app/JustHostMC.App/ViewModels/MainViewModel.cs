@@ -88,19 +88,19 @@ public partial class MainViewModel : ObservableObject {
         _dispatcher     = dispatcher;
         ProgressService = new ServerProgressService(_dispatcher);
         ProviderCatalog = new ProviderCatalog(FetchProvidersAsync);
-        EngineStatus    = _localizer.Get("EngineStatus_Connecting");
+        EngineStatus    = _localizer.Get("EngineStatus.Connecting");
     }
 
     /// <summary>Waits for the engine, probes Health, loads servers, polls
     /// status.</summary>
     public async Task ConnectAsync() {
-        RunOnUI(() => EngineStatus = _localizer.Get("EngineStatus_Connecting"));
+        RunOnUI(() => EngineStatus = _localizer.Get("EngineStatus.Connecting"));
         try {
             var daemon = await App.Current.DaemonReady;
             await daemon.Engine.HealthAsync(
                 new Empty(), deadline: DateTime.UtcNow.AddSeconds(10));
             RunOnUI(() => EngineStatus =
-                        _localizer.Get("EngineStatus_Connected"));
+                        _localizer.Get("EngineStatus.Connected"));
             // Warm the provider catalog so server-type names + capabilities
             // resolve (non-fatal: ServerItem falls back to its id-based name
             // until loaded).
@@ -110,7 +110,7 @@ public partial class MainViewModel : ObservableObject {
             await RefreshAsync();
             StartAutoRefresh();
         } catch (Exception) {
-            RunOnUI(() => EngineStatus = _localizer.Get("EngineStatus_Failed"));
+            RunOnUI(() => EngineStatus = _localizer.Get("EngineStatus.Failed"));
         }
     }
 
@@ -141,7 +141,7 @@ public partial class MainViewModel : ObservableObject {
     /// (1)") for when the user creates a server without typing one.
     /// </summary>
     public string SuggestDefaultServerName() {
-        var baseName          = _localizer.Get("CreateServer_DefaultName");
+        var baseName          = _localizer.Get("CreateServer.DefaultName");
         bool Taken(string n) => Servers.Any(
             s => string.Equals(s.Name, n, StringComparison.OrdinalIgnoreCase));
         if (!Taken(baseName))
@@ -181,14 +181,14 @@ public partial class MainViewModel : ObservableObject {
             tracker.IsReadyToRun     = false;
             tracker.IsIndeterminate  = true;
             tracker.ProgressFraction = 0;
-            tracker.CurrentStep = _localizer.Get("install_progress_preparing");
+            tracker.CurrentStep = _localizer.Get("install.progress.preparing");
 
             InstallLog.Clear();
             InstallFailed          = false;
             IsInstalling           = true;
             InstallIsIndeterminate = true;
             InstallFraction        = 0;
-            InstallStep = _localizer.Get("install_progress_preparing");
+            InstallStep = _localizer.Get("install.progress.preparing");
         });
 
         try {
@@ -217,9 +217,9 @@ public partial class MainViewModel : ObservableObject {
                 tracker.IsInstalling = false;
                 tracker.IsActive     = false;
                 tracker.IsReadyToRun = true;
-                tracker.CurrentStep  = _localizer.Get("install_progress_done") +
+                tracker.CurrentStep  = _localizer.Get("install.progress.done") +
                                        " " +
-                                       _localizer.Get("install_ready_to_run");
+                                       _localizer.Get("install.ready.to.run");
             });
         } catch (RpcException ex) {
             var key    = MapErrorKey(ex);
@@ -304,7 +304,7 @@ public partial class MainViewModel : ObservableObject {
                 tracker.IsReadyToRun    = false;
                 tracker.IsActive        = true;
                 tracker.IsIndeterminate = true;
-                tracker.CurrentStep = _localizer.Get("ServerState_Starting");
+                tracker.CurrentStep = _localizer.Get("ServerState.Starting");
             }
         });
         try {
@@ -327,7 +327,7 @@ public partial class MainViewModel : ObservableObject {
                 tracker.IsReadyToRun    = false;
                 tracker.IsActive        = true;
                 tracker.IsIndeterminate = true;
-                tracker.CurrentStep = _localizer.Get("ServerState_Stopping");
+                tracker.CurrentStep = _localizer.Get("ServerState.Stopping");
             }
         });
         try {
@@ -392,10 +392,10 @@ public partial class MainViewModel : ObservableObject {
                 if (!tracker.IsActive)
                     tracker.IsActive = true;
                 tracker.CurrentStep = _localizer.Get(proto.Status switch {
-                    ServerStatus.Installing => "ServerState_Installing",
-                    ServerStatus.Starting   => "ServerState_Starting",
-                    ServerStatus.Stopping   => "ServerState_Stopping",
-                    _                       => "ServerStatus_Unknown"
+                    ServerStatus.Installing => "ServerState.Installing",
+                    ServerStatus.Starting   => "ServerState.Starting",
+                    ServerStatus.Stopping   => "ServerState.Stopping",
+                    _                       => "ServerStatus.Unknown"
                 });
             }
 

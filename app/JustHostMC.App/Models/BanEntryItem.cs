@@ -16,12 +16,12 @@ public sealed class BanEntryItem {
         Expires = entry.Expires;
         Reason  = entry.Reason;
         TypeText =
-            localizer.Get(Type == BanListType.IpBans ? "BanList_TypeIp"
-                                                     : "BanList_TypePlayer");
+            localizer.Get(Type == BanListType.IpBans ? "BanList.TypeIp"
+                                                     : "BanList.TypePlayer");
         if (string.IsNullOrWhiteSpace(TypeText))
             TypeText = Type == BanListType.IpBans ? "IP" : "Player";
         ReasonText = string.IsNullOrWhiteSpace(Reason)
-                         ? localizer.Get("BanList_NoReason")
+                         ? localizer.Get("BanList.NoReason")
                          : Reason;
         if (string.IsNullOrWhiteSpace(ReasonText))
             ReasonText = string.IsNullOrWhiteSpace(Reason)

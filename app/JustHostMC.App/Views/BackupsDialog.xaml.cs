@@ -43,7 +43,7 @@ public sealed partial class BackupsDialog : UserControl {
         var source = FindBackupFile(item);
         if (source is null) {
             ViewModel.StatusMessage =
-                _localizer.Get("Backups_ExportSourceMissing");
+                _localizer.Get("Backups.ExportSourceMissing");
             return;
         }
 
@@ -63,10 +63,10 @@ public sealed partial class BackupsDialog : UserControl {
         try {
             File.Copy(source, file.Path, overwrite: true);
             ViewModel.StatusMessage =
-                _localizer.Get("Backups_Exported", ("path", file.Path));
+                _localizer.Get("Backups.Exported", ("path", file.Path));
         } catch (Exception ex)
             when (ex is IOException or UnauthorizedAccessException) {
-            ViewModel.StatusMessage = _localizer.Get("Backups_ExportFailed");
+            ViewModel.StatusMessage = _localizer.Get("Backups.ExportFailed");
         }
     }
 
@@ -102,7 +102,7 @@ public sealed partial class BackupsDialog : UserControl {
     private void OnOpenBackupFolderClick(object sender, RoutedEventArgs e) {
         var folder = BackupRoots().FirstOrDefault(Directory.Exists);
         if (folder is null) {
-            ViewModel.StatusMessage = _localizer.Get("Backups_FolderMissing");
+            ViewModel.StatusMessage = _localizer.Get("Backups.FolderMissing");
             return;
         }
 

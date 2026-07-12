@@ -51,7 +51,7 @@ public sealed partial class ConfigEntryItem : ObservableObject {
     };
 
     private static string ResolveDisplayName(ILocalizer localizer, string key) {
-        var localized = SafeGet(localizer, "ConfigName_" + ResourceKey(key));
+        var localized = SafeGet(localizer, "ConfigName." + ResourceKey(key));
         return string.IsNullOrWhiteSpace(localized) ? HumanizeKey(key)
                                                     : localized;
     }
@@ -59,10 +59,10 @@ public sealed partial class ConfigEntryItem : ObservableObject {
     private static string ResolveTypeText(ILocalizer localizer,
                                           ConfigValueType type) {
         var key = type switch {
-            ConfigValueType.ConfigBoolean => "ConfigType_Boolean",
-            ConfigValueType.ConfigInteger => "ConfigType_Integer",
-            ConfigValueType.ConfigEnum    => "ConfigType_Choice",
-            _                             => "ConfigType_Text",
+            ConfigValueType.ConfigBoolean => "ConfigType.Boolean",
+            ConfigValueType.ConfigInteger => "ConfigType.Integer",
+            ConfigValueType.ConfigEnum    => "ConfigType.Choice",
+            _                             => "ConfigType.Text",
         };
         var localized = SafeGet(localizer, key);
         if (!string.IsNullOrWhiteSpace(localized))

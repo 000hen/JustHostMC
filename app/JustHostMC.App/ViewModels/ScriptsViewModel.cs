@@ -319,7 +319,7 @@ public sealed partial class ScriptsViewModel : ObservableObject,
             Scripts.FirstOrDefault(item => item.Id == scriptId)?.Name;
         if (string.IsNullOrEmpty(scriptName)) {
             scriptName = string.IsNullOrEmpty(scriptId)
-                             ? _localizer.Get("Scripts_SystemLogName")
+                             ? _localizer.Get("Scripts.SystemLogName")
                              : scriptId;
         }
         var displayId = string.IsNullOrEmpty(scriptId) ? "—" : scriptId;
@@ -328,7 +328,7 @@ public sealed partial class ScriptsViewModel : ObservableObject,
         session.Entries.Insert(
             0, new ScriptLogEntry(
                    displayId, scriptName, line, timestamp,
-                   _localizer.Get("Scripts_LogEntryFallbackTitle")));
+                   _localizer.Get("Scripts.LogEntryFallbackTitle")));
         while (session.Entries.Count > MaxLogLinesPerSession)
             session.Entries.RemoveAt(session.Entries.Count - 1);
 
@@ -363,8 +363,8 @@ public sealed partial class ScriptsViewModel : ObservableObject,
 
         var session = new ScriptLogSession(
             sessionId, startedAt,
-            _localizer.Get(isCurrentSession ? "Scripts_CurrentSessionTitle"
-                                            : "Scripts_PreviousSessionTitle"));
+            _localizer.Get(isCurrentSession ? "Scripts.CurrentSessionTitle"
+                                            : "Scripts.PreviousSessionTitle"));
         _logSessionsById[sessionId] = session;
 
         var index = 0;
@@ -384,11 +384,11 @@ public sealed partial class ScriptsViewModel : ObservableObject,
             : DateTimeOffset.UtcNow;
 
     private static string MapErrorKey(RpcException ex) => ex.StatusCode switch {
-        StatusCode.InvalidArgument    => "Scripts_ImportInvalid",
-        StatusCode.AlreadyExists      => "Scripts_AlreadyExists",
-        StatusCode.FailedPrecondition => "Scripts_BuiltinProtected",
-        StatusCode.Unimplemented      => "Scripts_NotAvailable",
-        _                             => "Scripts_OperationFailed",
+        StatusCode.InvalidArgument    => "Scripts.ImportInvalid",
+        StatusCode.AlreadyExists      => "Scripts.AlreadyExists",
+        StatusCode.FailedPrecondition => "Scripts.BuiltinProtected",
+        StatusCode.Unimplemented      => "Scripts.NotAvailable",
+        _                             => "Scripts.OperationFailed",
     };
 
     private void RunOnUI(Action action) {

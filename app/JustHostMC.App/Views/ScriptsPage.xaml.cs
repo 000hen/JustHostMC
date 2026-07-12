@@ -40,7 +40,7 @@ public sealed partial class ScriptsPage : Page {
             source = await FileIO.ReadTextAsync(lua);
         } catch (Exception ex)
             when (ex is IOException or UnauthorizedAccessException) {
-            ViewModel.SetStatus(_localizer.Get("Scripts_ReadFailed"));
+            ViewModel.SetStatus(_localizer.Get("Scripts.ReadFailed"));
             return;
         }
 
@@ -55,7 +55,7 @@ public sealed partial class ScriptsPage : Page {
                 jarName    = jarFile.Name;
             } catch (Exception ex)
                 when (ex is IOException or UnauthorizedAccessException) {
-                ViewModel.SetStatus(_localizer.Get("Scripts_ReadFailed"));
+                ViewModel.SetStatus(_localizer.Get("Scripts.ReadFailed"));
                 return;
             }
         }
@@ -77,7 +77,7 @@ public sealed partial class ScriptsPage : Page {
             source = await FileIO.ReadTextAsync(lua);
         } catch (Exception ex)
             when (ex is IOException or UnauthorizedAccessException) {
-            ViewModel.SetStatus(_localizer.Get("Scripts_ReadFailed"));
+            ViewModel.SetStatus(_localizer.Get("Scripts.ReadFailed"));
             return;
         }
 
@@ -98,7 +98,7 @@ public sealed partial class ScriptsPage : Page {
             source = await FileIO.ReadTextAsync(lua);
         } catch (Exception ex)
             when (ex is IOException or UnauthorizedAccessException) {
-            ViewModel.SetStatus(_localizer.Get("Scripts_ReadFailed"));
+            ViewModel.SetStatus(_localizer.Get("Scripts.ReadFailed"));
             return;
         }
 
@@ -142,7 +142,7 @@ public sealed partial class ScriptsPage : Page {
         } catch (Exception ex)
             when (ex is IOException or UnauthorizedAccessException or
                       Win32Exception) {
-            ViewModel.SetStatus(_localizer.Get("Scripts_OpenFolderFailed"));
+            ViewModel.SetStatus(_localizer.Get("Scripts.OpenFolderFailed"));
         }
     }
 
@@ -172,9 +172,9 @@ public sealed partial class ScriptsPage : Page {
                                       ("name", scriptName)),
             Content  = content,
             PrimaryButtonText =
-                _localizer.Get("PermissionConsentDialog_PrimaryButtonText"),
+                _localizer.Get("PermissionConsentDialog.PrimaryButtonText"),
             CloseButtonText =
-                _localizer.Get("PermissionConsentDialog_CloseButtonText"),
+                _localizer.Get("PermissionConsentDialog.CloseButtonText"),
             DefaultButton = ContentDialogButton.Primary,
         };
         ContentDialogSizing.Apply(dialog);

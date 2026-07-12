@@ -309,7 +309,7 @@ public sealed partial class MainWindow : Window {
             ServerStateTip.Subtitle = TipSubtitle(notification.Kind);
             ServerStateTip.ActionButtonContent =
                 notification.Kind == ServerTipKind.Installed
-                    ? _localizer.Get("ServerTeachingTip_StartAction")
+                    ? _localizer.Get("ServerTeachingTip.StartAction")
                     : null;
             ServerStateTip.IsOpen = true;
             return;
@@ -319,21 +319,21 @@ public sealed partial class MainWindow : Window {
     private string TipTitle(ServerTipNotification notification) =>
         _localizer.Get(
             notification.Kind switch {
-                ServerTipKind.Installed => "ServerTeachingTip_InstalledTitle",
-                ServerTipKind.Started   => "ServerTeachingTip_StartedTitle",
-                ServerTipKind.Stopped   => "ServerTeachingTip_StoppedTitle",
-                ServerTipKind.Crashed   => "ServerTeachingTip_CrashedTitle",
-                _                       => "ServerStatus_Unknown",
+                ServerTipKind.Installed => "ServerTeachingTip.InstalledTitle",
+                ServerTipKind.Started   => "ServerTeachingTip.StartedTitle",
+                ServerTipKind.Stopped   => "ServerTeachingTip.StoppedTitle",
+                ServerTipKind.Crashed   => "ServerTeachingTip.CrashedTitle",
+                _                       => "ServerStatus.Unknown",
             },
             ("server", notification.Server.Name));
 
     private string TipSubtitle(ServerTipKind kind) =>
         _localizer.Get(kind switch {
-            ServerTipKind.Installed => "ServerTeachingTip_InstalledMessage",
-            ServerTipKind.Started   => "ServerTeachingTip_StartedMessage",
-            ServerTipKind.Stopped   => "ServerTeachingTip_StoppedMessage",
-            ServerTipKind.Crashed   => "ServerTeachingTip_CrashedMessage",
-            _                       => "ServerStatus_Unknown",
+            ServerTipKind.Installed => "ServerTeachingTip.InstalledMessage",
+            ServerTipKind.Started   => "ServerTeachingTip.StartedMessage",
+            ServerTipKind.Stopped   => "ServerTeachingTip.StoppedMessage",
+            ServerTipKind.Crashed   => "ServerTeachingTip.CrashedMessage",
+            _                       => "ServerStatus.Unknown",
         });
 
     private void OnServerStateTipClosed() {
@@ -428,12 +428,12 @@ public sealed partial class MainWindow : Window {
             XamlRoot = Content.XamlRoot,
             Style    = Application.Current
                            .Resources["DefaultContentDialogStyle"] as Style,
-            Title    = localizer.Get("CreateServerDialog_Title"),
+            Title    = localizer.Get("CreateServerDialog.Title"),
             Content  = content,
             PrimaryButtonText =
-                localizer.Get("CreateServerDialog_PrimaryButtonText"),
+                localizer.Get("CreateServerDialog.PrimaryButtonText"),
             CloseButtonText =
-                localizer.Get("CreateServerDialog_CloseButtonText"),
+                localizer.Get("CreateServerDialog.CloseButtonText"),
             DefaultButton          = ContentDialogButton.Primary,
             IsPrimaryButtonEnabled = content.CanSubmit,
         };

@@ -103,17 +103,17 @@ public sealed partial class ShopDetailPage : Page {
                     .ToArray();
             var panel = new StackPanel { Spacing = 8 };
             panel.Children.Add(new TextBlock {
-                Text         = _localizer.Get("Shop_DependencyPromptBody"),
+                Text         = _localizer.Get("Shop.DependencyPromptBody"),
                 TextWrapping = TextWrapping.Wrap,
             });
             foreach (var pick in picks) panel.Children.Add(pick);
 
             var dialog = new ContentDialog {
                 XamlRoot = XamlRoot,
-                Title    = _localizer.Get("Shop_DependencyPromptTitle"),
+                Title    = _localizer.Get("Shop.DependencyPromptTitle"),
                 Content = new ScrollViewer { Content = panel, MaxHeight = 320 },
-                PrimaryButtonText = _localizer.Get("Shop_InstallConfirm"),
-                CloseButtonText   = _localizer.Get("Common_Cancel"),
+                PrimaryButtonText = _localizer.Get("Shop.InstallConfirm"),
+                CloseButtonText   = _localizer.Get("Common.Cancel"),
                 DefaultButton     = ContentDialogButton.Primary,
             };
             if (await dialog.ShowAsync() != ContentDialogResult.Primary)

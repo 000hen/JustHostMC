@@ -124,7 +124,7 @@ public sealed partial class ServerDialog : UserControl {
         var author = provider.Author?.Trim() ?? string.Empty;
         if (author.Length > 0) {
             ProviderAuthorText.Text = _localizer.Get(
-                "CreateServer_ProviderAuthor", ("author", author));
+                "CreateServer.ProviderAuthor", ("author", author));
             ProviderAuthorText.Visibility = Visibility.Visible;
         } else {
             ProviderAuthorText.Visibility = Visibility.Collapsed;

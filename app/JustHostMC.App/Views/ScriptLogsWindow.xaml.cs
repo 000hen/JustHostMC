@@ -20,7 +20,7 @@ public sealed partial class ScriptLogsWindow : Window {
         InitializeComponent();
         Root.DataContext = this;
 
-        var title = new LocalizationService().Get("ScriptLogsWindow_Title");
+        var title = new LocalizationService().Get("ScriptLogsWindow.Title");
         Title     = title;
         LogsTitleBar.Title         = title;
         ExtendsContentIntoTitleBar = true;

@@ -12,7 +12,7 @@ public sealed class LocalizationService : ILocalizer {
 
     public string Get(string key) {
         try {
-            return _loader.GetString(NormalizeKey(key));
+            return _loader.GetString(ToLookupPath(key));
         } catch {
             return key;
         }
@@ -21,7 +21,7 @@ public sealed class LocalizationService : ILocalizer {
     public string Get(string key, params(string Name, string Value)[] args) {
         string format;
         try {
-            format = _loader.GetString(NormalizeKey(key));
+            format = _loader.GetString(ToLookupPath(key));
         } catch {
             format = key;
         }
@@ -30,8 +30,6 @@ public sealed class LocalizationService : ILocalizer {
         return format;
     }
 
-    // Backend keys use '.' separators ("install.progress.downloading_server").
-    // Resource names are flat (underscored) to avoid the resw/PRI treating dots
-    // as the x:Uid "Uid.Property" convention, so map '.' -> '_'.
-    private static string NormalizeKey(string key) => key.Replace('.', '_');
+    // MRT Core represents segmented resource identifiers as slash-separated paths.
+    private static string ToLookupPath(string key) => key.Replace('.', '/');
 }

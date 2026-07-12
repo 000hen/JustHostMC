@@ -8,16 +8,16 @@ namespace JustHostMC.App.Models;
 /// cards).</summary>
 public static class PermissionLabels {
     public static string LabelKey(PermissionKind kind) => kind switch {
-        PermissionKind.PermissionNetwork       => "Permission_Network",
-        PermissionKind.PermissionInstall       => "Permission_Install",
-        PermissionKind.PermissionFsServer      => "Permission_FsServer",
-        PermissionKind.PermissionConsoleRead   => "Permission_ConsoleRead",
-        PermissionKind.PermissionConsoleWrite  => "Permission_ConsoleWrite",
-        PermissionKind.PermissionServerControl => "Permission_ServerControl",
-        PermissionKind.PermissionSchedule      => "Permission_Schedule",
-        PermissionKind.PermissionServerQuery   => "Permission_ServerQuery",
-        PermissionKind.PermissionPlayerManage  => "Permission_PlayerManage",
-        _                                      => "Permission_Unknown",
+        PermissionKind.PermissionNetwork       => "Permission.Network",
+        PermissionKind.PermissionInstall       => "Permission.Install",
+        PermissionKind.PermissionFsServer      => "Permission.FsServer",
+        PermissionKind.PermissionConsoleRead   => "Permission.ConsoleRead",
+        PermissionKind.PermissionConsoleWrite  => "Permission.ConsoleWrite",
+        PermissionKind.PermissionServerControl => "Permission.ServerControl",
+        PermissionKind.PermissionSchedule      => "Permission.Schedule",
+        PermissionKind.PermissionServerQuery   => "Permission.ServerQuery",
+        PermissionKind.PermissionPlayerManage  => "Permission.PlayerManage",
+        _                                      => "Permission.Unknown",
     };
 
     /// <summary>Resolves the localized label for a permission kind.</summary>

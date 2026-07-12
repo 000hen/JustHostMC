@@ -45,6 +45,18 @@ public sealed class ResourcePolicyTests {
         Assert.DoesNotContain("key.Replace('.', '_')", source, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void ProgrammaticKeysDoNotUseUnderscoreSeparators() {
+        var offenders = Directory.EnumerateFiles(AppRoot, "*.cs", SearchOption.AllDirectories)
+            .SelectMany(path => File.ReadLines(path)
+                .Select((line, index) => (path, line, number: index + 1)))
+            .Where(item => Regex.IsMatch(
+                item.line,
+                @"\.Get\(\s*""[A-Za-z0-9]+_[A-Za-z0-9_]"))
+            .Select(item => $"{Path.GetRelativePath(Root, item.path)}:{item.number}");
+        Assert.Empty(offenders);
+    }
+
     private static IReadOnlyList<XElement> LoadResources(string language) =>
         XDocument.Load(Path.Combine(AppRoot, "Strings", language, "Resources.resw"))
             .Root!.Elements("data").ToArray();

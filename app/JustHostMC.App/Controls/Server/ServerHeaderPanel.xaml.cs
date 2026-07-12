@@ -135,12 +135,12 @@ public sealed partial class ServerHeaderPanel : UserControl {
 
     private string PortValueText(int port) => port >
                                               0? port.ToString()
-        : _localizer.Get("Server_PortAutoValue");
+        : _localizer.Get("Server.PortAutoValue");
 
     private string MemoryText(int memoryMb) => memoryMb >
                                                0? _localizer
-                                                   .Get("Server_MemoryValue",
+                                                   .Get("Server.MemoryValue",
                                                         ("memory",
                                                          memoryMb.ToString()))
-        : _localizer.Get("Server_ValueUnknown");
+        : _localizer.Get("Server.ValueUnknown");
 }

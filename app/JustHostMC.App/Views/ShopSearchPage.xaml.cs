@@ -110,7 +110,7 @@ public sealed partial class ShopSearchPage : Page {
     }
 
     public string ResultSummary(long total, string query) =>
-        string.Format(_localizer.Get("Shop_ResultSummary"), total, query);
+        string.Format(_localizer.Get("Shop.ResultSummary"), total, query);
 
     public Visibility ShowEmpty(bool loading, long total) =>
         !loading && total == 0 && ViewModel.SearchResults.Count == 0

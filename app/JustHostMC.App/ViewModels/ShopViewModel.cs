@@ -147,7 +147,7 @@ public sealed partial class ShopViewModel : ObservableObject {
             });
         } catch {
             await RunOnUIAsync(() => StatusMessage =
-                                   _localizer.Get("Shop_LoadFailed"));
+                                   _localizer.Get("Shop.LoadFailed"));
         }
     }
 
@@ -193,7 +193,7 @@ public sealed partial class ShopViewModel : ObservableObject {
         } catch {
             await RunOnUIAsync(() => {
                 if (generation == _homeGeneration)
-                    StatusMessage = _localizer.Get("Shop_LoadFailed");
+                    StatusMessage = _localizer.Get("Shop.LoadFailed");
             });
         } finally {
             await RunOnUIAsync(() => {
@@ -249,7 +249,7 @@ public sealed partial class ShopViewModel : ObservableObject {
             return page.Projects.Select(p => new ShopProjectItem(p)).ToArray();
         } catch {
             await RunOnUIAsync(() => StatusMessage =
-                                   _localizer.Get("Shop_LoadFailed"));
+                                   _localizer.Get("Shop.LoadFailed"));
             return Array.Empty<ShopProjectItem>();
         } finally {
             await RunOnUIAsync(() => IsSearchLoading = false);

@@ -16,7 +16,7 @@ public sealed class ModFileItem : ObservableObject {
         SizeBytes = sizeBytes;
         _icon     = icon;
         if (metadata is not null && metadata.ParseError.Length > 0) {
-            ParseError = localizer.Get("Mods_ParseFailed",
+            ParseError = localizer.Get("Mods.ParseFailed",
                                        ("error", metadata.ParseError));
         }
         if (metadata is { Parsed : true }) {
@@ -32,12 +32,12 @@ public sealed class ModFileItem : ObservableObject {
             CompatibilityWarning =
                 (metadata.LoaderMismatch, metadata.GameVersionMismatch) switch {
                     (true, true) => localizer.Get(
-                        "Mods_TypeAndVersionMismatch", ("loader", Loader),
+                        "Mods.TypeAndVersionMismatch", ("loader", Loader),
                         ("version", metadata.GameVersionRequirement)),
                     (true, false) =>
-                        localizer.Get("Mods_TypeMismatch", ("loader", Loader)),
+                        localizer.Get("Mods.TypeMismatch", ("loader", Loader)),
                     (false, true) => localizer.Get(
-                        "Mods_VersionMismatch",
+                        "Mods.VersionMismatch",
                         ("version", metadata.GameVersionRequirement)),
                     _ => "",
                 };

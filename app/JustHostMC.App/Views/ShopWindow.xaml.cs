@@ -78,7 +78,7 @@ public sealed partial class ShopWindow : Window {
             context, DispatcherQueue.GetForCurrentThread(), _localizer);
         InitializeComponent();
 
-        var title                  = _localizer.Get("ShopWindow_Title");
+        var title                  = _localizer.Get("ShopWindow.Title");
         Title                      = title;
         ShopTitleBar.Title         = title;
         ExtendsContentIntoTitleBar = true;
@@ -141,7 +141,7 @@ public sealed partial class ShopWindow : Window {
                                              IsEnabled = shop.Ready };
             if (!shop.Ready)
                 ToolTipService.SetToolTip(
-                    item, _localizer.Get("Shop_KeyMissingTooltip"));
+                    item, _localizer.Get("Shop.KeyMissingTooltip"));
             ShopSelector.Items.Add(item);
         }
         var selected = ShopSelector.Items.FirstOrDefault(

@@ -64,6 +64,26 @@ function resolve_file(ctx)
 end
 `
 
+const categoryShopSrc = `
+meta = { id = "category-shop", name = "Category Shop" }
+function categories(ctx)
+  return { categories = {
+    { id = "12", name = "Technology", slug = "technology",
+      localization_key = "shop.category.curseforge.technology" },
+  } }
+end
+function search(ctx)
+  return { projects = {{ project_id = "p", title = "P",
+    distribution = "website_only" }}, total = 1 }
+end
+function home(ctx) return { sections = {} } end
+function detail(ctx) return { project = { project_id = ctx.project_id } } end
+function versions(ctx) return { versions = {} } end
+function resolve_file(ctx)
+  return { url = "https://example.test/x.jar", filename = "x.jar" }
+end
+`
+
 func newTestShopSet(t *testing.T, keyFn func(string) string) *ShopSet {
 	t.Helper()
 	return NewShopSet(NewHost(nil, nil, nil), nil, keyFn)
@@ -103,6 +123,54 @@ func TestShopSearchMapsResult(t *testing.T) {
 	if p.ID != "sodium" || p.Downloads != 7 || p.Follows != 3 ||
 		len(p.Categories) != 1 || p.Categories[0] != "tech" || p.ProjectType != "mod" {
 		t.Fatalf("project: %+v", p)
+	}
+}
+
+func TestShopCategoriesMapsOptionalFunction(t *testing.T) {
+	ss := newTestShopSet(t, nil)
+	shop, err := ss.AddSource(context.Background(), categoryShopSrc, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	categories, err := shop.Categories(context.Background(), "mod")
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := ShopCategory{
+		ID:              "12",
+		Name:            "Technology",
+		Slug:            "technology",
+		LocalizationKey: "shop.category.curseforge.technology",
+	}
+	if len(categories) != 1 || categories[0] != want {
+		t.Fatalf("categories = %#v, want %#v", categories, want)
+	}
+}
+
+func TestShopCategoriesMissingFunctionIsEmpty(t *testing.T) {
+	ss := newTestShopSet(t, nil)
+	shop, err := ss.AddSource(context.Background(), testShopSrc, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	categories, err := shop.Categories(context.Background(), "mod")
+	if err != nil || len(categories) != 0 {
+		t.Fatalf("categories = %#v, err = %v", categories, err)
+	}
+}
+
+func TestShopProjectMapsDistribution(t *testing.T) {
+	ss := newTestShopSet(t, nil)
+	shop, err := ss.AddSource(context.Background(), categoryShopSrc, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	page, err := shop.Search(context.Background(), ShopQuery{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := page.Projects[0].Distribution; got != ShopDistributionWebsiteOnly {
+		t.Fatalf("distribution = %q", got)
 	}
 }
 

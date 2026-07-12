@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using JustHostMC.App.Collections;
 using Microsoft.UI.Dispatching;
 
 namespace JustHostMC.App.Services;
@@ -69,7 +70,9 @@ public partial class ServerProgressTracker : ObservableObject {
 
     partial void OnIsActiveChanged(bool value) => IsActiveChanged?.Invoke(this);
 
-    public ObservableCollection<string> InstallLog { get; } = new();
+    public BoundedObservableCollection<string> InstallLog {
+        get;
+    } = new(MaxLogLines);
 
     public double ProgressPercentage => ProgressFraction * 100;
 
@@ -100,15 +103,17 @@ public partial class ServerProgressTracker : ObservableObject {
         ServerName  = serverName;
     }
 
-    public void AppendLog(string line) {
-        if (line.Length > MaxLogLineLength)
-            line = line[..MaxLogLineLength] + "…";
-
+    public void AppendLogs(IEnumerable<string> lines) {
         RunOnUI(() => {
-            InstallLog.Add(line);
-            while (InstallLog.Count > MaxLogLines) InstallLog.RemoveAt(0);
+            var normalized =
+                lines
+                    .Select(line => line.Length > MaxLogLineLength
+                                        ? line[..MaxLogLineLength] + "…"
+                                        : line)
+                    .ToArray();
+            InstallLog.AddRange(normalized);
 
-            LogAppended?.Invoke(line);
+            foreach (var line in normalized) LogAppended?.Invoke(line);
         });
     }
 

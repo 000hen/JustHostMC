@@ -293,6 +293,8 @@ public sealed partial class ModsViewModel : ObservableObject {
 
     /// <summary>Streams a chosen jar to the engine, then refreshes.</summary>
     public async Task UploadAsync(StorageFile file) {
+        using var backgroundTask =
+            App.Current.BackgroundTasks.Begin("mod-upload");
         RunOnUI(() => {
             IsBusy        = true;
             StatusMessage = "";
@@ -378,6 +380,8 @@ public sealed partial class ModsViewModel : ObservableObject {
     /// Read-only on the server dir, so it works while the server
     /// runs.</summary>
     public async Task ExportAllAsync(string destPath) {
+        using var backgroundTask =
+            App.Current.BackgroundTasks.Begin("mod-export");
         RunOnUI(() => {
             IsBusy        = true;
             StatusMessage = "";

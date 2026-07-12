@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Grpc.Core;
 using JustHostMC.App.Models;
 using JustHostMC.App.Services;
+using JustHostMC.Core;
 using McManager.Grpc;
 using Microsoft.UI.Dispatching;
 
@@ -26,9 +27,9 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
         _localizer  = localizer;
         _shopId     = card.Project.ShopId;
         _projectId  = card.Project.ProjectId;
-        Card        = card;
         SourceName =
             shop.Shops.FirstOrDefault(s => s.Id == _shopId)?.Name ?? _shopId;
+        Card = card;
     }
 
     /// <summary>The card the user clicked; the header shows it immediately
@@ -47,7 +48,20 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
         get; private set;
     }
 
-    public bool CanInstallLatest => LatestRelease is not null && !IsInstalling;
+    public ShopPrimaryAction PrimaryAction =>
+        ShopPresentationPolicy.DeterminePrimaryAction(Card.Project.Distribution,
+                                                      WebsiteUrl);
+
+    public bool IsWebsiteAction =>
+        PrimaryAction.Kind == ShopPrimaryActionKind.Website;
+
+    public string PrimaryActionLabel =>
+        IsWebsiteAction
+            ? _localizer.Get("Shop_GetOnSource", ("source", SourceName))
+            : _localizer.Get("Shop_InstallAction");
+
+    public bool CanInstallLatest =>
+        LatestRelease is not null && PrimaryAction.IsEnabled && !IsInstalling;
 
     [ObservableProperty]
     public partial string BodyHtml { get; private set; } = "";
@@ -117,6 +131,7 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
                     Gallery.Add(new ShopGalleryItem(image));
                 OnPropertyChanged(nameof(HasGallery));
                 BodyHtml = html;
+                RefreshPrimaryAction();
             });
         } catch {
             await RunOnUIAsync(() => StatusMessage =
@@ -149,7 +164,7 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
                         .OrderByDescending(version => version.Version.Date,
                                            StringComparer.Ordinal)
                         .FirstOrDefault();
-                OnPropertyChanged(nameof(CanInstallLatest));
+                RefreshPrimaryAction();
             });
         } catch {
             await RunOnUIAsync(() => StatusMessage =
@@ -184,9 +199,10 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
     /// deps).</summary>
     public async Task InstallAsync(ShopVersionItem version,
                                    IReadOnlyList<ShopDependency> dependencies) {
+        using var backgroundTask =
+            App.Current.BackgroundTasks.Begin("mod-download");
         await RunOnUIAsync(() => {
-            IsInstalling = true;
-            OnPropertyChanged(nameof(CanInstallLatest));
+            IsInstalling     = true;
             InstallSucceeded = false;
             InstallProgress  = 0;
             StatusMessage    = "";
@@ -222,10 +238,22 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
             await RunOnUIAsync(() => StatusMessage =
                                    _localizer.Get("Shop_InstallFailed"));
         } finally {
-            await RunOnUIAsync(() => {
-                IsInstalling = false;
-                OnPropertyChanged(nameof(CanInstallLatest));
-            });
+            await RunOnUIAsync(() => { IsInstalling = false; });
+        }
+    }
+
+    partial void OnIsInstallingChanged(bool value) => RefreshPrimaryAction();
+
+    private void RefreshPrimaryAction() {
+        OnPropertyChanged(nameof(PrimaryAction));
+        OnPropertyChanged(nameof(IsWebsiteAction));
+        OnPropertyChanged(nameof(PrimaryActionLabel));
+        OnPropertyChanged(nameof(CanInstallLatest));
+        var label   = PrimaryActionLabel;
+        var enabled = PrimaryAction.IsEnabled && !IsInstalling;
+        foreach (var version in Versions) {
+            version.ActionLabel   = label;
+            version.ActionEnabled = enabled;
         }
     }
 

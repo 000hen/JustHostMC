@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Grpc.Core;
+using JustHostMC.App.Collections;
 using JustHostMC.App.Models;
 using JustHostMC.App.Services;
 using JustHostMC.Core;
@@ -22,6 +23,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
 
     private readonly ILocalizer _localizer;
     private readonly DispatcherQueue _dispatcher;
+    private readonly BackgroundTaskService _backgroundTasks;
     private readonly PendingServerUpdates _pendingUpdates    = new();
     private readonly ServerChangeSynchronizer _serverChanges = new();
     private readonly ServerListState _serverState            = new();
@@ -40,7 +42,9 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
         NavigationDestination.Scripts,
         NavigationDestination.Settings,
     };
-    public ObservableCollection<string> InstallLog { get; } = new();
+    public BoundedObservableCollection<string> InstallLog {
+        get;
+    } = new(MaxLogLines);
     public ServerProgressService ProgressService { get; }
 
     /// <summary>Cached provider list, shared with ServerItems for friendly
@@ -55,7 +59,6 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
     public int BusyServers =>
         Servers.Count(s => s.Status is ServerStatus.Installing or
                                ServerStatus.Starting or ServerStatus.Stopping);
-
     [ObservableProperty]
     public partial string EngineStatus { get; private set; }
 
@@ -84,12 +87,14 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
         get; private set;
     } = true;
 
-    public MainViewModel(ILocalizer localizer, DispatcherQueue dispatcher) {
-        _localizer      = localizer;
-        _dispatcher     = dispatcher;
-        ProgressService = new ServerProgressService(_dispatcher);
-        ProviderCatalog = new ProviderCatalog(FetchProvidersAsync);
-        EngineStatus    = _localizer.Get("EngineStatus_Connecting");
+    public MainViewModel(ILocalizer localizer, DispatcherQueue dispatcher,
+                         BackgroundTaskService backgroundTasks) {
+        _localizer       = localizer;
+        _dispatcher      = dispatcher;
+        _backgroundTasks = backgroundTasks;
+        ProgressService  = new ServerProgressService(_dispatcher);
+        ProviderCatalog  = new ProviderCatalog(FetchProvidersAsync);
+        EngineStatus     = _localizer.Get("EngineStatus_Connecting");
     }
 
     /// <summary>Waits for the engine, probes Health, and starts the server
@@ -164,6 +169,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
     /// <summary>Creates a server, streaming localized install progress + raw
     /// log.</summary>
     public async Task InstallServerAsync(CreateServerRequest request) {
+        using var backgroundTask = _backgroundTasks.Begin("server-install");
         var tracker = ProgressService.GetOrCreateTracker(null, request.Name);
         RunOnUI(() => {
             tracker.InstallLog.Clear();
@@ -183,26 +189,18 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
             InstallStep = _localizer.Get("install_progress_preparing");
         });
 
+        var progressBuffer = new InstallProgressBuffer(
+            _dispatcher, (step, fraction, logLines) => ApplyInstallProgress(
+                             step, fraction, logLines, tracker));
+
         try {
             var daemon     = await App.Current.DaemonReady;
             using var call = daemon.Servers.Create(request);
             await foreach (var progress in call.ResponseStream.ReadAllAsync()
                                .ConfigureAwait(false)) {
-                var snapshot = progress;
-                RunOnUI(() => {
-                    ApplyInstallProgress(snapshot);
-                    if (snapshot.Step is { Key.Length : > 0 } step)
-                        tracker.CurrentStep = _localizer.Get(step.Key);
-                    if (snapshot.Fraction >= 0) {
-                        tracker.IsIndeterminate  = false;
-                        tracker.ProgressFraction = snapshot.Fraction;
-                    } else {
-                        tracker.IsIndeterminate = true;
-                    }
-                    if (!string.IsNullOrEmpty(snapshot.LogLine))
-                        tracker.AppendLog(snapshot.LogLine);
-                });
+                progressBuffer.Post(progress);
             }
+            await progressBuffer.FlushAsync();
             RunOnUI(() => {
                 IsInstalling         = false;
                 tracker.IsInstalling = false;
@@ -213,9 +211,11 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
                                        _localizer.Get("install_ready_to_run");
             });
         } catch (RpcException ex) {
+            await progressBuffer.FlushAsync();
             var key    = MapErrorKey(ex);
             var detail = ex.Status.Detail;
             RunOnUI(() => {
+                IsInstalling           = false;
                 InstallFailed          = true;
                 InstallIsIndeterminate = false;
                 InstallStep = string.IsNullOrEmpty(detail)
@@ -223,6 +223,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
                                   : $"{_localizer.Get(key)}: {detail}";
 
                 tracker.HasFailed       = true;
+                tracker.IsInstalling    = false;
                 tracker.IsIndeterminate = false;
                 tracker.IsActive        = false;
                 tracker.CurrentStep     = InstallStep;
@@ -297,7 +298,8 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
     private async Task StartServer(ServerItem? item) {
         if (item is null)
             return;
-        var tracker = item.ProgressTracker;
+        using var backgroundTask = _backgroundTasks.Begin("server-start");
+        var tracker              = item.ProgressTracker;
         RunOnUI(() => {
             if (tracker is not null) {
                 tracker.IsReadyToRun    = false;
@@ -319,7 +321,8 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
     private async Task StopServer(ServerItem? item) {
         if (item is null)
             return;
-        var tracker = item.ProgressTracker;
+        using var backgroundTask = _backgroundTasks.Begin("server-stop");
+        var tracker              = item.ProgressTracker;
         RunOnUI(() => {
             if (tracker is not null) {
                 tracker.IsReadyToRun    = false;
@@ -350,32 +353,39 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
         }
     }
 
-    private void ApplyInstallProgress(InstallProgress progress) {
-        if (progress.Step is { Key.Length : > 0 } step)
-            InstallStep = _localizer.Get(step.Key);
-
-        if (progress.Fraction >= 0) {
-            InstallIsIndeterminate = false;
-            InstallFraction        = progress.Fraction;
-        } else {
-            InstallIsIndeterminate = true;
+    private void ApplyInstallProgress(LocalizedMessage? step, double fraction,
+                                      IReadOnlyList<string> logLines,
+                                      ServerProgressTracker tracker) {
+        if (step is { Key.Length : > 0 }) {
+            InstallStep         = _localizer.Get(step.Key);
+            tracker.CurrentStep = InstallStep;
         }
 
-        if (!string.IsNullOrEmpty(progress.LogLine))
-            AppendLog(progress.LogLine);
-    }
+        if (fraction >= 0) {
+            InstallIsIndeterminate   = false;
+            InstallFraction          = fraction;
+            tracker.IsIndeterminate  = false;
+            tracker.ProgressFraction = fraction;
+        } else {
+            InstallIsIndeterminate  = true;
+            tracker.IsIndeterminate = true;
+        }
 
-    private void AppendLog(string line) {
-        if (line.Length > MaxLogLineLength)
-            line = line[..MaxLogLineLength] + "…";
-        InstallLog.Add(line);
-        while (InstallLog.Count > MaxLogLines) InstallLog.RemoveAt(0);
+        var normalized =
+            logLines
+                .Select(line => line.Length > MaxLogLineLength
+                                    ? line[..MaxLogLineLength] + "…"
+                                    : line)
+                .ToArray();
+        InstallLog.AddRange(normalized);
+        tracker.AppendLogs(normalized);
     }
 
     private void MergeServers(
         System.Collections.Generic.IEnumerable<Server> incoming) {
         var list = incoming.ToList();
         _serverState.Reconcile(list);
+        _backgroundTasks.SynchronizeServers(list);
 
         foreach (var proto in list) UpsertServer(proto);
 
@@ -511,5 +521,72 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
             action();
         else
             _dispatcher.TryEnqueue(() => action());
+    }
+
+    private sealed class InstallProgressBuffer(
+        DispatcherQueue dispatcher,
+        Action<LocalizedMessage?, double, IReadOnlyList<string>> apply) {
+        private readonly object _gate           = new();
+        private readonly List<string> _logLines = new();
+        private LocalizedMessage? _step;
+        private double _fraction = -1;
+        private bool _hasProgress;
+        private bool _scheduled;
+
+        public void Post(InstallProgress progress) {
+            lock (_gate) {
+                if (progress.Step is { Key.Length : > 0 })
+                    _step = progress.Step;
+                _fraction    = progress.Fraction;
+                _hasProgress = true;
+                if (!string.IsNullOrEmpty(progress.LogLine))
+                    _logLines.Add(progress.LogLine);
+
+                if (_scheduled)
+                    return;
+
+                _scheduled = true;
+                if (!dispatcher.TryEnqueue(DispatcherQueuePriority.Low, Drain))
+                    _scheduled = false;
+            }
+        }
+
+        public Task FlushAsync() {
+            if (dispatcher.HasThreadAccess) {
+                Drain();
+                return Task.CompletedTask;
+            }
+
+            var completion = new TaskCompletionSource(
+                TaskCreationOptions.RunContinuationsAsynchronously);
+            if (!dispatcher.TryEnqueue(DispatcherQueuePriority.Low, () => {
+                    Drain();
+                    completion.SetResult();
+                })) {
+                completion.SetResult();
+            }
+            return completion.Task;
+        }
+
+        private void Drain() {
+            LocalizedMessage? step;
+            double fraction;
+            string[] lines;
+            bool hasProgress;
+            lock (_gate) {
+                hasProgress  = _hasProgress;
+                step         = _step;
+                fraction     = _fraction;
+                lines        = _logLines.ToArray();
+                _step        = null;
+                _fraction    = -1;
+                _hasProgress = false;
+                _logLines.Clear();
+                _scheduled = false;
+            }
+
+            if (hasProgress)
+                apply(step, fraction, lines);
+        }
     }
 }

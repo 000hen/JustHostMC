@@ -46,17 +46,24 @@ type ServerService struct {
 	mcmanagerv1.UnimplementedServerServiceServer
 	cfg ServerServiceConfig
 
-	mu        sync.Mutex
-	instances map[string]isolation.Instance
-	stopping  map[string]bool
+	mu            sync.Mutex
+	instances     map[string]isolation.Instance
+	stopping      map[string]bool
+	installations map[string]*activeInstallation
+}
+
+type activeInstallation struct {
+	cancel context.CancelFunc
+	done   chan struct{}
 }
 
 // NewServerService builds a ServerService.
 func NewServerService(cfg ServerServiceConfig) *ServerService {
 	return &ServerService{
-		cfg:       cfg,
-		instances: make(map[string]isolation.Instance),
-		stopping:  make(map[string]bool),
+		cfg:           cfg,
+		instances:     make(map[string]isolation.Instance),
+		stopping:      make(map[string]bool),
+		installations: make(map[string]*activeInstallation),
 	}
 }
 
@@ -185,6 +192,24 @@ func (s *ServerService) Create(req *mcmanagerv1.CreateServerRequest, stream grpc
 	}
 	_ = s.cfg.Store.Put(rec)
 
+	installCtx, cancelInstall := context.WithCancel(ctx)
+	installation := &activeInstallation{
+		cancel: cancelInstall,
+		done:   make(chan struct{}),
+	}
+	s.mu.Lock()
+	s.installations[id] = installation
+	s.mu.Unlock()
+	defer func() {
+		cancelInstall()
+		s.mu.Lock()
+		if s.installations[id] == installation {
+			delete(s.installations, id)
+		}
+		close(installation.done)
+		s.mu.Unlock()
+	}()
+
 	// Persist install output to a log that outlives a failed install (which wipes
 	// the server dir), so the cause is findable later (PROMPT 禮15).
 	il := s.openInstallLog(id)
@@ -195,7 +220,7 @@ func (s *ServerService) Create(req *mcmanagerv1.CreateServerRequest, stream grpc
 		base(p)
 	}
 
-	spec, err := entry.Provider.Install(ctx, dir, req.McVersion, send)
+	spec, err := entry.Provider.Install(installCtx, dir, req.McVersion, send)
 	if err != nil {
 		// Surface the error in the live log so the user can see what went wrong.
 		send(provider.Progress{LogLine: "[error] " + err.Error()})
@@ -204,7 +229,7 @@ func (s *ServerService) Create(req *mcmanagerv1.CreateServerRequest, stream grpc
 		return mapInstallError(err)
 	}
 	spec.JavaMajor = maxJavaMajor(spec.JavaMajor, req.McVersion)
-	if _, err := s.cfg.JRE.EnsureJRE(ctx, spec.JavaMajor, send); err != nil {
+	if _, err := s.cfg.JRE.EnsureJRE(installCtx, spec.JavaMajor, send); err != nil {
 		send(provider.Progress{LogLine: "[error] " + err.Error()})
 		il.recordLine("[error] jre: " + err.Error())
 		cleanup()
@@ -418,10 +443,22 @@ func isEditableStopped(status mcmanagerv1.ServerStatus) bool {
 func (s *ServerService) Delete(ctx context.Context, req *mcmanagerv1.ServerId) (*mcmanagerv1.Empty, error) {
 	s.mu.Lock()
 	inst := s.instances[req.Id]
+	installation := s.installations[req.Id]
 	if inst != nil {
 		s.stopping[req.Id] = true
 	}
+	if installation != nil {
+		installation.cancel()
+	}
 	s.mu.Unlock()
+
+	if installation != nil {
+		select {
+		case <-installation.done:
+		case <-ctx.Done():
+			return nil, status.FromContextError(ctx.Err()).Err()
+		}
+	}
 
 	if inst != nil {
 		_ = s.cfg.Backend.Stop(ctx, req.Id, false)

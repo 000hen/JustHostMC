@@ -198,6 +198,12 @@
   <data name="SettingsRemoveDataConfirmButton.Content" xml:space="preserve"><value>全部移除</value></data>
   <data name="Settings_RemovingData" xml:space="preserve"><value>正在移除所有資料</value></data>
   <data name="Settings_DataRemoved" xml:space="preserve"><value>所有資料已移除。</value></data>
+  <data name="SettingsIncompleteInstallationsHeader.Text" xml:space="preserve"><value>未完成的伺服器安裝</value></data>
+  <data name="Settings_IncompleteInstallationsDescription" xml:space="preserve"><value>可移除 {count} 個未完成的安裝。</value></data>
+  <data name="SettingsRemoveIncompleteInstallationsButton.Content" xml:space="preserve"><value>移除未完成的安裝</value></data>
+  <data name="Settings_RemovingIncompleteInstallations" xml:space="preserve"><value>正在移除未完成的伺服器安裝…</value></data>
+  <data name="Settings_IncompleteInstallationsRemoved" xml:space="preserve"><value>已移除 {count} 個未完成的安裝。</value></data>
+  <data name="Settings_RemoveIncompleteInstallationsFailed" xml:space="preserve"><value>移除未完成的伺服器安裝失敗。</value></data>
 <data name="Settings_RemoveDataFailed" xml:space="preserve"><value>無法移除所有資料。</value></data>
 
 <!-- Engine stdio monitor -->
@@ -211,7 +217,6 @@
 <data name="EngineMonitorCopyButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>複製顯示中的引擎輸出</value></data>
 <data name="EngineMonitorCopyButtonLabel.Text" xml:space="preserve"><value>複製</value></data>
 <data name="EngineMonitorPauseButton.Content" xml:space="preserve"><value>暫停</value></data>
-<data name="EngineMonitorAutoScrollCheckBox.Content" xml:space="preserve"><value>自動捲動</value></data>
 <data name="EngineMonitorSearchBox.PlaceholderText" xml:space="preserve"><value>篩選訊息</value></data>
 <data name="EngineMonitorSearchBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>篩選引擎訊息</value></data>
 <data name="EngineMonitorStdinHint.Text" xml:space="preserve"><value>標準輸入保留給父行程監看機制，因此在此僅供檢視。</value></data>
@@ -267,6 +272,17 @@
   <data name="ServerDelete_Title" xml:space="preserve"><value>要刪除伺服器嗎？</value></data>
   <data name="ServerDelete_Body" xml:space="preserve"><value>這會永久刪除伺服器及其世界。此動作無法復原。</value></data>
   <data name="ServerDelete_Confirm" xml:space="preserve"><value>刪除</value></data>
+  <data name="ServerDelete_Action" xml:space="preserve"><value>刪除伺服器</value></data>
+  <data name="ServerInstallRemove_Title" xml:space="preserve"><value>要移除未完成的安裝嗎？</value></data>
+  <data name="ServerInstallRemove_Body" xml:space="preserve"><value>這會取消安裝，並移除此伺服器已下載的所有檔案。</value></data>
+  <data name="ServerInstallRemove_Confirm" xml:space="preserve"><value>移除</value></data>
+  <data name="ServerInstallRemove_Action" xml:space="preserve"><value>移除未完成的安裝</value></data>
+  <data name="CloseBusy_Title" xml:space="preserve"><value>目前工作仍在執行</value></data>
+  <data name="CloseBusy_Body" xml:space="preserve"><value>現在關閉會中斷目前的工作。您可以讓 JustHostMC 繼續在系統匣執行，或仍然關閉。</value></data>
+  <data name="CloseBusy_HideToTray" xml:space="preserve"><value>隱藏到系統匣</value></data>
+  <data name="CloseBusy_CloseAnyway" xml:space="preserve"><value>仍然關閉</value></data>
+  <data name="Tray_Restore" xml:space="preserve"><value>開啟 JustHostMC</value></data>
+  <data name="Tray_Exit" xml:space="preserve"><value>結束</value></data>
   <data name="Common_Cancel" xml:space="preserve"><value>取消</value></data>
   <!-- Players -->
   <data name="Players_Header" xml:space="preserve"><value>玩家（{count}）</value></data>
@@ -622,6 +638,41 @@
   <data name="ShopOverviewTab.Text" xml:space="preserve"><value>詳細資料</value></data>
   <data name="ShopVersionsTab.Text" xml:space="preserve"><value>版本</value></data>
   <data name="ShopOpenWebsite.Content" xml:space="preserve"><value>開啟網站</value></data>
+  <data name="Shop_InstallAction" xml:space="preserve"><value>安裝</value></data>
+  <data name="Shop_GetOnSource" xml:space="preserve"><value>前往 {source} 取得</value></data>
+  <data name="shop_category_curseforge_adventure-and-rpg" xml:space="preserve"><value>冒險與角色扮演</value></data>
+  <data name="shop_category_curseforge_api-and-library" xml:space="preserve"><value>API 與函式庫</value></data>
+  <data name="shop_category_curseforge_armor-weapons-tools" xml:space="preserve"><value>護甲、武器與工具</value></data>
+  <data name="shop_category_curseforge_cosmetic" xml:space="preserve"><value>外觀</value></data>
+  <data name="shop_category_curseforge_education" xml:space="preserve"><value>教育</value></data>
+  <data name="shop_category_curseforge_food" xml:space="preserve"><value>食物</value></data>
+  <data name="shop_category_curseforge_game-mechanics" xml:space="preserve"><value>遊戲機制</value></data>
+  <data name="shop_category_curseforge_magic" xml:space="preserve"><value>魔法</value></data>
+  <data name="shop_category_curseforge_map-and-information" xml:space="preserve"><value>地圖與資訊</value></data>
+  <data name="shop_category_curseforge_mc-miscellaneous" xml:space="preserve"><value>Minecraft 雜項</value></data>
+  <data name="shop_category_curseforge_mobs" xml:space="preserve"><value>生物</value></data>
+  <data name="shop_category_curseforge_optimization" xml:space="preserve"><value>效能最佳化</value></data>
+  <data name="shop_category_curseforge_redstone" xml:space="preserve"><value>紅石</value></data>
+  <data name="shop_category_curseforge_server-utility" xml:space="preserve"><value>伺服器工具</value></data>
+  <data name="shop_category_curseforge_storage" xml:space="preserve"><value>儲存</value></data>
+  <data name="shop_category_curseforge_technology" xml:space="preserve"><value>科技</value></data>
+  <data name="shop_category_curseforge_transport" xml:space="preserve"><value>運輸</value></data>
+  <data name="shop_category_curseforge_world-gen" xml:space="preserve"><value>世界生成</value></data>
+  <data name="shop_category_curseforge_admin-tools" xml:space="preserve"><value>管理工具</value></data>
+  <data name="shop_category_curseforge_anti-griefing-tools" xml:space="preserve"><value>防破壞工具</value></data>
+  <data name="shop_category_curseforge_chat-related" xml:space="preserve"><value>聊天</value></data>
+  <data name="shop_category_curseforge_developer-tools" xml:space="preserve"><value>開發工具</value></data>
+  <data name="shop_category_curseforge_economy" xml:space="preserve"><value>經濟</value></data>
+  <data name="shop_category_curseforge_fixes" xml:space="preserve"><value>修正</value></data>
+  <data name="shop_category_curseforge_fun" xml:space="preserve"><value>娛樂</value></data>
+  <data name="shop_category_curseforge_general" xml:space="preserve"><value>一般</value></data>
+  <data name="shop_category_curseforge_informational" xml:space="preserve"><value>資訊</value></data>
+  <data name="shop_category_curseforge_mechanics" xml:space="preserve"><value>機制</value></data>
+  <data name="shop_category_curseforge_miscellaneous" xml:space="preserve"><value>雜項</value></data>
+  <data name="shop_category_curseforge_role-playing" xml:space="preserve"><value>角色扮演</value></data>
+  <data name="shop_category_curseforge_teleportation" xml:space="preserve"><value>傳送</value></data>
+  <data name="shop_category_curseforge_world-editing-and-management" xml:space="preserve"><value>世界編輯與管理</value></data>
+  <data name="shop_category_curseforge_world-generators" xml:space="preserve"><value>世界生成器</value></data>
   <data name="ShopInstallButton.Content" xml:space="preserve"><value>安裝</value></data>
   <data name="ShopInstallLatestButton.Content" xml:space="preserve"><value>安裝最新正式版</value></data>
   <data name="ShopNoVersions.Text" xml:space="preserve"><value>沒有與此伺服器相容的版本，放寬篩選即可看到更多。</value></data>
@@ -656,4 +707,7 @@
   <data name="Settings_ShopKeyNone" xml:space="preserve"><value>尚未設定 CurseForge 金鑰，CurseForge 分頁將維持停用。</value></data>
   <data name="Settings_ShopKeyUser" xml:space="preserve"><value>已設定個人 CurseForge 金鑰。儲存空白金鑰即可移除。</value></data>
   <data name="Settings_ShopKeyBuiltin" xml:space="preserve"><value>正在使用此版本內建的 CurseForge 金鑰，個人金鑰可覆蓋它。</value></data>
+  <data name="LogViewer_JumpToLatest" xml:space="preserve">
+    <value>跳至最新記錄</value>
+  </data>
 </root>

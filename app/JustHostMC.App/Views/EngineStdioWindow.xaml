@@ -64,13 +64,6 @@
                         </Button>
                     </StackPanel>
 
-                    <CheckBox
-                        x:Name="AutoScrollCheckBox"
-                        x:Uid="EngineMonitorAutoScrollCheckBox"
-                        Grid.Column="1"
-                        Margin="4,0"
-                        HorizontalAlignment="Left"
-                        IsChecked="True" />
                 </Grid>
             </controls:AdaptiveFilterLayout.HeaderContent>
 
@@ -80,76 +73,58 @@
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                     BorderThickness="1"
                     CornerRadius="8">
-                    <Grid>
-                        <TextBlock
-                            x:Name="EmptyText"
-                            x:Uid="EngineMonitorEmptyText"
-                            Margin="24"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                            TextAlignment="Center" />
-
-                        <ListView
-                            x:Name="LogListView"
-                            Padding="2"
-                            Background="Transparent"
-                            ItemsSource="{x:Bind VisibleEntries}"
-                            SelectionMode="None">
-                            <ListView.ItemContainerTransitions>
-                                <TransitionCollection />
-                            </ListView.ItemContainerTransitions>
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                    <Setter Property="MinHeight" Value="0" />
-                                    <Setter Property="Padding" Value="0" />
-                                    <Setter Property="Margin" Value="0" />
-                                    <Setter Property="IsTabStop" Value="False" />
-                                </Style>
-                            </ListView.ItemContainerStyle>
-                            <ListView.ItemTemplate>
-                                <DataTemplate x:DataType="local:EngineStdioDisplayEntry">
-                                    <StackPanel Padding="9,5" Spacing="1">
-                                        <StackPanel Orientation="Horizontal" Spacing="6">
-                                            <TextBlock
-                                                FontFamily="Consolas"
-                                                FontSize="12"
-                                                FontWeight="SemiBold"
-                                                Text="{x:Bind LevelLabel}" />
-                                            <TextBlock
-                                                FontFamily="Consolas"
-                                                FontSize="12"
-                                                Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-                                                Text="|" />
-                                            <TextBlock
-                                                FontFamily="Consolas"
-                                                FontSize="12"
-                                                FontWeight="SemiBold"
-                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                Text="{x:Bind StreamLabel}" />
-                                            <TextBlock
-                                                FontFamily="Consolas"
-                                                FontSize="12"
-                                                Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-                                                Text="|" />
-                                            <TextBlock
-                                                FontFamily="Consolas"
-                                                FontSize="12"
-                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                                Text="{x:Bind TimestampText}" />
-                                        </StackPanel>
+                    <controls:LogViewer
+                        Padding="2"
+                        Background="Transparent"
+                        ItemsSource="{x:Bind VisibleEntries}">
+                        <controls:LogViewer.EmptyContent>
+                            <TextBlock
+                                x:Uid="EngineMonitorEmptyText"
+                                Margin="24"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                TextAlignment="Center" />
+                        </controls:LogViewer.EmptyContent>
+                        <controls:LogViewer.ItemTemplate>
+                            <DataTemplate x:DataType="local:EngineStdioDisplayEntry">
+                                <StackPanel Padding="9,5" Spacing="1">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
                                         <TextBlock
                                             FontFamily="Consolas"
                                             FontSize="12"
-                                            IsTextSelectionEnabled="True"
-                                            Text="{x:Bind Message}"
-                                            TextWrapping="Wrap" />
+                                            FontWeight="SemiBold"
+                                            Text="{x:Bind LevelLabel}" />
+                                        <TextBlock
+                                            FontFamily="Consolas"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                            Text="|" />
+                                        <TextBlock
+                                            FontFamily="Consolas"
+                                            FontSize="12"
+                                            FontWeight="SemiBold"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                            Text="{x:Bind StreamLabel}" />
+                                        <TextBlock
+                                            FontFamily="Consolas"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                            Text="|" />
+                                        <TextBlock
+                                            FontFamily="Consolas"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                            Text="{x:Bind TimestampText}" />
                                     </StackPanel>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                    </Grid>
+                                    <TextBlock
+                                        FontFamily="Consolas"
+                                        FontSize="12"
+                                        IsTextSelectionEnabled="True"
+                                        Text="{x:Bind Message}"
+                                        TextWrapping="Wrap" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </controls:LogViewer.ItemTemplate>
+                    </controls:LogViewer>
                 </Border>
             </controls:AdaptiveFilterLayout.MainContent>
 

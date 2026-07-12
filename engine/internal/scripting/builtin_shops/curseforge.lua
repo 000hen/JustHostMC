@@ -2,6 +2,7 @@
 -- (https://docs.curseforge.com/rest-api/), which requires an x-api-key header
 -- (meta.needs_key): the engine injects the key via ctx.config.api_key.
 --   GET  /v1/mods/search                        gameId=432, classId 6=mods 5=bukkit plugins
+--   GET  /v1/categories                         class-specific search filters
 --   GET  /v1/mods/{id}                          detail card
 --   GET  /v1/mods/{id}/description              full description (HTML)
 --   GET  /v1/mods/{id}/files                    gameVersion + modLoaderType filters
@@ -31,6 +32,7 @@ local CLASS_BUKKIT_PLUGINS = 5
 
 local TTL_BROWSE = 120
 local TTL_DETAIL = 600
+local TTL_CATEGORIES = 86400
 
 -- ModLoaderType enum (docs #tocS_ModLoaderType).
 local LOADERS = { forge = 1, liteloader = 3, fabric = 4, quilt = 5, neoforge = 6 }
@@ -76,6 +78,12 @@ local function class_id(kind)
   return CLASS_MODS
 end
 
+local function distribution(m)
+  if m.allowModDistribution == false then return "website_only" end
+  if m.allowModDistribution == true then return "direct" end
+  return ""
+end
+
 local function project_card(m, kind)
   local cats = {}
   for _, c in ipairs(m.categories or {}) do cats[#cats + 1] = c.name end
@@ -90,6 +98,7 @@ local function project_card(m, kind)
     follows = m.thumbsUpCount,
     categories = cats,
     project_type = kind or (m.classId == CLASS_BUKKIT_PLUGINS and "plugin" or "mod"),
+    distribution = distribution(m),
   }
 end
 
@@ -108,7 +117,30 @@ local function search_url(ctx, sort_field, offset, limit)
     local lt = ctx.kind ~= "plugin" and LOADERS[ctx.loader or ""] or nil
     if lt then url = url .. "&modLoaderType=" .. lt end
   end
+  if #(ctx.categories or {}) > 0 then
+    url = url .. "&categoryIds=" .. urlencode(table.concat(ctx.categories, ","))
+  end
   return url
+end
+
+function categories(ctx)
+  api_key = ctx.config.api_key
+  local class = class_id(ctx.kind or "mod")
+  local body = get(API .. "/v1/categories?gameId=" .. GAME_MINECRAFT
+    .. "&classId=" .. class, TTL_CATEGORIES)
+  local out = {}
+  for _, category in ipairs(body.data or {}) do
+    if category.isClass ~= true and category.classId == class then
+      out[#out + 1] = {
+        id = tostring(category.id),
+        name = category.name,
+        slug = category.slug,
+        localization_key = "shop.category.curseforge."
+          .. (category.slug or tostring(category.id)),
+      }
+    end
+  end
+  return { categories = out }
 end
 
 function search(ctx)

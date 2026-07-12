@@ -201,6 +201,12 @@
   <data name="SettingsRemoveDataConfirmButton.Content" xml:space="preserve"><value>Remove everything</value></data>
   <data name="Settings_RemovingData" xml:space="preserve"><value>Removing all data</value></data>
   <data name="Settings_DataRemoved" xml:space="preserve"><value>All data removed.</value></data>
+  <data name="SettingsIncompleteInstallationsHeader.Text" xml:space="preserve"><value>Incomplete server installations</value></data>
+  <data name="Settings_IncompleteInstallationsDescription" xml:space="preserve"><value>{count} incomplete installation(s) can be removed.</value></data>
+  <data name="SettingsRemoveIncompleteInstallationsButton.Content" xml:space="preserve"><value>Remove incomplete installations</value></data>
+  <data name="Settings_RemovingIncompleteInstallations" xml:space="preserve"><value>Removing incomplete server installations…</value></data>
+  <data name="Settings_IncompleteInstallationsRemoved" xml:space="preserve"><value>Removed {count} incomplete installation(s).</value></data>
+  <data name="Settings_RemoveIncompleteInstallationsFailed" xml:space="preserve"><value>Failed to remove incomplete server installations.</value></data>
 <data name="Settings_RemoveDataFailed" xml:space="preserve"><value>Could not remove all data.</value></data>
 
 <!-- Engine stdio monitor -->
@@ -214,7 +220,6 @@
 <data name="EngineMonitorCopyButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Copy visible engine output</value></data>
 <data name="EngineMonitorCopyButtonLabel.Text" xml:space="preserve"><value>Copy</value></data>
 <data name="EngineMonitorPauseButton.Content" xml:space="preserve"><value>Pause</value></data>
-<data name="EngineMonitorAutoScrollCheckBox.Content" xml:space="preserve"><value>Auto-scroll</value></data>
 <data name="EngineMonitorSearchBox.PlaceholderText" xml:space="preserve"><value>Filter messages</value></data>
 <data name="EngineMonitorSearchBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Filter engine messages</value></data>
 <data name="EngineMonitorStdinHint.Text" xml:space="preserve"><value>Stdin is reserved for the parent-process watchdog; it is intentionally read-only here.</value></data>
@@ -269,6 +274,17 @@
   <data name="ServerDelete_Title" xml:space="preserve"><value>Delete server?</value></data>
   <data name="ServerDelete_Body" xml:space="preserve"><value>This permanently deletes the server and its world. This cannot be undone.</value></data>
   <data name="ServerDelete_Confirm" xml:space="preserve"><value>Delete</value></data>
+  <data name="ServerDelete_Action" xml:space="preserve"><value>Delete server</value></data>
+  <data name="ServerInstallRemove_Title" xml:space="preserve"><value>Remove incomplete installation?</value></data>
+  <data name="ServerInstallRemove_Body" xml:space="preserve"><value>This cancels the installation and removes all files downloaded for this server.</value></data>
+  <data name="ServerInstallRemove_Confirm" xml:space="preserve"><value>Remove</value></data>
+  <data name="ServerInstallRemove_Action" xml:space="preserve"><value>Remove incomplete installation</value></data>
+  <data name="CloseBusy_Title" xml:space="preserve"><value>Current task is running</value></data>
+  <data name="CloseBusy_Body" xml:space="preserve"><value>Closing now interrupts the current task. You can keep JustHostMC running in the system tray or close it anyway.</value></data>
+  <data name="CloseBusy_HideToTray" xml:space="preserve"><value>Hide to system tray</value></data>
+  <data name="CloseBusy_CloseAnyway" xml:space="preserve"><value>Close anyway</value></data>
+  <data name="Tray_Restore" xml:space="preserve"><value>Open JustHostMC</value></data>
+  <data name="Tray_Exit" xml:space="preserve"><value>Exit</value></data>
   <data name="Common_Cancel" xml:space="preserve"><value>Cancel</value></data>
   <!-- Players -->
   <data name="Players_Header" xml:space="preserve"><value>Players ({count})</value></data>
@@ -637,6 +653,41 @@
   <data name="ShopOverviewTab.Text" xml:space="preserve"><value>Details</value></data>
   <data name="ShopVersionsTab.Text" xml:space="preserve"><value>Versions</value></data>
   <data name="ShopOpenWebsite.Content" xml:space="preserve"><value>Open website</value></data>
+  <data name="Shop_InstallAction" xml:space="preserve"><value>Install</value></data>
+  <data name="Shop_GetOnSource" xml:space="preserve"><value>Get on {source}</value></data>
+  <data name="shop_category_curseforge_adventure-and-rpg" xml:space="preserve"><value>Adventure and RPG</value></data>
+  <data name="shop_category_curseforge_api-and-library" xml:space="preserve"><value>API and Library</value></data>
+  <data name="shop_category_curseforge_armor-weapons-tools" xml:space="preserve"><value>Armor, Weapons, and Tools</value></data>
+  <data name="shop_category_curseforge_cosmetic" xml:space="preserve"><value>Cosmetic</value></data>
+  <data name="shop_category_curseforge_education" xml:space="preserve"><value>Education</value></data>
+  <data name="shop_category_curseforge_food" xml:space="preserve"><value>Food</value></data>
+  <data name="shop_category_curseforge_game-mechanics" xml:space="preserve"><value>Game Mechanics</value></data>
+  <data name="shop_category_curseforge_magic" xml:space="preserve"><value>Magic</value></data>
+  <data name="shop_category_curseforge_map-and-information" xml:space="preserve"><value>Map and Information</value></data>
+  <data name="shop_category_curseforge_mc-miscellaneous" xml:space="preserve"><value>Minecraft Miscellaneous</value></data>
+  <data name="shop_category_curseforge_mobs" xml:space="preserve"><value>Mobs</value></data>
+  <data name="shop_category_curseforge_optimization" xml:space="preserve"><value>Optimization</value></data>
+  <data name="shop_category_curseforge_redstone" xml:space="preserve"><value>Redstone</value></data>
+  <data name="shop_category_curseforge_server-utility" xml:space="preserve"><value>Server Utility</value></data>
+  <data name="shop_category_curseforge_storage" xml:space="preserve"><value>Storage</value></data>
+  <data name="shop_category_curseforge_technology" xml:space="preserve"><value>Technology</value></data>
+  <data name="shop_category_curseforge_transport" xml:space="preserve"><value>Transport</value></data>
+  <data name="shop_category_curseforge_world-gen" xml:space="preserve"><value>World Generation</value></data>
+  <data name="shop_category_curseforge_admin-tools" xml:space="preserve"><value>Admin Tools</value></data>
+  <data name="shop_category_curseforge_anti-griefing-tools" xml:space="preserve"><value>Anti-Griefing Tools</value></data>
+  <data name="shop_category_curseforge_chat-related" xml:space="preserve"><value>Chat Related</value></data>
+  <data name="shop_category_curseforge_developer-tools" xml:space="preserve"><value>Developer Tools</value></data>
+  <data name="shop_category_curseforge_economy" xml:space="preserve"><value>Economy</value></data>
+  <data name="shop_category_curseforge_fixes" xml:space="preserve"><value>Fixes</value></data>
+  <data name="shop_category_curseforge_fun" xml:space="preserve"><value>Fun</value></data>
+  <data name="shop_category_curseforge_general" xml:space="preserve"><value>General</value></data>
+  <data name="shop_category_curseforge_informational" xml:space="preserve"><value>Informational</value></data>
+  <data name="shop_category_curseforge_mechanics" xml:space="preserve"><value>Mechanics</value></data>
+  <data name="shop_category_curseforge_miscellaneous" xml:space="preserve"><value>Miscellaneous</value></data>
+  <data name="shop_category_curseforge_role-playing" xml:space="preserve"><value>Role Playing</value></data>
+  <data name="shop_category_curseforge_teleportation" xml:space="preserve"><value>Teleportation</value></data>
+  <data name="shop_category_curseforge_world-editing-and-management" xml:space="preserve"><value>World Editing and Management</value></data>
+  <data name="shop_category_curseforge_world-generators" xml:space="preserve"><value>World Generators</value></data>
   <data name="ShopInstallButton.Content" xml:space="preserve"><value>Install</value></data>
   <data name="ShopInstallLatestButton.Content" xml:space="preserve"><value>Install latest release</value></data>
   <data name="ShopNoVersions.Text" xml:space="preserve"><value>No compatible versions for this server. Relax the filters to see more.</value></data>
@@ -671,4 +722,7 @@
   <data name="Settings_ShopKeyNone" xml:space="preserve"><value>No CurseForge key is configured — the CurseForge tab stays disabled.</value></data>
   <data name="Settings_ShopKeyUser" xml:space="preserve"><value>A personal CurseForge key is configured. Save an empty key to remove it.</value></data>
   <data name="Settings_ShopKeyBuiltin" xml:space="preserve"><value>Using this build's bundled CurseForge key. A personal key overrides it.</value></data>
+  <data name="LogViewer_JumpToLatest" xml:space="preserve">
+    <value>Jump to latest log</value>
+  </data>
 </root>

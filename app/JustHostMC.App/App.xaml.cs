@@ -1,3 +1,4 @@
+using JustHostMC.App.Services;
 using JustHostMC.App.Views;
 using JustHostMC.Core;
 using Microsoft.UI.Xaml;
@@ -22,6 +23,10 @@ public partial class App : Application {
     public Task<DaemonClient> DaemonReady => _daemonReady.Task;
 
     public static new App Current => (App)Application.Current;
+
+    /// <summary>Tracks engine-backed work that continues independently of the
+    /// main window.</summary>
+    public BackgroundTaskService BackgroundTasks { get; } = new();
 
     /// <summary>The main window, exposed so pages can obtain its HWND for
     /// pickers/dialogs.</summary>

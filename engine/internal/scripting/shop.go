@@ -27,16 +27,35 @@ import (
 
 // ShopProject is one browse/search result card.
 type ShopProject struct {
-	ID          string
-	Slug        string
-	Title       string
-	Summary     string
-	IconURL     string
-	Author      string
-	Downloads   int64
-	Follows     int64
-	Categories  []string
-	ProjectType string
+	ID           string
+	Slug         string
+	Title        string
+	Summary      string
+	IconURL      string
+	Author       string
+	Downloads    int64
+	Follows      int64
+	Categories   []string
+	ProjectType  string
+	Distribution ShopDistribution
+}
+
+// ShopDistribution describes whether a project may be downloaded through the
+// shop API or must be obtained from the source website.
+type ShopDistribution string
+
+const (
+	ShopDistributionUnknown     ShopDistribution = ""
+	ShopDistributionDirect      ShopDistribution = "direct"
+	ShopDistributionWebsiteOnly ShopDistribution = "website_only"
+)
+
+// ShopCategory is one source-native search filter exposed by a shop script.
+type ShopCategory struct {
+	ID              string
+	Name            string
+	Slug            string
+	LocalizationKey string
 }
 
 // ShopPage is a paged project list.
@@ -188,19 +207,31 @@ func (s *LuaShop) grants() GrantSet {
 // call runs one script global with a ctx table built from fields, returning
 // the result table. It enforces the needs_key gate first.
 func (s *LuaShop) call(ctx context.Context, fn string, fields map[string]lua.LValue, slices ...map[string][]string) (*lua.LTable, error) {
+	tbl, _, err := s.callFunction(ctx, fn, false, fields, slices...)
+	return tbl, err
+}
+
+func (s *LuaShop) callOptional(ctx context.Context, fn string, fields map[string]lua.LValue, slices ...map[string][]string) (*lua.LTable, bool, error) {
+	return s.callFunction(ctx, fn, true, fields, slices...)
+}
+
+func (s *LuaShop) callFunction(ctx context.Context, fn string, optional bool, fields map[string]lua.LValue, slices ...map[string][]string) (*lua.LTable, bool, error) {
 	if !s.Ready() {
-		return nil, fmt.Errorf("%w: shop %s", ErrShopKeyMissing, s.meta.ID)
+		return nil, false, fmt.Errorf("%w: shop %s", ErrShopKeyMissing, s.meta.ID)
 	}
 	inv := &invocation{ctx: ctx, host: s.host, granted: s.grants()}
 	L, err := inv.prepare(s.source)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 	defer L.Close()
 
 	f := L.GetGlobal(fn)
 	if f.Type() != lua.LTFunction {
-		return nil, fmt.Errorf("%w: script does not define %s(ctx)", ErrScriptInvalid, fn)
+		if optional {
+			return nil, false, nil
+		}
+		return nil, false, fmt.Errorf("%w: script does not define %s(ctx)", ErrScriptInvalid, fn)
 	}
 	ctxTbl := L.NewTable()
 	for k, v := range fields {
@@ -220,15 +251,15 @@ func (s *LuaShop) call(ctx context.Context, fn string, fields map[string]lua.LVa
 	ctxTbl.RawSetString("config", cfg)
 
 	if err := L.CallByParam(lua.P{Fn: f, NRet: 1, Protect: true}, ctxTbl); err != nil {
-		return nil, s.bridgeErr(inv.mapErr(err))
+		return nil, true, s.bridgeErr(inv.mapErr(err))
 	}
 	ret := L.Get(-1)
 	L.Pop(1)
 	tbl, ok := ret.(*lua.LTable)
 	if !ok {
-		return nil, fmt.Errorf("%w: %s(ctx) did not return a table", ErrScriptInvalid, fn)
+		return nil, true, fmt.Errorf("%w: %s(ctx) did not return a table", ErrScriptInvalid, fn)
 	}
-	return tbl, nil
+	return tbl, true, nil
 }
 
 // bridgeErr maps well-known error phrases raised by shop scripts (via
@@ -246,6 +277,33 @@ func (s *LuaShop) bridgeErr(err error) error {
 		return fmt.Errorf("%w: %v", ErrShopNotFound, err)
 	}
 	return err
+}
+
+// Categories returns source-native search filters. The Lua function is
+// optional so existing third-party shop scripts remain compatible.
+func (s *LuaShop) Categories(ctx context.Context, kind string) ([]ShopCategory, error) {
+	tbl, found, err := s.callOptional(ctx, "categories", map[string]lua.LValue{
+		"kind": lua.LString(kind),
+	})
+	if err != nil || !found {
+		return nil, err
+	}
+	items, _ := tbl.RawGetString("categories").(*lua.LTable)
+	if items == nil {
+		return nil, nil
+	}
+	out := make([]ShopCategory, 0, items.Len())
+	items.ForEach(func(_, value lua.LValue) {
+		if item, ok := value.(*lua.LTable); ok {
+			out = append(out, ShopCategory{
+				ID:              strField(item, "id"),
+				Name:            strField(item, "name"),
+				Slug:            strField(item, "slug"),
+				LocalizationKey: strField(item, "localization_key"),
+			})
+		}
+	})
+	return out, nil
 }
 
 // Home returns the landing-page sections for the given pre-filter.
@@ -428,17 +486,22 @@ func readProject(tbl *lua.LTable) ShopProject {
 	if inner, ok := tbl.RawGetString("project").(*lua.LTable); ok {
 		tbl = inner
 	}
+	distribution := ShopDistribution(strings.ToLower(strField(tbl, "distribution")))
+	if distribution != ShopDistributionDirect && distribution != ShopDistributionWebsiteOnly {
+		distribution = ShopDistributionUnknown
+	}
 	return ShopProject{
-		ID:          strField(tbl, "project_id"),
-		Slug:        strField(tbl, "slug"),
-		Title:       strField(tbl, "title"),
-		Summary:     strField(tbl, "summary"),
-		IconURL:     strField(tbl, "icon_url"),
-		Author:      strField(tbl, "author"),
-		Downloads:   intField(tbl, "downloads"),
-		Follows:     intField(tbl, "follows"),
-		Categories:  strSlice(tbl, "categories"),
-		ProjectType: strField(tbl, "project_type"),
+		ID:           strField(tbl, "project_id"),
+		Slug:         strField(tbl, "slug"),
+		Title:        strField(tbl, "title"),
+		Summary:      strField(tbl, "summary"),
+		IconURL:      strField(tbl, "icon_url"),
+		Author:       strField(tbl, "author"),
+		Downloads:    intField(tbl, "downloads"),
+		Follows:      intField(tbl, "follows"),
+		Categories:   strSlice(tbl, "categories"),
+		ProjectType:  strField(tbl, "project_type"),
+		Distribution: distribution,
 	}
 }
 

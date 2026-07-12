@@ -16,7 +16,7 @@
             x:Name="BackupsRoot"
             HorizontalAlignment="Stretch"
             DataContext="{x:Bind ViewModel}"
-            RowSpacing="16">
+            RowSpacing="8">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -26,8 +26,7 @@
 
             <Grid
                 Grid.Row="0"
-                ColumnSpacing="8"
-                RowSpacing="10">
+                ColumnSpacing="8">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -41,7 +40,6 @@
                 <Button
                     Grid.Row="0"
                     Grid.Column="0"
-                    MinWidth="154"
                     Command="{x:Bind ViewModel.CreateBackupCommand}"
                     IsEnabled="{x:Bind ViewModel.CanRunActions, Mode=OneWay}"
                     Style="{StaticResource AccentButtonStyle}">
@@ -52,15 +50,13 @@
                 </Button>
 
                 <Button
+                    x:Uid="BackupOpenFolderButton"
                     Grid.Row="0"
                     Grid.Column="1"
-                    MinWidth="44"
+                    VerticalAlignment="Stretch"
                     Click="OnOpenBackupFolderClick"
                     IsEnabled="{x:Bind ViewModel.CanRunActions, Mode=OneWay}">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon FontSize="14" Glyph="&#xE8B7;" />
-                        <TextBlock x:Uid="BackupOpenFolderButtonLabel" />
-                    </StackPanel>
+                    <FontIcon FontSize="14" Glyph="&#xE8B7;" />
                 </Button>
 
                 <CheckBox

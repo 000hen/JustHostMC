@@ -431,7 +431,7 @@
   <data name="PlayerInventoryMenuItem.Text" xml:space="preserve">
     <value>顯示物品欄</value>
   </data>
-  <data name="BackupOpenFolderButton.Content" xml:space="preserve">
+  <data name="BackupOpenFolderButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>開啟備份資料夾</value>
   </data>
   <data name="BackupExportButton.Content" xml:space="preserve">
@@ -449,7 +449,6 @@
   <data name="CreateServerCustomJavaArgs.Header" xml:space="preserve"><value>自訂 Java 參數（選填）</value></data>
   <data name="CreateServerCustomJavaArgs.PlaceholderText" xml:space="preserve"><value>範例：-Dexample=true -XX:MaxGCPauseMillis=150</value></data>
   <data name="BackupCreateButtonLabel.Text" xml:space="preserve"><value>建立備份</value></data>
-  <data name="BackupOpenFolderButtonLabel.Text" xml:space="preserve"><value>開啟備份資料夾</value></data>
   <data name="BackupSafeOnlineLabel.Text" xml:space="preserve"><value>線上安全備份（暫停儲存）</value></data>
   <data name="BackupActionsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>備份動作</value></data>
   <data name="BackupActionsButtonLabel.Text" xml:space="preserve"><value>動作</value></data>

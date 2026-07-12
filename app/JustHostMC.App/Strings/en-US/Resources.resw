@@ -434,10 +434,7 @@
   <data name="PlayerInventoryMenuItem.Text" xml:space="preserve">
     <value>Show inventory</value>
   </data>
-  <data name="BackupOpenFolderButton.Content" xml:space="preserve">
-    <value>Open backup folder</value>
-  </data>
-  <data name="BackupOpenFolderButtonLabel.Text" xml:space="preserve">
+  <data name="BackupOpenFolderButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>Open backup folder</value>
   </data>
   <data name="BackupExportButton.Content" xml:space="preserve">

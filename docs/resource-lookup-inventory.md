@@ -1,41 +1,26 @@
 # Resource lookup inventory
 
-Baseline captured 2026-07-13. The baseline is **186** `ILocalizer.Get` occurrences across **32** files. Direct construction is tracked separately so construction-only owners such as `SettingsPage.xaml.cs` are not lost.
+Updated 2026-07-13 after migrating static control copy to XAML. The inventory contains **171** `ILocalizer.Get` occurrences across **29** files. Direct construction is tracked separately so construction-only owners such as `SettingsPage.xaml.cs` are not lost.
 
 | Classification | Count |
 |---|---:|
-| StaticXaml | 56 |
+| StaticXaml | 43 |
 | DynamicState | 99 |
 | BackendKey | 5 |
-| RuntimeFormat | 25 |
+| RuntimeFormat | 23 |
 | ImperativeException | 1 |
-| **Total lookups** | **186** |
+| **Total lookups** | **171** |
 
 ## Lookup occurrences
 
 | File:line | Resource expression | Classification | XAML owner / justification | Final action |
 |---|---|---|---|---|
 | `Controls/ScriptEntryCard.xaml.cs:32` | `"Scripts.RemoveConfirmBody"` | RuntimeFormat | Runtime values or runtime-selected arguments must be inserted after lookup | Retain formatted lookup |
-| `Controls/ScriptEntryCard.xaml.cs:35` | `"Scripts.RemoveConfirmPrimary"` | StaticXaml | `ScriptEntryCard.xaml` → `RemoveConfirmButton` | Move property to `x:Uid`; remove lookup |
-| `Controls/Server/ServerConfigPanel.xaml.cs:26` | `"ServerSectionConfig.Text"` | StaticXaml | `ServerConfigPanel.xaml` → `ServerSectionConfig` | Move property to `x:Uid`; remove lookup |
-| `Controls/Server/ServerConfigPanel.xaml.cs:29` | `"ServerSectionConfigHint.Text"` | StaticXaml | `ServerConfigPanel.xaml` → `ConfigActiveHint` | Move property to `x:Uid`; remove lookup |
-| `Controls/Server/ServerConfigPanel.xaml.cs:30` | `"ConfigStoppedHint.Text"` | StaticXaml | `ServerConfigPanel.xaml` → `ConfigStoppedHint` | Move property to `x:Uid`; remove lookup |
-| `Controls/Server/ServerHeaderPanel.xaml.cs:138` | `"Server.PortAutoValue"` | RuntimeFormat | Runtime values or runtime-selected arguments must be inserted after lookup | Retain formatted lookup |
-| `Controls/Server/ServerHeaderPanel.xaml.cs:142` | `Server.MemoryValue(memory)` | RuntimeFormat | Runtime values or runtime-selected arguments must be inserted after lookup | Retain formatted lookup |
-| `Controls/Server/ServerHeaderPanel.xaml.cs:145` | `"Server.ValueUnknown"` | RuntimeFormat | Runtime values or runtime-selected arguments must be inserted after lookup | Retain formatted lookup |
-| `Controls/Server/ServerModsPanel.xaml.cs:38` | `"ServerSectionModsHint.Text"` | StaticXaml | `ServerModsPanel.xaml` → `ModsActiveHint` | Move property to `x:Uid`; remove lookup |
-| `Controls/Server/ServerModsPanel.xaml.cs:39` | `"ModsStoppedHint.Text"` | StaticXaml | `ServerModsPanel.xaml` → `ModsStoppedHint` | Move property to `x:Uid`; remove lookup |
-| `Controls/Server/ServerPerformancePanel.xaml.cs:27` | `"ServerSectionPerformance.Text"` | StaticXaml | `ServerPerformancePanel.xaml` → `ServerSectionPerformance` | Move property to `x:Uid`; remove lookup |
-| `Controls/Server/ServerPerformancePanel.xaml.cs:30` | `"ServerSectionPerformanceHint.Text"` | StaticXaml | `ServerPerformancePanel.xaml` → `ServerSectionPerformance` | Move property to `x:Uid`; remove lookup |
+| `Controls/Server/ServerHeaderPanel.xaml.cs:153` | `Server.MemoryValue(memory)` | RuntimeFormat | Runtime values or runtime-selected arguments must be inserted after lookup | Retain formatted lookup |
 | `Controls/Server/ServerPlayersPanel.xaml.cs:56` | `"Players.Header"` | RuntimeFormat | Runtime values or runtime-selected arguments must be inserted after lookup | Retain formatted lookup |
-| `Controls/Server/ServerPlayersPanel.xaml.cs:59` | `"PlayersEmptyHint.Text"` | StaticXaml | `ServerPlayersPanel.xaml` → `PlayersEmptyHint` | Move property to `x:Uid`; remove lookup |
-| `Controls/Server/ServerPlayersPanel.xaml.cs:60` | `"ServerSectionPlayersHint.Text"` | StaticXaml | `ServerPlayersPanel.xaml` → `PlayersPopulatedHint` | Move property to `x:Uid`; remove lookup |
 | `Controls/Server/ServerPlayersPanel.xaml.cs:87` | `"PlayerDataDialog.ActionName"` | RuntimeFormat | Runtime values or runtime-selected arguments must be inserted after lookup | Retain formatted lookup |
 | `Controls/Server/ServerPlayersPanel.xaml.cs:99` | `"PlayerInventoryDialog.ActionName"` | RuntimeFormat | Runtime values or runtime-selected arguments must be inserted after lookup | Retain formatted lookup |
 | `Controls/Server/ServerPlayersPanel.xaml.cs:113` | `PlayerDialogBase.TitleFormat(actionName, player.Name)` | RuntimeFormat | Runtime values or runtime-selected arguments must be inserted after lookup | Retain formatted lookup |
-| `Controls/Server/ServerPlayersPanel.xaml.cs:117` | `"PlayerDialogBase.CloseButtonText"` | StaticXaml | `ServerPlayersPanel.xaml` → `PlayerDialogHost` | Move property to `x:Uid`; remove lookup |
-| `Controls/Server/ServerPlayersPanel.xaml.cs:135` | `"BanListDialog.Title"` | StaticXaml | `ServerPlayersPanel.xaml` → `BanListHostDialog` | Move property to `x:Uid`; remove lookup |
-| `Controls/Server/ServerPlayersPanel.xaml.cs:137` | `"BanListDialog.CloseButtonText"` | StaticXaml | `ServerPlayersPanel.xaml` → `BanListHostDialog` | Move property to `x:Uid`; remove lookup |
 | `MainWindow.xaml.cs:96` | `"AppTitle"` | StaticXaml | `MainWindow.xaml` → root `MainWindow` | Move property to `x:Uid`; remove lookup |
 | `MainWindow.xaml.cs:312` | `"ServerTeachingTip.StartAction"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
 | `MainWindow.xaml.cs:320` | `ServerTeachingTip.InstalledTitle / StartedTitle / StoppedTitle / CrashedTitle; {server}` | RuntimeFormat | Runtime values or runtime-selected arguments must be inserted after lookup | Retain formatted lookup |
@@ -204,15 +189,12 @@ Baseline captured 2026-07-13. The baseline is **186** `ILocalizer.Get` occurrenc
 
 ## Direct `LocalizationService` construction inventory
 
-There are **20** direct constructions across **19** files. The chained construction at `ScriptLogsWindow.xaml.cs:23` is also represented above.
+There are **17** direct constructions across **16** files. The chained construction at `ScriptLogsWindow.xaml.cs:23` is also represented above.
 
 | File:line | Classification | Ownership / justification | Final action |
 |---|---|---|---|
 | `Controls/ScriptEntryCard.xaml.cs:15` | RuntimeFormat | Retained remove-confirmation format lookup | Retain/inject localizer for runtime ownership |
-| `Controls/Server/ServerConfigPanel.xaml.cs:9` | StaticXaml | All copy moves to `ServerConfigPanel.xaml` | Remove construction |
-| `Controls/Server/ServerHeaderPanel.xaml.cs:11` | RuntimeFormat | Runtime port and memory values | Retain/inject localizer for runtime ownership |
-| `Controls/Server/ServerModsPanel.xaml.cs:12` | StaticXaml | Descriptions move to `ServerModsPanel.xaml` | Remove construction |
-| `Controls/Server/ServerPerformancePanel.xaml.cs:9` | StaticXaml | Title and description move to `ServerPerformancePanel.xaml` | Remove construction |
+| `Controls/Server/ServerHeaderPanel.xaml.cs:11` | RuntimeFormat | Runtime memory formatting | Retain/inject localizer for runtime ownership |
 | `Controls/Server/ServerPlayersPanel.xaml.cs:12` | RuntimeFormat | Player counts, names, and dialog-title formatting | Retain/inject localizer for runtime ownership |
 | `MainWindow.xaml.cs:84` | DynamicState | Shared by `MainViewModel` and runtime teaching tips | Retain/inject localizer for runtime ownership |
 | `MainWindow.xaml.cs:425` | StaticXaml | Duplicate used only by `CreateServerDialog` | Remove construction |
@@ -239,8 +221,8 @@ These files are returned by the mandated `LocalizationService|ILocalizer|\.Get\(
 | `Models/ScriptEntryItem.cs:14` | Builds the granted-permission summary | `PermissionLabels.cs:25` (`DynamicState`) |
 | `Models/ScriptItem.cs:9` | Passes `ILocalizer` to `ScriptEntryItem` | `ScriptEntryItem.cs:14` → `PermissionLabels.cs:25` |
 | `Models/ServerViewModelCache.cs:25` | Passes `ILocalizer` into server-scoped view models | `ModsViewModel.cs` and `ServerConfigViewModel.cs` rows |
-| `Services/ILocalizer.cs:8` | Defines the programmatic lookup contract | All 186 classified `.Get` occurrences |
-| `Services/LocalizationService.cs:6,10` | Implements the MRT lookup boundary | All 186 `.Get` occurrences; slash-path policy is covered by `ResourcePolicyTests` |
+| `Services/ILocalizer.cs:8` | Defines the programmatic lookup contract | All 171 classified `.Get` occurrences |
+| `Services/LocalizationService.cs:6,10` | Implements the MRT lookup boundary | All 171 `.Get` occurrences; slash-path policy is covered by `ResourcePolicyTests` |
 | `ViewModels/NavShellViewModel.cs:38` | Passes `ILocalizer` into `ServerViewModelCache` | `ServerViewModelCache.cs:25` → server-scoped view models |
 | `Views/PermissionConsentDialog.xaml.cs:13,38` | Passes `ILocalizer` through `ConsentRow` | `PermissionLabels.cs:25` (`DynamicState`) |
 

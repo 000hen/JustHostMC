@@ -9,8 +9,7 @@
     mc:Ignorable="d">
 
     <server:ServerSectionLayout
-        Title="{x:Bind PerformanceTitle()}"
-        Description="{x:Bind PerformanceDescription()}"
+        x:Uid="ServerSectionPerformancePanel"
         IconGlyph="&#xE9D9;">
         <server:ServerSectionLayout.Body>
             <ScrollViewer VerticalScrollBarVisibility="Auto">

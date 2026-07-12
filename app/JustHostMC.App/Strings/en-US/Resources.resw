@@ -244,8 +244,11 @@
   <data name="ServerSectionPerformance.Text" xml:space="preserve"><value>Performance</value></data>
   <data name="ServerSectionMods.Text" xml:space="preserve"><value>Plugins / Mods</value></data>
   <data name="ServerSectionConfig.Text" xml:space="preserve"><value>Configuration</value></data>
+  <data name="ServerSectionPerformancePanel.Title" xml:space="preserve"><value>Performance</value></data>
+  <data name="ServerSectionModsPanel.Title" xml:space="preserve"><value>Plugins / Mods</value></data>
+  <data name="ServerSectionConfigPanel.Title" xml:space="preserve"><value>Configuration</value></data>
   <data name="ServerSectionConfigHint.Text" xml:space="preserve"><value>Manage server launch settings and advanced options</value></data>
-  <data name="ServerSectionPerformanceHint.Text" xml:space="preserve"><value>Monitor server resource usage and network metrics</value></data>
+  <data name="ServerSectionPerformancePanel.Description" xml:space="preserve"><value>Monitor server resource usage and network metrics</value></data>
   <data name="ServerSectionPlayersHint.Text" xml:space="preserve"><value>Manage online players, operators, and ban lists</value></data>
   <data name="ServerSectionModsHint.Text" xml:space="preserve"><value>Manage server extensions and modifications</value></data>
   <data name="ServerBackupsMenuItem.Text" xml:space="preserve"><value>Backups</value></data>
@@ -261,6 +264,8 @@
   <data name="Server.PortAutoValue" xml:space="preserve"><value>Auto</value></data>
   <data name="Server.MemoryValue" xml:space="preserve"><value>{memory} MB</value></data>
   <data name="Server.ValueUnknown" xml:space="preserve"><value>Unknown</value></data>
+  <data name="ServerMetaPortAutoValue.Text" xml:space="preserve"><value>Auto</value></data>
+  <data name="ServerMetaMemoryUnknownValue.Text" xml:space="preserve"><value>Unknown</value></data>
   <data name="ServerState.Start" xml:space="preserve"><value>Start</value></data>
   <data name="ServerState.Stop" xml:space="preserve"><value>Stop</value></data>
   <data name="ServerState.Starting" xml:space="preserve"><value>Starting</value></data>
@@ -326,8 +331,8 @@
   <data name="ConfigName.playersSleepingPercentage" xml:space="preserve"><value>Players sleeping percentage</value></data>
   <data name="ConfigName.doImmediateRespawn" xml:space="preserve"><value>Immediate respawn</value></data>
   <!-- Ban list -->
-  <data name="BanListDialog.Title" xml:space="preserve"><value>Ban list</value></data>
-  <data name="BanListDialog.CloseButtonText" xml:space="preserve"><value>Close</value></data>
+  <data name="BanListHostDialog.Title" xml:space="preserve"><value>Ban list</value></data>
+  <data name="BanListHostDialog.CloseButtonText" xml:space="preserve"><value>Close</value></data>
   <data name="BanListStoppedNotice.Title" xml:space="preserve"><value>Stop server to edit</value></data>
   <data name="BanListStoppedNotice.Message" xml:space="preserve"><value>The ban files are safest to change while the server is stopped. Console ban commands still work while running.</value></data>
   <data name="BanListAddHeader.Text" xml:space="preserve"><value>Add ban</value></data>
@@ -350,7 +355,7 @@
   <data name="BanList.RemoveFailed" xml:space="preserve"><value>Could not remove ban.</value></data>
   <data name="BanList.TargetRequired" xml:space="preserve"><value>Enter a player, UUID, or IP address.</value></data>
   <data name="BanList.StoppedRequired" xml:space="preserve"><value>Stop the server to edit ban-list files.</value></data>
-<data name="PlayerDialogBase.CloseButtonText" xml:space="preserve"><value>Close</value></data>
+<data name="PlayerDialogHost.CloseButtonText" xml:space="preserve"><value>Close</value></data>
   <data name="PlayerDataDialog.ActionName" xml:space="preserve"><value>Raw data</value></data>
   <data name="PlayerInventoryDialog.ActionName" xml:space="preserve"><value>Inventory</value></data>
   <data name="PlayerDialogBase.TitleFormat" xml:space="preserve"><value>{0} for {1}</value></data>
@@ -560,7 +565,7 @@
   <data name="Scripts.NotAvailable" xml:space="preserve"><value>The automation engine is not available yet.</value></data>
   <data name="Scripts.OperationFailed" xml:space="preserve"><value>The operation failed. Please try again.</value></data>
   <data name="Scripts.RemoveConfirmBody" xml:space="preserve"><value>Remove “{name}”? This cannot be undone.</value></data>
-  <data name="Scripts.RemoveConfirmPrimary" xml:space="preserve"><value>Remove</value></data>
+  <data name="CommonRemoveButton.Content" xml:space="preserve"><value>Remove</value></data>
   <data name="PermissionConsentTitleNamed" xml:space="preserve"><value>Review permissions — {name}</value></data>
   <data name="CreateServer.ProviderAuthor" xml:space="preserve"><value>by {author}</value></data>
   <data name="CreateServerProviderWebsite.Content" xml:space="preserve"><value>Visit website</value></data>

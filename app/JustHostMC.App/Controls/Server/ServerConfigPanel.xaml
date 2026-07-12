@@ -9,8 +9,7 @@
     mc:Ignorable="d">
 
     <server:ServerSectionLayout
-        Title="{x:Bind ConfigTitle()}"
-        Description="{x:Bind ConfigDescription(Config.CanModify), Mode=OneWay}"
+        x:Uid="ServerSectionConfigPanel"
         IconGlyph="&#xE713;">
         <server:ServerSectionLayout.Body>
             <Grid>
@@ -20,6 +19,19 @@
                     HorizontalScrollMode="Disabled"
                     VerticalScrollBarVisibility="Auto">
                     <StackPanel Padding="0,0,0,60" HorizontalAlignment="Stretch">
+
+                        <TextBlock
+                            x:Uid="ServerSectionConfigHint"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Style="{StaticResource CaptionTextBlockStyle}"
+                            TextWrapping="Wrap"
+                            Visibility="{x:Bind Config.CanModify, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                        <TextBlock
+                            x:Uid="ConfigStoppedHint"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Style="{StaticResource CaptionTextBlockStyle}"
+                            TextWrapping="Wrap"
+                            Visibility="{x:Bind Config.CanModify, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
 
                         <StackPanel Spacing="12" Visibility="{x:Bind Config.IsInitialLoading, Mode=OneWay, Converter={StaticResource BoolToVis}}">
                             <Expander

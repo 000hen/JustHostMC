@@ -174,8 +174,7 @@
     </UserControl.Resources>
 
     <server:ServerSectionLayout
-        Title="{x:Bind Mods.KindLabel, Mode=OneWay}"
-        Description="{x:Bind ModsDescription(Mods.CanModify), Mode=OneWay}"
+        x:Uid="ServerSectionModsPanel"
         IconGlyph="&#xE7B8;">
         <server:ServerSectionLayout.HeaderContent>
             <StackPanel Orientation="Horizontal" Spacing="8">
@@ -212,6 +211,18 @@
         <server:ServerSectionLayout.Body>
             <ScrollViewer VerticalScrollBarVisibility="Auto" ViewChanged="OnModsScrollViewChanged">
                 <StackPanel Spacing="12">
+                    <TextBlock
+                        x:Uid="ServerSectionModsHint"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        TextWrapping="Wrap"
+                        Visibility="{x:Bind Mods.CanModify, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                    <TextBlock
+                        x:Uid="ModsStoppedHint"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        TextWrapping="Wrap"
+                        Visibility="{x:Bind Mods.CanModify, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
                     <TextBlock
                         x:Uid="ModsUnsupportedHint"
                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"

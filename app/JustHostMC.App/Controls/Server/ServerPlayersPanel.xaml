@@ -8,9 +8,9 @@
     xmlns:server="using:JustHostMC.App.Controls.Server"
     mc:Ignorable="d">
 
+    <Grid>
     <server:ServerSectionLayout
         Title="{x:Bind PlayersHeader(Players.Count), Mode=OneWay}"
-        Description="{x:Bind PlayersDescription(Players.Count), Mode=OneWay}"
         IconGlyph="&#xE716;">
         <server:ServerSectionLayout.HeaderContent>
             <Button
@@ -24,7 +24,26 @@
             </Button>
         </server:ServerSectionLayout.HeaderContent>
         <server:ServerSectionLayout.Body>
-            <ListView ItemsSource="{x:Bind Players.Players, Mode=OneWay}">
+            <Grid RowSpacing="8">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid>
+                <TextBlock
+                    x:Uid="PlayersEmptyHint"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Style="{StaticResource CaptionTextBlockStyle}"
+                    TextWrapping="Wrap"
+                    Visibility="{x:Bind HasNoPlayers(Players.Count), Mode=OneWay}" />
+                <TextBlock
+                    x:Uid="ServerSectionPlayersHint"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Style="{StaticResource CaptionTextBlockStyle}"
+                    TextWrapping="Wrap"
+                    Visibility="{x:Bind HasPlayers(Players.Count), Mode=OneWay}" />
+                </Grid>
+                <ListView Grid.Row="1" ItemsSource="{x:Bind Players.Players, Mode=OneWay}">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="models:PlayerItem">
                         <Grid MinHeight="48" ColumnSpacing="10">
@@ -118,7 +137,17 @@
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>
-            </ListView>
+                </ListView>
+            </Grid>
         </server:ServerSectionLayout.Body>
     </server:ServerSectionLayout>
+        <ContentDialog
+            x:Name="PlayerDialogHost"
+            x:Uid="PlayerDialogHost"
+            DefaultButton="Close" />
+        <ContentDialog
+            x:Name="BanListHostDialog"
+            x:Uid="BanListHostDialog"
+            DefaultButton="Close" />
+    </Grid>
 </UserControl>

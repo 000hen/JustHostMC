@@ -241,8 +241,11 @@
   <data name="ServerSectionPerformance.Text" xml:space="preserve"><value>效能</value></data>
   <data name="ServerSectionMods.Text" xml:space="preserve"><value>插件 / 模組</value></data>
   <data name="ServerSectionConfig.Text" xml:space="preserve"><value>設定</value></data>
+  <data name="ServerSectionPerformancePanel.Title" xml:space="preserve"><value>效能</value></data>
+  <data name="ServerSectionModsPanel.Title" xml:space="preserve"><value>插件 / 模組</value></data>
+  <data name="ServerSectionConfigPanel.Title" xml:space="preserve"><value>設定</value></data>
   <data name="ServerSectionConfigHint.Text" xml:space="preserve"><value>管理伺服器啟動設定與進階選項</value></data>
-  <data name="ServerSectionPerformanceHint.Text" xml:space="preserve"><value>監控伺服器資源使用與網路指標</value></data>
+  <data name="ServerSectionPerformancePanel.Description" xml:space="preserve"><value>監控伺服器資源使用與網路指標</value></data>
   <data name="ServerSectionPlayersHint.Text" xml:space="preserve"><value>管理線上玩家、管理員與封鎖名單</value></data>
   <data name="ServerSectionModsHint.Text" xml:space="preserve"><value>管理伺服器擴充功能與模組</value></data>
   <data name="ServerEditMenuItem.Text" xml:space="preserve"><value>編輯伺服器</value></data>
@@ -259,6 +262,8 @@
   <data name="Server.PortAutoValue" xml:space="preserve"><value>自動</value></data>
   <data name="Server.MemoryValue" xml:space="preserve"><value>{memory} MB</value></data>
   <data name="Server.ValueUnknown" xml:space="preserve"><value>未知</value></data>
+  <data name="ServerMetaPortAutoValue.Text" xml:space="preserve"><value>自動</value></data>
+  <data name="ServerMetaMemoryUnknownValue.Text" xml:space="preserve"><value>未知</value></data>
   <data name="ServerState.Start" xml:space="preserve"><value>啟動</value></data>
   <data name="ServerState.Stop" xml:space="preserve"><value>停止</value></data>
   <data name="ServerState.Starting" xml:space="preserve"><value>啟動中</value></data>
@@ -325,8 +330,8 @@
   <data name="ConfigName.playersSleepingPercentage" xml:space="preserve"><value>睡覺玩家百分比</value></data>
   <data name="ConfigName.doImmediateRespawn" xml:space="preserve"><value>立即重生</value></data>
   <!-- Ban list -->
-  <data name="BanListDialog.Title" xml:space="preserve"><value>封鎖名單</value></data>
-  <data name="BanListDialog.CloseButtonText" xml:space="preserve"><value>關閉</value></data>
+  <data name="BanListHostDialog.Title" xml:space="preserve"><value>封鎖名單</value></data>
+  <data name="BanListHostDialog.CloseButtonText" xml:space="preserve"><value>關閉</value></data>
   <data name="BanListStoppedNotice.Title" xml:space="preserve"><value>停止伺服器後再編輯</value></data>
   <data name="BanListStoppedNotice.Message" xml:space="preserve"><value>封鎖名單檔案最適合在伺服器停止時修改；伺服器執行中仍可使用主控台封鎖指令。</value></data>
   <data name="BanListAddHeader.Text" xml:space="preserve"><value>新增封鎖</value></data>
@@ -349,7 +354,7 @@
   <data name="BanList.RemoveFailed" xml:space="preserve"><value>無法移除封鎖。</value></data>
   <data name="BanList.TargetRequired" xml:space="preserve"><value>請輸入玩家、UUID 或 IP 位址。</value></data>
   <data name="BanList.StoppedRequired" xml:space="preserve"><value>請先停止伺服器再編輯封鎖名單檔案。</value></data>
-  <data name="PlayerDialogBase.CloseButtonText" xml:space="preserve"><value>關閉</value></data>
+<data name="PlayerDialogHost.CloseButtonText" xml:space="preserve"><value>關閉</value></data>
   <data name="PlayerRawDataBox.Header" xml:space="preserve"><value>原始玩家 NBT</value></data>
   <data name="PlayerDataDialog.ActionName" xml:space="preserve"><value>原始資料</value></data>
   <data name="PlayerInventoryDialog.ActionName" xml:space="preserve"><value>物品欄</value></data>
@@ -529,7 +534,7 @@
   <data name="Scripts.NotAvailable" xml:space="preserve"><value>自動化引擎尚未可用。</value></data>
   <data name="Scripts.OperationFailed" xml:space="preserve"><value>操作失敗，請再試一次。</value></data>
   <data name="Scripts.RemoveConfirmBody" xml:space="preserve"><value>要移除「{name}」嗎？此操作無法復原。</value></data>
-  <data name="Scripts.RemoveConfirmPrimary" xml:space="preserve"><value>移除</value></data>
+  <data name="CommonRemoveButton.Content" xml:space="preserve"><value>移除</value></data>
   <data name="PermissionConsentTitleNamed" xml:space="preserve"><value>檢視權限 — {name}</value></data>
   <data name="CreateServer.ProviderAuthor" xml:space="preserve"><value>作者：{author}</value></data>
   <data name="CreateServerProviderWebsite.Content" xml:space="preserve"><value>造訪網站</value></data>

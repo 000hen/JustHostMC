@@ -46,6 +46,35 @@ public sealed class ResourcePolicyTests {
     }
 
     [Fact]
+    public void StaticControlsDoNotConstructLocalizationService() {
+        string[] files = [
+            "Controls/Server/ServerConfigPanel.xaml.cs",
+            "Controls/Server/ServerModsPanel.xaml.cs",
+            "Controls/Server/ServerPerformancePanel.xaml.cs",
+        ];
+        foreach (var relativePath in files) {
+            var source = File.ReadAllText(Path.Combine(
+                AppRoot, relativePath.Replace('/', Path.DirectorySeparatorChar)));
+            Assert.DoesNotContain("LocalizationService", source,
+                                  StringComparison.Ordinal);
+            Assert.DoesNotContain("_localizer.Get", source,
+                                  StringComparison.Ordinal);
+        }
+    }
+
+    [Theory]
+    [InlineData("Controls/Server/ServerConfigPanel.xaml", "ServerSectionConfig")]
+    [InlineData("Controls/Server/ServerModsPanel.xaml", "ServerSectionMods")]
+    [InlineData("Controls/Server/ServerPerformancePanel.xaml", "ServerSectionPerformance")]
+    public void ServerPanelLayoutUidsDoNotReuseNavigationItemUids(
+        string relativePath, string navigationUid) {
+        var source = File.ReadAllText(Path.Combine(
+            AppRoot, relativePath.Replace('/', Path.DirectorySeparatorChar)));
+        Assert.DoesNotContain($"x:Uid=\"{navigationUid}\"", source,
+                              StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void ProgrammaticKeysDoNotUseUnderscoreSeparators() {
         var resourceNames = LoadResources("en-US")
             .Select(ResourceName)

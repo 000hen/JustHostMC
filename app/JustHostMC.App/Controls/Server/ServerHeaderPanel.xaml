@@ -188,7 +188,13 @@
                     <TextBlock
                         Grid.Row="1"
                         Text="{x:Bind PortValueText(Server.Port), Mode=OneWay}"
-                        TextWrapping="WrapWholeWords" />
+                        TextWrapping="WrapWholeWords"
+                        Visibility="{x:Bind HasPort(Server.Port), Mode=OneWay}" />
+                    <TextBlock
+                        x:Uid="ServerMetaPortAutoValue"
+                        Grid.Row="1"
+                        TextWrapping="WrapWholeWords"
+                        Visibility="{x:Bind HasNoPort(Server.Port), Mode=OneWay}" />
                 </Grid>
 
                 <Grid
@@ -208,7 +214,13 @@
                     <TextBlock
                         Grid.Row="1"
                         Text="{x:Bind MemoryText(Server.MemoryMb), Mode=OneWay}"
-                        TextWrapping="WrapWholeWords" />
+                        TextWrapping="WrapWholeWords"
+                        Visibility="{x:Bind HasMemory(Server.MemoryMb), Mode=OneWay}" />
+                    <TextBlock
+                        x:Uid="ServerMetaMemoryUnknownValue"
+                        Grid.Row="1"
+                        TextWrapping="WrapWholeWords"
+                        Visibility="{x:Bind HasNoMemory(Server.MemoryMb), Mode=OneWay}" />
                 </Grid>
 
             </Grid>

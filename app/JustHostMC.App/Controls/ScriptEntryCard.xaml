@@ -75,6 +75,7 @@
                                 TextWrapping="Wrap" />
                             <Button
                                 x:Name="RemoveConfirmButton"
+                                x:Uid="CommonRemoveButton"
                                 HorizontalAlignment="Right"
                                 Click="OnRemoveConfirmClick" />
                         </StackPanel>

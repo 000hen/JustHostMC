@@ -19,7 +19,7 @@ public class ServerChangeSessionTests {
         await session.StartAsync();
         var first =
             await source.NextWatch.Reader.ReadAsync().AsTask().WaitAsync(
-                TimeSpan.FromSeconds(1));
+                TestTimeouts.Async);
         await first.Writer.WriteAsync(new ServerChangeEvent {
             Ready = new Empty(),
         });
@@ -28,7 +28,7 @@ public class ServerChangeSessionTests {
         await session.RestartAsync();
         var second =
             await source.NextWatch.Reader.ReadAsync().AsTask().WaitAsync(
-                TimeSpan.FromSeconds(1));
+                TestTimeouts.Async);
         await second.Writer.WriteAsync(new ServerChangeEvent {
             Ready = new Empty(),
         });
@@ -78,7 +78,7 @@ public class ServerChangeSessionTests {
                         return;
                     signal = _listChanged.Task;
                 }
-                await signal.WaitAsync(TimeSpan.FromSeconds(1));
+                await signal.WaitAsync(TestTimeouts.Async);
             }
         }
 

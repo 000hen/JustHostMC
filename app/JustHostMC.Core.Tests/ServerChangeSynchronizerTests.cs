@@ -22,24 +22,24 @@ public class ServerChangeSynchronizerTests {
         var run = synchronizer.RunAsync(
             source, servers => reconciled.TrySetResult(servers),
             change => applied.TrySetResult(change), cancellation.Token);
-        await source.WatchStarted.Task.WaitAsync(TimeSpan.FromSeconds(1));
+        await source.WatchStarted.Task.WaitAsync(TestTimeouts.Async);
         Assert.Equal(0, source.ListCount);
 
         await source.Events.Writer.WriteAsync(new ServerChangeEvent {
             Ready = new Empty(),
         });
-        var initial = await reconciled.Task.WaitAsync(TimeSpan.FromSeconds(1));
+        var initial = await reconciled.Task.WaitAsync(TestTimeouts.Async);
         Assert.Equal("initial", Assert.Single(initial).Id);
         Assert.Equal(1, source.ListCount);
 
         await source.Events.Writer.WriteAsync(new ServerChangeEvent {
             Upsert = new Server { Id = "changed", Name = "Changed" },
         });
-        var change = await applied.Task.WaitAsync(TimeSpan.FromSeconds(1));
+        var change = await applied.Task.WaitAsync(TestTimeouts.Async);
         Assert.Equal("changed", change.Upsert.Id);
 
         cancellation.Cancel();
-        await run.WaitAsync(TimeSpan.FromSeconds(1));
+        await run.WaitAsync(TestTimeouts.Async);
     }
 
     [Fact]
@@ -63,13 +63,13 @@ public class ServerChangeSynchronizerTests {
             },
             _ => {}, cancellation.Token);
 
-        await reconciliations.Task.WaitAsync(TimeSpan.FromSeconds(1));
+        await reconciliations.Task.WaitAsync(TestTimeouts.Async);
         Assert.Equal(2, source.WatchCount);
         Assert.Equal(2, source.ListCount);
         Assert.True(delayCount >= 1);
 
         cancellation.Cancel();
-        await run.WaitAsync(TimeSpan.FromSeconds(1));
+        await run.WaitAsync(TestTimeouts.Async);
     }
 
     [Fact]
@@ -90,22 +90,22 @@ public class ServerChangeSynchronizerTests {
                                             applied.TrySetResult();
                                         },
                                         cancellation.Token);
-        await source.WatchStarted.Task.WaitAsync(TimeSpan.FromSeconds(1));
+        await source.WatchStarted.Task.WaitAsync(TestTimeouts.Async);
         await source.Events.Writer.WriteAsync(new ServerChangeEvent {
             Ready = new Empty(),
         });
-        await source.ListStarted.Task.WaitAsync(TimeSpan.FromSeconds(1));
+        await source.ListStarted.Task.WaitAsync(TestTimeouts.Async);
         await source.Events.Writer.WriteAsync(new ServerChangeEvent {
             Upsert = new Server { Id = "newer" },
         });
         Assert.Empty(order);
 
         source.ReleaseList.TrySetResult();
-        await applied.Task.WaitAsync(TimeSpan.FromSeconds(1));
+        await applied.Task.WaitAsync(TestTimeouts.Async);
         Assert.Equal(["list", "event"], order);
 
         cancellation.Cancel();
-        await run.WaitAsync(TimeSpan.FromSeconds(1));
+        await run.WaitAsync(TestTimeouts.Async);
     }
 
     private sealed class ChannelServerChangeSource(

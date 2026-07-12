@@ -1,3 +1,4 @@
+using CommunityToolkit.Mvvm.ComponentModel;
 using McManager.Grpc;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media.Imaging;
@@ -84,7 +85,7 @@ public sealed class ShopGalleryItem {
 }
 
 /// <summary>One installable version row on the detail page.</summary>
-public sealed class ShopVersionItem {
+public sealed partial class ShopVersionItem : ObservableObject {
     public ShopVersionItem(ShopVersion version) {
         Version = version;
         RequiredDependencies =
@@ -93,6 +94,13 @@ public sealed class ShopVersionItem {
 
     public ShopVersion Version { get; }
     public IReadOnlyList<ShopDependency> RequiredDependencies { get; }
+
+    [ObservableProperty]
+    public partial string ActionLabel { get; set; } = "";
+
+    [ObservableProperty]
+    public partial bool ActionEnabled { get; set; }
+
     public string Name =>
         Version.Name.Length > 0? Version.Name : Version.VersionNumber;
     public string VersionNumber => Version.VersionNumber;

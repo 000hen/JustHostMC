@@ -637,6 +637,41 @@
   <data name="ShopOverviewTab.Text" xml:space="preserve"><value>Details</value></data>
   <data name="ShopVersionsTab.Text" xml:space="preserve"><value>Versions</value></data>
   <data name="ShopOpenWebsite.Content" xml:space="preserve"><value>Open website</value></data>
+  <data name="Shop_InstallAction" xml:space="preserve"><value>Install</value></data>
+  <data name="Shop_GetOnSource" xml:space="preserve"><value>Get on {source}</value></data>
+  <data name="shop_category_curseforge_adventure-and-rpg" xml:space="preserve"><value>Adventure and RPG</value></data>
+  <data name="shop_category_curseforge_api-and-library" xml:space="preserve"><value>API and Library</value></data>
+  <data name="shop_category_curseforge_armor-weapons-tools" xml:space="preserve"><value>Armor, Weapons, and Tools</value></data>
+  <data name="shop_category_curseforge_cosmetic" xml:space="preserve"><value>Cosmetic</value></data>
+  <data name="shop_category_curseforge_education" xml:space="preserve"><value>Education</value></data>
+  <data name="shop_category_curseforge_food" xml:space="preserve"><value>Food</value></data>
+  <data name="shop_category_curseforge_game-mechanics" xml:space="preserve"><value>Game Mechanics</value></data>
+  <data name="shop_category_curseforge_magic" xml:space="preserve"><value>Magic</value></data>
+  <data name="shop_category_curseforge_map-and-information" xml:space="preserve"><value>Map and Information</value></data>
+  <data name="shop_category_curseforge_mc-miscellaneous" xml:space="preserve"><value>Minecraft Miscellaneous</value></data>
+  <data name="shop_category_curseforge_mobs" xml:space="preserve"><value>Mobs</value></data>
+  <data name="shop_category_curseforge_optimization" xml:space="preserve"><value>Optimization</value></data>
+  <data name="shop_category_curseforge_redstone" xml:space="preserve"><value>Redstone</value></data>
+  <data name="shop_category_curseforge_server-utility" xml:space="preserve"><value>Server Utility</value></data>
+  <data name="shop_category_curseforge_storage" xml:space="preserve"><value>Storage</value></data>
+  <data name="shop_category_curseforge_technology" xml:space="preserve"><value>Technology</value></data>
+  <data name="shop_category_curseforge_transport" xml:space="preserve"><value>Transport</value></data>
+  <data name="shop_category_curseforge_world-gen" xml:space="preserve"><value>World Generation</value></data>
+  <data name="shop_category_curseforge_admin-tools" xml:space="preserve"><value>Admin Tools</value></data>
+  <data name="shop_category_curseforge_anti-griefing-tools" xml:space="preserve"><value>Anti-Griefing Tools</value></data>
+  <data name="shop_category_curseforge_chat-related" xml:space="preserve"><value>Chat Related</value></data>
+  <data name="shop_category_curseforge_developer-tools" xml:space="preserve"><value>Developer Tools</value></data>
+  <data name="shop_category_curseforge_economy" xml:space="preserve"><value>Economy</value></data>
+  <data name="shop_category_curseforge_fixes" xml:space="preserve"><value>Fixes</value></data>
+  <data name="shop_category_curseforge_fun" xml:space="preserve"><value>Fun</value></data>
+  <data name="shop_category_curseforge_general" xml:space="preserve"><value>General</value></data>
+  <data name="shop_category_curseforge_informational" xml:space="preserve"><value>Informational</value></data>
+  <data name="shop_category_curseforge_mechanics" xml:space="preserve"><value>Mechanics</value></data>
+  <data name="shop_category_curseforge_miscellaneous" xml:space="preserve"><value>Miscellaneous</value></data>
+  <data name="shop_category_curseforge_role-playing" xml:space="preserve"><value>Role Playing</value></data>
+  <data name="shop_category_curseforge_teleportation" xml:space="preserve"><value>Teleportation</value></data>
+  <data name="shop_category_curseforge_world-editing-and-management" xml:space="preserve"><value>World Editing and Management</value></data>
+  <data name="shop_category_curseforge_world-generators" xml:space="preserve"><value>World Generators</value></data>
   <data name="ShopInstallButton.Content" xml:space="preserve"><value>Install</value></data>
   <data name="ShopInstallLatestButton.Content" xml:space="preserve"><value>Install latest release</value></data>
   <data name="ShopNoVersions.Text" xml:space="preserve"><value>No compatible versions for this server. Relax the filters to see more.</value></data>

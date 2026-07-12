@@ -115,11 +115,11 @@
 
                         <Button
                             x:Name="InstallLatestButton"
-                            x:Uid="ShopInstallLatestButton"
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Center"
                             AutomationProperties.AutomationId="ShopInstallLatest"
                             Click="OnInstallClick"
+                            Content="{x:Bind ViewModel.PrimaryActionLabel, Mode=OneWay}"
                             IsEnabled="{x:Bind ViewModel.CanInstallLatest, Mode=OneWay}"
                             Style="{StaticResource AccentButtonStyle}"
                             Tag="{x:Bind ViewModel.LatestRelease, Mode=OneWay}" />
@@ -243,11 +243,11 @@
                             VerticalAlignment="Center"
                             Spacing="8">
                             <Button
-                                x:Uid="ShopInstallLatestButton"
                                 HorizontalAlignment="Stretch"
                                 HorizontalContentAlignment="Center"
                                 AutomationProperties.AutomationId="ShopInstallLatestCompact"
                                 Click="OnInstallClick"
+                                Content="{x:Bind ViewModel.PrimaryActionLabel, Mode=OneWay}"
                                 IsEnabled="{x:Bind ViewModel.CanInstallLatest, Mode=OneWay}"
                                 Style="{StaticResource AccentButtonStyle}"
                                 Tag="{x:Bind ViewModel.LatestRelease, Mode=OneWay}" />
@@ -363,10 +363,11 @@
                                         </StackPanel>
                                     </StackPanel>
                                     <Button
-                                        x:Uid="ShopInstallButton"
                                         Grid.Column="2"
                                         VerticalAlignment="Center"
                                         Click="OnInstallClick"
+                                        Content="{x:Bind ActionLabel, Mode=OneWay}"
+                                        IsEnabled="{x:Bind ActionEnabled, Mode=OneWay}"
                                         Style="{StaticResource AccentButtonStyle}"
                                         Tag="{x:Bind}" />
                                 </Grid>

@@ -622,6 +622,41 @@
   <data name="ShopOverviewTab.Text" xml:space="preserve"><value>詳細資料</value></data>
   <data name="ShopVersionsTab.Text" xml:space="preserve"><value>版本</value></data>
   <data name="ShopOpenWebsite.Content" xml:space="preserve"><value>開啟網站</value></data>
+  <data name="Shop_InstallAction" xml:space="preserve"><value>安裝</value></data>
+  <data name="Shop_GetOnSource" xml:space="preserve"><value>前往 {source} 取得</value></data>
+  <data name="shop_category_curseforge_adventure-and-rpg" xml:space="preserve"><value>冒險與角色扮演</value></data>
+  <data name="shop_category_curseforge_api-and-library" xml:space="preserve"><value>API 與函式庫</value></data>
+  <data name="shop_category_curseforge_armor-weapons-tools" xml:space="preserve"><value>護甲、武器與工具</value></data>
+  <data name="shop_category_curseforge_cosmetic" xml:space="preserve"><value>外觀</value></data>
+  <data name="shop_category_curseforge_education" xml:space="preserve"><value>教育</value></data>
+  <data name="shop_category_curseforge_food" xml:space="preserve"><value>食物</value></data>
+  <data name="shop_category_curseforge_game-mechanics" xml:space="preserve"><value>遊戲機制</value></data>
+  <data name="shop_category_curseforge_magic" xml:space="preserve"><value>魔法</value></data>
+  <data name="shop_category_curseforge_map-and-information" xml:space="preserve"><value>地圖與資訊</value></data>
+  <data name="shop_category_curseforge_mc-miscellaneous" xml:space="preserve"><value>Minecraft 雜項</value></data>
+  <data name="shop_category_curseforge_mobs" xml:space="preserve"><value>生物</value></data>
+  <data name="shop_category_curseforge_optimization" xml:space="preserve"><value>效能最佳化</value></data>
+  <data name="shop_category_curseforge_redstone" xml:space="preserve"><value>紅石</value></data>
+  <data name="shop_category_curseforge_server-utility" xml:space="preserve"><value>伺服器工具</value></data>
+  <data name="shop_category_curseforge_storage" xml:space="preserve"><value>儲存</value></data>
+  <data name="shop_category_curseforge_technology" xml:space="preserve"><value>科技</value></data>
+  <data name="shop_category_curseforge_transport" xml:space="preserve"><value>運輸</value></data>
+  <data name="shop_category_curseforge_world-gen" xml:space="preserve"><value>世界生成</value></data>
+  <data name="shop_category_curseforge_admin-tools" xml:space="preserve"><value>管理工具</value></data>
+  <data name="shop_category_curseforge_anti-griefing-tools" xml:space="preserve"><value>防破壞工具</value></data>
+  <data name="shop_category_curseforge_chat-related" xml:space="preserve"><value>聊天</value></data>
+  <data name="shop_category_curseforge_developer-tools" xml:space="preserve"><value>開發工具</value></data>
+  <data name="shop_category_curseforge_economy" xml:space="preserve"><value>經濟</value></data>
+  <data name="shop_category_curseforge_fixes" xml:space="preserve"><value>修正</value></data>
+  <data name="shop_category_curseforge_fun" xml:space="preserve"><value>娛樂</value></data>
+  <data name="shop_category_curseforge_general" xml:space="preserve"><value>一般</value></data>
+  <data name="shop_category_curseforge_informational" xml:space="preserve"><value>資訊</value></data>
+  <data name="shop_category_curseforge_mechanics" xml:space="preserve"><value>機制</value></data>
+  <data name="shop_category_curseforge_miscellaneous" xml:space="preserve"><value>雜項</value></data>
+  <data name="shop_category_curseforge_role-playing" xml:space="preserve"><value>角色扮演</value></data>
+  <data name="shop_category_curseforge_teleportation" xml:space="preserve"><value>傳送</value></data>
+  <data name="shop_category_curseforge_world-editing-and-management" xml:space="preserve"><value>世界編輯與管理</value></data>
+  <data name="shop_category_curseforge_world-generators" xml:space="preserve"><value>世界生成器</value></data>
   <data name="ShopInstallButton.Content" xml:space="preserve"><value>安裝</value></data>
   <data name="ShopInstallLatestButton.Content" xml:space="preserve"><value>安裝最新正式版</value></data>
   <data name="ShopNoVersions.Text" xml:space="preserve"><value>沒有與此伺服器相容的版本，放寬篩選即可看到更多。</value></data>

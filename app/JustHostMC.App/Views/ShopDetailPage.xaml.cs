@@ -90,6 +90,11 @@ public sealed partial class ShopDetailPage : Page {
         if (sender is not FrameworkElement { Tag : ShopVersionItem version })
             return;
 
+        if (ViewModel.IsWebsiteAction) {
+            await OpenWebsiteAsync();
+            return;
+        }
+
         var dependencies = ViewModel.MissingDependencies(version);
         var chosen       = new List<ShopDependency>();
         if (dependencies.Count > 0) {
@@ -126,6 +131,10 @@ public sealed partial class ShopDetailPage : Page {
     }
 
     private async void OnOpenWebsite(object sender, RoutedEventArgs e) {
+        await OpenWebsiteAsync();
+    }
+
+    private async Task OpenWebsiteAsync() {
         if (Uri.TryCreate(ViewModel.WebsiteUrl, UriKind.Absolute, out var uri))
             await Windows.System.Launcher.LaunchUriAsync(uri);
     }

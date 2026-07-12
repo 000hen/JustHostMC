@@ -26,10 +26,9 @@ public sealed class PendingServerUpdates {
         return false;
     }
 
-    public ServerChangeEvent Complete(Server authoritative) {
+    public void Complete(string serverId) {
         lock (_gate)
-            _updates.Remove(authoritative.Id);
-        return new ServerChangeEvent { Upsert = authoritative.Clone() };
+            _updates.Remove(serverId);
     }
 
     public void Cancel(string serverId) {

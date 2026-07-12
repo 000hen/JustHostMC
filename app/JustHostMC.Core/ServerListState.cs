@@ -34,6 +34,12 @@ public sealed class ServerListState {
         }
     }
 
+    public Server LatestOr(Server fallback) {
+        var latest = _servers.FirstOrDefault(server =>
+                                                 server.Id == fallback.Id);
+        return (latest ?? fallback).Clone();
+    }
+
     private void Sort() => _servers.Sort(static (left, right) => {
         var order = left.SortOrder.CompareTo(right.SortOrder);
         if (order != 0)

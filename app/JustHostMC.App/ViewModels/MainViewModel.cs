@@ -242,8 +242,10 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
             var daemon = await App.Current.DaemonReady;
             var updated = await daemon.Servers.UpdateAsync(
                 optimistic, deadline: DateTime.UtcNow.AddMinutes(3));
-            var authoritative = _pendingUpdates.Complete(updated);
-            RunOnUI(() => ApplyServerChange(authoritative));
+            _pendingUpdates.Complete(updated.Id);
+            RunOnUI(() => ApplyServerChange(new ServerChangeEvent {
+                Upsert = _serverState.LatestOr(updated),
+            }));
             return true;
         } catch (RpcException) {
             _pendingUpdates.Cancel(optimistic.Id);

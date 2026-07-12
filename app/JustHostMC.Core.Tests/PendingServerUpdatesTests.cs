@@ -5,8 +5,9 @@ namespace JustHostMC.Core.Tests;
 
 public class PendingServerUpdatesTests {
     [Fact]
-    public void Complete_ClearsOptimisticOverlayBeforeReturningAuthoritativeEvent() {
+    public void Complete_ClearsOverlayAndKeepsNewerStreamSnapshotAuthoritative() {
         var pending = new PendingServerUpdates();
+        var state = new ServerListState();
         pending.Begin(new UpdateServerRequest {
             Id = "one", Name = "One", Port = 0,
         });
@@ -14,14 +15,21 @@ public class PendingServerUpdatesTests {
         Assert.True(pending.TryGet("one", out var optimistic));
         Assert.Equal(0, optimistic.Port);
 
-        var authoritative = pending.Complete(new Server {
+        state.Apply(new ServerChangeEvent {
+            Upsert = new Server {
+                Id = "one", Name = "One", Port = 25565,
+                Status = ServerStatus.Crashed,
+            },
+        });
+        pending.Complete("one");
+        var authoritative = state.LatestOr(new Server {
             Id = "one", Name = "One", Port = 25565,
+            Status = ServerStatus.Running,
         });
 
         Assert.False(pending.TryGet("one", out _));
-        Assert.Equal(ServerChangeEvent.ChangeOneofCase.Upsert,
-                     authoritative.ChangeCase);
-        Assert.Equal(25565, authoritative.Upsert.Port);
+        Assert.Equal(25565, authoritative.Port);
+        Assert.Equal(ServerStatus.Crashed, authoritative.Status);
     }
 
     [Fact]

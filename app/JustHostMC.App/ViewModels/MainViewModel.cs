@@ -16,19 +16,16 @@ namespace JustHostMC.App.ViewModels;
 /// and every gRPC stream/callback update is marshaled to the UI thread (PROMPT
 /// §10.1).
 /// </summary>
-public partial class MainViewModel : ObservableObject, IDisposable {
+public partial class MainViewModel : ObservableObject, IAsyncDisposable {
     private const int MaxLogLines      = 2000;
     private const int MaxLogLineLength = 2000;
 
     private readonly ILocalizer _localizer;
     private readonly DispatcherQueue _dispatcher;
-    private readonly object _pendingUpdatesGate = new();
-    private readonly Dictionary<string, UpdateServerRequest> _pendingUpdates =
-        new();
-    private readonly CancellationTokenSource _serverChangesCts = new();
+    private readonly PendingServerUpdates _pendingUpdates = new();
     private readonly ServerChangeSynchronizer _serverChanges = new();
     private readonly ServerListState _serverState = new();
-    private Task? _serverChangesTask;
+    private ServerChangeSession? _serverChangesSession;
 
     public ObservableCollection<ServerItem> Servers { get; } = new();
     public ObservableCollection<object> NavigationItems {
@@ -111,7 +108,8 @@ public partial class MainViewModel : ObservableObject, IDisposable {
             _ = GetProvidersAsync().ContinueWith(
                 static t => _ = t.Exception,
                 TaskContinuationOptions.OnlyOnFaulted);
-            _serverChangesTask ??= RunServerChangesAsync(daemon);
+            _serverChangesSession ??= CreateServerChangeSession(daemon);
+            await _serverChangesSession.StartAsync();
         } catch (Exception) {
             RunOnUI(() => EngineStatus = _localizer.Get("EngineStatus_Failed"));
         }
@@ -157,19 +155,10 @@ public partial class MainViewModel : ObservableObject, IDisposable {
     }
 
     [RelayCommand]
-    private Task Refresh() => RefreshAsync();
-
-    private async Task RefreshAsync() {
-        try {
-            var daemon = await App.Current.DaemonReady;
-            var list = await daemon.Servers
-                           .ListAsync(new Empty(),
-                                      deadline: DateTime.UtcNow.AddSeconds(10))
-                           .ConfigureAwait(false);
-            RunOnUI(() => MergeServers(list.Servers));
-        } catch (RpcException) {
-            // Transient; the next poll will reconcile.
-        }
+    private async Task Refresh() {
+        var daemon = await App.Current.DaemonReady;
+        _serverChangesSession ??= CreateServerChangeSession(daemon);
+        await _serverChangesSession.RestartAsync();
     }
 
     /// <summary>Creates a server, streaming localized install progress + raw
@@ -244,19 +233,20 @@ public partial class MainViewModel : ObservableObject, IDisposable {
     public async Task<bool> UpdateServerAsync(UpdateServerRequest request) {
         var item       = Servers.FirstOrDefault(s => s.Id == request.Id);
         var rollback   = item is null ? null : BuildUpdateRequest(item);
-        var optimistic = CloneUpdateRequest(request);
-        lock (_pendingUpdatesGate) _pendingUpdates[optimistic.Id] = optimistic;
+        var optimistic = request.Clone();
+        _pendingUpdates.Begin(optimistic);
         if (item is not null)
             RunOnUI(() => item.ApplyLocal(optimistic));
 
         try {
             var daemon = await App.Current.DaemonReady;
-            await daemon.Servers.UpdateAsync(
+            var updated = await daemon.Servers.UpdateAsync(
                 optimistic, deadline: DateTime.UtcNow.AddMinutes(3));
-            lock (_pendingUpdatesGate) _pendingUpdates.Remove(optimistic.Id);
+            var authoritative = _pendingUpdates.Complete(updated);
+            RunOnUI(() => ApplyServerChange(authoritative));
             return true;
         } catch (RpcException) {
-            lock (_pendingUpdatesGate) _pendingUpdates.Remove(optimistic.Id);
+            _pendingUpdates.Cancel(optimistic.Id);
             if (item is not null && rollback is not null)
                 RunOnUI(() => item.ApplyLocal(rollback));
             return false;
@@ -481,22 +471,9 @@ public partial class MainViewModel : ObservableObject, IDisposable {
             CustomJavaArgs = item.CustomJavaArgs,
         };
 
-    private static UpdateServerRequest CloneUpdateRequest(
-        UpdateServerRequest request) => new() {
-        Id             = request.Id,
-        Name           = request.Name,
-        McVersion      = request.McVersion,
-        Port           = request.Port,
-        SortOrder      = request.SortOrder,
-        MemoryMb       = request.MemoryMb,
-        CustomJavaArgs = request.CustomJavaArgs,
-    };
-
     private bool TryGetPendingUpdate(string serverId,
-                                     out UpdateServerRequest request) {
-        lock (_pendingUpdatesGate) return _pendingUpdates.TryGetValue(
-            serverId, out request!);
-    }
+                                     out UpdateServerRequest request) =>
+        _pendingUpdates.TryGet(serverId, out request);
 
     private void OnServerStatsChanged() {
         OnPropertyChanged(nameof(TotalServers));
@@ -505,16 +482,16 @@ public partial class MainViewModel : ObservableObject, IDisposable {
         OnPropertyChanged(nameof(BusyServers));
     }
 
-    private Task RunServerChangesAsync(DaemonClient daemon) =>
-        _serverChanges.RunAsync(
+    private ServerChangeSession CreateServerChangeSession(
+        DaemonClient daemon) => new(
+            _serverChanges,
             new GrpcServerChangeSource(daemon.Servers),
             servers => RunOnUI(() => MergeServers(servers)),
-            change => RunOnUI(() => ApplyServerChange(change)),
-            _serverChangesCts.Token);
+            change => RunOnUI(() => ApplyServerChange(change)));
 
-    public void Dispose() {
-        _serverChangesCts.Cancel();
-        _serverChangesCts.Dispose();
+    public async ValueTask DisposeAsync() {
+        if (_serverChangesSession is not null)
+            await _serverChangesSession.DisposeAsync();
     }
 
     private static string MapErrorKey(RpcException ex) => ex.StatusCode switch {

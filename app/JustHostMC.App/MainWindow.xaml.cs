@@ -124,8 +124,8 @@ public sealed partial class MainWindow : Window {
             SetWindowSubclass(_hwnd, _subclassProc, MinWindowSubclassId, 0);
     }
 
-    private void OnClosed(object sender, WindowEventArgs args) {
-        Shell.Main.Dispose();
+    private async void OnClosed(object sender, WindowEventArgs args) {
+        await Shell.Main.DisposeAsync();
         if (_hwnd != IntPtr.Zero)
             RemoveWindowSubclass(_hwnd, _subclassProc, MinWindowSubclassId);
 

@@ -75,6 +75,42 @@ public class ServerChangeSynchronizerTests {
         await run.WaitAsync(TimeSpan.FromSeconds(1));
     }
 
+    [Fact]
+    public async Task RunAsync_AppliesChangesQueuedWhileListIsInFlightAfterList() {
+        var source = new GatedListSource();
+        using var cancellation = new CancellationTokenSource();
+        var order = new List<string>();
+        var applied = new TaskCompletionSource(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+        var synchronizer = new ServerChangeSynchronizer(
+            (_, _) => Task.CompletedTask);
+
+        var run = synchronizer.RunAsync(
+            source,
+            _ => order.Add("list"),
+            _ => {
+                order.Add("event");
+                applied.TrySetResult();
+            },
+            cancellation.Token);
+        await source.WatchStarted.Task.WaitAsync(TimeSpan.FromSeconds(1));
+        await source.Events.Writer.WriteAsync(new ServerChangeEvent {
+            Ready = new Empty(),
+        });
+        await source.ListStarted.Task.WaitAsync(TimeSpan.FromSeconds(1));
+        await source.Events.Writer.WriteAsync(new ServerChangeEvent {
+            Upsert = new Server { Id = "newer" },
+        });
+        Assert.Empty(order);
+
+        source.ReleaseList.TrySetResult();
+        await applied.Task.WaitAsync(TimeSpan.FromSeconds(1));
+        Assert.Equal(["list", "event"], order);
+
+        cancellation.Cancel();
+        await run.WaitAsync(TimeSpan.FromSeconds(1));
+    }
+
     private sealed class ChannelServerChangeSource(
         IReadOnlyList<Server> initial) : IServerChangeSource {
         public Channel<ServerChangeEvent> Events { get; } =
@@ -116,6 +152,32 @@ public class ServerChangeSynchronizerTests {
             ListCount++;
             IReadOnlyList<Server> servers = [];
             return Task.FromResult(servers);
+        }
+    }
+
+    private sealed class GatedListSource : IServerChangeSource {
+        public Channel<ServerChangeEvent> Events { get; } =
+            Channel.CreateUnbounded<ServerChangeEvent>();
+        public TaskCompletionSource WatchStarted { get; } = new(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+        public TaskCompletionSource ListStarted { get; } = new(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+        public TaskCompletionSource ReleaseList { get; } = new(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+
+        public async IAsyncEnumerable<ServerChangeEvent> WatchAsync(
+            [EnumeratorCancellation] CancellationToken cancellationToken) {
+            WatchStarted.TrySetResult();
+            await foreach (var change in Events.Reader.ReadAllAsync(
+                               cancellationToken))
+                yield return change;
+        }
+
+        public async Task<IReadOnlyList<Server>> ListAsync(
+            CancellationToken cancellationToken) {
+            ListStarted.TrySetResult();
+            await ReleaseList.Task.WaitAsync(cancellationToken);
+            return [];
         }
     }
 }

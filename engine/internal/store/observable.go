@@ -38,7 +38,8 @@ type ChangeSource interface {
 // Observable decorates a Store with bounded, non-blocking change fan-out.
 type Observable struct {
 	Store
-	broker *changeBroker
+	mutationMu sync.Mutex
+	broker     *changeBroker
 }
 
 // NewObservable wraps base and gives each subscriber the requested capacity.
@@ -57,6 +58,8 @@ func NewObservable(base Store, capacity int) *Observable {
 
 // Put persists server and publishes one immutable upsert after success.
 func (s *Observable) Put(server *Server) error {
+	s.mutationMu.Lock()
+	defer s.mutationMu.Unlock()
 	if err := s.Store.Put(server); err != nil {
 		return err
 	}
@@ -66,6 +69,8 @@ func (s *Observable) Put(server *Server) error {
 
 // Delete removes id and publishes one deletion after success.
 func (s *Observable) Delete(id string) error {
+	s.mutationMu.Lock()
+	defer s.mutationMu.Unlock()
 	if err := s.Store.Delete(id); err != nil {
 		return err
 	}

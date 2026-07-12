@@ -49,15 +49,16 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
     }
 
     public ShopPrimaryAction PrimaryAction =>
-        ShopPresentationPolicy.DeterminePrimaryAction(
-            Card.Project.Distribution, WebsiteUrl);
+        ShopPresentationPolicy.DeterminePrimaryAction(Card.Project.Distribution,
+                                                      WebsiteUrl);
 
     public bool IsWebsiteAction =>
         PrimaryAction.Kind == ShopPrimaryActionKind.Website;
 
-    public string PrimaryActionLabel => IsWebsiteAction
-        ? _localizer.Get("Shop_GetOnSource", ("source", SourceName))
-        : _localizer.Get("Shop_InstallAction");
+    public string PrimaryActionLabel =>
+        IsWebsiteAction
+            ? _localizer.Get("Shop_GetOnSource", ("source", SourceName))
+            : _localizer.Get("Shop_InstallAction");
 
     public bool CanInstallLatest =>
         LatestRelease is not null && PrimaryAction.IsEnabled && !IsInstalling;
@@ -199,7 +200,7 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
     public async Task InstallAsync(ShopVersionItem version,
                                    IReadOnlyList<ShopDependency> dependencies) {
         await RunOnUIAsync(() => {
-            IsInstalling = true;
+            IsInstalling     = true;
             InstallSucceeded = false;
             InstallProgress  = 0;
             StatusMessage    = "";
@@ -235,9 +236,7 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
             await RunOnUIAsync(() => StatusMessage =
                                    _localizer.Get("Shop_InstallFailed"));
         } finally {
-            await RunOnUIAsync(() => {
-                IsInstalling = false;
-            });
+            await RunOnUIAsync(() => { IsInstalling = false; });
         }
     }
 

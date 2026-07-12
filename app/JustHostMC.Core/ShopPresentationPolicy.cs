@@ -22,12 +22,13 @@ public static class ShopPresentationPolicy {
         return new ShopPrimaryAction(ShopPrimaryActionKind.Website, valid);
     }
 
-    public static string ResolveCategoryLabel(
-        ShopCategory category, Func<string, string> resolve) {
+    public static string ResolveCategoryLabel(ShopCategory category,
+                                              Func<string, string> resolve) {
         if (category.LocalizationKey.Length == 0)
             return category.Name;
 
         var localized = resolve(category.LocalizationKey);
-        return localized == category.LocalizationKey ? category.Name : localized;
+        return localized == category.LocalizationKey ? category.Name
+                                                     : localized;
     }
 }

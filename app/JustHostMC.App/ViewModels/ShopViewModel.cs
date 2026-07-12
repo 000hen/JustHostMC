@@ -101,8 +101,7 @@ public sealed partial class ShopViewModel : ObservableObject {
         StatusMessage = "";
 
         OnPropertyChanged(nameof(SelectedShopName));
-        var categoryGeneration = Interlocked.Increment(
-            ref _categoryGeneration);
+        var categoryGeneration = Interlocked.Increment(ref _categoryGeneration);
         CategoryFilters.Clear();
         if (value?.Id == "modrinth") {
             foreach (var id in ModrinthCategories)
@@ -123,19 +122,19 @@ public sealed partial class ShopViewModel : ObservableObject {
                     Kind   = Context.Kind,
                 },
                 deadline: DateTime.UtcNow.AddSeconds(30));
-            var filters = reply.Categories.Select(category =>
-                    new ShopCategoryFilter(
-                        category.Id,
-                        ShopPresentationPolicy.ResolveCategoryLabel(
-                            category, _localizer.Get)))
-                .ToArray();
+            var filters =
+                reply.Categories
+                    .Select(category => new ShopCategoryFilter(
+                                category.Id,
+                                ShopPresentationPolicy.ResolveCategoryLabel(
+                                    category, _localizer.Get)))
+                    .ToArray();
             await RunOnUIAsync(() => {
                 if (generation != _categoryGeneration ||
                     SelectedShop?.Id != shop.Id)
                     return;
                 CategoryFilters.Clear();
-                foreach (var filter in filters)
-                    CategoryFilters.Add(filter);
+                foreach (var filter in filters) CategoryFilters.Add(filter);
                 OnPropertyChanged(nameof(HasCategoryFilters));
             });
         } catch {

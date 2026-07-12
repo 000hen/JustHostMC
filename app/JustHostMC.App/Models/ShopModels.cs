@@ -96,10 +96,14 @@ public sealed partial class ShopVersionItem : ObservableObject {
     public IReadOnlyList<ShopDependency> RequiredDependencies { get; }
 
     [ObservableProperty]
-    public partial string ActionLabel { get; set; } = "";
+    public partial string ActionLabel {
+        get; set;
+    } = "";
 
     [ObservableProperty]
-    public partial bool ActionEnabled { get; set; }
+    public partial bool ActionEnabled {
+        get; set;
+    }
 
     public string Name =>
         Version.Name.Length > 0? Version.Name : Version.VersionNumber;

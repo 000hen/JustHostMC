@@ -10,18 +10,18 @@ public sealed class ShopPresentationPolicyTests {
                 true)]
     [InlineData(ShopDistribution.Direct, "", ShopPrimaryActionKind.Install,
                 true)]
-    [InlineData(ShopDistribution.WebsiteOnly,
-                "https://example.test/mod",
+    [InlineData(ShopDistribution.WebsiteOnly, "https://example.test/mod",
                 ShopPrimaryActionKind.Website, true)]
-    [InlineData(ShopDistribution.WebsiteOnly, "",
-                ShopPrimaryActionKind.Website, false)]
+    [InlineData(ShopDistribution.WebsiteOnly, "", ShopPrimaryActionKind.Website,
+                false)]
     [InlineData(ShopDistribution.WebsiteOnly, "file:///tmp/mod",
                 ShopPrimaryActionKind.Website, false)]
-    public void DeterminePrimaryActionMapsPolicy(
-        ShopDistribution distribution, string website,
-        ShopPrimaryActionKind kind, bool enabled) {
-        var result = ShopPresentationPolicy.DeterminePrimaryAction(
-            distribution, website);
+    public void DeterminePrimaryActionMapsPolicy(ShopDistribution distribution,
+                                                 string website,
+                                                 ShopPrimaryActionKind kind,
+                                                 bool enabled) {
+        var result = ShopPresentationPolicy.DeterminePrimaryAction(distribution,
+                                                                   website);
 
         Assert.Equal(kind, result.Kind);
         Assert.Equal(enabled, result.IsEnabled);
@@ -34,8 +34,8 @@ public sealed class ShopPresentationPolicyTests {
             LocalizationKey = "shop.category.curseforge.technology",
         };
 
-        var result = ShopPresentationPolicy.ResolveCategoryLabel(
-            category, _ => "科技");
+        var result = ShopPresentationPolicy.ResolveCategoryLabel(category,
+                                                                 _ => "科技");
 
         Assert.Equal("科技", result);
     }
@@ -47,8 +47,8 @@ public sealed class ShopPresentationPolicyTests {
             LocalizationKey = "missing.key",
         };
 
-        var result = ShopPresentationPolicy.ResolveCategoryLabel(
-            category, key => key);
+        var result =
+            ShopPresentationPolicy.ResolveCategoryLabel(category, key => key);
 
         Assert.Equal("Technology", result);
     }

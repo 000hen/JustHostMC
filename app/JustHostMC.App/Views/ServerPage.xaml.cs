@@ -8,6 +8,7 @@ using McManager.Grpc;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+using Windows.Storage.Pickers;
 
 namespace JustHostMC.App.Views;
 
@@ -150,6 +151,111 @@ public sealed partial class ServerPage : Page {
             XamlRoot = XamlRoot,
         };
         await dialog.ShowAsync();
+    }
+
+    // ── Modpack update / export
+    // ────────────────────────────────────────────
+
+    /// <summary>Splits "packId/versionId"; returns false for non-modpack
+    /// servers.</summary>
+    private bool TryGetPackIdentity(out string packId, out string versionId) {
+        var parts = Server.ProviderVersion.Split('/', 2);
+        if (parts.Length == 2 && parts[0].Length > 0 && parts[1].Length > 0) {
+            packId    = parts[0];
+            versionId = parts[1];
+            return true;
+        }
+        packId    = "";
+        versionId = "";
+        return false;
+    }
+
+    private async void OnUpdateModpackClick(object sender, RoutedEventArgs e) {
+        if (!TryGetPackIdentity(out var packId, out var currentVersionId))
+            return;
+
+        ShopVersionList list;
+        try {
+            var daemon = await App.Current.DaemonReady;
+            list       = await daemon.Shop.GetVersionsAsync(
+                new ShopVersionsRequest {
+                    ShopId    = Server.ProviderId,
+                    ProjectId = packId,
+                },
+                deadline: DateTime.UtcNow.AddSeconds(30));
+        } catch (Exception) {
+            list = new ShopVersionList();
+        }
+        var current = list.Versions.FirstOrDefault(
+            v => v.Id == currentVersionId);
+        var choices = list.Versions.Where(v => v.Id != currentVersionId)
+                          .ToArray();
+        if (choices.Length == 0) {
+            await new ContentDialog {
+                XamlRoot        = XamlRoot,
+                Title           = _localizer.Get("Server_UpdateModpackTitle"),
+                Content = _localizer.Get("Server_UpdateModpackNoVersions"),
+                CloseButtonText = _localizer.Get("Common_Cancel"),
+                DefaultButton   = ContentDialogButton.Close,
+            }.ShowAsync();
+            return;
+        }
+
+        var versionBox = new ComboBox {
+            ItemsSource       = choices.Select(v => v.Name.Length > 0
+                                                        ? v.Name
+                                                        : v.VersionNumber)
+                                    .ToArray(),
+            SelectedIndex     = 0,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+        };
+        var panel = new StackPanel { Spacing = 12 };
+        var currentName =
+            current is null
+                ? currentVersionId
+                : (current.Name.Length > 0 ? current.Name
+                                           : current.VersionNumber);
+        panel.Children.Add(new TextBlock {
+            Text = string.Format(
+                _localizer.Get("Server_UpdateModpackBody"), Server.Name,
+                currentName),
+            TextWrapping = TextWrapping.Wrap,
+        });
+        panel.Children.Add(versionBox);
+
+        var dialog = new ContentDialog {
+            XamlRoot          = XamlRoot,
+            Title             = _localizer.Get("Server_UpdateModpackTitle"),
+            Content           = panel,
+            PrimaryButtonText = _localizer.Get("Server_UpdateModpackConfirm"),
+            CloseButtonText   = _localizer.Get("Common_Cancel"),
+            DefaultButton     = ContentDialogButton.Primary,
+        };
+        if (await dialog.ShowAsync() != ContentDialogResult.Primary)
+            return;
+        if (versionBox.SelectedIndex < 0)
+            return;
+        var picked = choices[versionBox.SelectedIndex];
+        _ = _main.UpdateModpackAsync(Server, $"{packId}/{picked.Id}");
+    }
+
+    private async void OnExportModpackClick(object sender, RoutedEventArgs e) {
+        if (!TryGetPackIdentity(out _, out _))
+            return;
+        var picker = new FileSavePicker {
+            SuggestedFileName      = Server.Name,
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+        };
+        picker.FileTypeChoices.Add(
+            _localizer.Get("Server_ExportModpackPickerName"),
+            new List<string> { ".zip" });
+        var hwnd =
+            WinRT.Interop.WindowNative.GetWindowHandle(App.Current.MainWindow);
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+        var file = await picker.PickSaveFileAsync();
+        if (file is not null)
+            _ = _main.ExportModpackAsync(Server, file.Path);
     }
 
     private async void OnTitleRenameClick(object sender, RoutedEventArgs e) =>

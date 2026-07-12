@@ -21,10 +21,12 @@
             BackupsClick="OnBackupsClick"
             DeleteClick="OnDeleteClick"
             EditClick="OnEditClick"
+            ExportModpackClick="OnExportModpackClick"
             OpenInstanceFolderClick="OnOpenInstanceFolderClick"
             Server="{x:Bind Server, Mode=OneWay}"
             StateButtonClick="OnStateButtonClick"
-            TitleRenameClick="OnTitleRenameClick" />
+            TitleRenameClick="OnTitleRenameClick"
+            UpdateModpackClick="OnUpdateModpackClick" />
 
         <Grid
             x:Name="DetailLayout"

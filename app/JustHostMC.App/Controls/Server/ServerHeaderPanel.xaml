@@ -148,6 +148,23 @@
                                 <FontIcon Glyph="&#xE8B7;" />
                             </MenuFlyoutItem.Icon>
                         </MenuFlyoutItem>
+                        <MenuFlyoutItem
+                            x:Uid="ServerUpdateModpackMenuItem"
+                            Click="OnUpdateModpackClick"
+                            IsEnabled="{x:Bind UpdateModpackEnabled(Server.Status), Mode=OneWay}"
+                            Visibility="{x:Bind ModpackItemVisibility(Server.ProviderVersion), Mode=OneWay}">
+                            <MenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE777;" />
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutItem
+                            x:Uid="ServerExportModpackMenuItem"
+                            Click="OnExportModpackClick"
+                            Visibility="{x:Bind ModpackItemVisibility(Server.ProviderVersion), Mode=OneWay}">
+                            <MenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xEDE1;" />
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
                         <MenuFlyoutSeparator />
                         <MenuFlyoutItem
                             x:Uid="ServerDeleteMenuItem"

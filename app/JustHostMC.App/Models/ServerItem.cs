@@ -55,6 +55,18 @@ public sealed partial class ServerItem : ObservableObject {
     /// plain providers like fabric/paper/forge).</summary>
     public string EffectiveLoader => Loader.Length > 0 ? Loader : ProviderId;
 
+    /// <summary>Opaque modpack pack version ("packId/versionId"); empty for
+    /// normal servers.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsModpackServer))]
+    public partial string ProviderVersion {
+        get; private set;
+    } = "";
+
+    /// <summary>True for servers installed from a modpack — enables the
+    /// update/export modpack actions.</summary>
+    public bool IsModpackServer => ProviderVersion.Length > 0;
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanStart))]
     [NotifyPropertyChangedFor(nameof(CanStop))]
@@ -236,10 +248,11 @@ public sealed partial class ServerItem : ObservableObject {
 
     /// <summary>Refreshes this item from a fresh server snapshot.</summary>
     public void Apply(Server proto) {
-        Name           = proto.Name;
-        McVersion      = proto.McVersion;
-        ProviderId     = proto.ProviderId;
-        Loader         = proto.Loader;
+        Name            = proto.Name;
+        McVersion       = proto.McVersion;
+        ProviderId      = proto.ProviderId;
+        Loader          = proto.Loader;
+        ProviderVersion = proto.ProviderVersion;
         Status         = proto.Status;
         Port           = proto.Port;
         MemoryMb       = proto.MemoryMb;

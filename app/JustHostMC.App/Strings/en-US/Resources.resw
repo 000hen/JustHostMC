@@ -328,6 +328,22 @@
   <data name="ServerOpenInstanceFolderMenuItem.Text" xml:space="preserve">
     <value>Open instance folder</value>
   </data>
+  <data name="ServerUpdateModpackMenuItem.Text" xml:space="preserve"><value>Update modpack…</value></data>
+  <data name="ServerExportModpackMenuItem.Text" xml:space="preserve"><value>Export modpack…</value></data>
+  <data name="Server_UpdateModpackTitle" xml:space="preserve"><value>Update modpack</value></data>
+  <data name="Server_UpdateModpackBody" xml:space="preserve"><value>Pick a version for "{0}" (currently {1}). The world and your own files are kept; pack files are replaced.</value></data>
+  <data name="Server_UpdateModpackConfirm" xml:space="preserve"><value>Update</value></data>
+  <data name="Server_UpdateModpackNoVersions" xml:space="preserve"><value>No other versions available.</value></data>
+  <data name="Server_ExportModpackPickerName" xml:space="preserve"><value>CurseForge modpack</value></data>
+  <data name="shop.export.preparing" xml:space="preserve"><value>Preparing modpack export…</value></data>
+  <data name="shop.export.zipping" xml:space="preserve"><value>Packaging modpack…</value></data>
+  <data name="shop.export.done" xml:space="preserve"><value>Modpack exported.</value></data>
+  <data name="ServerFolder_NotFoundTitle" xml:space="preserve">
+    <value>Instance folder not found</value>
+  </data>
+  <data name="ServerFolder_NotFoundBody" xml:space="preserve">
+    <value>The instance folder has not been created yet, or the daemon is using a data location that is not exposed by this app version.</value>
+  </data>
   <data name="PlayerOpButton.Label" xml:space="preserve">
     <value>OP</value>
   </data>

@@ -245,6 +245,102 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
         }
     }
 
+    /// <summary>Moves a modpack server to another pack version, streaming
+    /// progress into the server's global tracker so the operation survives
+    /// window/page changes.</summary>
+    public async Task UpdateModpackAsync(ServerItem server, string version) {
+        var tracker = ProgressService.GetOrCreateTracker(server.Id, server.Name);
+        RunOnUI(() => {
+            tracker.InstallLog.Clear();
+            tracker.HasFailed        = false;
+            tracker.IsInstalling     = true;
+            tracker.IsActive         = true;
+            tracker.IsReadyToRun     = false;
+            tracker.IsIndeterminate  = true;
+            tracker.ProgressFraction = 0;
+            tracker.CurrentStep = _localizer.Get("install_progress_preparing");
+        });
+        try {
+            var daemon     = await App.Current.DaemonReady;
+            using var call = daemon.Servers.UpdateModpack(
+                new UpdateModpackRequest { Id = server.Id, Version = version });
+            await foreach (var progress in call.ResponseStream.ReadAllAsync()
+                               .ConfigureAwait(false)) {
+                var snapshot = progress;
+                RunOnUI(() => ApplyTrackerProgress(tracker, snapshot));
+            }
+            await RefreshAsync();
+            RunOnUI(() => {
+                tracker.IsInstalling = false;
+                tracker.IsActive     = false;
+                tracker.CurrentStep  = _localizer.Get("install_progress_done");
+            });
+        } catch (RpcException ex) {
+            FailTracker(tracker, ex);
+        }
+    }
+
+    /// <summary>Exports a modpack server as a CurseForge client pack zip,
+    /// streaming progress into the server's global tracker.</summary>
+    public async Task ExportModpackAsync(ServerItem server, string destPath) {
+        var tracker = ProgressService.GetOrCreateTracker(server.Id, server.Name);
+        RunOnUI(() => {
+            tracker.InstallLog.Clear();
+            tracker.HasFailed        = false;
+            tracker.IsInstalling     = true;
+            tracker.IsActive         = true;
+            tracker.IsReadyToRun     = false;
+            tracker.IsIndeterminate  = true;
+            tracker.ProgressFraction = 0;
+            tracker.CurrentStep      = _localizer.Get("shop.export.preparing");
+        });
+        try {
+            var daemon     = await App.Current.DaemonReady;
+            using var call = daemon.Servers.ExportModpack(
+                new ExportModpackRequest { Id = server.Id, DestPath = destPath });
+            await foreach (var progress in call.ResponseStream.ReadAllAsync()
+                               .ConfigureAwait(false)) {
+                var snapshot = progress;
+                RunOnUI(() => ApplyTrackerProgress(tracker, snapshot));
+            }
+            RunOnUI(() => {
+                tracker.IsInstalling = false;
+                tracker.IsActive     = false;
+                tracker.CurrentStep  = _localizer.Get("shop.export.done");
+            });
+        } catch (RpcException ex) {
+            FailTracker(tracker, ex);
+        }
+    }
+
+    private void ApplyTrackerProgress(ServerProgressTracker tracker,
+                                      InstallProgress snapshot) {
+        if (snapshot.Step is { Key.Length : > 0 } step)
+            tracker.CurrentStep = _localizer.Get(step.Key);
+        if (snapshot.Fraction >= 0) {
+            tracker.IsIndeterminate  = false;
+            tracker.ProgressFraction = snapshot.Fraction;
+        } else {
+            tracker.IsIndeterminate = true;
+        }
+        if (!string.IsNullOrEmpty(snapshot.LogLine))
+            tracker.AppendLog(snapshot.LogLine);
+    }
+
+    private void FailTracker(ServerProgressTracker tracker, RpcException ex) {
+        var key    = MapErrorKey(ex);
+        var detail = ex.Status.Detail;
+        RunOnUI(() => {
+            tracker.HasFailed       = true;
+            tracker.IsInstalling    = false;
+            tracker.IsIndeterminate = false;
+            tracker.IsActive        = false;
+            tracker.CurrentStep     = string.IsNullOrEmpty(detail)
+                                          ? _localizer.Get(key)
+                                          : $"{_localizer.Get(key)}: {detail}";
+        });
+    }
+
     public async Task<bool> UpdateServerAsync(UpdateServerRequest request) {
         var item       = Servers.FirstOrDefault(s => s.Id == request.Id);
         var rollback   = item is null ? null : BuildUpdateRequest(item);

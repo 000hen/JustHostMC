@@ -326,6 +326,22 @@
   <data name="ServerOpenInstanceFolderMenuItem.Text" xml:space="preserve">
     <value>開啟執行個體資料夾</value>
   </data>
+  <data name="ServerUpdateModpackMenuItem.Text" xml:space="preserve"><value>更新模組包…</value></data>
+  <data name="ServerExportModpackMenuItem.Text" xml:space="preserve"><value>匯出模組包…</value></data>
+  <data name="Server_UpdateModpackTitle" xml:space="preserve"><value>更新模組包</value></data>
+  <data name="Server_UpdateModpackBody" xml:space="preserve"><value>為「{0}」選擇版本（目前為 {1}）。世界與你自己的檔案會保留，模組包檔案將被更換。</value></data>
+  <data name="Server_UpdateModpackConfirm" xml:space="preserve"><value>更新</value></data>
+  <data name="Server_UpdateModpackNoVersions" xml:space="preserve"><value>沒有其他可用版本。</value></data>
+  <data name="Server_ExportModpackPickerName" xml:space="preserve"><value>CurseForge 模組包</value></data>
+  <data name="shop.export.preparing" xml:space="preserve"><value>正在準備匯出模組包…</value></data>
+  <data name="shop.export.zipping" xml:space="preserve"><value>正在打包模組包…</value></data>
+  <data name="shop.export.done" xml:space="preserve"><value>模組包已匯出。</value></data>
+  <data name="ServerFolder_NotFoundTitle" xml:space="preserve">
+    <value>找不到執行個體資料夾</value>
+  </data>
+  <data name="ServerFolder_NotFoundBody" xml:space="preserve">
+    <value>執行個體資料夾尚未建立，或背景服務正在使用此應用程式版本尚未公開的資料位置。</value>
+  </data>
   <data name="PlayerOpButton.Label" xml:space="preserve">
     <value>OP</value>
   </data>

@@ -667,4 +667,25 @@
   <data name="Settings.ShopKeyNone" xml:space="preserve"><value>No CurseForge key is configured — the CurseForge tab stays disabled.</value></data>
   <data name="Settings.ShopKeyUser" xml:space="preserve"><value>A personal CurseForge key is configured. Save an empty key to remove it.</value></data>
   <data name="Settings.ShopKeyBuiltin" xml:space="preserve"><value>Using this build's bundled CurseForge key. A personal key overrides it.</value></data>
+  <!-- XAML-owned window and dialog chrome -->
+  <data name="MainWindow.Title" xml:space="preserve"><value>JustHostMC</value></data>
+  <data name="MainWindowTitleBar.Title" xml:space="preserve"><value>JustHostMC</value></data>
+  <data name="EngineStdioWindow.Title" xml:space="preserve"><value>Engine debug monitor</value></data>
+  <data name="EngineMonitorTitleBar.Title" xml:space="preserve"><value>Engine debug monitor</value></data>
+  <data name="ScriptLogsTitleBar.Title" xml:space="preserve"><value>All Automation Logs</value></data>
+  <data name="ShopWindowTitleBar.Title" xml:space="preserve"><value>Mod Shop</value></data>
+  <data name="DeleteServerDialog.Title" xml:space="preserve"><value>Delete server?</value></data>
+  <data name="DeleteServerDialog.Content" xml:space="preserve"><value>This permanently deletes the server and its world. This cannot be undone.</value></data>
+  <data name="DeleteServerDialog.PrimaryButtonText" xml:space="preserve"><value>Delete</value></data>
+  <data name="DeleteServerDialog.CloseButtonText" xml:space="preserve"><value>Cancel</value></data>
+  <data name="RenameServerDialog.PrimaryButtonText" xml:space="preserve"><value>Save</value></data>
+  <data name="RenameServerDialog.CloseButtonText" xml:space="preserve"><value>Cancel</value></data>
+  <data name="RenameServerNameBox.Header" xml:space="preserve"><value>Name</value></data>
+  <data name="ServerFolderMissingDialog.Title" xml:space="preserve"><value>Instance folder not found</value></data>
+  <data name="ServerFolderMissingDialog.Content" xml:space="preserve"><value>The instance folder has not been created yet, or the daemon is using a data location that is not exposed by this app version.</value></data>
+  <data name="ServerFolderMissingDialog.CloseButtonText" xml:space="preserve"><value>OK</value></data>
+  <data name="DependencyPromptDialog.Title" xml:space="preserve"><value>Required dependencies</value></data>
+  <data name="DependencyPromptDialog.PrimaryButtonText" xml:space="preserve"><value>Install all</value></data>
+  <data name="DependencyPromptDialog.CloseButtonText" xml:space="preserve"><value>Cancel</value></data>
+  <data name="DependencyPromptBody.Text" xml:space="preserve"><value>This version needs the following mods. They will be installed together (uncheck any you already have).</value></data>
 </root>

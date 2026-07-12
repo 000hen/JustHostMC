@@ -10,6 +10,33 @@
     xmlns:server="using:JustHostMC.App.Controls.Server"
     mc:Ignorable="d">
 
+    <Page.Resources>
+        <ContentDialog
+            x:Key="BackupsHostDialog"
+            x:Uid="BackupsDialog"
+            DefaultButton="Close"
+            Style="{StaticResource DefaultContentDialogStyle}" />
+        <ContentDialog
+            x:Key="EditServerDialog"
+            x:Uid="EditServerDialog"
+            DefaultButton="Primary"
+            Style="{StaticResource DefaultContentDialogStyle}" />
+        <ContentDialog
+            x:Key="RenameServerDialog"
+            x:Uid="RenameServerDialog"
+            DefaultButton="Primary">
+            <TextBox x:Uid="RenameServerNameBox" />
+        </ContentDialog>
+        <ContentDialog
+            x:Key="ServerFolderMissingDialog"
+            x:Uid="ServerFolderMissingDialog"
+            DefaultButton="Close" />
+        <ContentDialog
+            x:Key="DeleteServerDialog"
+            x:Uid="DeleteServerDialog"
+            DefaultButton="Close" />
+    </Page.Resources>
+
     <Grid x:Name="RootGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />

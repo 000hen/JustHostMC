@@ -9,6 +9,14 @@
     xmlns:models="using:JustHostMC.App.Models"
     mc:Ignorable="d">
 
+    <Page.Resources>
+        <ContentDialog
+            x:Key="PermissionConsentHostDialog"
+            x:Uid="PermissionConsentDialog"
+            DefaultButton="Primary"
+            Style="{StaticResource DefaultContentDialogStyle}" />
+    </Page.Resources>
+
     <ScrollViewer
         HorizontalContentAlignment="Stretch"
         HorizontalScrollBarVisibility="Disabled"

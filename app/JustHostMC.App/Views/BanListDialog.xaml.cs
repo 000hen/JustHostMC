@@ -16,14 +16,9 @@ public sealed partial class BanListDialog : UserControl {
 
     public ObservableCollection<BanEntryItem> Bans { get; } = new();
     public bool CanModify { get; }
-    public string StoppedNoticeTitle { get; }
-    public string StoppedNoticeMessage { get; }
-
     public BanListDialog(string serverId, bool canModify) {
-        _serverId            = serverId;
-        CanModify            = canModify;
-        StoppedNoticeTitle   = _localizer.Get("BanListStoppedNotice.Title");
-        StoppedNoticeMessage = _localizer.Get("BanListStoppedNotice.Message");
+        _serverId = serverId;
+        CanModify = canModify;
         InitializeComponent();
     }
 

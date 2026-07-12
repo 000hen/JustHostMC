@@ -63,6 +63,93 @@ public sealed class ResourcePolicyTests {
     }
 
     [Fact]
+    public void EveryXamlUidHasAResourceProperty() {
+        var keys = LoadResourceMap("en-US").Keys.ToArray();
+        var missing = XamlUids()
+            .Where(uid => !keys.Any(key => key.StartsWith(
+                uid + ".", StringComparison.OrdinalIgnoreCase)))
+            .Distinct(StringComparer.OrdinalIgnoreCase);
+        Assert.Empty(missing);
+    }
+
+    [Fact]
+    public void AUidIsNotSharedAcrossDifferentElementTypes() {
+        var conflicts = XamlUidElements()
+            .GroupBy(item => item.Uid, StringComparer.OrdinalIgnoreCase)
+            .Where(group => group.Select(item => item.Element).Distinct().Count() > 1)
+            .Select(group => group.Key);
+        Assert.Empty(conflicts);
+    }
+
+    [Fact]
+    public void XamlUidResourcePropertiesMatchElementTypes() {
+        var keys = LoadResourceMap("en-US").Keys.ToArray();
+        var incompatible = XamlUidElements()
+            .Where(item => XamlDisplayProperties.ContainsKey(item.Element))
+            .SelectMany(item => keys
+                .Where(key => key.StartsWith(
+                    item.Uid + ".", StringComparison.OrdinalIgnoreCase))
+                .Select(key => (
+                    item.Uid,
+                    item.Element,
+                    Property: key[(item.Uid.Length + 1)..])))
+            .Where(item => !IsAttachedResourceProperty(item.Property) &&
+                           !XamlDisplayProperties[item.Element]
+                               .Contains(item.Property))
+            .Select(item => $"{item.Uid}.{item.Property} ({item.Element})");
+        Assert.Empty(incompatible);
+    }
+
+    [Fact]
+    public void StaticViewChromeIsOwnedByXaml() {
+        string[] resourceKeys = [
+            "AppTitle",
+            "BackupsDialog.CloseButtonText",
+            "BanListStoppedNotice.Title",
+            "BanListStoppedNotice.Message",
+            "Common.Cancel",
+            "Common.Save",
+            "CreateServerDialog.Title",
+            "CreateServerDialog.PrimaryButtonText",
+            "CreateServerDialog.CloseButtonText",
+            "EditServerDialog.Title",
+            "EditServerDialog.PrimaryButtonText",
+            "EditServerDialog.CloseButtonText",
+            "EditServerName.Header",
+            "EngineMonitor.Title",
+            "PermissionConsentDialog.PrimaryButtonText",
+            "PermissionConsentDialog.CloseButtonText",
+            "RenameServerDialog.Title",
+            "ScriptLogsWindow.Title",
+            "ServerDelete.Title",
+            "ServerDelete.Body",
+            "ServerDelete.Confirm",
+            "ServerFolder.NotFoundTitle",
+            "ServerFolder.NotFoundBody",
+            "Shop.DependencyPromptBody",
+            "Shop.DependencyPromptTitle",
+            "Shop.InstallConfirm",
+            "ShopWindow.Title",
+        ];
+        var offenders = Directory.EnumerateFiles(
+                AppRoot, "*.xaml.cs", SearchOption.AllDirectories)
+            .SelectMany(path => resourceKeys
+                .Where(key => File.ReadAllText(path).Contains(
+                    $"Get(\"{key}\")", StringComparison.Ordinal))
+                .Select(key => $"{Path.GetRelativePath(Root, path)} ({key})"));
+        Assert.Empty(offenders);
+    }
+
+    [Fact]
+    public void ContentDialogSizingAttachesHandlersOnlyOnce() {
+        var source = File.ReadAllText(Path.Combine(
+            AppRoot, "Controls", "ContentDialogSizing.cs"));
+        Assert.Contains(
+            "if (dialog.Resources.ContainsKey(SizingAttachedKey))",
+            source, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void ServerModsDescriptionsUseLifecycleStateIndependentOfModificationCapability() {
         var viewModelSource = File.ReadAllText(Path.Combine(
             AppRoot, "ViewModels", "ModsViewModel.cs"));
@@ -212,6 +299,57 @@ public sealed class ResourcePolicyTests {
             .Distinct(StringComparer.Ordinal)
             .Order(StringComparer.Ordinal)
             .ToArray();
+
+    private static readonly IReadOnlyDictionary<string, IReadOnlySet<string>>
+        XamlDisplayProperties =
+            new Dictionary<string, IReadOnlySet<string>>(StringComparer.Ordinal) {
+                ["AppBarButton"] = Set("Label"),
+                ["AutoSuggestBox"] = Set("PlaceholderText"),
+                ["Button"] = Set("Content"),
+                ["CheckBox"] = Set("Content"),
+                ["ComboBox"] = Set("Header", "PlaceholderText"),
+                ["ContentDialog"] = Set(
+                    "Title", "Content", "PrimaryButtonText",
+                    "SecondaryButtonText", "CloseButtonText"),
+                ["Expander"] = Set("Header"),
+                ["HyperlinkButton"] = Set("Content"),
+                ["InfoBar"] = Set("Title", "Message"),
+                ["MenuFlyoutItem"] = Set("Text"),
+                ["NavigationViewItem"] = Set("Content"),
+                ["NumberBox"] = Set("Header", "PlaceholderText"),
+                ["PasswordBox"] = Set("Header", "PlaceholderText"),
+                ["RadioButton"] = Set("Content"),
+                ["SelectorBarItem"] = Set("Text"),
+                ["TeachingTip"] = Set(
+                    "Title", "Subtitle", "ActionButtonContent",
+                    "CloseButtonContent"),
+                ["TextBlock"] = Set("Text"),
+                ["TextBox"] = Set("Header", "PlaceholderText", "Text"),
+                ["TitleBar"] = Set("Title"),
+                ["ToggleSwitch"] = Set("Header", "OnContent", "OffContent"),
+                ["Window"] = Set("Title"),
+            };
+
+    private static IReadOnlySet<string> Set(params string[] properties) =>
+        properties.ToHashSet(StringComparer.Ordinal);
+
+    private static bool IsAttachedResourceProperty(string property) =>
+        property.StartsWith("[", StringComparison.Ordinal) ||
+        property.StartsWith("ToolTipService.", StringComparison.Ordinal);
+
+    private static IEnumerable<string> XamlUids() =>
+        XamlUidElements().Select(item => item.Uid);
+
+    private static IEnumerable<(string Uid, string Element)> XamlUidElements() {
+        XNamespace x = "http://schemas.microsoft.com/winfx/2006/xaml";
+        foreach (var path in Directory.EnumerateFiles(
+                     AppRoot, "*.xaml", SearchOption.AllDirectories)) {
+            foreach (var element in XDocument.Load(path).Root!.DescendantsAndSelf()) {
+                if (element.Attribute(x + "Uid") is { Value: var uid })
+                    yield return (uid, element.Name.LocalName);
+            }
+        }
+    }
 
     private static string FindRepositoryRoot() {
         for (var directory = new DirectoryInfo(AppContext.BaseDirectory);

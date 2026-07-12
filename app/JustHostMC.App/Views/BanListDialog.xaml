@@ -18,11 +18,10 @@
             </Grid.RowDefinitions>
 
             <InfoBar
-                Title="{x:Bind StoppedNoticeTitle}"
+                x:Uid="BanListStoppedNotice"
                 Grid.Row="0"
                 IsClosable="False"
                 IsOpen="True"
-                Message="{x:Bind StoppedNoticeMessage}"
                 Severity="Informational"
                 Visibility="{x:Bind CanModify, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
 

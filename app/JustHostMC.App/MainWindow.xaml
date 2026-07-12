@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Window
     x:Class="JustHostMC.App.MainWindow"
+    x:Uid="MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:JustHostMC.App.Controls"
@@ -13,7 +14,14 @@
         <MicaBackdrop Kind="Base" />
     </Window.SystemBackdrop>
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid x:Name="RootGrid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.Resources>
+            <ContentDialog
+                x:Key="CreateServerDialog"
+                x:Uid="CreateServerDialog"
+                DefaultButton="Primary"
+                Style="{StaticResource DefaultContentDialogStyle}" />
+        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -21,7 +29,7 @@
 
         <TitleBar
             x:Name="SimpleTitleBar"
-            Title="JustHostMC"
+            x:Uid="MainWindowTitleBar"
             BackRequested="OnTitleBarBackRequested"
             IsBackButtonEnabled="{x:Bind ContentFrame.CanGoBack, Mode=OneWay}"
             IsBackButtonVisible="{x:Bind ContentFrame.CanGoBack, Mode=OneWay}"

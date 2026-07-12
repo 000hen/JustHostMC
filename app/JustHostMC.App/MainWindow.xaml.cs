@@ -93,7 +93,6 @@ public sealed partial class MainWindow : Window {
         ServerStateTip.ActionButtonClick += (_, _) =>
             OnServerStateTipActionButtonClick();
         PaneFooterGrid.DataContext = Shell.Main.ProgressService;
-        Title                      = _localizer.Get("AppTitle");
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(SimpleTitleBar);
         InstallMinimumWindowSizeHook();
@@ -422,21 +421,11 @@ public sealed partial class MainWindow : Window {
     }
 
     private async System.Threading.Tasks.Task ShowCreateServerDialogAsync() {
-        var localizer = new LocalizationService();
         var content   = new ServerDialog(Shell.Main, ServerDialogMode.Create);
-        var dialog    = new ContentDialog {
-            XamlRoot = Content.XamlRoot,
-            Style    = Application.Current
-                           .Resources["DefaultContentDialogStyle"] as Style,
-            Title    = localizer.Get("CreateServerDialog.Title"),
-            Content  = content,
-            PrimaryButtonText =
-                localizer.Get("CreateServerDialog.PrimaryButtonText"),
-            CloseButtonText =
-                localizer.Get("CreateServerDialog.CloseButtonText"),
-            DefaultButton          = ContentDialogButton.Primary,
-            IsPrimaryButtonEnabled = content.CanSubmit,
-        };
+        var dialog = (ContentDialog)RootGrid.Resources["CreateServerDialog"];
+        dialog.XamlRoot               = Content.XamlRoot;
+        dialog.Content                = content;
+        dialog.IsPrimaryButtonEnabled = content.CanSubmit;
         content.CanSubmitChanged += (_, _) => dialog.IsPrimaryButtonEnabled =
             content.CanSubmit;
         ContentDialogSizing.Apply(dialog);

@@ -164,19 +164,11 @@ public sealed partial class ScriptsPage : Page {
         string scriptName, string luaSource) {
         var permissions = LuaPermissions.Parse(luaSource);
         var content     = new PermissionConsentDialog(permissions, _localizer);
-        var dialog      = new ContentDialog {
-            XamlRoot = XamlRoot,
-            Style    = Application.Current
-                           .Resources["DefaultContentDialogStyle"] as Style,
-            Title    = _localizer.Get("PermissionConsentTitleNamed",
-                                      ("name", scriptName)),
-            Content  = content,
-            PrimaryButtonText =
-                _localizer.Get("PermissionConsentDialog.PrimaryButtonText"),
-            CloseButtonText =
-                _localizer.Get("PermissionConsentDialog.CloseButtonText"),
-            DefaultButton = ContentDialogButton.Primary,
-        };
+        var dialog = (ContentDialog)Resources["PermissionConsentHostDialog"];
+        dialog.XamlRoot = XamlRoot;
+        dialog.Title = _localizer.Get("PermissionConsentTitleNamed",
+                                      ("name", scriptName));
+        dialog.Content = content;
         ContentDialogSizing.Apply(dialog);
 
         if (await dialog.ShowAsync() != ContentDialogResult.Primary)

@@ -78,9 +78,6 @@ public sealed partial class ShopWindow : Window {
             context, DispatcherQueue.GetForCurrentThread(), _localizer);
         InitializeComponent();
 
-        var title                  = _localizer.Get("ShopWindow.Title");
-        Title                      = title;
-        ShopTitleBar.Title         = title;
         ExtendsContentIntoTitleBar = true;
         AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
         SetTitleBar(ShopTitleBar);

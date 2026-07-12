@@ -9,6 +9,21 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     mc:Ignorable="d">
 
+    <Page.Resources>
+        <ContentDialog
+            x:Key="DependencyPromptDialog"
+            x:Uid="DependencyPromptDialog"
+            DefaultButton="Primary">
+            <ScrollViewer MaxHeight="320">
+                <StackPanel Spacing="8">
+                    <TextBlock
+                        x:Uid="DependencyPromptBody"
+                        TextWrapping="Wrap" />
+                </StackPanel>
+            </ScrollViewer>
+        </ContentDialog>
+    </Page.Resources>
+
     <Grid
         x:Name="RootLayout"
         Padding="12,8,12,0"

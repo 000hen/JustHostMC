@@ -148,18 +148,20 @@ public sealed partial class ServerPage : Page {
     private async void OnBackupsClick(object sender, RoutedEventArgs e) {
         var content = new BackupsDialog(Server.Id, Server.Name,
                                         Server.IsRunning, DispatcherQueue);
-        var dialog  = new ContentDialog {
-            XamlRoot = XamlRoot,
-            Style    = Application.Current
-                           .Resources["DefaultContentDialogStyle"] as Style,
-            Title    = Server.Name,
-            Content  = content,
-            CloseButtonText = _localizer.Get("BackupsDialog.CloseButtonText"),
-            DefaultButton   = ContentDialogButton.Close,
-        };
-        dialog.Opened += async (_, _) => await content.LoadAsync();
+        var dialog = (ContentDialog)Resources["BackupsHostDialog"];
+        dialog.XamlRoot = XamlRoot;
+        dialog.Title    = Server.Name;
+        dialog.Content  = content;
+        async void OnOpened(ContentDialog sender,
+                            ContentDialogOpenedEventArgs args) =>
+            await content.LoadAsync();
+        dialog.Opened += OnOpened;
         ContentDialogSizing.Apply(dialog, useWideLayout: true);
-        await dialog.ShowAsync();
+        try {
+            await dialog.ShowAsync();
+        } finally {
+            dialog.Opened -= OnOpened;
+        }
     }
 
     private async void OnTitleRenameClick(object sender, RoutedEventArgs e) =>
@@ -170,19 +172,10 @@ public sealed partial class ServerPage : Page {
 
     private async Task ShowEditDialogAsync() {
         var content = new ServerDialog(_main, ServerDialogMode.Edit, Server);
-        var dialog  = new ContentDialog {
-            XamlRoot = XamlRoot,
-            Style    = Application.Current
-                           .Resources["DefaultContentDialogStyle"] as Style,
-            Title    = _localizer.Get("EditServerDialog.Title"),
-            Content  = content,
-            PrimaryButtonText =
-                _localizer.Get("EditServerDialog.PrimaryButtonText"),
-            CloseButtonText =
-                _localizer.Get("EditServerDialog.CloseButtonText"),
-            DefaultButton          = ContentDialogButton.Primary,
-            IsPrimaryButtonEnabled = content.CanSubmit,
-        };
+        var dialog = (ContentDialog)Resources["EditServerDialog"];
+        dialog.XamlRoot               = XamlRoot;
+        dialog.Content                = content;
+        dialog.IsPrimaryButtonEnabled = content.CanSubmit;
         content.CanSubmitChanged += (_, _) => dialog.IsPrimaryButtonEnabled =
             content.CanSubmit;
         ContentDialogSizing.Apply(dialog);
@@ -192,20 +185,12 @@ public sealed partial class ServerPage : Page {
     }
 
     private async Task ShowRenameDialogAsync() {
-        var nameBox = new TextBox {
-            Text            = Server.Name,
-            Header          = _localizer.Get("EditServerName.Header"),
-            SelectionStart  = 0,
-            SelectionLength = Server.Name.Length,
-        };
-        var dialog = new ContentDialog {
-            XamlRoot          = XamlRoot,
-            Title             = _localizer.Get("RenameServerDialog.Title"),
-            Content           = nameBox,
-            PrimaryButtonText = _localizer.Get("Common.Save"),
-            CloseButtonText   = _localizer.Get("Common.Cancel"),
-            DefaultButton     = ContentDialogButton.Primary,
-        };
+        var dialog  = (ContentDialog)Resources["RenameServerDialog"];
+        var nameBox = (TextBox)dialog.Content;
+        dialog.XamlRoot        = XamlRoot;
+        nameBox.Text            = Server.Name;
+        nameBox.SelectionStart  = 0;
+        nameBox.SelectionLength = Server.Name.Length;
         if (await dialog.ShowAsync() == ContentDialogResult.Primary)
             await _main.RenameServerAsync(Server, nameBox.Text);
     }
@@ -214,13 +199,9 @@ public sealed partial class ServerPage : Page {
                                                  RoutedEventArgs e) {
         var folder = ResolveInstanceFolder();
         if (folder is null) {
-            var dialog = new ContentDialog {
-                XamlRoot        = XamlRoot,
-                Title           = _localizer.Get("ServerFolder.NotFoundTitle"),
-                Content         = _localizer.Get("ServerFolder.NotFoundBody"),
-                CloseButtonText = "OK",
-                DefaultButton   = ContentDialogButton.Close,
-            };
+            var dialog =
+                (ContentDialog)Resources["ServerFolderMissingDialog"];
+            dialog.XamlRoot = XamlRoot;
             await dialog.ShowAsync();
             return;
         }
@@ -270,14 +251,8 @@ public sealed partial class ServerPage : Page {
     }
 
     private async void OnDeleteClick(object sender, RoutedEventArgs e) {
-        var confirm = new ContentDialog {
-            XamlRoot          = XamlRoot,
-            Title             = _localizer.Get("ServerDelete.Title"),
-            Content           = _localizer.Get("ServerDelete.Body"),
-            PrimaryButtonText = _localizer.Get("ServerDelete.Confirm"),
-            CloseButtonText   = _localizer.Get("Common.Cancel"),
-            DefaultButton     = ContentDialogButton.Close,
-        };
+        var confirm = (ContentDialog)Resources["DeleteServerDialog"];
+        confirm.XamlRoot = XamlRoot;
         if (await confirm.ShowAsync() != ContentDialogResult.Primary)
             return;
         _main.DeleteServerCommand.Execute(Server);

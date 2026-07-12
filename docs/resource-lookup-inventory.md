@@ -1,15 +1,15 @@
 # Resource lookup inventory
 
-Updated 2026-07-13 after migrating static control copy to XAML. The inventory contains **171** `ILocalizer.Get` occurrences across **29** files. Direct construction is tracked separately so construction-only owners such as `SettingsPage.xaml.cs` are not lost.
+Updated 2026-07-13 after migrating static view, window, dialog, tooltip, and accessibility copy to XAML. The inventory contains **128** `ILocalizer.Get` occurrences. Direct construction is tracked separately so construction-only owners such as `SettingsPage.xaml.cs` are not lost.
 
 | Classification | Count |
 |---|---:|
-| StaticXaml | 43 |
+| StaticXaml | 0 |
 | DynamicState | 99 |
 | BackendKey | 5 |
 | RuntimeFormat | 23 |
 | ImperativeException | 1 |
-| **Total lookups** | **171** |
+| **Total lookups** | **128** |
 
 ## Lookup occurrences
 
@@ -21,13 +21,9 @@ Updated 2026-07-13 after migrating static control copy to XAML. The inventory co
 | `Controls/Server/ServerPlayersPanel.xaml.cs:87` | `"PlayerDataDialog.ActionName"` | RuntimeFormat | Runtime values or runtime-selected arguments must be inserted after lookup | Retain formatted lookup |
 | `Controls/Server/ServerPlayersPanel.xaml.cs:99` | `"PlayerInventoryDialog.ActionName"` | RuntimeFormat | Runtime values or runtime-selected arguments must be inserted after lookup | Retain formatted lookup |
 | `Controls/Server/ServerPlayersPanel.xaml.cs:113` | `PlayerDialogBase.TitleFormat(actionName, player.Name)` | RuntimeFormat | Runtime values or runtime-selected arguments must be inserted after lookup | Retain formatted lookup |
-| `MainWindow.xaml.cs:96` | `"AppTitle"` | StaticXaml | `MainWindow.xaml` → root `MainWindow` | Move property to `x:Uid`; remove lookup |
-| `MainWindow.xaml.cs:312` | `"ServerTeachingTip.StartAction"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
-| `MainWindow.xaml.cs:320` | `ServerTeachingTip.InstalledTitle / StartedTitle / StoppedTitle / CrashedTitle; {server}` | RuntimeFormat | Runtime values or runtime-selected arguments must be inserted after lookup | Retain formatted lookup |
-| `MainWindow.xaml.cs:331` | `ServerTeachingTip.InstalledMessage / StartedMessage / StoppedMessage / CrashedMessage` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
-| `MainWindow.xaml.cs:431` | `"CreateServerDialog.Title"` | StaticXaml | `MainWindow.xaml` → `CreateServerDialog` | Move property to `x:Uid`; remove lookup |
-| `MainWindow.xaml.cs:434` | `"CreateServerDialog.PrimaryButtonText"` | StaticXaml | `MainWindow.xaml` → `CreateServerDialog` | Move property to `x:Uid`; remove lookup |
-| `MainWindow.xaml.cs:436` | `"CreateServerDialog.CloseButtonText"` | StaticXaml | `MainWindow.xaml` → `CreateServerDialog` | Move property to `x:Uid`; remove lookup |
+| `MainWindow.xaml.cs:311` | `"ServerTeachingTip.StartAction"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
+| `MainWindow.xaml.cs:319` | `ServerTeachingTip.InstalledTitle / StartedTitle / StoppedTitle / CrashedTitle; {server}` | RuntimeFormat | Runtime values or runtime-selected arguments must be inserted after lookup | Retain formatted lookup |
+| `MainWindow.xaml.cs:330` | `ServerTeachingTip.InstalledMessage / StartedMessage / StoppedMessage / CrashedMessage` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
 | `Models/BanEntryItem.cs:19` | `BanList.TypeIp / BanList.TypePlayer` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
 | `Models/BanEntryItem.cs:24` | `"BanList.NoReason"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
 | `Models/ConfigEntryItem.cs:80` | `key` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
@@ -132,64 +128,38 @@ Updated 2026-07-13 after migrating static control copy to XAML. The inventory co
 | `Views/BackupsDialog.xaml.cs:69` | `"Backups.ExportFailed"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
 | `Views/BackupsDialog.xaml.cs:81` | `"error.server_running"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
 | `Views/BackupsDialog.xaml.cs:105` | `"Backups.FolderMissing"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
-| `Views/BanListDialog.xaml.cs:25` | `"BanListStoppedNotice.Title"` | StaticXaml | `BanListDialog.xaml` → `BanListStoppedNotice` | Move property to `x:Uid`; remove lookup |
-| `Views/BanListDialog.xaml.cs:26` | `"BanListStoppedNotice.Message"` | StaticXaml | `BanListDialog.xaml` → `BanListStoppedNotice` | Move property to `x:Uid`; remove lookup |
-| `Views/BanListDialog.xaml.cs:44` | `"BanList.LoadFailed"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
-| `Views/BanListDialog.xaml.cs:55` | `"BanList.TargetRequired"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
-| `Views/BanListDialog.xaml.cs:76` | `"BanList.AddFailed"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
-| `Views/BanListDialog.xaml.cs:84` | `"BanList.StoppedRequired"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
-| `Views/BanListDialog.xaml.cs:103` | `"BanList.RemoveFailed"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
-| `Views/EngineStdioWindow.xaml.cs:42` | `"EngineMonitor.Title"` | StaticXaml | `EngineStdioWindow.xaml` → root `EngineStdioWindow` and `MonitorTitleBar` | Move property to `x:Uid`; remove lookup |
-| `Views/EngineStdioWindow.xaml.cs:215` | `EngineMonitor.StatusPaused / EngineMonitor.Status; {pid}, {visible}, {total}` | RuntimeFormat | Runtime values or runtime-selected arguments must be inserted after lookup | Retain formatted lookup |
-| `Views/HomePage.xaml.cs:101` | `"ServerDelete.Title"` | StaticXaml | `HomePage.xaml` → `DeleteServerDialog` | Move property to `x:Uid`; remove lookup |
-| `Views/HomePage.xaml.cs:102` | `"ServerDelete.Body"` | StaticXaml | `HomePage.xaml` → `DeleteServerDialog` | Move property to `x:Uid`; remove lookup |
-| `Views/HomePage.xaml.cs:103` | `"ServerDelete.Confirm"` | StaticXaml | `HomePage.xaml` → `DeleteServerDialog` | Move property to `x:Uid`; remove lookup |
-| `Views/HomePage.xaml.cs:104` | `"Common.Cancel"` | StaticXaml | `HomePage.xaml` → `DeleteServerDialog` | Move property to `x:Uid`; remove lookup |
-| `Views/HomePage.xaml.cs:126` | `"CreateServerDialog.Title"` | StaticXaml | `HomePage.xaml` → `CreateServerDialog` | Move property to `x:Uid`; remove lookup |
-| `Views/HomePage.xaml.cs:129` | `"CreateServerDialog.PrimaryButtonText"` | StaticXaml | `HomePage.xaml` → `CreateServerDialog` | Move property to `x:Uid`; remove lookup |
-| `Views/HomePage.xaml.cs:131` | `"CreateServerDialog.CloseButtonText"` | StaticXaml | `HomePage.xaml` → `CreateServerDialog` | Move property to `x:Uid`; remove lookup |
-| `Views/HomePage.xaml.cs:154` | `"EditServerDialog.Title"` | StaticXaml | `HomePage.xaml` → `EditServerDialog` | Move property to `x:Uid`; remove lookup |
-| `Views/HomePage.xaml.cs:157` | `"EditServerDialog.PrimaryButtonText"` | StaticXaml | `HomePage.xaml` → `EditServerDialog` | Move property to `x:Uid`; remove lookup |
-| `Views/HomePage.xaml.cs:159` | `"EditServerDialog.CloseButtonText"` | StaticXaml | `HomePage.xaml` → `EditServerDialog` | Move property to `x:Uid`; remove lookup |
-| `Views/HomePage.xaml.cs:174` | `"EditServerName.Header"` | StaticXaml | `HomePage.xaml` → `RenameServerNameBox` | Move property to `x:Uid`; remove lookup |
-| `Views/HomePage.xaml.cs:180` | `"RenameServerDialog.Title"` | StaticXaml | `HomePage.xaml` → `RenameServerDialog` | Move property to `x:Uid`; remove lookup |
-| `Views/HomePage.xaml.cs:182` | `"Common.Save"` | StaticXaml | `HomePage.xaml` → `RenameServerDialog` | Move property to `x:Uid`; remove lookup |
-| `Views/HomePage.xaml.cs:183` | `"Common.Cancel"` | StaticXaml | `HomePage.xaml` → `RenameServerDialog` | Move property to `x:Uid`; remove lookup |
-| `Views/ScriptLogsWindow.xaml.cs:23` | `"ScriptLogsWindow.Title"` | StaticXaml | `ScriptLogsWindow.xaml` → root `ScriptLogsWindow` and `LogsTitleBar` | Move property to `x:Uid`; remove lookup |
+| `Views/BanListDialog.xaml.cs:39` | `"BanList.LoadFailed"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
+| `Views/BanListDialog.xaml.cs:50` | `"BanList.TargetRequired"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
+| `Views/BanListDialog.xaml.cs:71` | `"BanList.AddFailed"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
+| `Views/BanListDialog.xaml.cs:79` | `"BanList.StoppedRequired"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
+| `Views/BanListDialog.xaml.cs:98` | `"BanList.RemoveFailed"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
+| `Views/EngineStdioWindow.xaml.cs:212` | `EngineMonitor.StatusPaused / EngineMonitor.Status; {pid}, {visible}, {total}` | RuntimeFormat | Runtime values or runtime-selected arguments must be inserted after lookup | Retain formatted lookup |
 | `Views/ScriptsPage.xaml.cs:43` | `"Scripts.ReadFailed"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
 | `Views/ScriptsPage.xaml.cs:58` | `"Scripts.ReadFailed"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
 | `Views/ScriptsPage.xaml.cs:80` | `"Scripts.ReadFailed"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
 | `Views/ScriptsPage.xaml.cs:101` | `"Scripts.ReadFailed"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
 | `Views/ScriptsPage.xaml.cs:145` | `"Scripts.OpenFolderFailed"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
-| `Views/ScriptsPage.xaml.cs:171` | `PermissionConsentTitleNamed; {name}` | RuntimeFormat | Runtime values or runtime-selected arguments must be inserted after lookup | Retain formatted lookup |
-| `Views/ScriptsPage.xaml.cs:175` | `"PermissionConsentDialog.PrimaryButtonText"` | StaticXaml | `ScriptsPage.xaml` → `PermissionConsentHostDialog` | Move property to `x:Uid`; remove lookup |
-| `Views/ScriptsPage.xaml.cs:177` | `"PermissionConsentDialog.CloseButtonText"` | StaticXaml | `ScriptsPage.xaml` → `PermissionConsentHostDialog` | Move property to `x:Uid`; remove lookup |
+| `Views/ScriptsPage.xaml.cs:169` | `PermissionConsentTitleNamed; {name}` | RuntimeFormat | Runtime values or runtime-selected arguments must be inserted after lookup | Retain formatted lookup |
 | `Views/ServerDialog.xaml.cs:126` | `CreateServer.ProviderAuthor; {author}` | RuntimeFormat | Runtime values or runtime-selected arguments must be inserted after lookup | Retain formatted lookup |
-| `Views/ServerPage.xaml.cs:157` | `"BackupsDialog.CloseButtonText"` | StaticXaml | `ServerPage.xaml` → `BackupsHostDialog` | Move property to `x:Uid`; remove lookup |
-| `Views/ServerPage.xaml.cs:177` | `"EditServerDialog.Title"` | StaticXaml | `ServerPage.xaml` → `EditServerDialog` | Move property to `x:Uid`; remove lookup |
-| `Views/ServerPage.xaml.cs:180` | `"EditServerDialog.PrimaryButtonText"` | StaticXaml | `ServerPage.xaml` → `EditServerDialog` | Move property to `x:Uid`; remove lookup |
-| `Views/ServerPage.xaml.cs:182` | `"EditServerDialog.CloseButtonText"` | StaticXaml | `ServerPage.xaml` → `EditServerDialog` | Move property to `x:Uid`; remove lookup |
-| `Views/ServerPage.xaml.cs:197` | `"EditServerName.Header"` | StaticXaml | `ServerPage.xaml` → `RenameServerNameBox` | Move property to `x:Uid`; remove lookup |
-| `Views/ServerPage.xaml.cs:203` | `"RenameServerDialog.Title"` | StaticXaml | `ServerPage.xaml` → `RenameServerDialog` | Move property to `x:Uid`; remove lookup |
-| `Views/ServerPage.xaml.cs:205` | `"Common.Save"` | StaticXaml | `ServerPage.xaml` → `RenameServerDialog` | Move property to `x:Uid`; remove lookup |
-| `Views/ServerPage.xaml.cs:206` | `"Common.Cancel"` | StaticXaml | `ServerPage.xaml` → `RenameServerDialog` | Move property to `x:Uid`; remove lookup |
-| `Views/ServerPage.xaml.cs:219` | `"ServerFolder.NotFoundTitle"` | StaticXaml | `ServerPage.xaml` → `ServerFolderMissingDialog` | Move property to `x:Uid`; remove lookup |
-| `Views/ServerPage.xaml.cs:220` | `"ServerFolder.NotFoundBody"` | StaticXaml | `ServerPage.xaml` → `ServerFolderMissingDialog` | Move property to `x:Uid`; remove lookup |
-| `Views/ServerPage.xaml.cs:275` | `"ServerDelete.Title"` | StaticXaml | `ServerPage.xaml` → `DeleteServerDialog` | Move property to `x:Uid`; remove lookup |
-| `Views/ServerPage.xaml.cs:276` | `"ServerDelete.Body"` | StaticXaml | `ServerPage.xaml` → `DeleteServerDialog` | Move property to `x:Uid`; remove lookup |
-| `Views/ServerPage.xaml.cs:277` | `"ServerDelete.Confirm"` | StaticXaml | `ServerPage.xaml` → `DeleteServerDialog` | Move property to `x:Uid`; remove lookup |
-| `Views/ServerPage.xaml.cs:278` | `"Common.Cancel"` | StaticXaml | `ServerPage.xaml` → `DeleteServerDialog` | Move property to `x:Uid`; remove lookup |
-| `Views/ShopDetailPage.xaml.cs:106` | `"Shop.DependencyPromptBody"` | StaticXaml | `ShopDetailPage.xaml` → `DependencyPromptBody` | Move property to `x:Uid`; remove lookup |
-| `Views/ShopDetailPage.xaml.cs:113` | `"Shop.DependencyPromptTitle"` | StaticXaml | `ShopDetailPage.xaml` → `DependencyPromptDialog` | Move property to `x:Uid`; remove lookup |
-| `Views/ShopDetailPage.xaml.cs:115` | `"Shop.InstallConfirm"` | StaticXaml | `ShopDetailPage.xaml` → `DependencyPromptDialog` | Move property to `x:Uid`; remove lookup |
-| `Views/ShopDetailPage.xaml.cs:116` | `"Common.Cancel"` | StaticXaml | `ShopDetailPage.xaml` → `DependencyPromptDialog` | Move property to `x:Uid`; remove lookup |
 | `Views/ShopSearchPage.xaml.cs:113` | `Shop.ResultSummary; total, query` | RuntimeFormat | Runtime values or runtime-selected arguments must be inserted after lookup | Retain formatted lookup |
-| `Views/ShopWindow.xaml.cs:81` | `"ShopWindow.Title"` | StaticXaml | `ShopWindow.xaml` → root `ShopWindow` and `ShopTitleBar` | Move property to `x:Uid`; remove lookup |
-| `Views/ShopWindow.xaml.cs:144` | `"Shop.KeyMissingTooltip"` | ImperativeException | `ShopSelector` owns imperatively created `SelectorBarItem` tooltips; a plain managed `ItemsSource` with an `{x:Bind}` template crashes at startup | Retain imperative lookup |
+| `Views/ShopWindow.xaml.cs:141` | `"Shop.KeyMissingTooltip"` | ImperativeException | `ShopSelector` owns imperatively created `SelectorBarItem` tooltips; a plain managed `ItemsSource` with an `{x:Bind}` template crashes at startup | Retain imperative lookup |
+
+## Completed static XAML ownership
+
+The 43 former `StaticXaml` lookups were removed. Root `Window` and custom
+`TitleBar` elements use distinct UIDs; reusable dialogs live in the owning
+XAML resource dictionary and C# now supplies only runtime content, names,
+dependency choices, and enablement. This covers `MainWindow`, `HomePage`,
+`ServerPage`, `ScriptsPage`, `ShopDetailPage`, `BanListDialog`,
+`EngineStdioWindow`, `ScriptLogsWindow`, and `ShopWindow`.
+
+Dynamic endpoint/install-step tooltips remain bindings. The only static
+imperative exception remains `ShopWindow`'s selector tooltip for the documented
+WinUI `ItemsSource`/`x:Bind` startup-crash constraint.
 
 ## Direct `LocalizationService` construction inventory
 
-There are **17** direct constructions across **16** files. The chained construction at `ScriptLogsWindow.xaml.cs:23` is also represented above.
+There are **14** direct constructions across **14** files.
 
 | File:line | Classification | Ownership / justification | Final action |
 |---|---|---|---|
@@ -197,17 +167,14 @@ There are **17** direct constructions across **16** files. The chained construct
 | `Controls/Server/ServerHeaderPanel.xaml.cs:11` | RuntimeFormat | Runtime memory formatting | Retain/inject localizer for runtime ownership |
 | `Controls/Server/ServerPlayersPanel.xaml.cs:12` | RuntimeFormat | Player counts, names, and dialog-title formatting | Retain/inject localizer for runtime ownership |
 | `MainWindow.xaml.cs:84` | DynamicState | Shared by `MainViewModel` and runtime teaching tips | Retain/inject localizer for runtime ownership |
-| `MainWindow.xaml.cs:425` | StaticXaml | Duplicate used only by `CreateServerDialog` | Remove construction |
 | `Views/BackupsDialog.xaml.cs:17` | DynamicState | Picker results and operation state | Retain/inject localizer for runtime ownership |
 | `Views/BanListDialog.xaml.cs:15` | DynamicState | Validation and RPC result state | Retain/inject localizer for runtime ownership |
 | `Views/EngineStdioWindow.xaml.cs:19` | RuntimeFormat | Live monitor status formatting | Retain/inject localizer for runtime ownership |
-| `Views/HomePage.xaml.cs:18` | StaticXaml | Current uses are XAML-ownable dialog chrome | Remove construction |
-| `Views/ScriptLogsWindow.xaml.cs:23` | StaticXaml | Chained construction supplies only window title | Remove construction |
 | `Views/ScriptsPage.xaml.cs:21` | DynamicState | Script errors and named consent title | Retain/inject localizer for runtime ownership |
 | `Views/ServerDialog.xaml.cs:20` | RuntimeFormat | Provider author text | Retain/inject localizer for runtime ownership |
-| `Views/ServerPage.xaml.cs:19` | StaticXaml | Current uses are XAML-ownable dialog chrome | Remove construction |
+| `Views/ServerPage.xaml.cs:19` | DynamicState | Passed into server-scoped view models for live state and RPC errors | Retain/inject localizer for runtime ownership |
 | `Views/SettingsPage.xaml.cs:17` | DynamicState | Injected into `SettingsViewModel` for live state | Retain/inject localizer for runtime ownership |
-| `Views/ShopDetailPage.xaml.cs:15` | StaticXaml | Current uses are dependency-dialog static copy | Remove construction |
+| `Views/ShopDetailPage.xaml.cs:15` | DynamicState | Passed into `ShopDetailViewModel` for live load/install state | Retain/inject localizer for runtime ownership |
 | `Views/ShopSearchPage.xaml.cs:22` | RuntimeFormat | Runtime result count/query summary | Retain/inject localizer for runtime ownership |
 | `Views/ShopWindow.xaml.cs:67` | ImperativeException | Shared with `ShopViewModel`; also required by the imperative `ShopSelector` tooltip whose XAML `ItemsSource`/`x:Bind` alternative crashes at startup | Retain/inject localizer for runtime ownership |
 
@@ -221,8 +188,8 @@ These files are returned by the mandated `LocalizationService|ILocalizer|\.Get\(
 | `Models/ScriptEntryItem.cs:14` | Builds the granted-permission summary | `PermissionLabels.cs:25` (`DynamicState`) |
 | `Models/ScriptItem.cs:9` | Passes `ILocalizer` to `ScriptEntryItem` | `ScriptEntryItem.cs:14` → `PermissionLabels.cs:25` |
 | `Models/ServerViewModelCache.cs:25` | Passes `ILocalizer` into server-scoped view models | `ModsViewModel.cs` and `ServerConfigViewModel.cs` rows |
-| `Services/ILocalizer.cs:8` | Defines the programmatic lookup contract | All 171 classified `.Get` occurrences |
-| `Services/LocalizationService.cs:6,10` | Implements the MRT lookup boundary | All 171 `.Get` occurrences; slash-path policy is covered by `ResourcePolicyTests` |
+| `Services/ILocalizer.cs:8` | Defines the programmatic lookup contract | All 128 classified `.Get` occurrences |
+| `Services/LocalizationService.cs:6,10` | Implements the MRT lookup boundary | All 128 `.Get` occurrences; slash-path policy is covered by `ResourcePolicyTests` |
 | `ViewModels/NavShellViewModel.cs:38` | Passes `ILocalizer` into `ServerViewModelCache` | `ServerViewModelCache.cs:25` → server-scoped view models |
 | `Views/PermissionConsentDialog.xaml.cs:13,38` | Passes `ILocalizer` through `ConsentRow` | `PermissionLabels.cs:25` (`DynamicState`) |
 

@@ -101,25 +101,20 @@ public sealed partial class ShopDetailPage : Page {
                         Tag       = d,
                     })
                     .ToArray();
-            var panel = new StackPanel { Spacing = 8 };
-            panel.Children.Add(new TextBlock {
-                Text         = _localizer.Get("Shop.DependencyPromptBody"),
-                TextWrapping = TextWrapping.Wrap,
-            });
+            var dialog = (ContentDialog)Resources["DependencyPromptDialog"];
+            var scroller = (ScrollViewer)dialog.Content;
+            var panel = (StackPanel)scroller.Content;
             foreach (var pick in picks) panel.Children.Add(pick);
 
-            var dialog = new ContentDialog {
-                XamlRoot = XamlRoot,
-                Title    = _localizer.Get("Shop.DependencyPromptTitle"),
-                Content = new ScrollViewer { Content = panel, MaxHeight = 320 },
-                PrimaryButtonText = _localizer.Get("Shop.InstallConfirm"),
-                CloseButtonText   = _localizer.Get("Common.Cancel"),
-                DefaultButton     = ContentDialogButton.Primary,
-            };
-            if (await dialog.ShowAsync() != ContentDialogResult.Primary)
-                return;
-            chosen.AddRange(picks.Where(p => p.IsChecked == true)
-                                .Select(p => (ShopDependency)p.Tag));
+            dialog.XamlRoot = XamlRoot;
+            try {
+                if (await dialog.ShowAsync() != ContentDialogResult.Primary)
+                    return;
+                chosen.AddRange(picks.Where(p => p.IsChecked == true)
+                                    .Select(p => (ShopDependency)p.Tag));
+            } finally {
+                foreach (var pick in picks) panel.Children.Remove(pick);
+            }
         }
 
         await ViewModel.InstallAsync(version, chosen);

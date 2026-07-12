@@ -1,7 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using JustHostMC.App.Models;
-using JustHostMC.App.Services;
 using Microsoft.UI.Xaml;
 using Windows.Graphics;
 
@@ -20,9 +19,6 @@ public sealed partial class ScriptLogsWindow : Window {
         InitializeComponent();
         Root.DataContext = this;
 
-        var title = new LocalizationService().Get("ScriptLogsWindow.Title");
-        Title     = title;
-        LogsTitleBar.Title         = title;
         ExtendsContentIntoTitleBar = true;
         AppWindow.Resize(new SizeInt32(960, 640));
 

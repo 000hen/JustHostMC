@@ -12,6 +12,8 @@ public static class ContentDialogSizing {
     private const double MinimumAvailableWidth = 320;
     private const double StandardMinWidth      = 560;
     private const double WideMinWidth          = 720;
+    private const string SizingAttachedKey =
+        "JustHostMC.ContentDialogSizingAttached";
 
     public static void Apply(ContentDialog dialog, bool useWideLayout = false) {
         void ApplySizing() {
@@ -29,9 +31,13 @@ public static class ContentDialogSizing {
             dialog.Resources["ContentDialogThemeMaxWidth"] = dialogWidth;
         }
 
+        ApplySizing();
+        if (dialog.Resources.ContainsKey(SizingAttachedKey))
+            return;
+
+        dialog.Resources[SizingAttachedKey] = true;
         dialog.Loaded += (_, _)      => ApplySizing();
         dialog.SizeChanged += (_, _) => ApplySizing();
-        ApplySizing();
     }
 
     private static double GetAvailableWidth(XamlRoot? root,

@@ -10,6 +10,27 @@
     mc:Ignorable="d">
 
     <Page.Resources>
+        <ContentDialog
+            x:Key="DeleteServerDialog"
+            x:Uid="DeleteServerDialog"
+            DefaultButton="Close" />
+        <ContentDialog
+            x:Key="CreateServerDialog"
+            x:Uid="CreateServerDialog"
+            DefaultButton="Primary"
+            Style="{StaticResource DefaultContentDialogStyle}" />
+        <ContentDialog
+            x:Key="EditServerDialog"
+            x:Uid="EditServerDialog"
+            DefaultButton="Primary"
+            Style="{StaticResource DefaultContentDialogStyle}" />
+        <ContentDialog
+            x:Key="RenameServerDialog"
+            x:Uid="RenameServerDialog"
+            DefaultButton="Primary">
+            <TextBox x:Uid="RenameServerNameBox" />
+        </ContentDialog>
+
         <DataTemplate x:Key="ServerCardTemplate">
             <Border
                 Padding="14"

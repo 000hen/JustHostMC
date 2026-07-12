@@ -654,4 +654,25 @@
   <data name="Settings.ShopKeyNone" xml:space="preserve"><value>尚未設定 CurseForge 金鑰，CurseForge 分頁將維持停用。</value></data>
   <data name="Settings.ShopKeyUser" xml:space="preserve"><value>已設定個人 CurseForge 金鑰。儲存空白金鑰即可移除。</value></data>
   <data name="Settings.ShopKeyBuiltin" xml:space="preserve"><value>正在使用此版本內建的 CurseForge 金鑰，個人金鑰可覆蓋它。</value></data>
+  <!-- XAML-owned window and dialog chrome -->
+  <data name="MainWindow.Title" xml:space="preserve"><value>JustHostMC</value></data>
+  <data name="MainWindowTitleBar.Title" xml:space="preserve"><value>JustHostMC</value></data>
+  <data name="EngineStdioWindow.Title" xml:space="preserve"><value>引擎監視器</value></data>
+  <data name="EngineMonitorTitleBar.Title" xml:space="preserve"><value>引擎監視器</value></data>
+  <data name="ScriptLogsTitleBar.Title" xml:space="preserve"><value>所有自動化日誌</value></data>
+  <data name="ShopWindowTitleBar.Title" xml:space="preserve"><value>模組商店</value></data>
+  <data name="DeleteServerDialog.Title" xml:space="preserve"><value>要刪除伺服器嗎？</value></data>
+  <data name="DeleteServerDialog.Content" xml:space="preserve"><value>這會永久刪除伺服器及其世界。此動作無法復原。</value></data>
+  <data name="DeleteServerDialog.PrimaryButtonText" xml:space="preserve"><value>刪除</value></data>
+  <data name="DeleteServerDialog.CloseButtonText" xml:space="preserve"><value>取消</value></data>
+  <data name="RenameServerDialog.PrimaryButtonText" xml:space="preserve"><value>儲存</value></data>
+  <data name="RenameServerDialog.CloseButtonText" xml:space="preserve"><value>取消</value></data>
+  <data name="RenameServerNameBox.Header" xml:space="preserve"><value>名稱</value></data>
+  <data name="ServerFolderMissingDialog.Title" xml:space="preserve"><value>找不到執行個體資料夾</value></data>
+  <data name="ServerFolderMissingDialog.Content" xml:space="preserve"><value>執行個體資料夾尚未建立，或背景服務正在使用此應用程式版本尚未公開的資料位置。</value></data>
+  <data name="ServerFolderMissingDialog.CloseButtonText" xml:space="preserve"><value>確定</value></data>
+  <data name="DependencyPromptDialog.Title" xml:space="preserve"><value>必要相依模組</value></data>
+  <data name="DependencyPromptDialog.PrimaryButtonText" xml:space="preserve"><value>全部安裝</value></data>
+  <data name="DependencyPromptDialog.CloseButtonText" xml:space="preserve"><value>取消</value></data>
+  <data name="DependencyPromptBody.Text" xml:space="preserve"><value>此版本需要下列模組，將一併安裝（已擁有的可取消勾選）。</value></data>
 </root>

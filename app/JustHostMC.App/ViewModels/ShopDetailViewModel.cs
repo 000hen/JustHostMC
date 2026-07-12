@@ -199,6 +199,8 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
     /// deps).</summary>
     public async Task InstallAsync(ShopVersionItem version,
                                    IReadOnlyList<ShopDependency> dependencies) {
+        using var backgroundTask =
+            App.Current.BackgroundTasks.Begin("mod-download");
         await RunOnUIAsync(() => {
             IsInstalling     = true;
             InstallSucceeded = false;

@@ -35,12 +35,22 @@ public sealed partial class SettingsViewModel : ObservableObject {
         get; private set;
     }
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasIncompleteInstallations))]
+    [NotifyPropertyChangedFor(nameof(IncompleteInstallationDescription))]
+    public partial int IncompleteInstallationCount {
+        get; private set;
+    }
+
+    public bool HasIncompleteInstallations => IncompleteInstallationCount > 0;
+    public string IncompleteInstallationDescription =>
+        _localizer.Get("Settings_IncompleteInstallationsDescription",
+                       ("count", IncompleteInstallationCount.ToString()));
+
     /// <summary>Localized description of the isolation backend currently in
     /// use.</summary>
     [ObservableProperty]
-    public partial string ActiveModeText {
-        get; private set;
-    } = "";
+    public partial string ActiveModeText { get; private set; } = "";
 
     /// <summary>Localized Docker availability line.</summary>
     [ObservableProperty]
@@ -110,6 +120,20 @@ public sealed partial class SettingsViewModel : ObservableObject {
 
         await LoadBackendAsync();
         await LoadShopKeysAsync();
+        await RefreshIncompleteInstallationsAsync();
+    }
+
+    private async Task RefreshIncompleteInstallationsAsync() {
+        try {
+            var daemon = await App.Current.DaemonReady;
+            var list   = await daemon.Servers.ListAsync(
+                new Empty(), deadline: DateTime.UtcNow.AddSeconds(30));
+            var count = list.Servers.Count(server => server.Status ==
+                                                     ServerStatus.Installing);
+            RunOnUI(() => IncompleteInstallationCount = count);
+        } catch (RpcException) {
+            // Leave the cleanup action disabled until the next page load.
+        }
     }
 
     private async Task LoadShopKeysAsync() {
@@ -253,6 +277,38 @@ public sealed partial class SettingsViewModel : ObservableObject {
             RunOnUI(() => StatusMessage =
                         _localizer.Get("Settings_RemoveDataFailed"));
         } finally {
+            RunOnUI(() => IsBusy = false);
+        }
+    }
+
+    [RelayCommand]
+    private async Task RemoveIncompleteInstallations() {
+        RunOnUI(() => {
+            IsBusy = true;
+            StatusMessage =
+                _localizer.Get("Settings_RemovingIncompleteInstallations");
+        });
+        try {
+            var daemon = await App.Current.DaemonReady;
+            var list   = await daemon.Servers.ListAsync(
+                new Empty(), deadline: DateTime.UtcNow.AddSeconds(30));
+            var incomplete =
+                list.Servers
+                    .Where(server => server.Status == ServerStatus.Installing)
+                    .ToArray();
+            foreach (var server in incomplete) {
+                await daemon.Servers.DeleteAsync(
+                    new ServerId { Id = server.Id },
+                    deadline: DateTime.UtcNow.AddMinutes(2));
+            }
+            RunOnUI(() => StatusMessage = _localizer.Get(
+                        "Settings_IncompleteInstallationsRemoved",
+                        ("count", incomplete.Length.ToString())));
+        } catch (RpcException) {
+            RunOnUI(() => StatusMessage = _localizer.Get(
+                        "Settings_RemoveIncompleteInstallationsFailed"));
+        } finally {
+            await RefreshIncompleteInstallationsAsync();
             RunOnUI(() => IsBusy = false);
         }
     }

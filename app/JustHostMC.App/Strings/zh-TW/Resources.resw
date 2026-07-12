@@ -198,6 +198,12 @@
   <data name="SettingsRemoveDataConfirmButton.Content" xml:space="preserve"><value>全部移除</value></data>
   <data name="Settings_RemovingData" xml:space="preserve"><value>正在移除所有資料</value></data>
   <data name="Settings_DataRemoved" xml:space="preserve"><value>所有資料已移除。</value></data>
+  <data name="SettingsIncompleteInstallationsHeader.Text" xml:space="preserve"><value>未完成的伺服器安裝</value></data>
+  <data name="Settings_IncompleteInstallationsDescription" xml:space="preserve"><value>可移除 {count} 個未完成的安裝。</value></data>
+  <data name="SettingsRemoveIncompleteInstallationsButton.Content" xml:space="preserve"><value>移除未完成的安裝</value></data>
+  <data name="Settings_RemovingIncompleteInstallations" xml:space="preserve"><value>正在移除未完成的伺服器安裝…</value></data>
+  <data name="Settings_IncompleteInstallationsRemoved" xml:space="preserve"><value>已移除 {count} 個未完成的安裝。</value></data>
+  <data name="Settings_RemoveIncompleteInstallationsFailed" xml:space="preserve"><value>移除未完成的伺服器安裝失敗。</value></data>
 <data name="Settings_RemoveDataFailed" xml:space="preserve"><value>無法移除所有資料。</value></data>
 
 <!-- Engine stdio monitor -->
@@ -266,6 +272,17 @@
   <data name="ServerDelete_Title" xml:space="preserve"><value>要刪除伺服器嗎？</value></data>
   <data name="ServerDelete_Body" xml:space="preserve"><value>這會永久刪除伺服器及其世界。此動作無法復原。</value></data>
   <data name="ServerDelete_Confirm" xml:space="preserve"><value>刪除</value></data>
+  <data name="ServerDelete_Action" xml:space="preserve"><value>刪除伺服器</value></data>
+  <data name="ServerInstallRemove_Title" xml:space="preserve"><value>要移除未完成的安裝嗎？</value></data>
+  <data name="ServerInstallRemove_Body" xml:space="preserve"><value>這會取消安裝，並移除此伺服器已下載的所有檔案。</value></data>
+  <data name="ServerInstallRemove_Confirm" xml:space="preserve"><value>移除</value></data>
+  <data name="ServerInstallRemove_Action" xml:space="preserve"><value>移除未完成的安裝</value></data>
+  <data name="CloseBusy_Title" xml:space="preserve"><value>目前工作仍在執行</value></data>
+  <data name="CloseBusy_Body" xml:space="preserve"><value>現在關閉會中斷目前的工作。您可以讓 JustHostMC 繼續在系統匣執行，或仍然關閉。</value></data>
+  <data name="CloseBusy_HideToTray" xml:space="preserve"><value>隱藏到系統匣</value></data>
+  <data name="CloseBusy_CloseAnyway" xml:space="preserve"><value>仍然關閉</value></data>
+  <data name="Tray_Restore" xml:space="preserve"><value>開啟 JustHostMC</value></data>
+  <data name="Tray_Exit" xml:space="preserve"><value>結束</value></data>
   <data name="Common_Cancel" xml:space="preserve"><value>取消</value></data>
   <!-- Players -->
   <data name="Players_Header" xml:space="preserve"><value>玩家（{count}）</value></data>

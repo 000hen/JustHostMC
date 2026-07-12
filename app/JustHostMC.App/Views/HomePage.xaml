@@ -87,9 +87,9 @@
                                     </MenuFlyoutItem>
                                     <MenuFlyoutSeparator />
                                     <MenuFlyoutItem
-                                        x:Uid="HomeCardDeleteMenuItem"
                                         Click="OnCardDeleteClick"
-                                        Tag="{Binding}">
+                                        Tag="{Binding}"
+                                        Text="{Binding DeleteActionText}">
                                         <MenuFlyoutItem.Icon>
                                             <FontIcon Glyph="&#xE74D;" />
                                         </MenuFlyoutItem.Icon>

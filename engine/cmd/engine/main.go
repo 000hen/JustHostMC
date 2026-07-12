@@ -65,11 +65,12 @@ func main() {
 	if err := os.MkdirAll(paths.Base, 0o755); err != nil {
 		log.Fatalf("[FATAL] create data dir: %v", err)
 	}
-	registry, err := store.OpenSQLite(filepath.Join(paths.Base, "registry.db"))
+	sqliteRegistry, err := store.OpenSQLite(filepath.Join(paths.Base, "registry.db"))
 	if err != nil {
 		log.Fatalf("[FATAL] open registry: %v", err)
 	}
-	defer registry.Close()
+	defer sqliteRegistry.Close()
+	registry := store.NewObservable(sqliteRegistry, 64)
 
 	jreMgr := jre.NewManager(paths.JRECache())
 	// Server types are now sandboxed Lua provider scripts. Built-ins are embedded
@@ -151,6 +152,7 @@ func main() {
 
 	serverService := grpcsvc.NewServerService(grpcsvc.ServerServiceConfig{
 		Store:     registry,
+		Changes:   registry,
 		Providers: providers,
 		JRE:       jreMgr,
 		Backend:   backend,

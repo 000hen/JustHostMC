@@ -6,11 +6,11 @@ namespace JustHostMC.Core;
 /// Owns one server-change synchronization loop and replaces it atomically when
 /// an explicit reconciliation is requested.
 /// </summary>
-public sealed class ServerChangeSession(
-    ServerChangeSynchronizer synchronizer,
-    IServerChangeSource source,
-    Action<IReadOnlyList<Server>> reconcile,
-    Action<ServerChangeEvent> apply) : IAsyncDisposable {
+public sealed class ServerChangeSession(ServerChangeSynchronizer synchronizer,
+                                        IServerChangeSource source,
+                                        Action<IReadOnlyList<Server>> reconcile,
+                                        Action<ServerChangeEvent> apply)
+    : IAsyncDisposable {
     private readonly SemaphoreSlim _gate = new(1, 1);
     private CancellationTokenSource? _cancellation;
     private Task? _run;
@@ -53,8 +53,8 @@ public sealed class ServerChangeSession(
 
     private void StartLocked() {
         _cancellation = new CancellationTokenSource();
-        _run = synchronizer.RunAsync(source, reconcile, apply,
-                                     _cancellation.Token);
+        _run          = synchronizer.RunAsync(source, reconcile, apply,
+                                              _cancellation.Token);
     }
 
     private async Task StopLockedAsync() {

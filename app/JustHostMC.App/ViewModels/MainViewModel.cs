@@ -22,9 +22,9 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
 
     private readonly ILocalizer _localizer;
     private readonly DispatcherQueue _dispatcher;
-    private readonly PendingServerUpdates _pendingUpdates = new();
+    private readonly PendingServerUpdates _pendingUpdates    = new();
     private readonly ServerChangeSynchronizer _serverChanges = new();
-    private readonly ServerListState _serverState = new();
+    private readonly ServerListState _serverState            = new();
     private ServerChangeSession? _serverChangesSession;
 
     public ObservableCollection<ServerItem> Servers { get; } = new();
@@ -156,7 +156,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
 
     [RelayCommand]
     private async Task Refresh() {
-        var daemon = await App.Current.DaemonReady;
+        var daemon              = await App.Current.DaemonReady;
         _serverChangesSession ??= CreateServerChangeSession(daemon);
         await _serverChangesSession.RestartAsync();
     }
@@ -239,7 +239,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
             RunOnUI(() => item.ApplyLocal(optimistic));
 
         try {
-            var daemon = await App.Current.DaemonReady;
+            var daemon  = await App.Current.DaemonReady;
             var updated = await daemon.Servers.UpdateAsync(
                 optimistic, deadline: DateTime.UtcNow.AddMinutes(3));
             _pendingUpdates.Complete(updated.Id);
@@ -377,8 +377,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
         var list = incoming.ToList();
         _serverState.Reconcile(list);
 
-        foreach (var proto in list)
-            UpsertServer(proto);
+        foreach (var proto in list) UpsertServer(proto);
 
         var keep = list.Select(p => p.Id).ToHashSet();
         for (var i = Servers.Count - 1; i >= 0; i--) {
@@ -393,22 +392,22 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
     private void ApplyServerChange(ServerChangeEvent change) {
         _serverState.Apply(change);
         switch (change.ChangeCase) {
-        case ServerChangeEvent.ChangeOneofCase.Upsert:
-            UpsertServer(change.Upsert);
-            ReorderServers(_serverState.Servers.Select(server => server.Id));
-            break;
-        case ServerChangeEvent.ChangeOneofCase.Deleted:
-            RemoveServer(change.Deleted.Id);
-            break;
+            case ServerChangeEvent.ChangeOneofCase.Upsert:
+                UpsertServer(change.Upsert);
+                ReorderServers(
+                    _serverState.Servers.Select(server => server.Id));
+                break;
+            case ServerChangeEvent.ChangeOneofCase.Deleted:
+                RemoveServer(change.Deleted.Id);
+                break;
         }
         OnServerStatsChanged();
     }
 
     private void UpsertServer(Server proto) {
-        var tracker =
-            ProgressService.GetOrCreateTracker(proto.Id, proto.Name);
-        if (proto.Status is not(ServerStatus.Installing or ServerStatus.Starting
-                                    or ServerStatus.Stopping)) {
+        var tracker = ProgressService.GetOrCreateTracker(proto.Id, proto.Name);
+        if (proto.Status is not(ServerStatus.Installing or ServerStatus
+                                    .Starting or ServerStatus.Stopping)) {
             if (tracker.IsActive)
                 tracker.IsActive = false;
         } else {
@@ -432,9 +431,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
         }
 
         var newItem = new ServerItem(proto, _localizer, ProviderCatalog,
-                                     _dispatcher) {
-            ProgressTracker = tracker
-        };
+                                     _dispatcher) { ProgressTracker = tracker };
         if (TryGetPendingUpdate(proto.Id, out var newPending))
             newItem.ApplyLocal(newPending);
         Servers.Add(newItem);
@@ -492,11 +489,10 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
     }
 
     private ServerChangeSession CreateServerChangeSession(
-        DaemonClient daemon) => new(
-            _serverChanges,
-            new GrpcServerChangeSource(daemon.Servers),
+        DaemonClient daemon) =>
+        new(_serverChanges, new GrpcServerChangeSource(daemon.Servers),
             servers => RunOnUI(() => MergeServers(servers)),
-            change => RunOnUI(() => ApplyServerChange(change)));
+            change  => RunOnUI(() => ApplyServerChange(change)));
 
     public async ValueTask DisposeAsync() {
         if (_serverChangesSession is not null)

@@ -18,25 +18,25 @@ public sealed class ServerListState {
 
     public void Apply(ServerChangeEvent change) {
         switch (change.ChangeCase) {
-        case ServerChangeEvent.ChangeOneofCase.Upsert:
-            var index = _servers.FindIndex(server =>
-                                              server.Id == change.Upsert.Id);
-            var snapshot = change.Upsert.Clone();
-            if (index >= 0)
-                _servers[index] = snapshot;
-            else
-                _servers.Add(snapshot);
-            Sort();
-            break;
-        case ServerChangeEvent.ChangeOneofCase.Deleted:
-            _servers.RemoveAll(server => server.Id == change.Deleted.Id);
-            break;
+            case ServerChangeEvent.ChangeOneofCase.Upsert:
+                var index =
+                    _servers.FindIndex(server => server.Id == change.Upsert.Id);
+                var snapshot = change.Upsert.Clone();
+                if (index >= 0)
+                    _servers[index] = snapshot;
+                else
+                    _servers.Add(snapshot);
+                Sort();
+                break;
+            case ServerChangeEvent.ChangeOneofCase.Deleted:
+                _servers.RemoveAll(server => server.Id == change.Deleted.Id);
+                break;
         }
     }
 
     public bool TryGet(string serverId, out Server server) {
-        var latest = _servers.FirstOrDefault(candidate =>
-                                                 candidate.Id == serverId);
+        var latest =
+            _servers.FirstOrDefault(candidate => candidate.Id == serverId);
         if (latest is not null) {
             server = latest.Clone();
             return true;
@@ -49,11 +49,9 @@ public sealed class ServerListState {
         var order = left.SortOrder.CompareTo(right.SortOrder);
         if (order != 0)
             return order;
-        order = string.Compare(left.Name, right.Name,
-                               StringComparison.Ordinal);
-        return order != 0
-                   ? order
-                   : string.Compare(left.Id, right.Id,
-                                    StringComparison.Ordinal);
+        order = string.Compare(left.Name, right.Name, StringComparison.Ordinal);
+        return order != 0 ? order
+                          : string.Compare(left.Id, right.Id,
+                                           StringComparison.Ordinal);
     });
 }

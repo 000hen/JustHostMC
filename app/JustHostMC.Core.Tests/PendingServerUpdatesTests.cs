@@ -5,21 +5,27 @@ namespace JustHostMC.Core.Tests;
 
 public class PendingServerUpdatesTests {
     [Fact]
-    public void Complete_ClearsOverlayAndKeepsNewerStreamSnapshotAuthoritative() {
+    public void
+    Complete_ClearsOverlayAndKeepsNewerStreamSnapshotAuthoritative() {
         var pending = new PendingServerUpdates();
-        var state = new ServerListState();
+        var state   = new ServerListState();
         pending.Begin(new UpdateServerRequest {
-            Id = "one", Name = "One", Port = 0,
+            Id   = "one",
+            Name = "One",
+            Port = 0,
         });
 
         Assert.True(pending.TryGet("one", out var optimistic));
         Assert.Equal(0, optimistic.Port);
 
         state.Apply(new ServerChangeEvent {
-            Upsert = new Server {
-                Id = "one", Name = "One", Port = 25565,
-                Status = ServerStatus.Crashed,
-            },
+            Upsert =
+                new Server {
+                            Id     = "one",
+                            Name   = "One",
+                            Port   = 25565,
+                            Status = ServerStatus.Crashed,
+                            },
         });
         pending.Complete("one");
         Assert.True(state.TryGet("one", out var authoritative));
@@ -32,7 +38,7 @@ public class PendingServerUpdatesTests {
     [Fact]
     public void Complete_DoesNotResurrectServerDeletedAfterUpdate() {
         var pending = new PendingServerUpdates();
-        var state = new ServerListState();
+        var state   = new ServerListState();
         state.Reconcile([new Server { Id = "one", Name = "One" }]);
         pending.Begin(new UpdateServerRequest { Id = "one", Name = "One" });
 

@@ -7,24 +7,28 @@ namespace JustHostMC.Core.Tests;
 
 public class ServerChangeSessionTests {
     [Fact]
-    public async Task RestartAsync_CancelsOldStreamAndRunsFreshReadyListHandshake() {
+    public async Task
+    RestartAsync_CancelsOldStreamAndRunsFreshReadyListHandshake() {
         var source = new RestartableSource();
-        var synchronizer = new ServerChangeSynchronizer(
-            (_, _) => Task.CompletedTask);
-        var session = new ServerChangeSession(
-            synchronizer, source, _ => { }, _ => { });
+        var synchronizer =
+            new ServerChangeSynchronizer((_, _) => Task.CompletedTask);
+        var session = new ServerChangeSession(synchronizer, source,
+                                              _ => {},
+                                              _ => {});
 
         await session.StartAsync();
-        var first = await source.NextWatch.Reader.ReadAsync()
-            .AsTask().WaitAsync(TimeSpan.FromSeconds(1));
+        var first =
+            await source.NextWatch.Reader.ReadAsync().AsTask().WaitAsync(
+                TimeSpan.FromSeconds(1));
         await first.Writer.WriteAsync(new ServerChangeEvent {
             Ready = new Empty(),
         });
         await source.WaitForListsAsync(1);
 
         await session.RestartAsync();
-        var second = await source.NextWatch.Reader.ReadAsync()
-            .AsTask().WaitAsync(TimeSpan.FromSeconds(1));
+        var second =
+            await source.NextWatch.Reader.ReadAsync().AsTask().WaitAsync(
+                TimeSpan.FromSeconds(1));
         await second.Writer.WriteAsync(new ServerChangeEvent {
             Ready = new Empty(),
         });
@@ -37,11 +41,12 @@ public class ServerChangeSessionTests {
     }
 
     private sealed class RestartableSource : IServerChangeSource {
-        private readonly object _gate = new();
+        private readonly object _gate             = new();
         private TaskCompletionSource _listChanged = NewSignal();
 
-        public Channel<Channel<ServerChangeEvent>> NextWatch { get; } =
-            Channel.CreateUnbounded<Channel<ServerChangeEvent>>();
+        public Channel<Channel<ServerChangeEvent>> NextWatch {
+            get;
+        } = Channel.CreateUnbounded<Channel<ServerChangeEvent>>();
         public int WatchCount { get; private set; }
         public int ListCount { get; private set; }
 
@@ -51,8 +56,7 @@ public class ServerChangeSessionTests {
             var events = Channel.CreateUnbounded<ServerChangeEvent>();
             await NextWatch.Writer.WriteAsync(events, cancellationToken);
             await foreach (var change in events.Reader.ReadAllAsync(
-                               cancellationToken))
-                yield return change;
+                               cancellationToken)) yield return change;
         }
 
         public Task<IReadOnlyList<Server>> ListAsync(
@@ -78,7 +82,7 @@ public class ServerChangeSessionTests {
             }
         }
 
-        private static TaskCompletionSource NewSignal() => new(
-            TaskCreationOptions.RunContinuationsAsynchronously);
+        private static TaskCompletionSource NewSignal() =>
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
     }
 }

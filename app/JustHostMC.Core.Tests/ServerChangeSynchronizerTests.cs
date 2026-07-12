@@ -8,7 +8,7 @@ namespace JustHostMC.Core.Tests;
 public class ServerChangeSynchronizerTests {
     [Fact]
     public async Task RunAsync_WaitsForReadyThenListsBeforeApplyingChanges() {
-        var source = new ChannelServerChangeSource([
+        var source             = new ChannelServerChangeSource([
             new Server { Id = "initial", Name = "Initial" },
         ]);
         using var cancellation = new CancellationTokenSource();
@@ -16,14 +16,12 @@ public class ServerChangeSynchronizerTests {
             TaskCreationOptions.RunContinuationsAsynchronously);
         var applied = new TaskCompletionSource<ServerChangeEvent>(
             TaskCreationOptions.RunContinuationsAsynchronously);
-        var synchronizer = new ServerChangeSynchronizer(
-            (_, _) => Task.CompletedTask);
+        var synchronizer =
+            new ServerChangeSynchronizer((_, _) => Task.CompletedTask);
 
         var run = synchronizer.RunAsync(
-            source,
-            servers => reconciled.TrySetResult(servers),
-            change => applied.TrySetResult(change),
-            cancellation.Token);
+            source, servers => reconciled.TrySetResult(servers),
+            change => applied.TrySetResult(change), cancellation.Token);
         await source.WatchStarted.Task.WaitAsync(TimeSpan.FromSeconds(1));
         Assert.Equal(0, source.ListCount);
 
@@ -46,13 +44,13 @@ public class ServerChangeSynchronizerTests {
 
     [Fact]
     public async Task RunAsync_ReconnectsAndRelistsAfterStreamCompletion() {
-        var source = new ReconnectingServerChangeSource();
+        var source             = new ReconnectingServerChangeSource();
         using var cancellation = new CancellationTokenSource();
-        var reconciliations = new TaskCompletionSource(
+        var reconciliations    = new TaskCompletionSource(
             TaskCreationOptions.RunContinuationsAsynchronously);
         var reconcileCount = 0;
-        var delayCount = 0;
-        var synchronizer = new ServerChangeSynchronizer((_, _) => {
+        var delayCount     = 0;
+        var synchronizer   = new ServerChangeSynchronizer((_, _) => {
             Interlocked.Increment(ref delayCount);
             return Task.CompletedTask;
         });
@@ -63,8 +61,7 @@ public class ServerChangeSynchronizerTests {
                 if (Interlocked.Increment(ref reconcileCount) == 2)
                     reconciliations.TrySetResult();
             },
-            _ => { },
-            cancellation.Token);
+            _ => {}, cancellation.Token);
 
         await reconciliations.Task.WaitAsync(TimeSpan.FromSeconds(1));
         Assert.Equal(2, source.WatchCount);
@@ -76,23 +73,23 @@ public class ServerChangeSynchronizerTests {
     }
 
     [Fact]
-    public async Task RunAsync_AppliesChangesQueuedWhileListIsInFlightAfterList() {
-        var source = new GatedListSource();
+    public async Task
+    RunAsync_AppliesChangesQueuedWhileListIsInFlightAfterList() {
+        var source             = new GatedListSource();
         using var cancellation = new CancellationTokenSource();
-        var order = new List<string>();
-        var applied = new TaskCompletionSource(
+        var order              = new List<string>();
+        var applied            = new TaskCompletionSource(
             TaskCreationOptions.RunContinuationsAsynchronously);
-        var synchronizer = new ServerChangeSynchronizer(
-            (_, _) => Task.CompletedTask);
+        var synchronizer =
+            new ServerChangeSynchronizer((_, _) => Task.CompletedTask);
 
-        var run = synchronizer.RunAsync(
-            source,
-            _ => order.Add("list"),
-            _ => {
-                order.Add("event");
-                applied.TrySetResult();
-            },
-            cancellation.Token);
+        var run = synchronizer.RunAsync(source,
+                                        _ => order.Add("list"),
+                                        _ => {
+                                            order.Add("event");
+                                            applied.TrySetResult();
+                                        },
+                                        cancellation.Token);
         await source.WatchStarted.Task.WaitAsync(TimeSpan.FromSeconds(1));
         await source.Events.Writer.WriteAsync(new ServerChangeEvent {
             Ready = new Empty(),
@@ -112,19 +109,21 @@ public class ServerChangeSynchronizerTests {
     }
 
     private sealed class ChannelServerChangeSource(
-        IReadOnlyList<Server> initial) : IServerChangeSource {
-        public Channel<ServerChangeEvent> Events { get; } =
-            Channel.CreateUnbounded<ServerChangeEvent>();
-        public TaskCompletionSource WatchStarted { get; } = new(
-            TaskCreationOptions.RunContinuationsAsynchronously);
+        IReadOnlyList<Server> initial)
+        : IServerChangeSource {
+        public Channel<ServerChangeEvent> Events {
+            get;
+        } = Channel.CreateUnbounded<ServerChangeEvent>();
+        public TaskCompletionSource WatchStarted {
+            get;
+        } = new(TaskCreationOptions.RunContinuationsAsynchronously);
         public int ListCount { get; private set; }
 
         public async IAsyncEnumerable<ServerChangeEvent> WatchAsync(
             [EnumeratorCancellation] CancellationToken cancellationToken) {
             WatchStarted.TrySetResult();
             await foreach (var change in Events.Reader.ReadAllAsync(
-                               cancellationToken))
-                yield return change;
+                               cancellationToken)) yield return change;
         }
 
         public Task<IReadOnlyList<Server>> ListAsync(
@@ -156,21 +155,24 @@ public class ServerChangeSynchronizerTests {
     }
 
     private sealed class GatedListSource : IServerChangeSource {
-        public Channel<ServerChangeEvent> Events { get; } =
-            Channel.CreateUnbounded<ServerChangeEvent>();
-        public TaskCompletionSource WatchStarted { get; } = new(
-            TaskCreationOptions.RunContinuationsAsynchronously);
-        public TaskCompletionSource ListStarted { get; } = new(
-            TaskCreationOptions.RunContinuationsAsynchronously);
-        public TaskCompletionSource ReleaseList { get; } = new(
-            TaskCreationOptions.RunContinuationsAsynchronously);
+        public Channel<ServerChangeEvent> Events {
+            get;
+        } = Channel.CreateUnbounded<ServerChangeEvent>();
+        public TaskCompletionSource WatchStarted {
+            get;
+        } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public TaskCompletionSource ListStarted {
+            get;
+        } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public TaskCompletionSource ReleaseList {
+            get;
+        } = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
         public async IAsyncEnumerable<ServerChangeEvent> WatchAsync(
             [EnumeratorCancellation] CancellationToken cancellationToken) {
             WatchStarted.TrySetResult();
             await foreach (var change in Events.Reader.ReadAllAsync(
-                               cancellationToken))
-                yield return change;
+                               cancellationToken)) yield return change;
         }
 
         public async Task<IReadOnlyList<Server>> ListAsync(

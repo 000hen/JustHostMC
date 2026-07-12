@@ -7,12 +7,11 @@ namespace JustHostMC.Core;
 /// authoritative snapshot.
 /// </summary>
 public sealed class PendingServerUpdates {
-    private readonly object _gate = new();
+    private readonly object _gate                                     = new();
     private readonly Dictionary<string, UpdateServerRequest> _updates = [];
 
     public void Begin(UpdateServerRequest request) {
-        lock (_gate)
-            _updates[request.Id] = request.Clone();
+        lock (_gate) _updates[request.Id] = request.Clone();
     }
 
     public bool TryGet(string serverId, out UpdateServerRequest request) {
@@ -27,12 +26,10 @@ public sealed class PendingServerUpdates {
     }
 
     public void Complete(string serverId) {
-        lock (_gate)
-            _updates.Remove(serverId);
+        lock (_gate) _updates.Remove(serverId);
     }
 
     public void Cancel(string serverId) {
-        lock (_gate)
-            _updates.Remove(serverId);
+        lock (_gate) _updates.Remove(serverId);
     }
 }

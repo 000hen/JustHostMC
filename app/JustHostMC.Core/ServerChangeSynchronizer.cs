@@ -15,24 +15,24 @@ public sealed class ServerChangeSynchronizer(
     private readonly Func<TimeSpan, CancellationToken, Task> _delay =
         delay ?? Task.Delay;
 
-    public async Task RunAsync(
-        IServerChangeSource source,
-        Action<IReadOnlyList<Server>> reconcile,
-        Action<ServerChangeEvent> apply,
-        CancellationToken cancellationToken) {
+    public async Task RunAsync(IServerChangeSource source,
+                               Action<IReadOnlyList<Server>> reconcile,
+                               Action<ServerChangeEvent> apply,
+                               CancellationToken cancellationToken) {
         var retryDelay = InitialRetryDelay;
         while (!cancellationToken.IsCancellationRequested) {
             try {
-                await using var changes = source.WatchAsync(cancellationToken)
-                    .GetAsyncEnumerator(cancellationToken);
+                await using var changes =
+                    source.WatchAsync(cancellationToken)
+                        .GetAsyncEnumerator(cancellationToken);
                 if (!await changes.MoveNextAsync().ConfigureAwait(false) ||
-                    changes.Current.ChangeCase is not ServerChangeEvent
-                        .ChangeOneofCase.Ready)
+                    changes.Current.ChangeCase is not
+                        ServerChangeEvent.ChangeOneofCase.Ready)
                     throw new InvalidOperationException(
                         "server change stream did not begin with ready");
 
                 var servers = await source.ListAsync(cancellationToken)
-                    .ConfigureAwait(false);
+                                  .ConfigureAwait(false);
                 reconcile(servers);
                 retryDelay = InitialRetryDelay;
 

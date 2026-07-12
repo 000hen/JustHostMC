@@ -22,14 +22,27 @@ public class PendingServerUpdatesTests {
             },
         });
         pending.Complete("one");
-        var authoritative = state.LatestOr(new Server {
-            Id = "one", Name = "One", Port = 25565,
-            Status = ServerStatus.Running,
-        });
+        Assert.True(state.TryGet("one", out var authoritative));
 
         Assert.False(pending.TryGet("one", out _));
         Assert.Equal(25565, authoritative.Port);
         Assert.Equal(ServerStatus.Crashed, authoritative.Status);
+    }
+
+    [Fact]
+    public void Complete_DoesNotResurrectServerDeletedAfterUpdate() {
+        var pending = new PendingServerUpdates();
+        var state = new ServerListState();
+        state.Reconcile([new Server { Id = "one", Name = "One" }]);
+        pending.Begin(new UpdateServerRequest { Id = "one", Name = "One" });
+
+        state.Apply(new ServerChangeEvent {
+            Deleted = new ServerId { Id = "one" },
+        });
+        pending.Complete("one");
+
+        Assert.False(pending.TryGet("one", out _));
+        Assert.False(state.TryGet("one", out _));
     }
 
     [Fact]

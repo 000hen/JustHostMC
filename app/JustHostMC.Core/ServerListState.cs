@@ -34,10 +34,15 @@ public sealed class ServerListState {
         }
     }
 
-    public Server LatestOr(Server fallback) {
-        var latest = _servers.FirstOrDefault(server =>
-                                                 server.Id == fallback.Id);
-        return (latest ?? fallback).Clone();
+    public bool TryGet(string serverId, out Server server) {
+        var latest = _servers.FirstOrDefault(candidate =>
+                                                 candidate.Id == serverId);
+        if (latest is not null) {
+            server = latest.Clone();
+            return true;
+        }
+        server = null!;
+        return false;
     }
 
     private void Sort() => _servers.Sort(static (left, right) => {

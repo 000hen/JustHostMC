@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Grpc.Core;
 using JustHostMC.App.Models;
 using JustHostMC.App.Services;
+using JustHostMC.Core;
 using McManager.Grpc;
 using Microsoft.UI.Dispatching;
 
@@ -15,7 +16,7 @@ namespace JustHostMC.App.ViewModels;
 /// and every gRPC stream/callback update is marshaled to the UI thread (PROMPT
 /// §10.1).
 /// </summary>
-public partial class MainViewModel : ObservableObject {
+public partial class MainViewModel : ObservableObject, IDisposable {
     private const int MaxLogLines      = 2000;
     private const int MaxLogLineLength = 2000;
 
@@ -24,7 +25,10 @@ public partial class MainViewModel : ObservableObject {
     private readonly object _pendingUpdatesGate = new();
     private readonly Dictionary<string, UpdateServerRequest> _pendingUpdates =
         new();
-    private DispatcherQueueTimer? _refreshTimer;
+    private readonly CancellationTokenSource _serverChangesCts = new();
+    private readonly ServerChangeSynchronizer _serverChanges = new();
+    private readonly ServerListState _serverState = new();
+    private Task? _serverChangesTask;
 
     public ObservableCollection<ServerItem> Servers { get; } = new();
     public ObservableCollection<object> NavigationItems {
@@ -91,8 +95,8 @@ public partial class MainViewModel : ObservableObject {
         EngineStatus    = _localizer.Get("EngineStatus_Connecting");
     }
 
-    /// <summary>Waits for the engine, probes Health, loads servers, polls
-    /// status.</summary>
+    /// <summary>Waits for the engine, probes Health, and starts the server
+    /// change stream.</summary>
     public async Task ConnectAsync() {
         RunOnUI(() => EngineStatus = _localizer.Get("EngineStatus_Connecting"));
         try {
@@ -107,8 +111,7 @@ public partial class MainViewModel : ObservableObject {
             _ = GetProvidersAsync().ContinueWith(
                 static t => _ = t.Exception,
                 TaskContinuationOptions.OnlyOnFaulted);
-            await RefreshAsync();
-            StartAutoRefresh();
+            _serverChangesTask ??= RunServerChangesAsync(daemon);
         } catch (Exception) {
             RunOnUI(() => EngineStatus = _localizer.Get("EngineStatus_Failed"));
         }
@@ -211,7 +214,6 @@ public partial class MainViewModel : ObservableObject {
                         tracker.AppendLog(snapshot.LogLine);
                 });
             }
-            await RefreshAsync();
             RunOnUI(() => {
                 IsInstalling         = false;
                 tracker.IsInstalling = false;
@@ -252,13 +254,11 @@ public partial class MainViewModel : ObservableObject {
             await daemon.Servers.UpdateAsync(
                 optimistic, deadline: DateTime.UtcNow.AddMinutes(3));
             lock (_pendingUpdatesGate) _pendingUpdates.Remove(optimistic.Id);
-            await RefreshAsync();
             return true;
         } catch (RpcException) {
             lock (_pendingUpdatesGate) _pendingUpdates.Remove(optimistic.Id);
             if (item is not null && rollback is not null)
                 RunOnUI(() => item.ApplyLocal(rollback));
-            await RefreshAsync();
             return false;
         }
     }
@@ -314,7 +314,6 @@ public partial class MainViewModel : ObservableObject {
                 deadline: DateTime.UtcNow.AddSeconds(60));
         } catch (RpcException) {
         }
-        await RefreshAsync();
     }
 
     [RelayCommand]
@@ -337,7 +336,6 @@ public partial class MainViewModel : ObservableObject {
                 deadline: DateTime.UtcNow.AddSeconds(60));
         } catch (RpcException) {
         }
-        await RefreshAsync();
     }
 
     [RelayCommand]
@@ -351,7 +349,6 @@ public partial class MainViewModel : ObservableObject {
                 deadline: DateTime.UtcNow.AddSeconds(60));
         } catch (RpcException) {
         }
-        await RefreshAsync();
     }
 
     private void ApplyInstallProgress(InstallProgress progress) {
@@ -378,65 +375,99 @@ public partial class MainViewModel : ObservableObject {
 
     private void MergeServers(
         System.Collections.Generic.IEnumerable<Server> incoming) {
-        var list     = incoming.ToList();
-        var existing = Servers.ToDictionary(s => s.Id);
+        var list = incoming.ToList();
+        _serverState.Reconcile(list);
 
-        foreach (var proto in list) {
-            var tracker =
-                ProgressService.GetOrCreateTracker(proto.Id, proto.Name);
-            if (proto.Status is not(ServerStatus.Installing or ServerStatus
-                                        .Starting or ServerStatus.Stopping)) {
-                if (tracker.IsActive)
-                    tracker.IsActive = false;
-            } else {
-                if (!tracker.IsActive)
-                    tracker.IsActive = true;
-                tracker.CurrentStep = _localizer.Get(proto.Status switch {
-                    ServerStatus.Installing => "ServerState_Installing",
-                    ServerStatus.Starting   => "ServerState_Starting",
-                    ServerStatus.Stopping   => "ServerState_Stopping",
-                    _                       => "ServerStatus_Unknown"
-                });
-            }
-
-            if (existing.TryGetValue(proto.Id, out var item)) {
-                item.ProgressTracker = tracker;
-                item.Apply(proto);
-                if (TryGetPendingUpdate(proto.Id, out var pending))
-                    item.ApplyLocal(pending);
-            } else {
-                var newItem =
-                    new ServerItem(proto, _localizer, ProviderCatalog,
-                                   _dispatcher) { ProgressTracker = tracker };
-                if (TryGetPendingUpdate(proto.Id, out var pending))
-                    newItem.ApplyLocal(pending);
-                Servers.Add(newItem);
-                NavigationItems.Add(newItem);
-            }
-        }
+        foreach (var proto in list)
+            UpsertServer(proto);
 
         var keep = list.Select(p => p.Id).ToHashSet();
         for (var i = Servers.Count - 1; i >= 0; i--) {
-            if (!keep.Contains(Servers[i].Id)) {
-                var removed = Servers[i];
-                Servers.RemoveAt(i);
-                NavigationItems.Remove(removed);
-            }
+            if (!keep.Contains(Servers[i].Id))
+                RemoveServer(Servers[i].Id);
         }
 
-        for (var targetIndex = 0; targetIndex < list.Count; targetIndex++) {
-            var id = list[targetIndex].Id;
-            var currentIndex =
-                Servers.Select((server, index) => (server, index))
-                    .FirstOrDefault(pair => pair.server.Id == id)
-                    .index;
-            if (currentIndex != targetIndex && currentIndex >= 0) {
+        ReorderServers(_serverState.Servers.Select(server => server.Id));
+        OnServerStatsChanged();
+    }
+
+    private void ApplyServerChange(ServerChangeEvent change) {
+        _serverState.Apply(change);
+        switch (change.ChangeCase) {
+        case ServerChangeEvent.ChangeOneofCase.Upsert:
+            UpsertServer(change.Upsert);
+            ReorderServers(_serverState.Servers.Select(server => server.Id));
+            break;
+        case ServerChangeEvent.ChangeOneofCase.Deleted:
+            RemoveServer(change.Deleted.Id);
+            break;
+        }
+        OnServerStatsChanged();
+    }
+
+    private void UpsertServer(Server proto) {
+        var tracker =
+            ProgressService.GetOrCreateTracker(proto.Id, proto.Name);
+        if (proto.Status is not(ServerStatus.Installing or ServerStatus.Starting
+                                    or ServerStatus.Stopping)) {
+            if (tracker.IsActive)
+                tracker.IsActive = false;
+        } else {
+            if (!tracker.IsActive)
+                tracker.IsActive = true;
+            tracker.CurrentStep = _localizer.Get(proto.Status switch {
+                ServerStatus.Installing => "ServerState_Installing",
+                ServerStatus.Starting   => "ServerState_Starting",
+                ServerStatus.Stopping   => "ServerState_Stopping",
+                _                       => "ServerStatus_Unknown"
+            });
+        }
+
+        var item = Servers.FirstOrDefault(server => server.Id == proto.Id);
+        if (item is not null) {
+            item.ProgressTracker = tracker;
+            item.Apply(proto);
+            if (TryGetPendingUpdate(proto.Id, out var pending))
+                item.ApplyLocal(pending);
+            return;
+        }
+
+        var newItem = new ServerItem(proto, _localizer, ProviderCatalog,
+                                     _dispatcher) {
+            ProgressTracker = tracker
+        };
+        if (TryGetPendingUpdate(proto.Id, out var newPending))
+            newItem.ApplyLocal(newPending);
+        Servers.Add(newItem);
+        NavigationItems.Add(newItem);
+    }
+
+    private void RemoveServer(string serverId) {
+        var item = Servers.FirstOrDefault(server => server.Id == serverId);
+        if (item is null)
+            return;
+        Servers.Remove(item);
+        NavigationItems.Remove(item);
+    }
+
+    private void ReorderServers(IEnumerable<string> orderedIds) {
+        var targetIndex = 0;
+        foreach (var id in orderedIds) {
+            var currentIndex = -1;
+            for (var i = 0; i < Servers.Count; i++) {
+                if (Servers[i].Id != id)
+                    continue;
+                currentIndex = i;
+                break;
+            }
+            if (currentIndex < 0)
+                continue;
+            if (currentIndex != targetIndex) {
                 Servers.Move(currentIndex, targetIndex);
                 NavigationItems.Move(currentIndex + 1, targetIndex + 1);
             }
+            targetIndex++;
         }
-
-        OnServerStatsChanged();
     }
 
     private static UpdateServerRequest BuildUpdateRequest(ServerItem item) =>
@@ -474,11 +505,16 @@ public partial class MainViewModel : ObservableObject {
         OnPropertyChanged(nameof(BusyServers));
     }
 
-    private void StartAutoRefresh() {
-        _refreshTimer                 = _dispatcher.CreateTimer();
-        _refreshTimer.Interval        = TimeSpan.FromSeconds(3);
-        _refreshTimer.Tick += (_, _) => _ = RefreshAsync();
-        _refreshTimer.Start();
+    private Task RunServerChangesAsync(DaemonClient daemon) =>
+        _serverChanges.RunAsync(
+            new GrpcServerChangeSource(daemon.Servers),
+            servers => RunOnUI(() => MergeServers(servers)),
+            change => RunOnUI(() => ApplyServerChange(change)),
+            _serverChangesCts.Token);
+
+    public void Dispose() {
+        _serverChangesCts.Cancel();
+        _serverChangesCts.Dispose();
     }
 
     private static string MapErrorKey(RpcException ex) => ex.StatusCode switch {

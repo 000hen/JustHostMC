@@ -125,6 +125,7 @@ public sealed partial class MainWindow : Window {
     }
 
     private void OnClosed(object sender, WindowEventArgs args) {
+        Shell.Main.Dispose();
         if (_hwnd != IntPtr.Zero)
             RemoveWindowSubclass(_hwnd, _subclassProc, MinWindowSubclassId);
 

@@ -216,13 +216,13 @@
                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                         Style="{StaticResource CaptionTextBlockStyle}"
                         TextWrapping="Wrap"
-                        Visibility="{x:Bind Mods.CanModify, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                        Visibility="{x:Bind Mods.IsServerStopped, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
                     <TextBlock
                         x:Uid="ModsStoppedHint"
                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                         Style="{StaticResource CaptionTextBlockStyle}"
                         TextWrapping="Wrap"
-                        Visibility="{x:Bind Mods.CanModify, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
+                        Visibility="{x:Bind Mods.IsServerStopped, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
                     <TextBlock
                         x:Uid="ModsUnsupportedHint"
                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"

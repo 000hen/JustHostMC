@@ -86,6 +86,10 @@ public sealed partial class ModsViewModel : ObservableObject {
 
     public bool AcceptsLiteMod { get; private set; }
 
+    /// <summary>Whether the server lifecycle permits mod changes, independent
+    /// of loading, support, and operation-progress gates.</summary>
+    public bool IsServerStopped => _serverStopped;
+
     /// <summary>The folder kind reported by the engine (plugins vs mods),
     /// used as the shop's project-type pre-filter.</summary>
     public ModKind Kind { get; private set; } = ModKind.Mod;
@@ -126,7 +130,10 @@ public sealed partial class ModsViewModel : ObservableObject {
     /// <summary>Updates the stopped-server gate that allows
     /// upload/remove.</summary>
     public void SetServerStopped(bool stopped) {
-        _serverStopped = stopped;
+        if (_serverStopped != stopped) {
+            _serverStopped = stopped;
+            OnPropertyChanged(nameof(IsServerStopped));
+        }
         RecomputeCanModify();
     }
 

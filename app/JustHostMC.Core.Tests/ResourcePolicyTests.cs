@@ -62,16 +62,71 @@ public sealed class ResourcePolicyTests {
         }
     }
 
-    [Theory]
-    [InlineData("Controls/Server/ServerConfigPanel.xaml", "ServerSectionConfig")]
-    [InlineData("Controls/Server/ServerModsPanel.xaml", "ServerSectionMods")]
-    [InlineData("Controls/Server/ServerPerformancePanel.xaml", "ServerSectionPerformance")]
-    public void ServerPanelLayoutUidsDoNotReuseNavigationItemUids(
-        string relativePath, string navigationUid) {
-        var source = File.ReadAllText(Path.Combine(
-            AppRoot, relativePath.Replace('/', Path.DirectorySeparatorChar)));
-        Assert.DoesNotContain($"x:Uid=\"{navigationUid}\"", source,
+    [Fact]
+    public void ServerModsDescriptionsUseLifecycleStateIndependentOfModificationCapability() {
+        var viewModelSource = File.ReadAllText(Path.Combine(
+            AppRoot, "ViewModels", "ModsViewModel.cs"));
+        Assert.Contains("public bool IsServerStopped", viewModelSource,
+                        StringComparison.Ordinal);
+        Assert.Contains("OnPropertyChanged(nameof(IsServerStopped))", viewModelSource,
+                        StringComparison.Ordinal);
+
+        var panel = XDocument.Load(Path.Combine(
+            AppRoot, "Controls", "Server", "ServerModsPanel.xaml"));
+        XNamespace x = "http://schemas.microsoft.com/winfx/2006/xaml";
+        string VisibilityFor(string uid) => panel.Descendants()
+            .Single(element => (string?)element.Attribute(x + "Uid") == uid)
+            .Attribute("Visibility")!.Value;
+
+        var stoppedVisibility = VisibilityFor("ServerSectionModsHint");
+        var runningVisibility = VisibilityFor("ModsStoppedHint");
+        Assert.Contains("Mods.IsServerStopped", stoppedVisibility,
+                        StringComparison.Ordinal);
+        Assert.DoesNotContain("ConverterParameter=invert", stoppedVisibility,
                               StringComparison.Ordinal);
+        Assert.Contains("Mods.IsServerStopped", runningVisibility,
+                        StringComparison.Ordinal);
+        Assert.Contains("ConverterParameter=invert", runningVisibility,
+                        StringComparison.Ordinal);
+        Assert.DoesNotContain("Mods.CanModify", stoppedVisibility,
+                              StringComparison.Ordinal);
+        Assert.DoesNotContain("Mods.CanModify", runningVisibility,
+                              StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ServerPanelLayoutUidsDoNotReuseNavigationItemUids() {
+        XNamespace x = "http://schemas.microsoft.com/winfx/2006/xaml";
+        var navigationUids = XDocument.Load(Path.Combine(
+                AppRoot, "Views", "ServerPage.xaml"))
+            .Descendants()
+            .Where(element => element.Name.LocalName == "SelectorBarItem")
+            .Select(element => (string?)element.Attribute(x + "Uid"))
+            .Where(uid => uid is not null)
+            .Cast<string>()
+            .ToHashSet(StringComparer.Ordinal);
+        var resources = LoadResourceMap("en-US");
+        var panels = new[] {
+            (Path: "Controls/Server/ServerConfigPanel.xaml",
+             Uid: "ServerSectionConfigPanel",
+             Properties: new[] { "Title" }),
+            (Path: "Controls/Server/ServerModsPanel.xaml",
+             Uid: "ServerSectionModsPanel",
+             Properties: new[] { "Title" }),
+            (Path: "Controls/Server/ServerPerformancePanel.xaml",
+             Uid: "ServerSectionPerformancePanel",
+             Properties: new[] { "Title", "Description" }),
+        };
+
+        foreach (var panel in panels) {
+            var source = File.ReadAllText(Path.Combine(
+                AppRoot, panel.Path.Replace('/', Path.DirectorySeparatorChar)));
+            Assert.DoesNotContain(panel.Uid, navigationUids);
+            Assert.Contains($"x:Uid=\"{panel.Uid}\"", source,
+                            StringComparison.Ordinal);
+            foreach (var property in panel.Properties)
+                Assert.Contains($"{panel.Uid}.{property}", resources.Keys);
+        }
     }
 
     [Fact]

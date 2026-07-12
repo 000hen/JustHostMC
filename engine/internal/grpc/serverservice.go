@@ -3,6 +3,7 @@ package grpcsvc
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -15,6 +16,7 @@ import (
 	"github.com/000hen/justhostmc/engine/internal/isolation"
 	"github.com/000hen/justhostmc/engine/internal/jre"
 	"github.com/000hen/justhostmc/engine/internal/logging"
+	"github.com/000hen/justhostmc/engine/internal/modpack"
 	"github.com/000hen/justhostmc/engine/internal/provider"
 	"github.com/000hen/justhostmc/engine/internal/scripting"
 	"github.com/000hen/justhostmc/engine/internal/store"
@@ -38,6 +40,9 @@ type ServerServiceConfig struct {
 	// OnExit, if set, is called after a server's instance exits (stop or crash),
 	// e.g. to reset the player event bus roster for that server.
 	OnExit func(id string)
+	// HTTP, if set, is used for engine-side downloads outside the scripting
+	// host (modpack export); nil falls back to http.DefaultClient.
+	HTTP *http.Client
 }
 
 // ServerService implements the ServerService RPCs: it orchestrates the provider
@@ -442,6 +447,43 @@ func (s *ServerService) UpdateModpack(req *mcmanagerv1.UpdateModpackRequest, str
 	_ = s.cfg.Store.Put(rec)
 
 	send(provider.Progress{Step: "install.progress.done", Fraction: 1})
+	return nil
+}
+
+// ExportModpack writes a CurseForge-format client pack zip for a modpack
+// server. Read-only with respect to the server dir, so it is allowed while the
+// server runs.
+func (s *ServerService) ExportModpack(req *mcmanagerv1.ExportModpackRequest, stream grpc.ServerStreamingServer[mcmanagerv1.InstallProgress]) error {
+	rec, ok := s.cfg.Store.Get(req.Id)
+	if !ok {
+		return status.Error(codes.NotFound, "server not found")
+	}
+	// Export builds the manifest from the FTB API; other (future) modpack
+	// providers would need their own manifest source.
+	if rec.ProviderVersion == "" || rec.ProviderID != "ftb" {
+		return errorStatus(codes.FailedPrecondition, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED,
+			"server was not installed from an FTB modpack", nil)
+	}
+	dest := req.DestPath
+	if !filepath.IsAbs(dest) || !strings.EqualFold(filepath.Ext(dest), ".zip") {
+		return status.Error(codes.InvalidArgument, "dest_path must be an absolute .zip path")
+	}
+
+	client := s.cfg.HTTP
+	if client == nil {
+		client = http.DefaultClient
+	}
+	send := newProgressSender(stream)
+	if err := modpack.Export(stream.Context(), client, modpack.Options{
+		ServerDir:   s.cfg.Paths.ServerDir(rec.ID),
+		DestZip:     dest,
+		PackVersion: rec.ProviderVersion,
+		ServerName:  rec.Name,
+	}, send); err != nil {
+		send(provider.Progress{LogLine: "[error] " + err.Error()})
+		return status.Errorf(codes.Internal, "export modpack: %v", err)
+	}
+	send(provider.Progress{Step: "shop.export.done", Fraction: 1})
 	return nil
 }
 

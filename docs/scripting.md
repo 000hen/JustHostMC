@@ -529,8 +529,8 @@ user shops are imported via `ShopService.Import` and stored under
 `<data>/shops/`. Grants persist in `shop-grants.json`.
 
 A shop script declares the usual `meta` table (plus `needs_key = true` when
-the source requires an API key) and five globals, each taking one ctx table
-and returning one table:
+the source requires an API key), five required globals, and an optional
+`categories(ctx)` global. Each takes one ctx table and returns one table:
 
 ```lua
 meta = {
@@ -541,6 +541,9 @@ meta = {
 
 function home(ctx)         -- ctx: mc_version, loader, kind ("mod"|"plugin"), config
   return { sections = { { title_key = "shop.home.popular", projects = { ... } } } }
+end
+function categories(ctx)   -- optional; ctx: kind, config
+  return { categories = { { id=, name=, slug=, localization_key= } } }
 end
 function search(ctx)       -- + query, sort ("relevance"|"downloads"|"follows"|"newest"|"updated"), offset, limit
   return { projects = { ... }, total = 123 }
@@ -561,14 +564,24 @@ end
 ```
 
 A project table carries `project_id, slug, title, summary, icon_url, author,
-downloads, follows, categories, project_type`. Keyed sources read
-`ctx.config.api_key` (user settings override a build-time default). Raise
+downloads, follows, categories, project_type`, plus optional `distribution`:
+`"direct"` permits an API install, `"website_only"` tells the app to replace
+Install with a source-named website action, and an absent/unknown value keeps
+the guarded install behavior for backward compatibility. Category entries use
+their source-native `id` for search; `name` is the display fallback, `slug`
+identifies the source category, and `localization_key` is optional. Shops that
+omit `categories(ctx)` expose no category filters.
+
+Keyed sources read `ctx.config.api_key` (user settings override a build-time
+default). Raise
 `error("... not found")` / `error("... not distributable")` to surface the
 typed `SHOP_PROJECT_NOT_FOUND` / `SHOP_FILE_NOT_DISTRIBUTABLE` errors.
 
 Use `jhmc.http_cache{ url=, headers=, ttl= }` for GETs: it is a disk-backed
 ETag cache (`If-None-Match`/304), so repeated detail views cost a cheap
 revalidation; `ttl` seconds within which no request is made at all.
+The built-in CurseForge shop uses a 24-hour (`86400` second) TTL for its
+class-specific category list and keeps Mods and Plugins in separate cache keys.
 
 ## 10. Extending: fetching data from online services
 

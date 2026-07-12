@@ -7,7 +7,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"sync/atomic"
 	"testing"
+
+	"github.com/000hen/justhostmc/engine/internal/httpcache"
 )
 
 // rewriteTransport sends every request to the test server regardless of the
@@ -29,7 +32,9 @@ func newBuiltinShops(t *testing.T, handler http.Handler) *ShopSet {
 	t.Cleanup(srv.Close)
 	u, _ := url.Parse(srv.URL)
 	client := &http.Client{Transport: rewriteTransport{target: u}}
-	ss := NewShopSet(NewHost(client, nil, nil), nil, func(id string) string {
+	host := NewHost(client, nil, nil)
+	host.SetHTTPCache(httpcache.New(t.TempDir(), 0))
+	ss := NewShopSet(host, nil, func(id string) string {
 		if id == "curseforge" {
 			return "test-key"
 		}
@@ -163,6 +168,7 @@ func TestCurseForgeSearchParams(t *testing.T) {
 
 	page, err := sh.Search(context.Background(), ShopQuery{
 		Query: "jei", MCVersion: "26.1", Loader: "neoforge", Kind: "mod", Sort: "downloads", Limit: 20,
+		Categories: []string{"409", "410"},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -172,12 +178,88 @@ func TestCurseForgeSearchParams(t *testing.T) {
 	}
 	if got.Get("gameId") != "432" || got.Get("classId") != "6" || got.Get("sortField") != "6" ||
 		got.Get("gameVersion") != "26.1" || got.Get("modLoaderType") != "6" ||
-		got.Get("searchFilter") != "jei" {
+		got.Get("searchFilter") != "jei" || got.Get("categoryIds") != "409,410" {
 		t.Fatalf("params: %v", got)
 	}
 	if page.Total != 55 || len(page.Projects) != 1 || page.Projects[0].ID != "310806" ||
 		page.Projects[0].Author != "mezz" {
 		t.Fatalf("page: %+v", page)
+	}
+}
+
+func TestCurseForgeCategoriesAreClassSpecificAndCached(t *testing.T) {
+	var requests atomic.Int32
+	var got url.Values
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/v1/categories" {
+			http.NotFound(w, r)
+			return
+		}
+		requests.Add(1)
+		got = r.URL.Query()
+		_ = json.NewEncoder(w).Encode(map[string]any{"data": []map[string]any{
+			{"id": 6, "name": "Mods", "slug": "mods", "isClass": true, "classId": 6},
+			{"id": 409, "name": "Technology", "slug": "technology", "isClass": false, "classId": 6},
+			{"id": 999, "name": "Wrong class", "slug": "wrong", "isClass": false, "classId": 5},
+		}})
+	})
+	ss := newBuiltinShops(t, handler)
+	sh, _ := ss.Get("curseforge")
+
+	for range 2 {
+		categories, err := sh.Categories(context.Background(), "mod")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(categories) != 1 || categories[0].ID != "409" ||
+			categories[0].LocalizationKey != "shop.category.curseforge.technology" {
+			t.Fatalf("categories: %#v", categories)
+		}
+	}
+	if got.Get("gameId") != "432" || got.Get("classId") != "6" {
+		t.Fatalf("category params: %v", got)
+	}
+	if requests.Load() != 1 {
+		t.Fatalf("category requests = %d, want 1", requests.Load())
+	}
+}
+
+func TestCurseForgeDistribution(t *testing.T) {
+	tests := []struct {
+		name  string
+		allow any
+		want  ShopDistribution
+	}{
+		{name: "website only", allow: false, want: ShopDistributionWebsiteOnly},
+		{name: "direct", allow: true, want: ShopDistributionDirect},
+		{name: "unknown", allow: nil, want: ShopDistributionUnknown},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				switch r.URL.Path {
+				case "/v1/mods/1":
+					_ = json.NewEncoder(w).Encode(map[string]any{"data": map[string]any{
+						"id": 1, "name": "Project", "slug": "project", "classId": 6,
+						"allowModDistribution": tt.allow,
+						"links":                map[string]any{"websiteUrl": "https://www.curseforge.com/project"},
+					}})
+				case "/v1/mods/1/description":
+					_ = json.NewEncoder(w).Encode(map[string]any{"data": "description"})
+				default:
+					http.NotFound(w, r)
+				}
+			})
+			ss := newBuiltinShops(t, handler)
+			sh, _ := ss.Get("curseforge")
+			detail, err := sh.Detail(context.Background(), "1")
+			if err != nil {
+				t.Fatal(err)
+			}
+			if detail.Project.Distribution != tt.want {
+				t.Fatalf("distribution = %q, want %q", detail.Project.Distribution, tt.want)
+			}
+		})
 	}
 }
 

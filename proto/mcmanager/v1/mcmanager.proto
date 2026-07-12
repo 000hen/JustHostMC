@@ -549,6 +549,12 @@ message ImportShopRequest {
 }
 
 // ShopProject is one browse/search result card.
+enum ShopDistribution {
+  SHOP_DISTRIBUTION_UNKNOWN = 0;
+  SHOP_DISTRIBUTION_DIRECT = 1;
+  SHOP_DISTRIBUTION_WEBSITE_ONLY = 2;
+}
+
 message ShopProject {
   string shop_id = 1;
   string project_id = 2;
@@ -561,6 +567,7 @@ message ShopProject {
   int64 follows = 9; // Modrinth follows / CurseForge thumbs-up; 0 when unknown
   repeated string categories = 10;
   string project_type = 11; // "mod" | "plugin" | ...
+  ShopDistribution distribution = 12;
 }
 
 // ShopPage is the common paging envelope for project lists.
@@ -603,6 +610,22 @@ message ShopSearchRequest {
   int32 offset = 7;
   int32 limit = 8; // clamped engine-side to the source's max page size
   repeated string categories = 9; // source category ids/slugs; any selected category may match
+}
+
+message ShopCategoriesRequest {
+  string shop_id = 1;
+  ModKind kind = 2;
+}
+
+message ShopCategory {
+  string id = 1;
+  string name = 2;
+  string slug = 3;
+  string localization_key = 4;
+}
+
+message ShopCategoryList {
+  repeated ShopCategory categories = 1;
 }
 
 message ShopProjectRequest {
@@ -794,6 +817,7 @@ service ParserService {
 // installs into a server's mods|plugins folder.
 service ShopService {
   rpc List(Empty) returns (ShopList);
+  rpc GetCategories(ShopCategoriesRequest) returns (ShopCategoryList);
   rpc Home(ShopHomeRequest) returns (ShopHomeReply); // landing-page sections (trending/popular)
   rpc Search(ShopSearchRequest) returns (ShopPage);
   rpc GetProject(ShopProjectRequest) returns (ShopProjectDetail);

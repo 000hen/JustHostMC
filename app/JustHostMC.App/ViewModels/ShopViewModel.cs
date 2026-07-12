@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using JustHostMC.App.Models;
 using JustHostMC.App.Services;
+using JustHostMC.Core;
 using McManager.Grpc;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml.Data;
@@ -19,6 +20,7 @@ public sealed partial class ShopViewModel : ObservableObject {
     private readonly DispatcherQueue _dispatcher;
     private readonly ILocalizer _localizer;
     private int _homeGeneration;
+    private int _categoryGeneration;
 
     public ShopViewModel(ShopContext context, DispatcherQueue dispatcher,
                          ILocalizer localizer) {
@@ -99,13 +101,46 @@ public sealed partial class ShopViewModel : ObservableObject {
         StatusMessage = "";
 
         OnPropertyChanged(nameof(SelectedShopName));
+        var categoryGeneration = Interlocked.Increment(ref _categoryGeneration);
         CategoryFilters.Clear();
         if (value?.Id == "modrinth") {
             foreach (var id in ModrinthCategories)
                 CategoryFilters.Add(new ShopCategoryFilter(
                     id, _localizer.Get($"shop.category.{id}")));
+        } else if (value?.Ready == true) {
+            _ = LoadCategoriesAsync(value, categoryGeneration);
         }
         OnPropertyChanged(nameof(HasCategoryFilters));
+    }
+
+    private async Task LoadCategoriesAsync(ShopInfo shop, int generation) {
+        try {
+            var daemon = await App.Current.DaemonReady;
+            var reply  = await daemon.Shop.GetCategoriesAsync(
+                new ShopCategoriesRequest {
+                    ShopId = shop.Id,
+                    Kind   = Context.Kind,
+                },
+                deadline: DateTime.UtcNow.AddSeconds(30));
+            var filters =
+                reply.Categories
+                    .Select(category => new ShopCategoryFilter(
+                                category.Id,
+                                ShopPresentationPolicy.ResolveCategoryLabel(
+                                    category, _localizer.Get)))
+                    .ToArray();
+            await RunOnUIAsync(() => {
+                if (generation != _categoryGeneration ||
+                    SelectedShop?.Id != shop.Id)
+                    return;
+                CategoryFilters.Clear();
+                foreach (var filter in filters) CategoryFilters.Add(filter);
+                OnPropertyChanged(nameof(HasCategoryFilters));
+            });
+        } catch {
+            // Categories are optional. Browsing and unfiltered search remain
+            // available when a source cannot provide them.
+        }
     }
 
     private static readonly string[] ModrinthCategories = [

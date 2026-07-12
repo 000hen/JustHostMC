@@ -60,6 +60,20 @@ func (s *ShopService) List(_ context.Context, _ *mcmanagerv1.Empty) (*mcmanagerv
 	return &mcmanagerv1.ShopList{Shops: out}, nil
 }
 
+func (s *ShopService) GetCategories(ctx context.Context, req *mcmanagerv1.ShopCategoriesRequest) (*mcmanagerv1.ShopCategoryList, error) {
+	sh, err := s.shop(req.ShopId)
+	if err != nil {
+		return nil, err
+	}
+	categories, err := sh.Categories(ctx, kindString(req.Kind))
+	if err != nil {
+		return nil, mapShopError(err)
+	}
+	return &mcmanagerv1.ShopCategoryList{
+		Categories: categoriesToProto(categories),
+	}, nil
+}
+
 func (s *ShopService) Home(ctx context.Context, req *mcmanagerv1.ShopHomeRequest) (*mcmanagerv1.ShopHomeReply, error) {
 	sh, err := s.shop(req.ShopId)
 	if err != nil {
@@ -429,16 +443,41 @@ func projectsToProto(shopID string, in []scripting.ShopProject) []*mcmanagerv1.S
 
 func projectToProto(shopID string, p scripting.ShopProject) *mcmanagerv1.ShopProject {
 	return &mcmanagerv1.ShopProject{
-		ShopId:      shopID,
-		ProjectId:   p.ID,
-		Slug:        p.Slug,
-		Title:       p.Title,
-		Summary:     p.Summary,
-		IconUrl:     p.IconURL,
-		Author:      p.Author,
-		Downloads:   p.Downloads,
-		Follows:     p.Follows,
-		Categories:  p.Categories,
-		ProjectType: p.ProjectType,
+		ShopId:       shopID,
+		ProjectId:    p.ID,
+		Slug:         p.Slug,
+		Title:        p.Title,
+		Summary:      p.Summary,
+		IconUrl:      p.IconURL,
+		Author:       p.Author,
+		Downloads:    p.Downloads,
+		Follows:      p.Follows,
+		Categories:   p.Categories,
+		ProjectType:  p.ProjectType,
+		Distribution: distributionToProto(p.Distribution),
 	}
+}
+
+func distributionToProto(distribution scripting.ShopDistribution) mcmanagerv1.ShopDistribution {
+	switch distribution {
+	case scripting.ShopDistributionDirect:
+		return mcmanagerv1.ShopDistribution_SHOP_DISTRIBUTION_DIRECT
+	case scripting.ShopDistributionWebsiteOnly:
+		return mcmanagerv1.ShopDistribution_SHOP_DISTRIBUTION_WEBSITE_ONLY
+	default:
+		return mcmanagerv1.ShopDistribution_SHOP_DISTRIBUTION_UNKNOWN
+	}
+}
+
+func categoriesToProto(categories []scripting.ShopCategory) []*mcmanagerv1.ShopCategory {
+	out := make([]*mcmanagerv1.ShopCategory, 0, len(categories))
+	for _, category := range categories {
+		out = append(out, &mcmanagerv1.ShopCategory{
+			Id:              category.ID,
+			Name:            category.Name,
+			Slug:            category.Slug,
+			LocalizationKey: category.LocalizationKey,
+		})
+	}
+	return out
 }

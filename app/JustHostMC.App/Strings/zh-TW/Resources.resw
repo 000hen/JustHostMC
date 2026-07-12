@@ -508,7 +508,6 @@
   <data name="Scripts.SystemLogName" xml:space="preserve"><value>系統</value></data>
   <data name="Scripts.LogEntryFallbackTitle" xml:space="preserve"><value>日誌項目</value></data>
   <data name="Scripts.OpenFolderFailed" xml:space="preserve"><value>無法開啟腳本資料夾。</value></data>
-  <data name="PermissionConsentDialog_Title" xml:space="preserve"><value>檢視權限</value></data>
   <data name="PermissionConsentDialog.PrimaryButtonText" xml:space="preserve"><value>允許所選</value></data>
   <data name="PermissionConsentDialog.CloseButtonText" xml:space="preserve"><value>取消</value></data>
   <data name="PermissionConsentIntro.Text" xml:space="preserve"><value>此腳本要求以下權限。請僅允許您信任的項目。</value></data>
@@ -529,10 +528,8 @@
   <data name="Scripts.BuiltinProtected" xml:space="preserve"><value>內建腳本無法修改。</value></data>
   <data name="Scripts.NotAvailable" xml:space="preserve"><value>自動化引擎尚未可用。</value></data>
   <data name="Scripts.OperationFailed" xml:space="preserve"><value>操作失敗，請再試一次。</value></data>
-  <data name="Scripts_RemoveConfirmTitle" xml:space="preserve"><value>移除腳本</value></data>
   <data name="Scripts.RemoveConfirmBody" xml:space="preserve"><value>要移除「{name}」嗎？此操作無法復原。</value></data>
   <data name="Scripts.RemoveConfirmPrimary" xml:space="preserve"><value>移除</value></data>
-  <data name="Scripts_RemoveConfirmCancel" xml:space="preserve"><value>取消</value></data>
   <data name="PermissionConsentTitleNamed" xml:space="preserve"><value>檢視權限 — {name}</value></data>
   <data name="CreateServer.ProviderAuthor" xml:space="preserve"><value>作者：{author}</value></data>
   <data name="CreateServerProviderWebsite.Content" xml:space="preserve"><value>造訪網站</value></data>

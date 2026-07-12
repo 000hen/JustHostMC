@@ -539,7 +539,6 @@
   <data name="Scripts.SystemLogName" xml:space="preserve"><value>System</value></data>
   <data name="Scripts.LogEntryFallbackTitle" xml:space="preserve"><value>Log entry</value></data>
   <data name="Scripts.OpenFolderFailed" xml:space="preserve"><value>Could not open the scripts folder.</value></data>
-  <data name="PermissionConsentDialog_Title" xml:space="preserve"><value>Review permissions</value></data>
   <data name="PermissionConsentDialog.PrimaryButtonText" xml:space="preserve"><value>Allow selected</value></data>
   <data name="PermissionConsentDialog.CloseButtonText" xml:space="preserve"><value>Cancel</value></data>
   <data name="PermissionConsentIntro.Text" xml:space="preserve"><value>This script requests the following permissions. Allow only what you trust it to do.</value></data>
@@ -560,10 +559,8 @@
   <data name="Scripts.BuiltinProtected" xml:space="preserve"><value>Built-in scripts cannot be modified.</value></data>
   <data name="Scripts.NotAvailable" xml:space="preserve"><value>The automation engine is not available yet.</value></data>
   <data name="Scripts.OperationFailed" xml:space="preserve"><value>The operation failed. Please try again.</value></data>
-  <data name="Scripts_RemoveConfirmTitle" xml:space="preserve"><value>Remove script</value></data>
   <data name="Scripts.RemoveConfirmBody" xml:space="preserve"><value>Remove “{name}”? This cannot be undone.</value></data>
   <data name="Scripts.RemoveConfirmPrimary" xml:space="preserve"><value>Remove</value></data>
-  <data name="Scripts_RemoveConfirmCancel" xml:space="preserve"><value>Cancel</value></data>
   <data name="PermissionConsentTitleNamed" xml:space="preserve"><value>Review permissions — {name}</value></data>
   <data name="CreateServer.ProviderAuthor" xml:space="preserve"><value>by {author}</value></data>
   <data name="CreateServerProviderWebsite.Content" xml:space="preserve"><value>Visit website</value></data>

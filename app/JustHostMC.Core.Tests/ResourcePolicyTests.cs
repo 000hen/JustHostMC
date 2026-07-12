@@ -47,14 +47,40 @@ public sealed class ResourcePolicyTests {
 
     [Fact]
     public void ProgrammaticKeysDoNotUseUnderscoreSeparators() {
+        var resourceNames = LoadResources("en-US")
+            .Select(ResourceName)
+            .ToHashSet(StringComparer.Ordinal);
         var offenders = Directory.EnumerateFiles(AppRoot, "*.cs", SearchOption.AllDirectories)
-            .SelectMany(path => File.ReadLines(path)
-                .Select((line, index) => (path, line, number: index + 1)))
-            .Where(item => Regex.IsMatch(
-                item.line,
-                @"\.Get\(\s*""[A-Za-z0-9]+_[A-Za-z0-9_]"))
-            .Select(item => $"{Path.GetRelativePath(Root, item.path)}:{item.number}");
+            .SelectMany(path => ResourceKeyLiterals(File.ReadAllText(path), resourceNames)
+                .Select(item => $"{Path.GetRelativePath(Root, path)}:{item.Line} ({item.Key})"));
         Assert.Empty(offenders);
+    }
+
+    [Fact]
+    public void ProgrammaticKeyPolicyCoversMappedAndPrefixedLiterals() {
+        const string source = """
+            localizer.Get(state switch {
+                State.Running => "ServerStatus_Running",
+                _ => ResourceKey("ServerStatus_", state),
+            });
+            """;
+        var resources = new HashSet<string>(StringComparer.Ordinal) {
+            "ServerStatus.Running",
+            "ServerStatus.Stopped",
+        };
+
+        Assert.Equal(
+            ["ServerStatus_Running", "ServerStatus_"],
+            ResourceKeyLiterals(source, resources).Select(item => item.Key));
+    }
+
+    [Theory]
+    [InlineData("PermissionConsentDialog_Title")]
+    [InlineData("Scripts_RemoveConfirmTitle")]
+    [InlineData("Scripts_RemoveConfirmCancel")]
+    public void ObsoleteResourceAliasesAreAbsent(string alias) {
+        Assert.DoesNotContain(alias, LoadResourceMap("en-US").Keys);
+        Assert.DoesNotContain(alias, LoadResourceMap("zh-TW").Keys);
     }
 
     private static IReadOnlyList<XElement> LoadResources(string language) =>
@@ -69,6 +95,32 @@ public sealed class ResourcePolicyTests {
 
     private static string ResourceName(XElement element) =>
         element.Attribute("name")!.Value;
+
+    private static IEnumerable<(string Key, int Line)> ResourceKeyLiterals(
+        string source,
+        IReadOnlySet<string> resourceNames) =>
+        Regex.Matches(source, @"""(?:\\.|[^""\\])*""")
+            .Select(match => (
+                Key: match.Value[1..^1],
+                Line: source.AsSpan(0, match.Index).Count('\n') + 1))
+            .Where(item => IsUnderscoreSeparatedResource(item.Key, resourceNames));
+
+    private static bool IsUnderscoreSeparatedResource(
+        string candidate,
+        IReadOnlySet<string> resourceNames) {
+        if (!candidate.Contains('_', StringComparison.Ordinal))
+            return false;
+        if (resourceNames.Contains(candidate))
+            return !candidate.Contains('.', StringComparison.Ordinal) ||
+                Regex.IsMatch(candidate, @"_[A-Z]");
+        return resourceNames.Any(resource =>
+            candidate.Length <= resource.Length &&
+            candidate.Select((character, index) => (character, index)).All(item =>
+                item.character == resource[item.index] ||
+                item.character == '_' && resource[item.index] == '.') &&
+            candidate.Select((character, index) =>
+                character == '_' && resource[index] == '.').Any(matches => matches));
+    }
 
     private static string[] Placeholders(string value) =>
         Regex.Matches(value, @"\{[A-Za-z][A-Za-z0-9_]*\}")

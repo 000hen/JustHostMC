@@ -420,7 +420,7 @@
         </Grid>
 
         <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
-            <ItemsRepeater ItemTemplate="{StaticResource HomeCardSelector}" ItemsSource="{x:Bind Cards}">
+            <ItemsRepeater ItemTemplate="{StaticResource HomeCardSelector}" ItemsSource="{x:Bind Cards}" Margin="0,0,0,24">
                 <ItemsRepeater.Layout>
                     <UniformGridLayout
                         ItemsStretch="Fill"

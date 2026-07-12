@@ -25,7 +25,7 @@ const fixtureManifest = `{
   ],
   "files": [
     { "path": "./mods/", "name": "server-mod.jar", "clientonly": false,
-      "curseforge": { "project": 111, "file": 1111 } },
+      "curseforge": { "project": "111", "file": "1111" } },
     { "path": "./mods/", "name": "client-mod.jar", "clientonly": true,
       "curseforge": { "project": 222, "file": 2222 } },
     { "path": "./config/", "name": "pack.toml", "clientonly": false,

@@ -15,6 +15,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/000hen/justhostmc/engine/internal/provider"
@@ -50,14 +51,32 @@ type ftbManifest struct {
 	Files []ftbFile `json:"files"`
 }
 
+// flexInt64 accepts both JSON numbers and numeric strings — the FTB API
+// serves curseforge ids as strings.
+type flexInt64 int64
+
+func (f *flexInt64) UnmarshalJSON(b []byte) error {
+	s := strings.Trim(string(b), `"`)
+	if s == "" || s == "null" {
+		*f = 0
+		return nil
+	}
+	n, err := strconv.ParseInt(s, 10, 64)
+	if err != nil {
+		return fmt.Errorf("not a numeric id: %s", b)
+	}
+	*f = flexInt64(n)
+	return nil
+}
+
 type ftbFile struct {
 	Path       string `json:"path"`
 	Name       string `json:"name"`
 	URL        string `json:"url"`
 	Clientonly bool   `json:"clientonly"`
 	Curseforge *struct {
-		Project int64 `json:"project"`
-		File    int64 `json:"file"`
+		Project flexInt64 `json:"project"`
+		File    flexInt64 `json:"file"`
 	} `json:"curseforge"`
 }
 
@@ -155,9 +174,11 @@ func Export(ctx context.Context, client *http.Client, o Options, progress func(p
 			continue
 		}
 		switch {
-		case f.Curseforge != nil:
+		case f.Curseforge != nil && f.Curseforge.Project != 0 && f.Curseforge.File != 0:
 			out.Files = append(out.Files, cfFile{
-				ProjectID: f.Curseforge.Project, FileID: f.Curseforge.File, Required: true,
+				ProjectID: int64(f.Curseforge.Project),
+				FileID:    int64(f.Curseforge.File),
+				Required:  true,
 			})
 			covered[f.dest()] = true
 		case f.Clientonly && f.URL != "":

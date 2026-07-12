@@ -89,8 +89,8 @@ Baseline captured 2026-07-13. The baseline is **186** `ILocalizer.Get` occurrenc
 | `ViewModels/MainViewModel.cs:307` | `"ServerState.Starting"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
 | `ViewModels/MainViewModel.cs:330` | `"ServerState.Stopping"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
 | `ViewModels/MainViewModel.cs:359` | `step.Key` | BackendKey | Identifier arrives from a backend/provider payload; static XAML cannot select it | Retain dynamic lookup |
-| `ViewModels/MainViewModel.cs:394` | `ServerState_* selected by proto.Status` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
-| `ViewModels/ModsViewModel.cs:178` | `Mods_KindMod / Mods_KindPlugin` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
+| `ViewModels/MainViewModel.cs:394` | `ServerState.Installing / ServerState.Starting / ServerState.Stopping` selected by `proto.Status` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
+| `ViewModels/ModsViewModel.cs:178` | `Mods.KindMods / Mods.KindPlugins` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
 | `ViewModels/ModsViewModel.cs:321` | `MapErrorKey(ex)` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
 | `ViewModels/ModsViewModel.cs:337` | `MapErrorKey(ex)` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |
 | `ViewModels/ModsViewModel.cs:393` | `"Mods.ExportDone"` | DynamicState | Live model, command, validation, or RPC state selects the displayed resource | Retain state-dependent lookup |

@@ -117,6 +117,14 @@ message ServerList {
   repeated Server servers = 1;
 }
 
+message ServerChangeEvent {
+  oneof change {
+    Empty ready = 1;
+    Server upsert = 2;
+    ServerId deleted = 3;
+  }
+}
+
 message VersionQuery {
   string provider_id = 1;
 }
@@ -715,6 +723,7 @@ service EngineService {
 
 service ServerService {
   rpc List(Empty) returns (ServerList);
+  rpc WatchChanges(Empty) returns (stream ServerChangeEvent);
   rpc Create(CreateServerRequest) returns (stream InstallProgress); // last message implies done
   rpc Update(UpdateServerRequest) returns (Server);
   rpc Start(ServerId) returns (Empty);

@@ -162,7 +162,7 @@ end`
 func TestUnzipPrefix(t *testing.T) {
 	dir := t.TempDir()
 	writeTestJar(t, filepath.Join(dir, "pack.zip"), map[string]string{
-		"manifest.json":          `{"name":"x"}`,
+		"manifest.json":           `{"name":"x"}`,
 		"overrides/config/a.toml": "A",
 		"overrides/mods/m.jar":    "M",
 	})

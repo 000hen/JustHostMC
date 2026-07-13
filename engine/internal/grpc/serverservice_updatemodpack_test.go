@@ -120,6 +120,24 @@ func TestUpdateModpackRejectsNonModpackServer(t *testing.T) {
 	}
 }
 
+// TestUpdateModpackUnsupportedIsUnimplemented proves a provider that reports
+// ErrUpdateUnsupported (e.g. an imported pack, whose script has no update())
+// surfaces as gRPC Unimplemented, not Internal, and leaves the server STOPPED.
+func TestUpdateModpackUnsupportedIsUnimplemented(t *testing.T) {
+	prov := &updateStubProvider{updateErr: provider.ErrUpdateUnsupported}
+	svc, st, _ := modpackTestService(t, prov, mcmanagerv1.ServerStatus_STOPPED, "import/local")
+
+	err := svc.UpdateModpack(&mcmanagerv1.UpdateModpackRequest{Id: "s1", Version: "import/local"},
+		&fakeInstallStream{})
+	if status.Code(err) != codes.Unimplemented {
+		t.Fatalf("code = %v, want Unimplemented", status.Code(err))
+	}
+	rec, _ := st.Get("s1")
+	if rec.Status != mcmanagerv1.ServerStatus_STOPPED {
+		t.Errorf("status = %v, want restored STOPPED", rec.Status)
+	}
+}
+
 // TestUpdateModpackFailureLeavesInstallIntact proves an update error restores
 // STOPPED, keeps the record and the server dir — unlike Create's wipe.
 func TestUpdateModpackFailureLeavesInstallIntact(t *testing.T) {

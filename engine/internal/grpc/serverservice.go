@@ -458,11 +458,12 @@ func (s *ServerService) ExportModpack(req *mcmanagerv1.ExportModpackRequest, str
 	if !ok {
 		return status.Error(codes.NotFound, "server not found")
 	}
-	// Export builds the manifest from the FTB API; other (future) modpack
-	// providers would need their own manifest source.
-	if rec.ProviderVersion == "" || rec.ProviderID != "ftb" {
+	// Any modpack server can be exported: providers persist a normalized
+	// manifest (.jhmc/modpack.json) that Export reads, falling back to the FTB
+	// API only for legacy FTB servers installed before manifests were persisted.
+	if rec.ProviderVersion == "" {
 		return errorStatus(codes.FailedPrecondition, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED,
-			"server was not installed from an FTB modpack", nil)
+			"server was not installed from a modpack", nil)
 	}
 	dest := req.DestPath
 	if !filepath.IsAbs(dest) || !strings.EqualFold(filepath.Ext(dest), ".zip") {
@@ -479,6 +480,7 @@ func (s *ServerService) ExportModpack(req *mcmanagerv1.ExportModpackRequest, str
 		DestZip:     dest,
 		PackVersion: rec.ProviderVersion,
 		ServerName:  rec.Name,
+		ProviderID:  rec.ProviderID,
 	}, send); err != nil {
 		send(provider.Progress{LogLine: "[error] " + err.Error()})
 		return status.Errorf(codes.Internal, "export modpack: %v", err)

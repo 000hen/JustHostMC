@@ -31,8 +31,35 @@ type Options struct {
 	DestZip     string // absolute output .zip path
 	PackVersion string // opaque "packId/versionId" stored on the server record
 	ServerName  string // used as the pack name in manifest.json
+	ProviderID  string // provider that installed the server; gates the FTB-API fallback
 	FTBAPIBase  string // empty = DefaultFTBAPIBase; overridable in tests
 }
+
+// normManifest is the normalized modpack manifest providers persist at
+// .jhmc/modpack.json. Export prefers it over re-fetching the upstream source, so
+// export works for every modpack provider (and offline).
+type normManifest struct {
+	Format        int        `json:"format"`
+	Name          string     `json:"name"`
+	VersionName   string     `json:"version_name"`
+	MCVersion     string     `json:"mc_version"`
+	Loader        string     `json:"loader"`
+	LoaderVersion string     `json:"loader_version"`
+	Files         []normFile `json:"files"`
+}
+
+type normFile struct {
+	Dest       string    `json:"dest"`
+	Sha1       string    `json:"sha1"`
+	URL        string    `json:"url"`
+	ProjectID  flexInt64 `json:"project_id"`
+	FileID     flexInt64 `json:"file_id"`
+	ClientOnly bool      `json:"client_only"`
+}
+
+// normManifestRelPath is the server-dir-relative location of the persisted
+// manifest, matching mplib.MANIFEST_PATH on the Lua side.
+var normManifestRelPath = filepath.Join(".jhmc", "modpack.json")
 
 // overrideDirs are the server dirs copied verbatim into overrides/ (when they
 // exist). mods/ is handled separately so CF-covered jars aren't duplicated.
@@ -121,17 +148,109 @@ func report(progress func(provider.Progress), p provider.Progress) {
 	}
 }
 
-// Export writes a CurseForge-format client pack zip for the FTB pack install
-// in o.ServerDir. Manifest-listed files with CurseForge ids (including
-// client-only ones) become manifest entries; the server's live config dirs and
-// hand-added mods go into overrides/; client-only direct-URL files are
-// downloaded at export time.
+// Export writes a CurseForge-format client pack zip for the modpack install in
+// o.ServerDir. When the server has a persisted .jhmc/modpack.json (every current
+// provider writes one), the manifest is built from it; otherwise, for legacy FTB
+// servers installed before manifests were persisted, it is fetched from the FTB
+// API. Either way, files with CurseForge ids (including client-only ones) become
+// manifest entries, the server's live config dirs and hand-added mods go into
+// overrides/, and client-only direct-URL files are downloaded at export time.
 func Export(ctx context.Context, client *http.Client, o Options, progress func(provider.Progress)) error {
 	report(progress, provider.Progress{Step: "shop.export.preparing", Fraction: -1})
 
+	staging, err := os.MkdirTemp("", "jhmc-export-*")
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(staging)
+
+	var (
+		out     cfManifest
+		covered map[string]bool
+	)
+	if _, statErr := os.Stat(filepath.Join(o.ServerDir, normManifestRelPath)); statErr == nil {
+		out, covered, err = buildFromManifest(ctx, client, o, staging, progress)
+	} else if o.ProviderID == "" || o.ProviderID == "ftb" {
+		out, covered, err = buildFromFTB(ctx, client, o, staging, progress)
+	} else {
+		return fmt.Errorf("no persisted modpack manifest for %q server", o.ProviderID)
+	}
+	if err != nil {
+		return err
+	}
+
+	report(progress, provider.Progress{Step: "shop.export.zipping", Fraction: -1})
+	return writeZip(o, out, staging, covered)
+}
+
+// buildFromManifest constructs the CurseForge manifest from the server's
+// persisted .jhmc/modpack.json. CurseForge-hosted files become manifest entries;
+// client-only direct-URL files are downloaded into staging (they never lived on
+// the server); server-side files are shipped from the live server dir by
+// writeZip, so nothing is done for them here.
+func buildFromManifest(ctx context.Context, client *http.Client, o Options, staging string, progress func(provider.Progress)) (cfManifest, map[string]bool, error) {
+	raw, err := os.ReadFile(filepath.Join(o.ServerDir, normManifestRelPath))
+	if err != nil {
+		return cfManifest{}, nil, err
+	}
+	var nm normManifest
+	if err := json.Unmarshal(raw, &nm); err != nil {
+		return cfManifest{}, nil, fmt.Errorf("read modpack manifest: %w", err)
+	}
+
+	name := o.ServerName
+	if name == "" {
+		name = nm.Name
+	}
+	out := cfManifest{
+		ManifestType:    "minecraftModpack",
+		ManifestVersion: 1,
+		Name:            name,
+		Version:         nm.VersionName,
+		Overrides:       "overrides",
+	}
+	out.Minecraft.Version = nm.MCVersion
+	if nm.Loader != "" {
+		id := nm.Loader
+		if nm.LoaderVersion != "" {
+			id += "-" + nm.LoaderVersion
+		}
+		out.Minecraft.ModLoaders = []cfModLoader{{ID: id, Primary: true}}
+	}
+	if out.Minecraft.Version == "" || len(out.Minecraft.ModLoaders) == 0 {
+		return cfManifest{}, nil, fmt.Errorf("modpack manifest has no minecraft version or loader")
+	}
+
+	covered := map[string]bool{}
+	var downloads []stagedDL
+	for _, f := range nm.Files {
+		if f.Dest == "" {
+			continue
+		}
+		switch {
+		case f.ProjectID != 0 && f.FileID != 0:
+			out.Files = append(out.Files, cfFile{
+				ProjectID: int64(f.ProjectID),
+				FileID:    int64(f.FileID),
+				Required:  true,
+			})
+			covered[f.Dest] = true
+		case f.ClientOnly && f.URL != "":
+			downloads = append(downloads, stagedDL{dest: f.Dest, url: f.URL, name: path.Base(f.Dest)})
+		}
+	}
+	if err := downloadStaged(ctx, client, downloads, staging, progress); err != nil {
+		return cfManifest{}, nil, err
+	}
+	return out, covered, nil
+}
+
+// buildFromFTB is the legacy path for FTB servers installed before manifests
+// were persisted: it re-fetches the pack version manifest from the FTB API.
+func buildFromFTB(ctx context.Context, client *http.Client, o Options, staging string, progress func(provider.Progress)) (cfManifest, map[string]bool, error) {
 	pack, ver, ok := strings.Cut(o.PackVersion, "/")
 	if !ok || pack == "" || ver == "" {
-		return fmt.Errorf("invalid pack version %q", o.PackVersion)
+		return cfManifest{}, nil, fmt.Errorf("invalid pack version %q", o.PackVersion)
 	}
 	base := o.FTBAPIBase
 	if base == "" {
@@ -139,7 +258,7 @@ func Export(ctx context.Context, client *http.Client, o Options, progress func(p
 	}
 	manifest, err := fetchManifest(ctx, client, fmt.Sprintf("%s/modpack/%s/%s", base, pack, ver))
 	if err != nil {
-		return err
+		return cfManifest{}, nil, err
 	}
 
 	out := cfManifest{
@@ -162,13 +281,13 @@ func Export(ctx context.Context, client *http.Client, o Options, progress func(p
 		}
 	}
 	if out.Minecraft.Version == "" || !loaderOK {
-		return fmt.Errorf("pack manifest has no game/modloader target")
+		return cfManifest{}, nil, fmt.Errorf("pack manifest has no game/modloader target")
 	}
 
 	// CF-hosted files (server-side AND client-only) become manifest entries;
 	// their local copies must not be duplicated into overrides.
 	covered := map[string]bool{}
-	var clientDownloads []ftbFile
+	var downloads []stagedDL
 	for _, f := range manifest.Files {
 		if f.Name == "" {
 			continue
@@ -182,49 +301,55 @@ func Export(ctx context.Context, client *http.Client, o Options, progress func(p
 			})
 			covered[f.dest()] = true
 		case f.Clientonly && f.URL != "":
-			clientDownloads = append(clientDownloads, f)
+			downloads = append(downloads, stagedDL{dest: f.dest(), url: f.URL, name: f.Name})
 		}
 	}
+	if err := downloadStaged(ctx, client, downloads, staging, progress); err != nil {
+		return cfManifest{}, nil, err
+	}
+	return out, covered, nil
+}
 
-	// Download client-only direct-URL files to a staging dir (they were never
-	// installed server-side).
-	staging, err := os.MkdirTemp("", "jhmc-export-*")
-	if err != nil {
-		return err
-	}
-	defer os.RemoveAll(staging)
-	if len(clientDownloads) > 0 {
-		g, gctx := errgroup.WithContext(ctx)
-		g.SetLimit(6)
-		done := 0
-		total := len(clientDownloads)
-		results := make(chan string, total)
-		for _, f := range clientDownloads {
-			g.Go(func() error {
-				full := filepath.Join(staging, filepath.FromSlash(f.dest()))
-				if err := os.MkdirAll(filepath.Dir(full), 0o755); err != nil {
-					return err
-				}
-				if err := downloadTo(gctx, client, f.URL, full); err != nil {
-					return fmt.Errorf("%s: %w", f.dest(), err)
-				}
-				results <- f.Name
-				return nil
-			})
-		}
-		go func() { _ = g.Wait(); close(results) }()
-		for name := range results {
-			done++
-			report(progress, provider.Progress{Step: "shop.install.downloading",
-				Fraction: float64(done) / float64(total), LogLine: name})
-		}
-		if err := g.Wait(); err != nil {
-			return err
-		}
-	}
+// stagedDL is one client-only direct-URL file to download into the export
+// staging dir (later shipped under overrides/).
+type stagedDL struct {
+	dest string // server-dir-relative destination
+	url  string
+	name string // label for progress
+}
 
-	report(progress, provider.Progress{Step: "shop.export.zipping", Fraction: -1})
-	return writeZip(o, out, staging, covered)
+// downloadStaged fetches client-only direct-URL files into staging in parallel,
+// reporting progress. Files were never installed server-side, so they are pulled
+// fresh at export time.
+func downloadStaged(ctx context.Context, client *http.Client, dls []stagedDL, staging string, progress func(provider.Progress)) error {
+	if len(dls) == 0 {
+		return nil
+	}
+	g, gctx := errgroup.WithContext(ctx)
+	g.SetLimit(6)
+	total := len(dls)
+	results := make(chan string, total)
+	for _, f := range dls {
+		g.Go(func() error {
+			full := filepath.Join(staging, filepath.FromSlash(f.dest))
+			if err := os.MkdirAll(filepath.Dir(full), 0o755); err != nil {
+				return err
+			}
+			if err := downloadTo(gctx, client, f.url, full); err != nil {
+				return fmt.Errorf("%s: %w", f.dest, err)
+			}
+			results <- f.name
+			return nil
+		})
+	}
+	go func() { _ = g.Wait(); close(results) }()
+	done := 0
+	for name := range results {
+		done++
+		report(progress, provider.Progress{Step: "shop.install.downloading",
+			Fraction: float64(done) / float64(total), LogLine: name})
+	}
+	return g.Wait()
 }
 
 func fetchManifest(ctx context.Context, client *http.Client, url string) (*ftbManifest, error) {

@@ -11,6 +11,55 @@ public sealed class ResourcePolicyTests {
         Path.Combine(Root, "app", "JustHostMC.App");
     private static readonly IReadOnlySet<string> RuntimeXamlLookupExceptions =
         new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    private static readonly IReadOnlySet<string> Task4MigratedStaticResourceKeys =
+        Set(
+            "AppTitle",
+            "MainWindow.Title",
+            "MainWindowTitleBar.Title",
+            "CreateServerDialog.Title",
+            "CreateServerDialog.PrimaryButtonText",
+            "CreateServerDialog.CloseButtonText",
+            "BanListStoppedNotice.Title",
+            "BanListStoppedNotice.Message",
+            "EngineMonitor.Title",
+            "EngineStdioWindow.Title",
+            "EngineMonitorTitleBar.Title",
+            "ServerDelete.Title",
+            "ServerDelete.Body",
+            "ServerDelete.Confirm",
+            "Common.Cancel",
+            "DeleteServerDialog.Title",
+            "DeleteServerDialog.Content",
+            "DeleteServerDialog.PrimaryButtonText",
+            "DeleteServerDialog.CloseButtonText",
+            "EditServerDialog.Title",
+            "EditServerDialog.PrimaryButtonText",
+            "EditServerDialog.CloseButtonText",
+            "EditServerName.Header",
+            "RenameServerDialog.Title",
+            "Common.Save",
+            "RenameServerDialog.PrimaryButtonText",
+            "RenameServerDialog.CloseButtonText",
+            "RenameServerNameBox.Header",
+            "ScriptLogsWindow.Title",
+            "ScriptLogsTitleBar.Title",
+            "PermissionConsentDialog.PrimaryButtonText",
+            "PermissionConsentDialog.CloseButtonText",
+            "BackupsDialog.CloseButtonText",
+            "ServerFolder.NotFoundTitle",
+            "ServerFolder.NotFoundBody",
+            "ServerFolderMissingDialog.Title",
+            "ServerFolderMissingDialog.Content",
+            "ServerFolderMissingDialog.CloseButtonText",
+            "Shop.DependencyPromptTitle",
+            "Shop.DependencyPromptBody",
+            "Shop.InstallConfirm",
+            "DependencyPromptDialog.Title",
+            "DependencyPromptDialog.PrimaryButtonText",
+            "DependencyPromptDialog.CloseButtonText",
+            "DependencyPromptBody.Text",
+            "ShopWindow.Title",
+            "ShopWindowTitleBar.Title");
 
     [Fact]
     public void LocalesExposeTheSameResourceNames() {
@@ -105,19 +154,27 @@ public sealed class ResourcePolicyTests {
 
     [Fact]
     public void StaticXamlResourcePropertiesAreNotReadImperatively() {
-        var resourceKeys = XamlUidElements()
-            .SelectMany(item => LoadResourceMap("en-US").Keys.Where(key =>
-                key.StartsWith(item.Uid + ".",
-                               StringComparison.OrdinalIgnoreCase)))
+        var resourceKeys = StaticXamlResourceKeys()
             .Except(RuntimeXamlLookupExceptions, StringComparer.OrdinalIgnoreCase)
-            .ToArray();
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
         var offenders = Directory.EnumerateFiles(
                 AppRoot, "*.xaml.cs", SearchOption.AllDirectories)
-            .SelectMany(path => resourceKeys
-                .Where(key => File.ReadAllText(path).Contains(
-                    $"Get(\"{key}\")", StringComparison.Ordinal))
+            .SelectMany(path => StaticXamlResourceKeysReadImperatively(
+                    File.ReadAllText(path), resourceKeys)
                 .Select(key => $"{Path.GetRelativePath(Root, path)} ({key})"));
         Assert.Empty(offenders);
+    }
+
+    [Fact]
+    public void Task4StaticResourceKeysAreDetectedInSyntheticSource() {
+        const string source = """
+            _localizer.Get("ServerDelete.Title");
+            _localizer.Get("ServerTeachingTip.StartAction");
+            """;
+
+        Assert.Equal(
+            ["ServerDelete.Title"],
+            StaticXamlResourceKeysReadImperatively(source));
     }
 
     [Fact]
@@ -126,6 +183,7 @@ public sealed class ResourcePolicyTests {
         var home = ReadAppSource("Views/HomePage.xaml.cs");
         var server = ReadAppSource("Views/ServerPage.xaml.cs");
         var scripts = ReadAppSource("Views/ScriptsPage.xaml.cs");
+        var shop = ReadAppSource("Views/ShopDetailPage.xaml.cs");
 
         foreach (var source in new[] { main, home, server })
             Assert.DoesNotContain("CanSubmitChanged += (_, _)", source,
@@ -156,6 +214,34 @@ public sealed class ResourcePolicyTests {
                         StringComparison.Ordinal);
         Assert.Contains("dialog.Title = null;", consentFinally,
                         StringComparison.Ordinal);
+
+        AssertDependencyDialogCleanup(MethodBlock(
+            shop, "private async void OnInstallClick("));
+        AssertRenameDialogPreservesXamlContent(MethodBlock(
+            home, "private async Task ShowRenameDialogAsync("));
+        AssertRenameDialogPreservesXamlContent(MethodBlock(
+            server, "private async Task ShowRenameDialogAsync()"));
+    }
+
+    [Fact]
+    public void DialogLifecycleAssertionsRejectSyntheticRegressions() {
+        const string leakedDependencies = """
+            try {
+                await dialog.ShowAsync();
+            } finally {
+            }
+            """;
+        const string replacedRenameContent = """
+            var dialog = (ContentDialog)Resources["RenameServerDialog"];
+            var nameBox = (TextBox)dialog.Content;
+            dialog.Content = new TextBox();
+            """;
+
+        Assert.ThrowsAny<Xunit.Sdk.XunitException>(
+            () => AssertDependencyDialogCleanup(leakedDependencies));
+        Assert.ThrowsAny<Xunit.Sdk.XunitException>(
+            () => AssertRenameDialogPreservesXamlContent(
+                replacedRenameContent));
     }
 
     [Fact]
@@ -382,6 +468,39 @@ public sealed class ResourcePolicyTests {
                         StringComparison.Ordinal);
         Assert.Contains("dialog.IsPrimaryButtonEnabled = false;", cleanup,
                         StringComparison.Ordinal);
+    }
+
+    private static void AssertDependencyDialogCleanup(string method) {
+        var cleanup = FinallyBlock(method);
+        Assert.Contains("foreach (var pick in picks)", cleanup,
+                        StringComparison.Ordinal);
+        Assert.Contains("panel.Children.Remove(pick);", cleanup,
+                        StringComparison.Ordinal);
+    }
+
+    private static void AssertRenameDialogPreservesXamlContent(string method) {
+        Assert.Contains("var nameBox = (TextBox)dialog.Content;", method,
+                        StringComparison.Ordinal);
+        Assert.DoesNotMatch(@"dialog\.Content\s*=", method);
+    }
+
+    private static IReadOnlySet<string> StaticXamlResourceKeys() =>
+        XamlUidElements()
+            .SelectMany(item => LoadResourceMap("en-US").Keys.Where(key =>
+                key.StartsWith(item.Uid + ".",
+                               StringComparison.OrdinalIgnoreCase)))
+            .Union(Task4MigratedStaticResourceKeys,
+                   StringComparer.OrdinalIgnoreCase)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+    private static string[] StaticXamlResourceKeysReadImperatively(
+        string source,
+        IReadOnlySet<string>? staticResourceKeys = null) {
+        staticResourceKeys ??= StaticXamlResourceKeys();
+        return Regex.Matches(source, @"\bGet\(\s*""(?<key>[^""]+)""")
+            .Select(match => match.Groups["key"].Value)
+            .Where(staticResourceKeys.Contains)
+            .ToArray();
     }
 
     private static int CountOccurrences(string source, string value) =>

@@ -135,22 +135,34 @@ func main() {
 	// through a disk-backed ETag cache. Keyed sources resolve their API key
 	// from the user's settings first, then the baked-in build default.
 	host.SetHTTPCache(httpcache.New(paths.HTTPCache(), 0))
-	bakedShopKeys := map[string]string{"curseforge": defaultCurseForgeKey}
+	// All CurseForge sources (the mod shop, the modpack shop, and CF-hosted pack
+	// files) share one API key; the modpack shop reuses the mod shop's user key.
+	bakedShopKeys := map[string]string{
+		"curseforge":          defaultCurseForgeKey,
+		"curseforge_modpacks": defaultCurseForgeKey,
+	}
 	shopKey := func(shopID string) string {
 		if s, err := settingsStore.Load(); err == nil {
 			if k := s.ShopKeys[shopID]; k != "" {
 				return k
 			}
+			if shopID == "curseforge_modpacks" {
+				if k := s.ShopKeys["curseforge"]; k != "" {
+					return k
+				}
+			}
 		}
 		return bakedShopKeys[shopID]
 	}
-	// The ftb modpack provider reuses the CurseForge shop key for CF-hosted pack
-	// files, so a user who set it once for the shop needn't re-enter it. The raw
+	// Modpack providers that pull CF-hosted files reuse the CurseForge shop key,
+	// so a user who set it once for the shop needn't re-enter it. The raw
 	// providerConfig still backs GetConfig/SetConfig (the UI shows the unset
 	// value); only the ctx.config injected at install time gets the fallback.
-	providers.SetConfigStore(scripting.NewFallbackConfigReader(
-		providerConfig, "ftb", "curseforge_api_key",
-		func() string { return shopKey("curseforge") }))
+	curseKey := func() string { return shopKey("curseforge") }
+	providerCfg := scripting.NewFallbackConfigReader(providerConfig, "ftb", "curseforge_api_key", curseKey)
+	providerCfg = scripting.NewFallbackConfigReader(providerCfg, "curseforge_modpacks", "curseforge_api_key", curseKey)
+	providerCfg = scripting.NewFallbackConfigReader(providerCfg, "import", "curseforge_api_key", curseKey)
+	providers.SetConfigStore(providerCfg)
 	shopGrants := scripting.NewGrantStore(filepath.Join(paths.Base, "shop-grants.json"))
 	shops := scripting.NewShopSet(host, shopGrants, shopKey)
 	shopConfig := scripting.NewConfigStore(filepath.Join(paths.Base, "shop-config.json"))

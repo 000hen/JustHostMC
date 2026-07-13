@@ -286,4 +286,144 @@ local function read_manifest()
 end
 M.read_manifest = read_manifest
 
+-- ── CurseForge client pack (manifest.json + overrides/) ─────────────────────
+
+local CF_API = "https://api.curseforge.com"
+
+-- parse_loader splits a CurseForge modLoader id ("forge-47.2.0") into loader
+-- name and version.
+local function parse_loader(id)
+  local name, ver = tostring(id):match("^([^-]+)-(.+)$")
+  if not name then
+    return string.lower(tostring(id)), nil
+  end
+  return string.lower(name), ver
+end
+M.parse_loader = parse_loader
+
+local function cf_post(url, body_tbl, key)
+  if (key or "") == "" then
+    error("this modpack is hosted on CurseForge and needs a CurseForge API key (set it in the provider settings)")
+  end
+  local res = jhmc.http({
+    url = url,
+    method = "POST",
+    body = jhmc.json_encode(body_tbl),
+    headers = { ["x-api-key"] = key, ["Content-Type"] = "application/json" },
+  })
+  if res.status < 200 or res.status >= 300 then
+    error("curseforge: HTTP " .. res.status .. " for " .. url)
+  end
+  return jhmc.json_decode(res.body)
+end
+
+local function cf_sha1(f)
+  for _, h in ipairs(f.hashes or {}) do
+    if h.algo == 1 then return h.value end -- HashAlgo 1 = Sha1
+  end
+  return nil
+end
+
+-- cf_pack_meta reads a CurseForge client pack's manifest.json from a zip already
+-- on disk, resolves every listed file's real name/hash/url via one batch call,
+-- and returns { name, version, mc, loader_name, loader_version, files } with
+-- files in mplib's normalized shape. No filesystem writes — install/update layer
+-- their own steps on top. CurseForge manifests carry only project+file ids, so a
+-- key is required to learn the filenames.
+local function cf_pack_meta(zip_rel, key)
+  local manifest = jhmc.json_decode(jhmc.zip_read(zip_rel, "manifest.json"))
+  if type(manifest) ~= "table" or type(manifest.minecraft) ~= "table" then
+    error("not a CurseForge modpack: manifest.json missing the minecraft block")
+  end
+  local mc = manifest.minecraft.version
+  if not mc or mc == "" then
+    error("CurseForge pack has no Minecraft version")
+  end
+  local loader_name, loader_version
+  for _, ml in ipairs(manifest.minecraft.modLoaders or {}) do
+    if ml.primary or not loader_name then
+      loader_name, loader_version = parse_loader(ml.id)
+    end
+  end
+  if not loader_name then
+    error("CurseForge pack has no mod loader")
+  end
+
+  -- Resolve names/hashes/urls for all files in one batch request.
+  local file_ids = {}
+  for _, f in ipairs(manifest.files or {}) do
+    if f.fileID then
+      file_ids[#file_ids + 1] = f.fileID
+    end
+  end
+  local details = {}
+  if #file_ids > 0 then
+    local body = cf_post(CF_API .. "/v1/mods/files", { fileIds = file_ids }, key)
+    for _, d in ipairs(body.data or {}) do
+      details[tostring(d.id)] = d
+    end
+  end
+
+  local files = {}
+  for _, f in ipairs(manifest.files or {}) do
+    local d = details[tostring(f.fileID)]
+    if d then
+      -- CurseForge client packs place all listed mods under mods/.
+      local entry = {
+        dest = "mods/" .. d.fileName,
+        sha1 = cf_sha1(d),
+        project_id = f.projectID,
+        file_id = f.fileID,
+      }
+      if (d.downloadUrl or "") ~= "" then
+        entry.url = d.downloadUrl
+      end
+      files[#files + 1] = entry
+    elseif f.required ~= false then
+      error("CurseForge pack references a file that is no longer available (project " ..
+        tostring(f.projectID) .. ", file " .. tostring(f.fileID) .. ")")
+    end
+  end
+
+  return {
+    name = manifest.name or "",
+    version = manifest.version or "",
+    mc = mc,
+    loader_name = loader_name,
+    loader_version = loader_version,
+    files = files,
+  }
+end
+M.cf_pack_meta = cf_pack_meta
+
+-- install_cf_pack installs a CurseForge client pack whose zip is already on disk
+-- at zip_rel: it downloads the listed mods, splats overrides/ into the server
+-- root, installs the pinned loader, and persists the normalized manifest. The
+-- returned launch spec has no pack_version — the caller sets it.
+local function install_cf_pack(ctx, zip_rel, key)
+  local m = cf_pack_meta(zip_rel, key)
+  download_files(ctx, m.files, key)
+  jhmc.unzip(zip_rel, ".", { prefix = "overrides/" })
+
+  local java_major = jhmc.java_major_for(m.mc)
+  local args = install_loader(ctx, m.loader_name, m.loader_version, m.mc, java_major)
+
+  write_manifest({
+    format = 1,
+    name = m.name,
+    version_name = m.version,
+    mc_version = m.mc,
+    loader = m.loader_name,
+    loader_version = m.loader_version,
+    files = m.files,
+  })
+  return {
+    java_major = java_major,
+    args = args,
+    mc_version = m.mc,
+    loader = m.loader_name,
+  }
+end
+M.install_cf_pack = install_cf_pack
+
 mplib = M

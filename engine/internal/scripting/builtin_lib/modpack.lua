@@ -422,6 +422,7 @@ local function install_cf_pack(ctx, zip_rel, key)
     args = args,
     mc_version = m.mc,
     loader = m.loader_name,
+    version_name = m.version, -- used by the import provider to label the pack
   }
 end
 M.install_cf_pack = install_cf_pack
@@ -513,6 +514,7 @@ local function install_mrpack(ctx, zip_rel)
     args = args,
     mc_version = m.mc,
     loader = m.loader_name,
+    version_name = m.version, -- used by the import provider to label the pack
   }
 end
 M.install_mrpack = install_mrpack

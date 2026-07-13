@@ -3,6 +3,7 @@ package grpcsvc
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -167,15 +168,41 @@ func (s *ServerService) Instance(id string) (isolation.Instance, bool) {
 	return inst, ok
 }
 
-// Create provisions a new server, streaming install progress, and registers it
-// ready to start.
+// Create provisions a new server from a provider version, streaming install
+// progress, and registers it ready to start.
 func (s *ServerService) Create(req *mcmanagerv1.CreateServerRequest, stream grpc.ServerStreamingServer[mcmanagerv1.InstallProgress]) error {
+	return s.runCreate(stream, createParams{
+		name:           req.Name,
+		providerID:     req.ProviderId,
+		version:        req.McVersion,
+		memoryMB:       int(req.MemoryMb),
+		port:           int(req.Port),
+		customJavaArgs: req.CustomJavaArgs,
+	})
+}
+
+// createParams carries the inputs shared by Create and ImportModpack.
+type createParams struct {
+	name           string
+	providerID     string
+	version        string // opaque version handed to the provider
+	memoryMB       int
+	port           int
+	customJavaArgs string
+	stage          func(dir string) error // optional: runs after dir creation, before install
+}
+
+// runCreate is the shared provisioning flow behind Create and ImportModpack: it
+// makes the server dir (optionally staging input into it first), runs the
+// provider install, ensures the JRE, writes server files, and persists the
+// record. Any failure wipes the new server dir.
+func (s *ServerService) runCreate(stream grpc.ServerStreamingServer[mcmanagerv1.InstallProgress], p createParams) error {
 	ctx := stream.Context()
 
-	entry, ok := s.cfg.Providers.Get(req.ProviderId)
+	entry, ok := s.cfg.Providers.Get(p.providerID)
 	if !ok {
 		return errorStatus(codes.Unimplemented, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED,
-			fmt.Sprintf("provider %q not installed", req.ProviderId), nil)
+			fmt.Sprintf("provider %q not installed", p.providerID), nil)
 	}
 
 	id := genID()
@@ -188,11 +215,11 @@ func (s *ServerService) Create(req *mcmanagerv1.CreateServerRequest, stream grpc
 		_ = os.RemoveAll(dir)
 	}
 
-	port := resolvePort(int(req.Port))
+	port := resolvePort(p.port)
 	rec := &store.Server{
-		ID: id, Name: req.Name, ProviderID: req.ProviderId, ModLayout: entry.Meta.ModLayout,
-		McVersion: req.McVersion,
-		MemoryMB:  int(req.MemoryMb), Port: port, Status: mcmanagerv1.ServerStatus_INSTALLING,
+		ID: id, Name: p.name, ProviderID: p.providerID, ModLayout: entry.Meta.ModLayout,
+		McVersion: p.version,
+		MemoryMB:  p.memoryMB, Port: port, Status: mcmanagerv1.ServerStatus_INSTALLING,
 		SortOrder: s.nextSortOrder(),
 	}
 	_ = s.cfg.Store.Put(rec)
@@ -220,12 +247,21 @@ func (s *ServerService) Create(req *mcmanagerv1.CreateServerRequest, stream grpc
 	il := s.openInstallLog(id)
 	defer il.Close()
 	base := newProgressSender(stream)
-	send := func(p provider.Progress) {
-		il.record(p)
-		base(p)
+	send := func(pr provider.Progress) {
+		il.record(pr)
+		base(pr)
 	}
 
-	spec, err := entry.Provider.Install(installCtx, dir, req.McVersion, send)
+	if p.stage != nil {
+		if err := p.stage(dir); err != nil {
+			send(provider.Progress{LogLine: "[error] " + err.Error()})
+			il.recordLine("[error] stage: " + err.Error())
+			cleanup()
+			return status.Errorf(codes.Internal, "stage modpack: %v", err)
+		}
+	}
+
+	spec, err := entry.Provider.Install(installCtx, dir, p.version, send)
 	if err != nil {
 		// Surface the error in the live log so the user can see what went wrong.
 		send(provider.Progress{LogLine: "[error] " + err.Error()})
@@ -233,10 +269,10 @@ func (s *ServerService) Create(req *mcmanagerv1.CreateServerRequest, stream grpc
 		cleanup()
 		return mapInstallError(err)
 	}
-	// A modpack provider takes an opaque "packId/versionId" as req.McVersion and
+	// A modpack provider takes an opaque "packId/versionId" as the version and
 	// resolves the concrete Minecraft version in spec.McVersion; prefer it for
 	// Java selection and the stored record.
-	resolvedVersion := req.McVersion
+	resolvedVersion := p.version
 	if spec.McVersion != "" {
 		resolvedVersion = spec.McVersion
 	}
@@ -259,7 +295,7 @@ func (s *ServerService) Create(req *mcmanagerv1.CreateServerRequest, stream grpc
 
 	rec.JavaMajor = spec.JavaMajor
 	rec.LaunchArgs = spec.Args
-	rec.CustomJavaArgs = req.CustomJavaArgs
+	rec.CustomJavaArgs = p.customJavaArgs
 	if spec.McVersion != "" {
 		rec.McVersion = spec.McVersion
 	}
@@ -487,6 +523,63 @@ func (s *ServerService) ExportModpack(req *mcmanagerv1.ExportModpackRequest, str
 	}
 	send(provider.Progress{Step: "shop.export.done", Fraction: 1})
 	return nil
+}
+
+// ImportModpack provisions a new server from a local modpack file (a CurseForge
+// client pack zip or a Modrinth .mrpack), streaming install progress like
+// Create. The file is staged into the new server dir and installed by the
+// "import" provider, which detects the format. Imported servers can be exported
+// but not updated (a local file has no upstream to diff against).
+func (s *ServerService) ImportModpack(req *mcmanagerv1.ImportModpackRequest, stream grpc.ServerStreamingServer[mcmanagerv1.InstallProgress]) error {
+	name := strings.TrimSpace(req.Name)
+	if name == "" {
+		return status.Error(codes.InvalidArgument, "server name is required")
+	}
+	src := req.SrcPath
+	if !filepath.IsAbs(src) {
+		return status.Error(codes.InvalidArgument, "src_path must be an absolute path")
+	}
+	if ext := strings.ToLower(filepath.Ext(src)); ext != ".zip" && ext != ".mrpack" {
+		return errorStatus(codes.InvalidArgument, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED,
+			"modpack file must be a .zip (CurseForge) or .mrpack (Modrinth)", nil)
+	}
+	if info, err := os.Stat(src); err != nil || info.IsDir() {
+		return status.Error(codes.InvalidArgument, "modpack file not found")
+	}
+
+	return s.runCreate(stream, createParams{
+		name:           name,
+		providerID:     "import",
+		version:        "import/local",
+		memoryMB:       int(req.MemoryMb),
+		port:           int(req.Port),
+		customJavaArgs: req.CustomJavaArgs,
+		stage:          func(dir string) error { return stageModpackFile(src, dir) },
+	})
+}
+
+// stageModpackFile copies the user's modpack file into the new server dir at
+// .jhmc/import.zip, where the import provider (sandboxed to the server dir) picks
+// it up. Streamed rather than read whole — packs can be hundreds of MB.
+func stageModpackFile(src, dir string) error {
+	dst := filepath.Join(dir, ".jhmc", "import.zip")
+	if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
+		return err
+	}
+	in, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	if _, err := io.Copy(out, in); err != nil {
+		out.Close()
+		return err
+	}
+	return out.Close()
 }
 
 // Start launches a previously created server.

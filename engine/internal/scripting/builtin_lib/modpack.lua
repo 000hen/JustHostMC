@@ -426,4 +426,95 @@ local function install_cf_pack(ctx, zip_rel, key)
 end
 M.install_cf_pack = install_cf_pack
 
+-- ── Modrinth pack (.mrpack: modrinth.index.json + overrides/) ───────────────
+
+-- mrpack_meta reads a .mrpack's modrinth.index.json (the mrpack is a zip already
+-- on disk) and returns { name, version, mc, loader_name, loader_version, files }.
+-- Files unsupported on the server are kept but flagged client_only so export can
+-- round-trip them; install/update skip them. Keyless — Modrinth files carry
+-- direct download URLs.
+local function mrpack_meta(zip_rel)
+  local idx = jhmc.json_decode(jhmc.zip_read(zip_rel, "modrinth.index.json"))
+  if type(idx) ~= "table" or type(idx.dependencies) ~= "table" then
+    error("not a Modrinth modpack: modrinth.index.json missing or malformed")
+  end
+  local deps = idx.dependencies
+  local mc = deps.minecraft
+  if not mc or mc == "" then
+    error("Modrinth pack has no Minecraft version")
+  end
+  local loader_name, loader_version
+  if deps["fabric-loader"] then
+    loader_name, loader_version = "fabric", deps["fabric-loader"]
+  elseif deps["neoforge"] then
+    loader_name, loader_version = "neoforge", deps["neoforge"]
+  elseif deps["forge"] then
+    loader_name, loader_version = "forge", deps["forge"]
+  elseif deps["quilt-loader"] then
+    error("Quilt modpacks are not supported yet")
+  else
+    error("Modrinth pack declares no supported mod loader")
+  end
+
+  local files = {}
+  for _, f in ipairs(idx.files or {}) do
+    local server_env = (f.env and f.env.server) or "required"
+    local entry = {
+      dest = safe_path(f.path),
+      sha1 = f.hashes and f.hashes.sha1,
+      url = f.downloads and f.downloads[1],
+    }
+    if server_env == "unsupported" then
+      entry.client_only = true
+    end
+    files[#files + 1] = entry
+  end
+
+  return {
+    name = idx.name or "",
+    version = idx.versionId or "",
+    mc = mc,
+    loader_name = loader_name,
+    loader_version = loader_version,
+    files = files,
+  }
+end
+M.mrpack_meta = mrpack_meta
+
+-- unzip_overrides splats a pack's overrides/ then server-overrides/ into the
+-- server root; server-overrides win because they are extracted last.
+local function unzip_overrides(zip_rel)
+  jhmc.unzip(zip_rel, ".", { prefix = "overrides/" })
+  jhmc.unzip(zip_rel, ".", { prefix = "server-overrides/" })
+end
+M.unzip_overrides = unzip_overrides
+
+-- install_mrpack installs a Modrinth pack whose .mrpack is already on disk at
+-- zip_rel. The returned launch spec has no pack_version — the caller sets it.
+local function install_mrpack(ctx, zip_rel)
+  local m = mrpack_meta(zip_rel)
+  download_files(ctx, m.files, nil)
+  unzip_overrides(zip_rel)
+
+  local java_major = jhmc.java_major_for(m.mc)
+  local args = install_loader(ctx, m.loader_name, m.loader_version, m.mc, java_major)
+
+  write_manifest({
+    format = 1,
+    name = m.name,
+    version_name = m.version,
+    mc_version = m.mc,
+    loader = m.loader_name,
+    loader_version = m.loader_version,
+    files = m.files,
+  })
+  return {
+    java_major = java_major,
+    args = args,
+    mc_version = m.mc,
+    loader = m.loader_name,
+  }
+end
+M.install_mrpack = install_mrpack
+
 mplib = M

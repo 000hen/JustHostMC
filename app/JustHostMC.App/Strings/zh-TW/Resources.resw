@@ -333,6 +333,10 @@
   <data name="Server_UpdateModpackConfirm" xml:space="preserve"><value>更新</value></data>
   <data name="Server_UpdateModpackNoVersions" xml:space="preserve"><value>沒有其他可用版本。</value></data>
   <data name="Server_ExportModpackPickerName" xml:space="preserve"><value>CurseForge 模組包</value></data>
+  <data name="ImportModpack_DialogTitle" xml:space="preserve"><value>匯入模組包</value></data>
+  <data name="ImportModpack_NameHeader" xml:space="preserve"><value>伺服器名稱</value></data>
+  <data name="ImportModpack_MemoryHeader" xml:space="preserve"><value>記憶體</value></data>
+  <data name="ImportModpack_Confirm" xml:space="preserve"><value>匯入</value></data>
   <data name="shop.export.preparing" xml:space="preserve"><value>正在準備匯出模組包…</value></data>
   <data name="shop.export.zipping" xml:space="preserve"><value>正在打包模組包…</value></data>
   <data name="shop.export.done" xml:space="preserve"><value>模組包已匯出。</value></data>
@@ -504,6 +508,7 @@
 <data name="ShopTitleBar.Title" xml:space="preserve"><value>模組商店</value><comment>模組商店視窗的標準標題；XAML 初始化後複製到 Window.Title。</comment></data>
   <data name="ShopWindow_TitleModpacks" xml:space="preserve"><value>模組包商店</value></data>
   <data name="HomeShopButtonLabel.Text" xml:space="preserve"><value>模組包商店</value></data>
+  <data name="HomeImportButtonLabel.Text" xml:space="preserve"><value>匯入模組包</value></data>
   <data name="Shop_DiscoverTitleGlobal" xml:space="preserve"><value>用模組包建立新的伺服器</value></data>
   <data name="Shop_DiscoverSubtitleGlobal" xml:space="preserve"><value>瀏覽社群製作的模組包，安裝後會自動建立並設定好一台全新伺服器。</value></data>
   <data name="ShopDiscoverTitle.Text" xml:space="preserve"><value>為你的伺服器找到精彩內容</value></data>

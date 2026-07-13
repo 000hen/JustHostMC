@@ -65,6 +65,15 @@ public sealed partial class ServerHeaderPanel : UserControl {
         string.IsNullOrEmpty(providerVersion) ? Visibility.Collapsed
                                               : Visibility.Visible;
 
+    /// <summary>The Update action additionally hides for imported servers: a
+    /// local modpack file has no upstream version to update to (Export still
+    /// works).</summary>
+    public Visibility UpdateModpackVisibility(string providerVersion,
+                                              string providerId) =>
+        string.IsNullOrEmpty(providerVersion) || providerId == "import"
+            ? Visibility.Collapsed
+            : Visibility.Visible;
+
     /// <summary>Updating replaces pack files, so the server must not be
     /// running.</summary>
     public bool UpdateModpackEnabled(ServerStatus s) =>

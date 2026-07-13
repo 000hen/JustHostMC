@@ -152,7 +152,7 @@
                             x:Uid="ServerUpdateModpackMenuItem"
                             Click="OnUpdateModpackClick"
                             IsEnabled="{x:Bind UpdateModpackEnabled(Server.Status), Mode=OneWay}"
-                            Visibility="{x:Bind ModpackItemVisibility(Server.ProviderVersion), Mode=OneWay}">
+                            Visibility="{x:Bind UpdateModpackVisibility(Server.ProviderVersion, Server.ProviderId), Mode=OneWay}">
                             <MenuFlyoutItem.Icon>
                                 <FontIcon Glyph="&#xE777;" />
                             </MenuFlyoutItem.Icon>

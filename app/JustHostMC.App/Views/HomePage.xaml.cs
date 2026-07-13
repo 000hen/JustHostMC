@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.IO;
 using JustHostMC.App.Controls;
 using JustHostMC.App.Models;
 using JustHostMC.App.Services;
@@ -8,6 +9,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Storage.Pickers;
 
 namespace JustHostMC.App.Views;
 
@@ -121,6 +123,61 @@ public sealed partial class HomePage : Page {
         var context = ShopContext.ForModpackBrowsing(
             request => Main.InstallServerAsync(request));
         new ShopWindow(context).Activate();
+    }
+
+    /// <summary>Imports a local modpack file (CurseForge client pack zip or
+    /// Modrinth .mrpack) as a brand-new server, prompting for a name and memory,
+    /// then streaming install progress through the global flow.</summary>
+    private async void OnImportModpackClick(object sender, RoutedEventArgs e) {
+        var picker = new FileOpenPicker {
+            SuggestedStartLocation = PickerLocationId.Downloads,
+        };
+        picker.FileTypeFilter.Add(".zip");
+        picker.FileTypeFilter.Add(".mrpack");
+        var hwnd =
+            WinRT.Interop.WindowNative.GetWindowHandle(App.Current.MainWindow);
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+        var file = await picker.PickSingleFileAsync();
+        if (file is null)
+            return;
+
+        var defaultName = Path.GetFileNameWithoutExtension(file.Name);
+        var nameBox     = new TextBox {
+            Header = _localizer.Get("ImportModpack_NameHeader"),
+            Text   = defaultName,
+        };
+        var memoryOptions = new[] { 2048, 4096, 6144, 8192, 12288, 16384 };
+        var memoryBox     = new ComboBox {
+            Header              = _localizer.Get("ImportModpack_MemoryHeader"),
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+        };
+        foreach (var mb in memoryOptions)
+            memoryBox.Items.Add(
+                _localizer.Get("Server_MemoryValue", ("memory", mb.ToString())));
+        memoryBox.SelectedIndex = 1; // 4096 MB
+
+        var panel = new StackPanel { Spacing = 12 };
+        panel.Children.Add(nameBox);
+        panel.Children.Add(memoryBox);
+
+        var dialog = new ContentDialog {
+            XamlRoot          = XamlRoot,
+            Title             = _localizer.Get("ImportModpack_DialogTitle"),
+            Content           = panel,
+            PrimaryButtonText = _localizer.Get("ImportModpack_Confirm"),
+            CloseButtonText   = _localizer.Get("Common_Cancel"),
+            DefaultButton     = ContentDialogButton.Primary,
+        };
+        if (await dialog.ShowAsync() != ContentDialogResult.Primary)
+            return;
+
+        var name = nameBox.Text.Trim();
+        if (name.Length == 0)
+            name = defaultName;
+        var index    = memoryBox.SelectedIndex >= 0 ? memoryBox.SelectedIndex : 1;
+        var memoryMb = memoryOptions[index];
+        await Main.ImportModpackAsync(name, file.Path, memoryMb);
     }
 
     private void OnMachineNoticeClosed(InfoBar sender, object args) =>

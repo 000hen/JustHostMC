@@ -185,9 +185,29 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
 
     /// <summary>Creates a server, streaming localized install progress + raw
     /// log.</summary>
-    public async Task InstallServerAsync(CreateServerRequest request) {
+    public Task InstallServerAsync(CreateServerRequest request) =>
+        RunNewServerInstallAsync(request.Name,
+                                 daemon => daemon.Servers.Create(request));
+
+    /// <summary>Imports a local modpack file (CurseForge zip or Modrinth
+    /// .mrpack) as a brand-new server, streaming the same install progress as a
+    /// shop install.</summary>
+    public Task ImportModpackAsync(string name, string srcPath, int memoryMb) =>
+        RunNewServerInstallAsync(
+            name,
+            daemon => daemon.Servers.ImportModpack(new ImportModpackRequest {
+                Name = name, SrcPath = srcPath, MemoryMb = memoryMb,
+            }));
+
+    /// <summary>Shared flow behind creating and importing a brand-new server:
+    /// drives both the global install UI and the server's progress tracker off
+    /// one InstallProgress stream, so the operation survives window/page
+    /// changes.</summary>
+    private async Task RunNewServerInstallAsync(
+        string name,
+        Func<DaemonClient, AsyncServerStreamingCall<InstallProgress>> startCall) {
         using var backgroundTask = _backgroundTasks.Begin("server-install");
-        var tracker = ProgressService.GetOrCreateTracker(null, request.Name);
+        var tracker = ProgressService.GetOrCreateTracker(null, name);
         RunOnUI(() => {
             tracker.InstallLog.Clear();
             tracker.HasFailed        = false;
@@ -212,7 +232,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
 
         try {
             var daemon     = await App.Current.DaemonReady;
-            using var call = daemon.Servers.Create(request);
+            using var call = startCall(daemon);
             await foreach (var progress in call.ResponseStream.ReadAllAsync()
                                .ConfigureAwait(false)) {
                 progressBuffer.Post(progress);

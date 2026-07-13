@@ -335,6 +335,10 @@
   <data name="Server_UpdateModpackConfirm" xml:space="preserve"><value>Update</value></data>
   <data name="Server_UpdateModpackNoVersions" xml:space="preserve"><value>No other versions available.</value></data>
   <data name="Server_ExportModpackPickerName" xml:space="preserve"><value>CurseForge modpack</value></data>
+  <data name="ImportModpack_DialogTitle" xml:space="preserve"><value>Import modpack</value></data>
+  <data name="ImportModpack_NameHeader" xml:space="preserve"><value>Server name</value></data>
+  <data name="ImportModpack_MemoryHeader" xml:space="preserve"><value>Memory</value></data>
+  <data name="ImportModpack_Confirm" xml:space="preserve"><value>Import</value></data>
   <data name="shop.export.preparing" xml:space="preserve"><value>Preparing modpack export…</value></data>
   <data name="shop.export.zipping" xml:space="preserve"><value>Packaging modpack…</value></data>
   <data name="shop.export.done" xml:space="preserve"><value>Modpack exported.</value></data>
@@ -515,6 +519,7 @@
 <data name="ShopTitleBar.Title" xml:space="preserve"><value>Mod Shop</value><comment>Canonical Mod Shop window title; copied to Window.Title after XAML initialization.</comment></data>
   <data name="ShopWindow_TitleModpacks" xml:space="preserve"><value>Modpack Shop</value></data>
   <data name="HomeShopButtonLabel.Text" xml:space="preserve"><value>Modpack shop</value></data>
+  <data name="HomeImportButtonLabel.Text" xml:space="preserve"><value>Import modpack</value></data>
   <data name="Shop_DiscoverTitleGlobal" xml:space="preserve"><value>Start a new server from a modpack</value></data>
   <data name="Shop_DiscoverSubtitleGlobal" xml:space="preserve"><value>Browse community modpacks. Installing one creates a brand-new server, fully set up.</value></data>
   <data name="ShopDiscoverTitle.Text" xml:space="preserve"><value>Find something brilliant for your server</value></data>

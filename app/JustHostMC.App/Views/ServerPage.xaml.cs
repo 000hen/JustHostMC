@@ -171,6 +171,10 @@ public sealed partial class ServerPage : Page {
     }
 
     private async void OnUpdateModpackClick(object sender, RoutedEventArgs e) {
+        // Imported packs have no upstream source to update from (the menu item is
+        // hidden for them; this guards a programmatic call).
+        if (Server.ProviderId == "import")
+            return;
         if (!TryGetPackIdentity(out var packId, out var currentVersionId))
             return;
 

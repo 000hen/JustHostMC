@@ -756,11 +756,19 @@ func (inv *invocation) jsonEncode(L *lua.LState) int {
 }
 
 // unzip extracts a zip (relative path within the server dir) into destDir
-// (also within the server dir), guarding against zip-slip.
+// (also within the server dir), guarding against zip-slip. An optional third
+// arg { prefix = "overrides/" } extracts only entries under prefix, stripping
+// it from each destination — used to splat a pack's overrides/ tree into the
+// server root.
 func (inv *invocation) unzip(L *lua.LState) int {
 	inv.requireFS(L)
 	zipPath := inv.resolvePath(L, L.CheckString(1))
 	destDir := inv.resolvePath(L, L.CheckString(2))
+
+	var prefix string
+	if opts, ok := L.Get(3).(*lua.LTable); ok {
+		prefix = strField(opts, "prefix")
+	}
 
 	zr, err := zip.OpenReader(zipPath)
 	if err != nil {
@@ -771,7 +779,17 @@ func (inv *invocation) unzip(L *lua.LState) int {
 
 	dest := filepath.Clean(destDir)
 	for _, f := range zr.File {
-		target := filepath.Clean(filepath.Join(dest, f.Name))
+		name := filepath.ToSlash(f.Name)
+		if prefix != "" {
+			if !strings.HasPrefix(name, prefix) {
+				continue
+			}
+			name = name[len(prefix):]
+			if name == "" {
+				continue // the prefix directory entry itself
+			}
+		}
+		target := filepath.Clean(filepath.Join(dest, name))
 		if r, err := filepath.Rel(dest, target); err != nil || r == ".." || strings.HasPrefix(r, ".."+string(filepath.Separator)) {
 			inv.fail(L, fmt.Errorf("%w: %s", ErrPathEscape, f.Name))
 			return 0

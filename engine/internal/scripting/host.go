@@ -102,6 +102,10 @@ func (inv *invocation) fail(L *lua.LState, err error) {
 func (inv *invocation) prepare(src string) (*lua.LState, error) {
 	L := newSandbox(inv.ctx)
 	L.SetGlobal("jhmc", inv.newJHMC(L))
+	if err := loadBuiltinLibs(L); err != nil {
+		L.Close()
+		return nil, err
+	}
 	if err := L.DoString(src); err != nil {
 		L.Close()
 		return nil, fmt.Errorf("load script: %w", err)

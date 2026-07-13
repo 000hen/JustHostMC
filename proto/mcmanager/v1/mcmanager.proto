@@ -76,6 +76,13 @@ message ExportModpackRequest {
   string id = 1;
   string dest_path = 2; // absolute .zip path chosen by the user
 }
+message ImportModpackRequest {
+  string name = 1; // server name
+  string src_path = 2; // absolute path to a .zip (CurseForge pack) or .mrpack
+  int32 memory_mb = 3;
+  int32 port = 4; // 0 = auto-assign
+  string custom_java_args = 5;
+}
 
 // -- i18n / message strategy --------------------------------------------------
 // Dynamic, display-only messages travel as a localization KEY in the form
@@ -810,6 +817,7 @@ service ServerService {
   rpc Update(UpdateServerRequest) returns (Server);
   rpc UpdateModpack(UpdateModpackRequest) returns (stream InstallProgress); // manifest-diff move to another pack version
   rpc ExportModpack(ExportModpackRequest) returns (stream InstallProgress); // CurseForge client pack zip
+  rpc ImportModpack(ImportModpackRequest) returns (stream InstallProgress); // new server from a local CurseForge/Modrinth pack file
   rpc Start(ServerId) returns (Empty);
   rpc Stop(ServerId) returns (Empty);
   rpc Delete(ServerId) returns (Empty);

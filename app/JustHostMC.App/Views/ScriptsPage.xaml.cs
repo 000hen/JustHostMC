@@ -171,7 +171,15 @@ public sealed partial class ScriptsPage : Page {
         dialog.Content = content;
         ContentDialogSizing.Apply(dialog);
 
-        if (await dialog.ShowAsync() != ContentDialogResult.Primary)
+        ContentDialogResult result;
+        try {
+            result = await dialog.ShowAsync();
+        } finally {
+            dialog.Content = null;
+            dialog.Title = null;
+        }
+
+        if (result != ContentDialogResult.Primary)
             return null;
         return content.Granted;
     }

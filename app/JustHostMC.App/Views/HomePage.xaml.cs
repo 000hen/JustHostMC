@@ -116,11 +116,21 @@ public sealed partial class HomePage : Page {
         dialog.XamlRoot               = XamlRoot;
         dialog.Content                = content;
         dialog.IsPrimaryButtonEnabled = content.CanSubmit;
-        content.CanSubmitChanged += (_, _) => dialog.IsPrimaryButtonEnabled =
-            content.CanSubmit;
+        void OnCanSubmitChanged(object? sender, EventArgs args) =>
+            dialog.IsPrimaryButtonEnabled = content.CanSubmit;
+        content.CanSubmitChanged += OnCanSubmitChanged;
         ContentDialogSizing.Apply(dialog);
 
-        if (await dialog.ShowAsync() != ContentDialogResult.Primary)
+        ContentDialogResult result;
+        try {
+            result = await dialog.ShowAsync();
+        } finally {
+            content.CanSubmitChanged -= OnCanSubmitChanged;
+            dialog.Content = null;
+            dialog.IsPrimaryButtonEnabled = false;
+        }
+
+        if (result != ContentDialogResult.Primary)
             return;
         if (content.BuildCreateRequest() is {} request)
             await Main.InstallServerAsync(request);
@@ -135,11 +145,21 @@ public sealed partial class HomePage : Page {
         dialog.XamlRoot               = XamlRoot;
         dialog.Content                = content;
         dialog.IsPrimaryButtonEnabled = content.CanSubmit;
-        content.CanSubmitChanged += (_, _) => dialog.IsPrimaryButtonEnabled =
-            content.CanSubmit;
+        void OnCanSubmitChanged(object? sender, EventArgs args) =>
+            dialog.IsPrimaryButtonEnabled = content.CanSubmit;
+        content.CanSubmitChanged += OnCanSubmitChanged;
         ContentDialogSizing.Apply(dialog);
 
-        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+        ContentDialogResult result;
+        try {
+            result = await dialog.ShowAsync();
+        } finally {
+            content.CanSubmitChanged -= OnCanSubmitChanged;
+            dialog.Content = null;
+            dialog.IsPrimaryButtonEnabled = false;
+        }
+
+        if (result == ContentDialogResult.Primary)
             await Main.UpdateServerAsync(content.BuildUpdateRequest());
     }
 

@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using JustHostMC.App.Controls;
 using Xunit;
 
 namespace JustHostMC.Core.Tests;
@@ -8,6 +9,8 @@ public sealed class ResourcePolicyTests {
     private static readonly string Root = FindRepositoryRoot();
     private static readonly string AppRoot =
         Path.Combine(Root, "app", "JustHostMC.App");
+    private static readonly IReadOnlySet<string> RuntimeXamlLookupExceptions =
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
     [Fact]
     public void LocalesExposeTheSameResourceNames() {
@@ -101,36 +104,13 @@ public sealed class ResourcePolicyTests {
     }
 
     [Fact]
-    public void StaticViewChromeIsOwnedByXaml() {
-        string[] resourceKeys = [
-            "AppTitle",
-            "BackupsDialog.CloseButtonText",
-            "BanListStoppedNotice.Title",
-            "BanListStoppedNotice.Message",
-            "Common.Cancel",
-            "Common.Save",
-            "CreateServerDialog.Title",
-            "CreateServerDialog.PrimaryButtonText",
-            "CreateServerDialog.CloseButtonText",
-            "EditServerDialog.Title",
-            "EditServerDialog.PrimaryButtonText",
-            "EditServerDialog.CloseButtonText",
-            "EditServerName.Header",
-            "EngineMonitor.Title",
-            "PermissionConsentDialog.PrimaryButtonText",
-            "PermissionConsentDialog.CloseButtonText",
-            "RenameServerDialog.Title",
-            "ScriptLogsWindow.Title",
-            "ServerDelete.Title",
-            "ServerDelete.Body",
-            "ServerDelete.Confirm",
-            "ServerFolder.NotFoundTitle",
-            "ServerFolder.NotFoundBody",
-            "Shop.DependencyPromptBody",
-            "Shop.DependencyPromptTitle",
-            "Shop.InstallConfirm",
-            "ShopWindow.Title",
-        ];
+    public void StaticXamlResourcePropertiesAreNotReadImperatively() {
+        var resourceKeys = XamlUidElements()
+            .SelectMany(item => LoadResourceMap("en-US").Keys.Where(key =>
+                key.StartsWith(item.Uid + ".",
+                               StringComparison.OrdinalIgnoreCase)))
+            .Except(RuntimeXamlLookupExceptions, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
         var offenders = Directory.EnumerateFiles(
                 AppRoot, "*.xaml.cs", SearchOption.AllDirectories)
             .SelectMany(path => resourceKeys
@@ -141,12 +121,67 @@ public sealed class ResourcePolicyTests {
     }
 
     [Fact]
-    public void ContentDialogSizingAttachesHandlersOnlyOnce() {
+    public void ReusableContentDialogsReleaseRuntimeContentAndHandlers() {
+        var main = ReadAppSource("MainWindow.xaml.cs");
+        var home = ReadAppSource("Views/HomePage.xaml.cs");
+        var server = ReadAppSource("Views/ServerPage.xaml.cs");
+        var scripts = ReadAppSource("Views/ScriptsPage.xaml.cs");
+
+        foreach (var source in new[] { main, home, server })
+            Assert.DoesNotContain("CanSubmitChanged += (_, _)", source,
+                                  StringComparison.Ordinal);
+
+        AssertServerDialogCleanup(MethodBlock(
+            main, "Task ShowCreateServerDialogAsync()"));
+        AssertServerDialogCleanup(MethodBlock(
+            home, "private async void OnAddCardClick("));
+        AssertServerDialogCleanup(MethodBlock(
+            home, "private async Task ShowEditDialogAsync("));
+        AssertServerDialogCleanup(MethodBlock(
+            server, "private async Task ShowEditDialogAsync()"));
+
+        var backupsFinally = FinallyBlock(MethodBlock(
+            server, "private async void OnBackupsClick("));
+        Assert.Contains("dialog.Opened -= OnOpened;", backupsFinally,
+                        StringComparison.Ordinal);
+        Assert.Contains("dialog.Content = null;", backupsFinally,
+                        StringComparison.Ordinal);
+        Assert.Contains("dialog.Title = null;", backupsFinally,
+                        StringComparison.Ordinal);
+
+        var consentFinally = FinallyBlock(MethodBlock(
+            scripts,
+            "private async Task<IReadOnlyList<PermissionKind>?> RequestConsentAsync("));
+        Assert.Contains("dialog.Content = null;", consentFinally,
+                        StringComparison.Ordinal);
+        Assert.Contains("dialog.Title = null;", consentFinally,
+                        StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ContentDialogSizingUsesMutableModeWithOneTimeHandlers() {
         var source = File.ReadAllText(Path.Combine(
             AppRoot, "Controls", "ContentDialogSizing.cs"));
-        Assert.Contains(
-            "if (dialog.Resources.ContainsKey(SizingAttachedKey))",
-            source, StringComparison.Ordinal);
+        Assert.Contains("ConditionalWeakTable<ContentDialog, SizingState>",
+                        source, StringComparison.Ordinal);
+        Assert.Contains("state.UseWideLayout = useWideLayout;", source,
+                        StringComparison.Ordinal);
+        Assert.Contains("state.Apply(dialog);", source,
+                        StringComparison.Ordinal);
+        Assert.Equal(1, CountOccurrences(source, "dialog.Loaded += state.OnLoaded;"));
+        Assert.Equal(1, CountOccurrences(
+            source, "dialog.SizeChanged += state.OnSizeChanged;"));
+    }
+
+    [Fact]
+    public void ContentDialogSizingStateUsesTheLatestLayoutMode() {
+        var state = new ContentDialogSizingState();
+
+        Assert.Equal((720d, 560d), state.Calculate(availableWidth: 1200));
+        state.UseWideLayout = true;
+        Assert.Equal((960d, 720d), state.Calculate(availableWidth: 1200));
+        state.UseWideLayout = false;
+        Assert.Equal((720d, 560d), state.Calculate(availableWidth: 1200));
     }
 
     [Fact]
@@ -332,6 +367,50 @@ public sealed class ResourcePolicyTests {
 
     private static IReadOnlySet<string> Set(params string[] properties) =>
         properties.ToHashSet(StringComparer.Ordinal);
+
+    private static string ReadAppSource(string relativePath) =>
+        File.ReadAllText(Path.Combine(
+            AppRoot, relativePath.Replace('/', Path.DirectorySeparatorChar)));
+
+    private static void AssertServerDialogCleanup(string method) {
+        Assert.Contains("content.CanSubmitChanged += OnCanSubmitChanged;", method,
+                        StringComparison.Ordinal);
+        var cleanup = FinallyBlock(method);
+        Assert.Contains("content.CanSubmitChanged -= OnCanSubmitChanged;", cleanup,
+                        StringComparison.Ordinal);
+        Assert.Contains("dialog.Content = null;", cleanup,
+                        StringComparison.Ordinal);
+        Assert.Contains("dialog.IsPrimaryButtonEnabled = false;", cleanup,
+                        StringComparison.Ordinal);
+    }
+
+    private static int CountOccurrences(string source, string value) =>
+        source.Split(value, StringSplitOptions.None).Length - 1;
+
+    private static string MethodBlock(string source, string signature) {
+        var signatureStart = source.IndexOf(signature, StringComparison.Ordinal);
+        Assert.True(signatureStart >= 0, $"Missing method {signature}");
+        return BraceBlock(source, signatureStart);
+    }
+
+    private static string FinallyBlock(string method) {
+        var finallyStart = method.IndexOf("finally", StringComparison.Ordinal);
+        Assert.True(finallyStart >= 0, "Missing finally block");
+        return BraceBlock(method, finallyStart);
+    }
+
+    private static string BraceBlock(string source, int searchStart) {
+        var open = source.IndexOf('{', searchStart);
+        Assert.True(open >= 0, "Missing opening brace");
+        var depth = 0;
+        for (var index = open; index < source.Length; index++) {
+            if (source[index] == '{')
+                depth++;
+            else if (source[index] == '}' && --depth == 0)
+                return source[open..(index + 1)];
+        }
+        throw new Xunit.Sdk.XunitException("Missing closing brace");
+    }
 
     private static bool IsAttachedResourceProperty(string property) =>
         property.StartsWith("[", StringComparison.Ordinal) ||

@@ -20,6 +20,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\JustHostMC.Core\JustHostMC.Core.csproj" />
+    <Compile Include="..\JustHostMC.App\Controls\ContentDialogSizingState.cs"
+             Link="ContentDialogSizingState.cs" />
   </ItemGroup>
 
   <!-- Engine.targets compiles the Go engine before every build; the item below then

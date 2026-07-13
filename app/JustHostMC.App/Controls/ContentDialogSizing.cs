@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
@@ -6,24 +7,34 @@ namespace JustHostMC.App.Controls;
 /// <summary>Applies the app's responsive standard and wide widths to a native
 /// ContentDialog.</summary>
 public static class ContentDialogSizing {
-    private const double StandardWidth         = 720;
-    private const double WideWidth             = 960;
     private const double WindowInset           = 96;
     private const double MinimumAvailableWidth = 320;
-    private const double StandardMinWidth      = 560;
-    private const double WideMinWidth          = 720;
-    private const string SizingAttachedKey =
-        "JustHostMC.ContentDialogSizingAttached";
+    private static readonly ConditionalWeakTable<ContentDialog, SizingState>
+        States = new();
 
     public static void Apply(ContentDialog dialog, bool useWideLayout = false) {
-        void ApplySizing() {
-            var targetWidth = useWideLayout ? WideWidth : StandardWidth;
-            var targetMinWidth =
-                useWideLayout ? WideMinWidth : StandardMinWidth;
+        var state = States.GetValue(dialog, static dialog => {
+            var state = new SizingState();
+            dialog.Loaded += state.OnLoaded;
+            dialog.SizeChanged += state.OnSizeChanged;
+            return state;
+        });
+        state.UseWideLayout = useWideLayout;
+        state.Apply(dialog);
+    }
+
+    private sealed class SizingState {
+        private readonly ContentDialogSizingState _layout = new();
+
+        public bool UseWideLayout {
+            get => _layout.UseWideLayout;
+            set => _layout.UseWideLayout = value;
+        }
+
+        public void Apply(ContentDialog dialog) {
             var availableWidth =
-                GetAvailableWidth(dialog.XamlRoot, targetWidth);
-            var dialogWidth = Math.Min(targetWidth, availableWidth);
-            var minWidth    = Math.Min(targetMinWidth, dialogWidth);
+                GetAvailableWidth(dialog.XamlRoot, _layout.TargetWidth);
+            var (dialogWidth, minWidth) = _layout.Calculate(availableWidth);
 
             dialog.Resources["ContentDialogMinWidth"]      = minWidth;
             dialog.Resources["ContentDialogMaxWidth"]      = dialogWidth;
@@ -31,13 +42,11 @@ public static class ContentDialogSizing {
             dialog.Resources["ContentDialogThemeMaxWidth"] = dialogWidth;
         }
 
-        ApplySizing();
-        if (dialog.Resources.ContainsKey(SizingAttachedKey))
-            return;
+        public void OnLoaded(object sender, RoutedEventArgs args) =>
+            Apply((ContentDialog)sender);
 
-        dialog.Resources[SizingAttachedKey] = true;
-        dialog.Loaded += (_, _)      => ApplySizing();
-        dialog.SizeChanged += (_, _) => ApplySizing();
+        public void OnSizeChanged(object sender, SizeChangedEventArgs args) =>
+            Apply((ContentDialog)sender);
     }
 
     private static double GetAvailableWidth(XamlRoot? root,

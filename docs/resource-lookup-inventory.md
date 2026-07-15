@@ -192,7 +192,7 @@ status and an owning XAML resource.
 | `MainWindow.xaml.cs:436` | `CreateServerDialog_CloseButtonText` | StaticXaml | Moved to XAML — `CreateServerDialog.CloseButtonText` |
 | `Views/BanListDialog.xaml.cs:25` | `BanListStoppedNotice_Title` | StaticXaml | Moved to XAML — `BanListStoppedNotice.Title` |
 | `Views/BanListDialog.xaml.cs:26` | `BanListStoppedNotice_Message` | StaticXaml | Moved to XAML — `BanListStoppedNotice.Message` |
-| `Views/EngineStdioWindow.xaml.cs:42` | `EngineMonitor_Title` | StaticXaml | Moved to XAML — `EngineStdioWindow.Title` and `EngineMonitorTitleBar.Title` |
+| `Views/EngineStdioWindow.xaml.cs:42` | `EngineMonitor_Title` | StaticXaml | Removed from native Window — `EngineStdioWindow.Title` x:Uid assignment crashes `InitializeComponent`; the custom `EngineMonitorTitleBar.Title` owns the visible title |
 | `Views/HomePage.xaml.cs:101` | `ServerDelete_Title` | StaticXaml | Moved to XAML — `DeleteServerDialog.Title` |
 | `Views/HomePage.xaml.cs:102` | `ServerDelete_Body` | StaticXaml | Moved to XAML — `DeleteServerDialog.Content` |
 | `Views/HomePage.xaml.cs:103` | `ServerDelete_Confirm` | StaticXaml | Moved to XAML — `DeleteServerDialog.PrimaryButtonText` |
@@ -207,7 +207,7 @@ status and an owning XAML resource.
 | `Views/HomePage.xaml.cs:180` | `RenameServerDialog_Title` | StaticXaml | Moved to XAML — `RenameServerDialog.Title` |
 | `Views/HomePage.xaml.cs:182` | `Common_Save` | StaticXaml | Moved to XAML — `RenameServerDialog.PrimaryButtonText` |
 | `Views/HomePage.xaml.cs:183` | `Common_Cancel` | StaticXaml | Moved to XAML — `RenameServerDialog.CloseButtonText` |
-| `Views/ScriptLogsWindow.xaml.cs:23` | `ScriptLogsWindow_Title` | StaticXaml | Moved to XAML — `ScriptLogsWindow.Title` and `ScriptLogsTitleBar.Title` |
+| `Views/ScriptLogsWindow.xaml.cs:23` | `ScriptLogsWindow_Title` | StaticXaml | Removed from native Window — `ScriptLogsWindow.Title` x:Uid assignment crashes `InitializeComponent`; the custom `ScriptLogsTitleBar.Title` owns the visible title |
 | `Views/ScriptsPage.xaml.cs:175` | `PermissionConsentDialog_PrimaryButtonText` | StaticXaml | Moved to XAML — `PermissionConsentDialog.PrimaryButtonText` |
 | `Views/ScriptsPage.xaml.cs:177` | `PermissionConsentDialog_CloseButtonText` | StaticXaml | Moved to XAML — `PermissionConsentDialog.CloseButtonText` |
 | `Views/ServerPage.xaml.cs:157` | `BackupsDialog_CloseButtonText` | StaticXaml | Moved to XAML — `CommonCloseDialog.CloseButtonText` |
@@ -228,7 +228,7 @@ status and an owning XAML resource.
 | `Views/ShopDetailPage.xaml.cs:113` | `Shop_DependencyPromptTitle` | StaticXaml | Moved to XAML — `DependencyPromptDialog.Title` |
 | `Views/ShopDetailPage.xaml.cs:115` | `Shop_InstallConfirm` | StaticXaml | Moved to XAML — `DependencyPromptDialog.PrimaryButtonText` |
 | `Views/ShopDetailPage.xaml.cs:116` | `Common_Cancel` | StaticXaml | Moved to XAML — `DependencyPromptDialog.CloseButtonText` |
-| `Views/ShopWindow.xaml.cs:81` | `ShopWindow_Title` | StaticXaml | Moved to XAML — `ShopWindow.Title` and `ShopWindowTitleBar.Title` |
+| `Views/ShopWindow.xaml.cs:81` | `ShopWindow_Title` | StaticXaml | Removed from native Window — `ShopWindow.Title` x:Uid assignment crashes `InitializeComponent`; the custom `ShopWindowTitleBar.Title` owns the visible title |
 
 Dynamic endpoint/install-step tooltips remain bindings. The only static
 imperative exception is `ShopWindow`'s selector tooltip for the documented

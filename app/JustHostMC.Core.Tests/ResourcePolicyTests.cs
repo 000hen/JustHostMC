@@ -19,7 +19,6 @@ public sealed class ResourcePolicyTests {
             "CreateServerDialog.CloseButtonText",
             "BanListStoppedNotice.Title",
             "BanListStoppedNotice.Message",
-            "EngineStdioWindow.Title",
             "EngineMonitorTitleBar.Title",
             "DeleteServerDialog.Title",
             "DeleteServerDialog.Content",
@@ -33,7 +32,6 @@ public sealed class ResourcePolicyTests {
             "RenameServerDialog.PrimaryButtonText",
             "RenameServerDialog.CloseButtonText",
             "RenameServerNameBox.Header",
-            "ScriptLogsWindow.Title",
             "ScriptLogsTitleBar.Title",
             "PermissionConsentDialog.PrimaryButtonText",
             "PermissionConsentDialog.CloseButtonText",
@@ -44,7 +42,6 @@ public sealed class ResourcePolicyTests {
             "DependencyPromptDialog.PrimaryButtonText",
             "DependencyPromptDialog.CloseButtonText",
             "DependencyPromptBody.Text",
-            "ShopWindow.Title",
             "ShopWindowTitleBar.Title");
     private static readonly IReadOnlyList<DuplicateResourceRule>
         DuplicateResourceRules = [
@@ -86,12 +83,9 @@ public sealed class ResourcePolicyTests {
             Rule("Save", "PROPERTY-CONTEXT", "canonical EditServerDialog.PrimaryButtonText; each ContentDialog x:Uid also owns a distinct title and close action", "EditServerDialog.PrimaryButtonText", "RenameServerDialog.PrimaryButtonText"),
             Rule("Scripts", "PROPERTY-CONTEXT", "canonical ScriptsPageTitle.Text; the page heading targets TextBlock.Text while navigation targets NavigationViewItem.Content", "NavScripts.Content", "ScriptsPageTitle.Text"),
             Rule("Built in", "PROPERTY-CONTEXT", "canonical ScriptsBuiltinBadge.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the badge also needs a child TextBlock.Text label", "ScriptsBuiltinBadge.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name", "ScriptsBuiltinBadgeLabel.Text"),
-            Rule("All Automation Logs", "PROPERTY-CONTEXT", "canonical ScriptLogsWindow.Title; Window.Title and TitleBar.Title have incompatible owners", "ScriptLogsTitleBar.Title", "ScriptLogsWindow.Title"),
             Rule("Previous", "PROPERTY-CONTEXT", "canonical InstallProgressPreviousButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the same icon button also needs ToolTipService.ToolTip", "InstallProgressPreviousButton.ToolTipService.ToolTip", "InstallProgressPreviousButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name"),
             Rule("Next", "PROPERTY-CONTEXT", "canonical CommonNextButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the same icon button also needs ToolTipService.ToolTip", "CommonNextButton.ToolTipService.ToolTip", "CommonNextButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name"),
-            Rule("Mod Shop", "PROPERTY-CONTEXT", "canonical ShopWindow.Title; Window.Title and TitleBar.Title have incompatible owners", "ShopWindow.Title", "ShopWindowTitleBar.Title"),
             Rule("Recently updated", "SEMANTIC-HOMOGRAPH", "ShopSortUpdated.Content is a sort criterion while shop.home.updated is a discovery-section heading", "ShopSortUpdated.Content", "shop.home.updated"),
-            Rule("Engine debug monitor", "PROPERTY-CONTEXT", "canonical EngineStdioWindow.Title; Window.Title and TitleBar.Title have incompatible owners", "EngineMonitorTitleBar.Title", "EngineStdioWindow.Title"),
         ];
 
     [Fact]
@@ -209,16 +203,33 @@ public sealed class ResourcePolicyTests {
         Assert.Empty(missing);
     }
 
-    [Fact]
-    public void MainWindowDoesNotUseXUidForNativeTitle() {
-        XNamespace x = "http://schemas.microsoft.com/winfx/2006/xaml";
-        var window = XDocument.Load(Path.Combine(AppRoot, "MainWindow.xaml"))
-            .Root!;
+    [Theory]
+    [InlineData("en-US")]
+    [InlineData("zh-TW")]
+    public void NativeWindowTitlesAreNotLocalizedThroughRootXUid(
+        string language) {
+        Assert.Empty(NativeWindowTitleLocalizationViolations(
+            SourceXamlRoots(),
+            LoadResourceMap(language).Keys.ToHashSet(
+                StringComparer.OrdinalIgnoreCase)));
+    }
 
-        Assert.Equal("Window", window.Name.LocalName);
-        Assert.Null(window.Attribute(x + "Uid"));
-        Assert.DoesNotContain("MainWindow.Title",
-                              LoadResourceMap("en-US").Keys);
+    [Fact]
+    public void NativeWindowTitlePolicyCoversSecondaryWindows() {
+        XNamespace presentation =
+            "http://schemas.microsoft.com/winfx/2006/xaml/presentation";
+        XNamespace x = "http://schemas.microsoft.com/winfx/2006/xaml";
+        var roots = new[] {
+            ("MainWindow.xaml", new XElement(presentation + "Window")),
+            ("Views/SecondaryWindow.xaml",
+             new XElement(presentation + "Window",
+                          new XAttribute(x + "Uid", "SecondaryWindow"))),
+        };
+
+        Assert.Equal(
+            ["Views/SecondaryWindow.xaml: SecondaryWindow.Title"],
+            NativeWindowTitleLocalizationViolations(
+                roots, Set("SecondaryWindow.Title")));
     }
 
     [Fact]
@@ -481,6 +492,9 @@ public sealed class ResourcePolicyTests {
     [InlineData("Shop.DependencyPromptTitle")]
     [InlineData("Shop.DependencyPromptBody")]
     [InlineData("Shop.InstallConfirm")]
+    [InlineData("EngineStdioWindow.Title")]
+    [InlineData("ScriptLogsWindow.Title")]
+    [InlineData("ShopWindow.Title")]
     public void ObsoleteResourceAliasesAreAbsent(string alias) {
         Assert.DoesNotContain(alias, LoadResourceMap("en-US").Keys);
         Assert.DoesNotContain(alias, LoadResourceMap("zh-TW").Keys);
@@ -705,11 +719,26 @@ public sealed class ResourcePolicyTests {
         property.StartsWith("[", StringComparison.Ordinal) ||
         property.StartsWith("ToolTipService.", StringComparison.Ordinal);
 
-    private static IEnumerable<string> XamlUids() =>
-        XamlUidElements().Select(item => item.Uid);
-
-    private static IEnumerable<(string Uid, string Element)> XamlUidElements() {
+    private static string[] NativeWindowTitleLocalizationViolations(
+        IEnumerable<(string Path, XElement Root)> roots,
+        IReadOnlySet<string> resourceNames) {
         XNamespace x = "http://schemas.microsoft.com/winfx/2006/xaml";
+        return roots
+            .Where(item => item.Root.Name.LocalName == "Window")
+            .Select(item => (
+                item.Path,
+                Uid: item.Root.Attribute(x + "Uid")?.Value))
+            .Where(item => item.Uid is not null)
+            .Select(item => (
+                item.Path,
+                Key: $"{item.Uid}.Title"))
+            .Where(item => resourceNames.Contains(item.Key))
+            .Select(item => $"{item.Path}: {item.Key}")
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IEnumerable<(string Path, XElement Root)> SourceXamlRoots() {
         foreach (var path in Directory.EnumerateFiles(
                      AppRoot, "*.xaml", SearchOption.AllDirectories)
                  .Where(path => !path.Contains(
@@ -718,7 +747,18 @@ public sealed class ResourcePolicyTests {
                      !path.Contains(
                      $"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}",
                      StringComparison.OrdinalIgnoreCase))) {
-            foreach (var element in XDocument.Load(path).Root!.DescendantsAndSelf()) {
+            yield return (Path.GetRelativePath(AppRoot, path),
+                          XDocument.Load(path).Root!);
+        }
+    }
+
+    private static IEnumerable<string> XamlUids() =>
+        XamlUidElements().Select(item => item.Uid);
+
+    private static IEnumerable<(string Uid, string Element)> XamlUidElements() {
+        XNamespace x = "http://schemas.microsoft.com/winfx/2006/xaml";
+        foreach (var (_, root) in SourceXamlRoots()) {
+            foreach (var element in root.DescendantsAndSelf()) {
                 if (element.Attribute(x + "Uid") is { Value: var uid })
                     yield return (uid, element.Name.LocalName);
             }

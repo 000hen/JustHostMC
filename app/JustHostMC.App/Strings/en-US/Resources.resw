@@ -448,7 +448,6 @@
   <data name="ScriptsAllLogsButtonLabel.Text" xml:space="preserve"><value>All Logs</value></data>
   <data name="ScriptsScriptLogsHeader.Text" xml:space="preserve"><value>Logs</value></data>
   <data name="ScriptsScriptLogsEmpty.Text" xml:space="preserve"><value>No output from this script yet.</value></data>
-<data name="ScriptLogsWindow.Title" xml:space="preserve"><value>All Automation Logs</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical ScriptLogsWindow.Title; Window.Title and TitleBar.Title have incompatible owners.</comment></data>
   <data name="ScriptLogsWindowEmpty.Text" xml:space="preserve"><value>No automation output yet.</value></data>
   <data name="ScriptLogsWindowNoSelection.Text" xml:space="preserve"><value>Select a log entry to view its details.</value></data>
   <data name="ScriptLogsWindowDetailHeader.Text" xml:space="preserve"><value>Log detail</value></data>
@@ -499,7 +498,6 @@
   <data name="SettingsAboutHeader.Text" xml:space="preserve"><value>About</value></data>
   <data name="SettingsAboutRepo.Text" xml:space="preserve"><value>GitHub Repository</value></data>
   <data name="SettingsAboutIssues.Text" xml:space="preserve"><value>Report an Issue</value></data>
-<data name="ShopWindow.Title" xml:space="preserve"><value>Mod Shop</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical ShopWindow.Title; Window.Title and TitleBar.Title have incompatible owners.</comment></data>
   <data name="ShopDiscoverTitle.Text" xml:space="preserve"><value>Find something brilliant for your server</value></data>
   <data name="ShopDiscoverSubtitle.Text" xml:space="preserve"><value>Explore community projects selected for this server. Compatibility filters are on by default, so what you see is ready to fit.</value></data>
 <data name="CommonDismissTooltipButton.ToolTipService.ToolTip" xml:space="preserve"><value>Dismiss</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonDismissButton.Content; the icon-only dismiss owner needs ToolTipService.ToolTip instead of Button.Content.</comment></data>
@@ -574,10 +572,9 @@
   <data name="Settings.ShopKeyBuiltin" xml:space="preserve"><value>Using this build's bundled CurseForge key. A personal key overrides it.</value></data>
   <!-- XAML-owned window and dialog chrome -->
 <data name="MainWindowTitleBar.Title" xml:space="preserve"><value>JustHostMC</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical AppDisplayName; the manifest value and custom TitleBar.Title have incompatible owners, while native Window.Title x:Uid assignment crashes at startup.</comment></data>
-<data name="EngineStdioWindow.Title" xml:space="preserve"><value>Engine debug monitor</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical EngineStdioWindow.Title; Window.Title and TitleBar.Title have incompatible owners.</comment></data>
-<data name="EngineMonitorTitleBar.Title" xml:space="preserve"><value>Engine debug monitor</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical EngineStdioWindow.Title; Window.Title and TitleBar.Title have incompatible owners.</comment></data>
-<data name="ScriptLogsTitleBar.Title" xml:space="preserve"><value>All Automation Logs</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical ScriptLogsWindow.Title; Window.Title and TitleBar.Title have incompatible owners.</comment></data>
-<data name="ShopWindowTitleBar.Title" xml:space="preserve"><value>Mod Shop</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical ShopWindow.Title; Window.Title and TitleBar.Title have incompatible owners.</comment></data>
+<data name="EngineMonitorTitleBar.Title" xml:space="preserve"><value>Engine debug monitor</value><comment>The custom TitleBar owns the visible title because native Window.Title x:Uid assignment crashes InitializeComponent.</comment></data>
+<data name="ScriptLogsTitleBar.Title" xml:space="preserve"><value>All Automation Logs</value><comment>The custom TitleBar owns the visible title because native Window.Title x:Uid assignment crashes InitializeComponent.</comment></data>
+<data name="ShopWindowTitleBar.Title" xml:space="preserve"><value>Mod Shop</value><comment>The custom TitleBar owns the visible title because native Window.Title x:Uid assignment crashes InitializeComponent.</comment></data>
   <data name="DeleteServerDialog.Title" xml:space="preserve"><value>Delete server?</value></data>
   <data name="DeleteServerDialog.Content" xml:space="preserve"><value>This permanently deletes the server and its world. This cannot be undone.</value></data>
 <data name="DeleteServerDialog.PrimaryButtonText" xml:space="preserve"><value>Delete</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonDeleteMenuItem.Text; menu text and ContentDialog.PrimaryButtonText have incompatible owners.</comment></data>

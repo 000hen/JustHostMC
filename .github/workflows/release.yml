@@ -1,88 +1,133 @@
-name: Release
+name: Build release assets
 
 on:
-  push:
-    tags:
-      - "v*"
+  # Create and publish the GitHub Release first. This workflow only uploads
+  # assets to that existing release; it never creates a release.
+  release:
+    types: [published]
+
+  # Manual fallback for rebuilding or replacing assets on an existing release.
   workflow_dispatch:
     inputs:
-      version:
-        description: "Version to release (e.g. 1.2.3). If empty, derived from the latest v* tag."
-        required: false
+      tag:
+        description: "Existing release tag (for example: v1.2.3.4)"
+        required: true
         type: string
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
-  group: release-${{ github.ref }}
+  group: release-assets-${{ github.event.release.id || inputs.tag }}
   cancel-in-progress: false
 
 env:
-  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
   DOTNET_NOLOGO: "true"
 
 jobs:
-  # ─── Validate version and extract it from tag ───────────────────────
   prepare:
-    name: Validate version
+    name: Validate existing release
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
-      version: ${{ steps.version.outputs.version }}
       tag: ${{ steps.version.outputs.tag }}
+      app_version: ${{ steps.version.outputs.app_version }}
+      msi_version: ${{ steps.version.outputs.msi_version }}
+
     steps:
-      - name: Extract and validate version
+      - name: Resolve and validate version
         id: version
         shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          INPUT_TAG: ${{ inputs.tag }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          if [[ -n "${{ inputs.version }}" ]]; then
-            VER="${{ inputs.version }}"
-          elif [[ "$GITHUB_REF" == refs/tags/v* ]]; then
-            VER="${GITHUB_REF#refs/tags/v}"
+          set -euo pipefail
+
+          if [[ "$EVENT_NAME" == "release" ]]; then
+            tag="$RELEASE_TAG"
           else
-            echo "::error::No version tag found and no version input provided."
+            tag="$INPUT_TAG"
+          fi
+
+          # WinUI/.NET file versions use four numeric components.
+          if [[ ! "$tag" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "::error::Release tag must use vMAJOR.MINOR.BUILD.REVISION, for example v1.2.3.4."
             exit 1
           fi
 
-          if ! [[ "$VER" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "::error::Invalid version '$VER'. Must be MAJOR.MINOR.PATCH (e.g. 1.2.3)."
+          major="${BASH_REMATCH[1]}"
+          minor="${BASH_REMATCH[2]}"
+          build="${BASH_REMATCH[3]}"
+          revision="${BASH_REMATCH[4]}"
+
+          # Each Windows/.NET four-part version component must fit UInt16.
+          for part in "$major" "$minor" "$build" "$revision"; do
+            if (( 10#$part > 65535 )); then
+              echo "::error::Version component '$part' exceeds 65535."
+              exit 1
+            fi
+          done
+
+          # Windows Installer ProductVersion supports only major.minor.build.
+          if (( 10#$major > 255 || 10#$minor > 255 || 10#$build > 65535 )); then
+            echo "::error::MSI version limits are major <= 255, minor <= 255, build <= 65535."
             exit 1
           fi
 
-          echo "version=$VER" >> "$GITHUB_OUTPUT"
-          echo "tag=v$VER" >> "$GITHUB_OUTPUT"
-          echo "✅ Version: $VER"
+          app_version="$major.$minor.$build.$revision"
+          msi_version="$major.$minor.$build"
 
-  # ─── Build matrix: one job per architecture ─────────────────────────
+          # Refuse to create a release implicitly. The target release must exist.
+          gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null
+
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "app_version=$app_version" >> "$GITHUB_OUTPUT"
+          echo "msi_version=$msi_version" >> "$GITHUB_OUTPUT"
+
+          echo "Release tag: $tag"
+          echo "Application version: $app_version"
+          echo "MSI ProductVersion: $msi_version"
+
   build:
     name: Build ${{ matrix.arch }}
     needs: prepare
     runs-on: windows-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
+
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         include:
           - arch: x64
             rid: win-x64
-            platform: x64
+            app_platform: x64
+            wix_platform: x64
             goarch: amd64
           - arch: x86
             rid: win-x86
-            platform: x86
+            app_platform: x86
+            wix_platform: x86
             goarch: "386"
           - arch: arm64
             rid: win-arm64
-            platform: ARM64
+            app_platform: ARM64
+            wix_platform: arm64
             goarch: arm64
+
     env:
-      VERSION: ${{ needs.prepare.outputs.version }}
+      APP_VERSION: ${{ needs.prepare.outputs.app_version }}
+      MSI_VERSION: ${{ needs.prepare.outputs.msi_version }}
+      JHMC_CURSEFORGE_API_KEY: ${{ secrets.JHMC_CURSEFORGE_API_KEY }}
 
     steps:
-      - name: Check out repository
+      - name: Check out release tag
         uses: actions/checkout@v6
         with:
+          ref: ${{ needs.prepare.outputs.tag }}
           fetch-depth: 0
 
       - name: Set up Go
@@ -108,11 +153,11 @@ jobs:
           go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.6.2
 
       - name: Generate protobuf code
+        shell: pwsh
         working-directory: proto
         run: buf generate
 
-      # ── Build Go engine for this architecture ──
-      - name: Build Go engine (${{ matrix.goarch }})
+      - name: Build Go engine
         shell: pwsh
         working-directory: engine
         env:
@@ -121,49 +166,77 @@ jobs:
           GOARCH: ${{ matrix.goarch }}
         run: |
           New-Item -ItemType Directory -Force ../build | Out-Null
+
           $ldflags = "-s -w -buildid="
           if ($env:JHMC_CURSEFORGE_API_KEY) {
             $ldflags += " -X main.defaultCurseForgeKey=$($env:JHMC_CURSEFORGE_API_KEY)"
           }
+
           go build -trimpath -buildvcs=false -mod=readonly `
             -ldflags="$ldflags" `
             -o ../build/engine.exe ./cmd/engine
 
-      - name: Verify engine.exe exists
+          if (-not (Test-Path ../build/engine.exe)) {
+            throw "build/engine.exe was not produced."
+          }
+
+      - name: Stamp Windows manifest version
         shell: pwsh
         run: |
-          if (-not (Test-Path build/engine.exe)) {
-            Write-Error "build/engine.exe not found after Go build"
-            exit 1
-          }
-          Write-Host "✅ build/engine.exe exists ($(( Get-Item build/engine.exe ).Length) bytes)"
+          $path = "app/JustHostMC.App/app.manifest"
+          $content = [System.IO.File]::ReadAllText($path)
+          $pattern = '(<assemblyIdentity\s+version=")[^"]+("\s+name="JustHostMC\.App")'
+          $replacement = '${1}' + $env:APP_VERSION + '${2}'
+          $updated = ([regex]::new($pattern)).Replace($content, $replacement, 1)
 
-      # ── Portable build ──
-      - name: Publish portable build
+          if ($updated -eq $content) {
+            throw "Could not update assemblyIdentity in $path."
+          }
+
+          $utf8NoBom = [System.Text.UTF8Encoding]::new($false)
+          [System.IO.File]::WriteAllText($path, $updated, $utf8NoBom)
+
+      - name: Publish portable executable
         shell: pwsh
         run: |
           dotnet publish app/JustHostMC.App/JustHostMC.App.csproj `
             --configuration Release `
             --runtime ${{ matrix.rid }} `
             --self-contained true `
-            -p:Platform=${{ matrix.platform }} `
+            --output artifacts/portable `
+            -p:Platform=${{ matrix.app_platform }} `
             -p:DistributionChannel=GitHubPortable `
-            -p:Version=${{ env.VERSION }} `
+            -p:WindowsPackageType=None `
+            -p:EnableMsixTooling=false `
+            -p:WindowsAppSDKSelfContained=true `
+            -p:PublishSingleFile=true `
+            -p:IncludeAllContentForSelfExtract=true `
+            -p:PublishTrimmed=false `
+            -p:PublishReadyToRun=false `
+            -p:Version="$env:APP_VERSION" `
+            -p:AssemblyVersion="$env:APP_VERSION" `
+            -p:FileVersion="$env:APP_VERSION" `
+            -p:InformationalVersion="$env:APP_VERSION" `
+            -p:IncludeSourceRevisionInInformationalVersion=false `
+            -p:ContinuousIntegrationBuild=true `
             -p:SkipEngineBuild=true `
-            -p:SkipProtobufGenerate=true `
-            -o artifacts/portable
+            -p:SkipProtobufGenerate=true
 
-      - name: Verify portable output
+      - name: Verify portable executable
         shell: pwsh
         run: |
-          $exe = Get-ChildItem artifacts/portable -Filter "JustHostMC.App.exe" -Recurse | Select-Object -First 1
-          if (-not $exe) {
-            Write-Error "Portable EXE not found in artifacts/portable"
-            exit 1
-          }
-          Write-Host "✅ Portable EXE: $($exe.FullName) ($($exe.Length) bytes)"
+          $exe = Get-ChildItem artifacts/portable `
+            -Filter "JustHostMC.App.exe" `
+            -File `
+            -Recurse | Select-Object -First 1
 
-      # ── MSI payload build ──
+          if (-not $exe) {
+            throw "Portable JustHostMC.App.exe was not produced."
+          }
+
+          Write-Host "Portable executable: $($exe.FullName)"
+          Write-Host "Size: $($exe.Length) bytes"
+
       - name: Publish MSI payload
         shell: pwsh
         run: |
@@ -171,85 +244,112 @@ jobs:
             --configuration Release `
             --runtime ${{ matrix.rid }} `
             --self-contained true `
-            -p:Platform=${{ matrix.platform }} `
+            --output artifacts/msi-payload `
+            -p:Platform=${{ matrix.app_platform }} `
             -p:DistributionChannel=GitHubMsi `
-            -p:Version=${{ env.VERSION }} `
+            -p:WindowsPackageType=None `
+            -p:EnableMsixTooling=false `
+            -p:WindowsAppSDKSelfContained=true `
+            -p:PublishSingleFile=false `
+            -p:PublishTrimmed=false `
+            -p:PublishReadyToRun=false `
+            -p:Version="$env:APP_VERSION" `
+            -p:AssemblyVersion="$env:APP_VERSION" `
+            -p:FileVersion="$env:APP_VERSION" `
+            -p:InformationalVersion="$env:APP_VERSION" `
+            -p:IncludeSourceRevisionInInformationalVersion=false `
+            -p:ContinuousIntegrationBuild=true `
             -p:SkipEngineBuild=true `
-            -p:SkipProtobufGenerate=true `
-            -o artifacts/msi-payload
+            -p:SkipProtobufGenerate=true
 
-      - name: Verify MSI payload contains engine
+      - name: Verify MSI payload
         shell: pwsh
         run: |
-          $engine = Get-ChildItem artifacts/msi-payload -Filter "engine.exe" -Recurse | Select-Object -First 1
-          if (-not $engine) {
-            Write-Error "engine.exe not found in MSI payload"
-            exit 1
+          if (-not (Test-Path artifacts/msi-payload/JustHostMC.App.exe)) {
+            throw "JustHostMC.App.exe is missing from the MSI payload."
           }
-          Write-Host "✅ engine.exe in payload: $($engine.FullName) ($($engine.Length) bytes)"
 
-      # ── Build MSI ──
+          $engine = Get-ChildItem artifacts/msi-payload `
+            -Filter "engine.exe" `
+            -File `
+            -Recurse | Select-Object -First 1
+
+          if (-not $engine) {
+            throw "engine.exe is missing from the MSI payload."
+          }
+
       - name: Build MSI installer
         shell: pwsh
         run: |
           $payloadDir = (Resolve-Path artifacts/msi-payload).Path
+          $outputDir = Join-Path $PWD "artifacts/msi"
+          New-Item -ItemType Directory -Force $outputDir | Out-Null
+
           dotnet build installer/JustHostMC.Installer/JustHostMC.Installer.wixproj `
-            -p:Platform=${{ matrix.platform }} `
-            -p:ProductVersion=${{ env.VERSION }} `
-            -p:PublishDir="$payloadDir\\"
+            --configuration Release `
+            --output "$outputDir" `
+            -p:Platform=${{ matrix.wix_platform }} `
+            -p:InstallerPlatform=${{ matrix.wix_platform }} `
+            -p:ProductVersion="$env:MSI_VERSION" `
+            -p:PublishDir="$payloadDir" `
+            -p:ContinuousIntegrationBuild=true
 
-      - name: Verify MSI exists
-        id: msi
+      - name: Stage release assets
         shell: pwsh
         run: |
-          $msi = Get-ChildItem installer -Filter "*.msi" -Recurse | Select-Object -First 1
-          if (-not $msi) {
-            Write-Error "MSI file not found after WiX build"
-            exit 1
-          }
-          Write-Host "✅ MSI: $($msi.FullName) ($($msi.Length) bytes)"
-          echo "msi_path=$($msi.FullName)" >> $env:GITHUB_OUTPUT
-
-      # ── Stage release artifacts ──
-      - name: Stage release artifacts
-        shell: pwsh
-        run: |
-          $v = "${{ env.VERSION }}"
           $arch = "${{ matrix.arch }}"
-          New-Item -ItemType Directory -Force release | Out-Null
+          $version = $env:APP_VERSION
+          $releaseDir = "release"
+          New-Item -ItemType Directory -Force $releaseDir | Out-Null
 
-          # Portable EXE
-          $portableExe = Get-ChildItem artifacts/portable -Filter "JustHostMC.App.exe" -Recurse | Select-Object -First 1
-          Copy-Item $portableExe.FullName "release/JustHostMC-$v-windows-$arch-portable.exe"
+          $portableExe = Get-ChildItem artifacts/portable `
+            -Filter "JustHostMC.App.exe" `
+            -File `
+            -Recurse | Select-Object -First 1
 
-          # MSI
-          $msi = Get-ChildItem installer -Filter "*.msi" -Recurse | Select-Object -First 1
-          Copy-Item $msi.FullName "release/JustHostMC-$v-windows-$arch.msi"
+          $msi = Get-ChildItem artifacts/msi `
+            -Filter "*.msi" `
+            -File `
+            -Recurse | Select-Object -First 1
 
-          # SHA-256 checksums
-          $hashes = @()
-          foreach ($file in Get-ChildItem release -File) {
-            $hash = (Get-FileHash $file.FullName -Algorithm SHA256).Hash.ToLower()
-            $hashes += "$hash  $($file.Name)"
-            Write-Host "$hash  $($file.Name)"
+          if (-not $portableExe) {
+            throw "Portable executable is missing."
           }
-          $hashes | Out-File -Encoding utf8NoBOM "release/SHA256SUMS-$arch.txt"
+          if (-not $msi) {
+            throw "MSI installer is missing."
+          }
 
-      - name: Upload release artifacts
+          Copy-Item `
+            $portableExe.FullName `
+            "$releaseDir/JustHostMC-$version-windows-$arch-portable.exe"
+
+          Copy-Item `
+            $msi.FullName `
+            "$releaseDir/JustHostMC-$version-windows-$arch.msi"
+
+          $checksumLines = foreach ($file in Get-ChildItem $releaseDir -File) {
+            $hash = (Get-FileHash $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+            "$hash  $($file.Name)"
+          }
+
+          $checksumPath = "$releaseDir/SHA256SUMS-$arch.txt"
+          $utf8NoBom = [System.Text.UTF8Encoding]::new($false)
+          [System.IO.File]::WriteAllLines($checksumPath, $checksumLines, $utf8NoBom)
+
+      - name: Upload workflow artifacts
         uses: actions/upload-artifact@v4
         with:
           name: release-${{ matrix.arch }}
           path: release/
+          if-no-files-found: error
           retention-days: 7
 
-  # ─── Create GitHub Release ──────────────────────────────────────────
-  release:
-    name: Publish GitHub Release
+  attach:
+    name: Attach assets to existing release
     needs: [prepare, build]
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    permissions:
-      contents: write
+
     steps:
       - name: Download all build artifacts
         uses: actions/download-artifact@v4
@@ -258,49 +358,33 @@ jobs:
           pattern: release-*
           merge-multiple: true
 
-      - name: Merge SHA256SUMS
+      - name: Merge checksums
         shell: bash
         run: |
-          cat artifacts/SHA256SUMS-*.txt | sort > artifacts/SHA256SUMS.txt
-          rm -f artifacts/SHA256SUMS-*.txt
-          echo "--- SHA256SUMS.txt ---"
-          cat artifacts/SHA256SUMS.txt
+          set -euo pipefail
+          cat artifacts/SHA256SUMS-*.txt | LC_ALL=C sort > artifacts/SHA256SUMS.txt
+          rm artifacts/SHA256SUMS-*.txt
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ needs.prepare.outputs.tag }}
-          name: JustHostMC ${{ needs.prepare.outputs.version }}
-          draft: false
-          prerelease: false
-          generate_release_notes: true
-          body: |
-            ## Installation
+      - name: Verify existing release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
+        run: |
+          set -euo pipefail
+          gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null
 
-            | Artifact | Description |
-            |----------|-------------|
-            | \`JustHostMC-${{ needs.prepare.outputs.version }}-windows-x64-portable.exe\` | Portable single-file EXE (x64) |
-            | \`JustHostMC-${{ needs.prepare.outputs.version }}-windows-x86-portable.exe\` | Portable single-file EXE (x86) |
-            | \`JustHostMC-${{ needs.prepare.outputs.version }}-windows-arm64-portable.exe\` | Portable single-file EXE (ARM64) |
-            | \`JustHostMC-${{ needs.prepare.outputs.version }}-windows-x64.msi\` | MSI installer (x64) |
-            | \`JustHostMC-${{ needs.prepare.outputs.version }}-windows-x86.msi\` | MSI installer (x86) |
-            | \`JustHostMC-${{ needs.prepare.outputs.version }}-windows-arm64.msi\` | MSI installer (ARM64) |
-            | \`SHA256SUMS.txt\` | Checksums for all artifacts |
+      - name: Upload release assets
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
+        run: |
+          set -euo pipefail
 
-            > [!WARNING]
-            > **Unsigned binaries**: These GitHub release artifacts are currently unsigned.
-            > Windows may display a SmartScreen or "Unknown publisher" warning.
-            > Verify your download using the SHA-256 checksums in \`SHA256SUMS.txt\`.
-            > For a signed distribution, install from the [Microsoft Store](https://apps.microsoft.com/detail/9NB5ZHPKMBDS).
-
-            ## Verify checksums
-
-            \`\`\`powershell
-            # PowerShell
-            Get-FileHash JustHostMC-*.exe -Algorithm SHA256 | Format-Table Hash, Path
-            \`\`\`
-
-          files: |
-            artifacts/*.exe
-            artifacts/*.msi
-            artifacts/SHA256SUMS.txt
+          gh release upload "$RELEASE_TAG" \
+            artifacts/*.exe \
+            artifacts/*.msi \
+            artifacts/SHA256SUMS.txt \
+            --clobber \
+            --repo "$GITHUB_REPOSITORY"

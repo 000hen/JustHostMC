@@ -23,10 +23,9 @@
       <Directory Id="INSTALLFOLDER" Name="JustHostMC" />
     </StandardDirectory>
 
-    <!-- Harvest all published files, excluding PDBs -->
+    <!-- Harvest all published files -->
     <ComponentGroup Id="PublishFiles" Directory="INSTALLFOLDER">
-      <Files Include="$(PublishDir)\**"
-             Exclude="$(PublishDir)\**\*.pdb" />
+      <Files Include="$(PublishDir)\**" />
     </ComponentGroup>
 
     <!-- Start Menu shortcut -->

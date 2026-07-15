@@ -3,6 +3,8 @@
     <OutputType>Package</OutputType>
     <ProductVersion Condition="'$(ProductVersion)' == ''">0.0.0</ProductVersion>
     <PublishDir Condition="'$(PublishDir)' == ''"></PublishDir>
+    <DefineConstants>$(DefineConstants);ProductVersion=$(ProductVersion);PublishDir=$(PublishDir)</DefineConstants>
+    <SuppressIces>$(SuppressIces);ICE03</SuppressIces>
     <InstallerPlatform Condition="'$(Platform)' == 'x64'">x64</InstallerPlatform>
     <InstallerPlatform Condition="'$(Platform)' == 'x86'">x86</InstallerPlatform>
     <InstallerPlatform Condition="'$(Platform)' == 'ARM64'">arm64</InstallerPlatform>

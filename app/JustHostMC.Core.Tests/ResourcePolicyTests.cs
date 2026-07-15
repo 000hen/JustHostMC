@@ -169,11 +169,17 @@ public sealed class ResourcePolicyTests {
     public void Task4StaticResourceKeysAreDetectedInSyntheticSource() {
         const string source = """
             _localizer.Get("ServerDelete.Title");
+            _localizer.Get("DeleteServerDialog.Title");
+            _localizer.Get("HomeTitle.Text");
             _localizer.Get("ServerTeachingTip.StartAction");
             """;
 
         Assert.Equal(
-            ["ServerDelete.Title"],
+            [
+                "ServerDelete.Title",
+                "DeleteServerDialog.Title",
+                "HomeTitle.Text",
+            ],
             StaticXamlResourceKeysReadImperatively(source));
     }
 

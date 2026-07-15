@@ -60,17 +60,13 @@
   </resheader>
 
   <!-- Package manifest (ms-resource: references) -->
-  <data name="AppDisplayName" xml:space="preserve"><value>JustHostMC</value></data>
+  <data name="AppDisplayName" xml:space="preserve"><value>JustHostMC</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="AppDescription" xml:space="preserve"><value>JustHostMC — Minecraft Server Manager</value></data>
-  <data name="AppPublisherDisplayName" xml:space="preserve"><value>Muisnow Devs</value></data>
 
   <!-- App + shell -->
-  <data name="AppTitle" xml:space="preserve"><value>JustHostMC</value></data>
-  <data name="MainTitle.Text" xml:space="preserve"><value>JustHostMC ??Minecraft Server Manager</value></data>
-  <data name="RefreshButton.ToolTipService.ToolTip" xml:space="preserve"><value>Refresh</value></data>
-  <data name="CreateServerButtonLabel.Text" xml:space="preserve"><value>Create server</value></data>
-  <data name="NoServersHint.Text" xml:space="preserve"><value>No servers yet. Select ?reate server??to add one.</value></data>
-  <data name="AdaptiveFilterLayoutFilterButtonLabel.Text" xml:space="preserve"><value>Filters</value></data>
+  <data name="CommonRefreshButton.ToolTipService.ToolTip" xml:space="preserve"><value>Refresh</value></data>
+  <data name="CreateServerButtonLabel.Text" xml:space="preserve"><value>Create server</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="AdaptiveFilterLayoutFilterButtonLabel.Text" xml:space="preserve"><value>Filters</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
 
   <!-- First-run on-machine notice -->
   <data name="OnMachineNotice.Title" xml:space="preserve"><value>Servers run on this PC</value></data>
@@ -82,58 +78,50 @@
   <data name="EngineStatus.Failed" xml:space="preserve"><value>Could not reach the engine.</value></data>
 
   <!-- Server list actions + status -->
-  <data name="ServerStartButton.Content" xml:space="preserve"><value>Start</value></data>
-  <data name="ServerStopButton.Content" xml:space="preserve"><value>Stop</value></data>
-  <data name="ServerDeleteButton.Content" xml:space="preserve"><value>Delete</value></data>
-  <data name="ServerStatus.Running" xml:space="preserve"><value>Running</value></data>
+  <data name="ServerStatus.Running" xml:space="preserve"><value>Running</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="ServerStatus.Stopped" xml:space="preserve"><value>Stopped</value></data>
-  <data name="ServerStatus.Installing" xml:space="preserve"><value>Installing</value></data>
-  <data name="ServerStatus.Starting" xml:space="preserve"><value>Starting</value></data>
-  <data name="ServerStatus.Stopping" xml:space="preserve"><value>Stopping</value></data>
+  <data name="ServerStatus.Installing" xml:space="preserve"><value>Installing</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="ServerStatus.Starting" xml:space="preserve"><value>Starting</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="ServerStatus.Stopping" xml:space="preserve"><value>Stopping</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="ServerStatus.Crashed" xml:space="preserve"><value>Crashed</value></data>
-  <data name="ServerStatus.Unknown" xml:space="preserve"><value>Unknown</value></data>
-  <data name="ServerNav.AutomationName" xml:space="preserve"><value>{name}, {status}</value></data>
-  <data name="ServerNav.StateChangedAutomationName" xml:space="preserve"><value>{name}, state changed to {status}</value></data>
+  <data name="ServerStatus.Unknown" xml:space="preserve"><value>Unknown</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="ServerNav.AutomationName" xml:space="preserve"><value>{name}, {status}</value><comment>Placeholders: {name} = runtime name; {status} = runtime status.</comment></data>
+  <data name="ServerNav.StateChangedAutomationName" xml:space="preserve"><value>{name}, state changed to {status}</value><comment>Placeholders: {name} = runtime name; {status} = runtime status.</comment></data>
   <data name="ServerType.Vanilla" xml:space="preserve"><value>Vanilla</value></data>
   <data name="ServerType.Paper" xml:space="preserve"><value>Paper</value></data>
   <data name="ServerType.Spigot" xml:space="preserve"><value>Spigot</value></data>
   <data name="ServerType.Forge" xml:space="preserve"><value>Forge</value></data>
   <data name="ServerType.NeoForge" xml:space="preserve"><value>NeoForge</value></data>
   <data name="ServerType.Fabric" xml:space="preserve"><value>Fabric</value></data>
-  <data name="ServerType.Unknown" xml:space="preserve"><value>Unknown</value></data>
+  <data name="ServerType.Unknown" xml:space="preserve"><value>Unknown</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
 
   <!-- Console -->
-  <data name="ServerConsoleButton.Content" xml:space="preserve"><value>Console</value></data>
-  <data name="ConsoleDialog.Title" xml:space="preserve"><value>Console</value></data>
-  <data name="ConsoleDialog.CloseButtonText" xml:space="preserve"><value>Close</value></data>
   <data name="ConsoleInput.PlaceholderText" xml:space="preserve"><value>Type a command and press Enter</value></data>
-  <data name="ConsoleSendButton.Content" xml:space="preserve"><value>Send</value></data>
   <data name="ConsoleOutputHeader.Text" xml:space="preserve"><value>Console output</value></data>
   <data name="ConsoleSendButtonLabel.Text" xml:space="preserve"><value>Send</value></data>
   <data name="ConsoleSendCommandButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Send command</value></data>
 
   <!-- Create-server dialog -->
-  <data name="CreateServerDialog.Title" xml:space="preserve"><value>Create server</value></data>
+  <data name="CreateServerDialog.Title" xml:space="preserve"><value>Create server</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="CreateServerDialog.PrimaryButtonText" xml:space="preserve"><value>Create</value></data>
-  <data name="CreateServerDialog.CloseButtonText" xml:space="preserve"><value>Cancel</value></data>
-  <data name="CreateServerName.Header" xml:space="preserve"><value>Name</value></data>
-  <data name="CreateServerName.PlaceholderText" xml:space="preserve"><value>My server</value></data>
-  <data name="CreateServer.DefaultName" xml:space="preserve"><value>My Server</value></data>
-  <data name="CreateServerType.Header" xml:space="preserve"><value>Type</value></data>
-  <data name="ServerTypeVanillaItem.Content" xml:space="preserve"><value>Vanilla</value></data>
+  <data name="CreateServerDialog.CloseButtonText" xml:space="preserve"><value>Cancel</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
+  <data name="CreateServerName.Header" xml:space="preserve"><value>Name</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="CreateServerName.PlaceholderText" xml:space="preserve"><value>My server</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="CreateServer.DefaultName" xml:space="preserve"><value>My Server</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="CreateServerType.Header" xml:space="preserve"><value>Type</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="CreateServerVersionHint.Text" xml:space="preserve"><value>Versions are fetched from the internet.</value></data>
-  <data name="CreateServerVersion.Header" xml:space="preserve"><value>Version</value></data>
+  <data name="CreateServerVersion.Header" xml:space="preserve"><value>Version</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="CreateServerVersionError.Title" xml:space="preserve"><value>Could not load versions</value></data>
   <data name="CreateServerVersionError.Message" xml:space="preserve"><value>Check your internet connection and try selecting the server type again.</value></data>
   <data name="CreateServerAdvancedHeader.Text" xml:space="preserve"><value>Advanced settings</value></data>
   <data name="CreateServerMemory.Header" xml:space="preserve"><value>Memory (MB)</value></data>
   <data name="CreateServerMemoryHint.Text" xml:space="preserve"><value>Maximum heap memory for the Java process. 2048 MB is recommended for most servers.</value></data>
-  <data name="CreateServerPort.Header" xml:space="preserve"><value>Port</value></data>
+  <data name="CreateServerPort.Header" xml:space="preserve"><value>Port</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="CreateServerPortHint.Text" xml:space="preserve"><value>Leave at 0 to auto-assign a free port. Use 25565 for the Minecraft default.</value></data>
 
   <!-- Install progress -->
   <data name="InstallProgressHeader.Text" xml:space="preserve"><value>Creating server</value></data>
-  <data name="InstallDismissButton.Content" xml:space="preserve"><value>Dismiss</value></data>
+  <data name="CommonDismissButton.Content" xml:space="preserve"><value>Dismiss</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
   <data name="install.progress.preparing" xml:space="preserve"><value>Preparing</value></data>
   <data name="install.progress.resolving_version" xml:space="preserve"><value>Resolving version</value></data>
   <data name="install.progress.downloading_server" xml:space="preserve"><value>Downloading server</value></data>
@@ -153,19 +141,10 @@
   <data name="error.server_running" xml:space="preserve"><value>Stop the server before restoring a backup.</value></data>
 
   <!-- Backups -->
-  <data name="ServerBackupsButton.Content" xml:space="preserve"><value>Backups</value></data>
-  <data name="BackupsDialog.CloseButtonText" xml:space="preserve"><value>Close</value></data>
-  <data name="BackupCreateButton.Content" xml:space="preserve"><value>Create backup</value></data>
+  <data name="CommonCloseDialog.CloseButtonText" xml:space="preserve"><value>Close</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
   <data name="BackupCreateButtonLabel.Text" xml:space="preserve"><value>Create backup</value></data>
-  <data name="BackupSafeOnline.Content" xml:space="preserve"><value>Safe online (pause saves)</value></data>
   <data name="BackupSafeOnlineLabel.Text" xml:space="preserve"><value>Safe online (pause saves)</value></data>
   <data name="BackupsEmptyHint.Text" xml:space="preserve"><value>No backups yet. Select Create backup to make one.</value></data>
-  <data name="BackupRestoreButton.Content" xml:space="preserve"><value>Restore</value></data>
-  <data name="BackupRestoreConfirmText.Text" xml:space="preserve"><value>Restore this backup? It replaces the server's current world and files. The server must be stopped.</value></data>
-  <data name="BackupRestoreConfirmButton.Content" xml:space="preserve"><value>Restore</value></data>
-  <data name="BackupDeleteButton.Content" xml:space="preserve"><value>Delete</value></data>
-  <data name="BackupDeleteConfirmText.Text" xml:space="preserve"><value>Delete this backup permanently?</value></data>
-  <data name="BackupDeleteConfirmButton.Content" xml:space="preserve"><value>Delete</value></data>
   <data name="Backups.Creating" xml:space="preserve"><value>Creating backup</value></data>
   <data name="Backups.Created" xml:space="preserve"><value>Backup created.</value></data>
   <data name="Backups.Restoring" xml:space="preserve"><value>Restoring backup</value></data>
@@ -174,9 +153,6 @@
   <data name="Backups.Deleted" xml:space="preserve"><value>Backup deleted.</value></data>
 
   <!-- Settings -->
-  <data name="SettingsButton.Content" xml:space="preserve"><value>Settings</value></data>
-  <data name="SettingsDialog.Title" xml:space="preserve"><value>Settings</value></data>
-  <data name="SettingsDialog.CloseButtonText" xml:space="preserve"><value>Close</value></data>
   <data name="SettingsCategoryEngine.Text" xml:space="preserve"><value>Engine &amp; Servers</value></data>
   <data name="SettingsCategoryIntegrations.Text" xml:space="preserve"><value>Integrations</value></data>
   <data name="SettingsCategoryApp.Text" xml:space="preserve"><value>Application</value></data>
@@ -184,19 +160,17 @@
   <data name="SettingsRetentionHint.Text" xml:space="preserve"><value>Install and console logs are pruned automatically. Use 0 for no limit.</value></data>
   <data name="SettingsKeepDays.Header" xml:space="preserve"><value>Keep logs for (days)</value></data>
   <data name="SettingsMaxSize.Header" xml:space="preserve"><value>Total size cap (MB)</value></data>
-  <data name="SettingsSaveButton.Content" xml:space="preserve"><value>Save</value></data>
 <data name="SettingsPurgeButton.Content" xml:space="preserve"><value>Purge now</value></data>
 <data name="SettingsEngineMonitorHeader.Text" xml:space="preserve"><value>Engine diagnostics</value></data>
 <data name="SettingsEngineMonitorHint.Text" xml:space="preserve"><value>Inspect the engine process's live standard output, error output, and input-watchdog lifecycle.</value></data>
-<data name="SettingsEngineMonitorButton.Content" xml:space="preserve"><value>Open engine monitor</value></data>
   <data name="Settings.Saved" xml:space="preserve"><value>Settings saved.</value></data>
   <data name="Settings.SaveFailed" xml:space="preserve"><value>Could not save settings.</value></data>
   <data name="Settings.LoadFailed" xml:space="preserve"><value>Could not load settings.</value></data>
-  <data name="Settings.PurgeResult" xml:space="preserve"><value>Purged {count} file(s), freed {size}.</value></data>
+  <data name="Settings.PurgeResult" xml:space="preserve"><value>Purged {count} file(s), freed {size}.</value><comment>Placeholders: {count} = item count; {size} = freed size.</comment></data>
   <data name="Settings.PurgeFailed" xml:space="preserve"><value>Could not purge logs.</value></data>
-  <data name="SettingsDataHeader.Text" xml:space="preserve"><value>Remove all data</value></data>
+  <data name="SettingsDataHeader.Text" xml:space="preserve"><value>Remove all data</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="SettingsDataHint.Text" xml:space="preserve"><value>Stops all servers and permanently deletes every server, backup, log, and the downloaded Java runtime. This cannot be undone.</value></data>
-  <data name="SettingsRemoveDataButton.Content" xml:space="preserve"><value>Remove all data</value></data>
+  <data name="SettingsRemoveDataButton.Content" xml:space="preserve"><value>Remove all data</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="SettingsRemoveDataConfirmText.Text" xml:space="preserve"><value>Delete all servers, backups, logs, and the Java runtime? This cannot be undone.</value></data>
   <data name="SettingsRemoveDataConfirmButton.Content" xml:space="preserve"><value>Remove everything</value></data>
   <data name="Settings.RemovingData" xml:space="preserve"><value>Removing all data</value></data>
@@ -204,93 +178,81 @@
 <data name="Settings.RemoveDataFailed" xml:space="preserve"><value>Could not remove all data.</value></data>
 
 <!-- Engine stdio monitor -->
-<data name="EngineMonitorStopButton.Content" xml:space="preserve"><value>Stop</value></data>
-<data name="EngineMonitorFiltersLabel.Text" xml:space="preserve"><value>Filters</value></data>
+<data name="EngineMonitorStopButton.Content" xml:space="preserve"><value>Stop</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="EngineMonitorFiltersLabel.Text" xml:space="preserve"><value>Filters</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
 <data name="EngineMonitorStreamsHeading.Text" xml:space="preserve"><value>Streams</value></data>
 <data name="EngineMonitorLevelsHeading.Text" xml:space="preserve"><value>Levels</value></data>
-<data name="EngineMonitor.Title" xml:space="preserve"><value>Engine debug monitor</value></data>
 <data name="EngineMonitorClearButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Clear engine output</value></data>
 <data name="EngineMonitorClearButtonLabel.Text" xml:space="preserve"><value>Clear</value></data>
 <data name="EngineMonitorCopyButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Copy visible engine output</value></data>
-<data name="EngineMonitorCopyButtonLabel.Text" xml:space="preserve"><value>Copy</value></data>
-<data name="EngineMonitorPauseButton.Content" xml:space="preserve"><value>Pause</value></data>
+<data name="CommonCopyLabel.Text" xml:space="preserve"><value>Copy</value></data>
 <data name="EngineMonitorAutoScrollCheckBox.Content" xml:space="preserve"><value>Auto-scroll</value></data>
 <data name="EngineMonitorSearchBox.PlaceholderText" xml:space="preserve"><value>Filter messages</value></data>
 <data name="EngineMonitorSearchBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Filter engine messages</value></data>
 <data name="EngineMonitorStdinHint.Text" xml:space="preserve"><value>Stdin is reserved for the parent-process watchdog; it is intentionally read-only here.</value></data>
 <data name="EngineMonitorEmptyText.Text" xml:space="preserve"><value>No engine output matches the current filters.</value></data>
-<data name="EngineMonitor.Status" xml:space="preserve"><value>Engine PID {pid}  •  {visible} visible / {total} captured</value></data>
-<data name="EngineMonitor.StatusPaused" xml:space="preserve"><value>Paused  •  Engine PID {pid}  •  {total} captured</value></data>
+<data name="EngineMonitor.Status" xml:space="preserve"><value>Engine PID {pid}  •  {visible} visible / {total} captured</value><comment>Placeholders: {pid} = engine process identifier; {total} = total captured entry count; {visible} = visible entry count.</comment></data>
+<data name="EngineMonitor.StatusPaused" xml:space="preserve"><value>Paused  •  Engine PID {pid}  •  {total} captured</value><comment>Placeholders: {pid} = engine process identifier; {total} = total captured entry count.</comment></data>
 
   <!-- Isolation backend (Docker opt-in) -->
   <data name="SettingsBackendHeader.Text" xml:space="preserve"><value>Where servers run</value></data>
   <data name="SettingsUseDocker.Header" xml:space="preserve"><value>Use Docker when available</value></data>
-  <data name="SettingsBackendHint.Text" xml:space="preserve"><value>Takes effect after restarting the app. JustHostMC never installs Docker, WSL, or Hyper-V ??you choose to enable this.</value></data>
   <data name="Backend.Mode.OnMachine" xml:space="preserve"><value>Servers run directly on this PC (isolated with Windows Job Objects).</value></data>
   <data name="Backend.Mode.Docker" xml:space="preserve"><value>Servers run in Docker containers on this PC.</value></data>
-  <data name="Backend.DockerAvailable" xml:space="preserve"><value>Docker detected (version {version}).</value></data>
+  <data name="Backend.DockerAvailable" xml:space="preserve"><value>Docker detected (version {version}).</value><comment>Placeholders: {version} = runtime version.</comment></data>
   <data name="Backend.DockerUnavailable" xml:space="preserve"><value>Docker was not detected. Start Docker Desktop to enable this option.</value></data>
   <data name="Backend.DockerPrefSaved" xml:space="preserve"><value>Saved. Restart the app to apply the backend change.</value></data>
   <!-- Navigation shell + Home -->
-  <data name="NavHome.Content" xml:space="preserve"><value>Home</value></data>
+  <data name="NavHome.Content" xml:space="preserve"><value>Home</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="NavAddServer.Content" xml:space="preserve"><value>Add server</value></data>
-  <data name="NavSettings.Content" xml:space="preserve"><value>Settings</value></data>
-  <data name="HomeTitle.Text" xml:space="preserve"><value>Home</value></data>
-  <data name="SettingsTitle.Text" xml:space="preserve"><value>Settings</value></data>
+  <data name="NavSettings.Content" xml:space="preserve"><value>Settings</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="HomeTitle.Text" xml:space="preserve"><value>Home</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="SettingsTitle.Text" xml:space="preserve"><value>Settings</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="HomeAddCard.Text" xml:space="preserve"><value>Add a server</value></data>
   <!-- Server page: sections, header, state button -->
   <data name="ServerSectionConsole.Text" xml:space="preserve"><value>Console</value></data>
   <data name="ServerSectionPlayers.Text" xml:space="preserve"><value>Players</value></data>
-  <data name="ServerSectionPerformance.Text" xml:space="preserve"><value>Performance</value></data>
-  <data name="ServerSectionMods.Text" xml:space="preserve"><value>Plugins / Mods</value></data>
-  <data name="ServerSectionConfig.Text" xml:space="preserve"><value>Configuration</value></data>
-  <data name="ServerSectionPerformancePanel.Title" xml:space="preserve"><value>Performance</value></data>
-  <data name="ServerSectionModsPanel.Title" xml:space="preserve"><value>Plugins / Mods</value></data>
-  <data name="ServerSectionConfigPanel.Title" xml:space="preserve"><value>Configuration</value></data>
+  <data name="ServerSectionPerformance.Text" xml:space="preserve"><value>Performance</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="ServerSectionMods.Text" xml:space="preserve"><value>Plugins / Mods</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="ServerSectionConfig.Text" xml:space="preserve"><value>Configuration</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="ServerSectionPerformancePanel.Title" xml:space="preserve"><value>Performance</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="ServerSectionModsPanel.Title" xml:space="preserve"><value>Plugins / Mods</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="ServerSectionConfigPanel.Title" xml:space="preserve"><value>Configuration</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="ServerSectionConfigHint.Text" xml:space="preserve"><value>Manage server launch settings and advanced options</value></data>
   <data name="ServerSectionPerformancePanel.Description" xml:space="preserve"><value>Monitor server resource usage and network metrics</value></data>
   <data name="ServerSectionPlayersHint.Text" xml:space="preserve"><value>Manage online players, operators, and ban lists</value></data>
   <data name="ServerSectionModsHint.Text" xml:space="preserve"><value>Manage server extensions and modifications</value></data>
   <data name="ServerBackupsMenuItem.Text" xml:space="preserve"><value>Backups</value></data>
-  <data name="ServerDeleteMenuItem.Text" xml:space="preserve"><value>Delete server</value></data>
+  <data name="ServerDeleteMenuItem.Text" xml:space="preserve"><value>Delete server</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="ServerMoreButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>More options</value></data>
-  <data name="ServerMetaTypeLabel.Text" xml:space="preserve"><value>Type</value></data>
-  <data name="ServerMetaVersionLabel.Text" xml:space="preserve"><value>Version</value></data>
-  <data name="ServerMetaPortLabel.Text" xml:space="preserve"><value>Port</value></data>
-  <data name="ServerMetaMemoryLabel.Text" xml:space="preserve"><value>Memory</value></data>
-  <data name="ServerMetaNameLabel.Text" xml:space="preserve"><value>Name</value></data>
-  <data name="ServerMetaCustomJavaArgsLabel.Text" xml:space="preserve"><value>Custom Java arguments</value></data>
-  <data name="Server.PortLabel" xml:space="preserve"><value>Port {port}</value></data>
-  <data name="Server.PortAutoValue" xml:space="preserve"><value>Auto</value></data>
-  <data name="Server.MemoryValue" xml:space="preserve"><value>{memory} MB</value></data>
-  <data name="Server.ValueUnknown" xml:space="preserve"><value>Unknown</value></data>
-  <data name="ServerMetaPortAutoValue.Text" xml:space="preserve"><value>Auto</value></data>
-  <data name="ServerMetaMemoryUnknownValue.Text" xml:space="preserve"><value>Unknown</value></data>
+  <data name="ServerMetaTypeLabel.Text" xml:space="preserve"><value>Type</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="ServerMetaVersionLabel.Text" xml:space="preserve"><value>Version</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="ServerMetaPortLabel.Text" xml:space="preserve"><value>Port</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="ServerMetaMemoryLabel.Text" xml:space="preserve"><value>Memory</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="Server.PortLabel" xml:space="preserve"><value>Port {port}</value><comment>Placeholders: {port} = network port.</comment></data>
+  <data name="Server.PortAutoValue" xml:space="preserve"><value>Auto</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="Server.MemoryValue" xml:space="preserve"><value>{memory} MB</value><comment>Placeholders: {memory} = memory in megabytes.</comment></data>
+  <data name="ServerMetaPortAutoValue.Text" xml:space="preserve"><value>Auto</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="ServerMetaMemoryUnknownValue.Text" xml:space="preserve"><value>Unknown</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="ServerState.Start" xml:space="preserve"><value>Start</value></data>
-  <data name="ServerState.Stop" xml:space="preserve"><value>Stop</value></data>
-  <data name="ServerState.Starting" xml:space="preserve"><value>Starting</value></data>
-  <data name="ServerState.Stopping" xml:space="preserve"><value>Stopping</value></data>
-  <data name="ServerState.Installing" xml:space="preserve"><value>Installing</value></data>
-  <data name="ServerDelete.Title" xml:space="preserve"><value>Delete server?</value></data>
-  <data name="ServerDelete.Body" xml:space="preserve"><value>This permanently deletes the server and its world. This cannot be undone.</value></data>
-  <data name="ServerDelete.Confirm" xml:space="preserve"><value>Delete</value></data>
-  <data name="Common.Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="ServerState.Stop" xml:space="preserve"><value>Stop</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="ServerState.Starting" xml:space="preserve"><value>Starting</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="ServerState.Stopping" xml:space="preserve"><value>Stopping</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="ServerState.Installing" xml:space="preserve"><value>Installing</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <!-- Players -->
-  <data name="Players.Header" xml:space="preserve"><value>Players ({count})</value></data>
+  <data name="Players.Header" xml:space="preserve"><value>Players ({count})</value><comment>Placeholders: {count} = item count.</comment></data>
   <data name="PlayersEmptyHint.Text" xml:space="preserve"><value>No players online.</value></data>
-  <data name="ManageBansButtonLabel.Text" xml:space="preserve"><value>Manage bans</value></data>
-  <data name="ManageBansButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Manage bans</value></data>
+  <data name="ManageBansButtonLabel.Text" xml:space="preserve"><value>Manage bans</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="ManageBansButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Manage bans</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <!-- Configuration -->
   <data name="ConfigStoppedHint.Text" xml:space="preserve"><value>Stop the server to save server.properties, gamerules, or ban-list file changes safely.</value></data>
   <data name="ConfigPropertiesSection.Title" xml:space="preserve"><value>server.properties</value></data>
   <data name="ConfigPropertiesSection.Description" xml:space="preserve"><value>Available properties and editors are filtered for this server's Minecraft version.</value></data>
-  <data name="ConfigSavePropertiesButton.Content" xml:space="preserve"><value>Save properties</value></data>
   <data name="ConfigGameRulesSection.Title" xml:space="preserve"><value>Gamerules</value></data>
   <data name="ConfigGameRulesSection.Description" xml:space="preserve"><value>Control world behavior, spawning, damage, inventory, and other gameplay rules.</value></data>
   <data name="ConfigModifiedText.Text" xml:space="preserve"><value>Configuration modified.</value></data>
   <data name="ConfigDiscardButtonLabel.Text" xml:space="preserve"><value>Discard</value></data>
   <data name="ConfigSaveModifiedButtonLabel.Text" xml:space="preserve"><value>Save changes</value></data>
-  <data name="ConfigSaveGameRulesButton.Content" xml:space="preserve"><value>Save gamerules</value></data>
   <data name="Config.LoadFailed" xml:space="preserve"><value>Could not load server configuration.</value></data>
   <data name="Config.SaveFailed" xml:space="preserve"><value>Could not save server configuration.</value></data>
   <data name="Config.Saved" xml:space="preserve"><value>Configuration saved.</value></data>
@@ -332,13 +294,13 @@
   <data name="ConfigName.doImmediateRespawn" xml:space="preserve"><value>Immediate respawn</value></data>
   <!-- Ban list -->
   <data name="BanListHostDialog.Title" xml:space="preserve"><value>Ban list</value></data>
-  <data name="BanListHostDialog.CloseButtonText" xml:space="preserve"><value>Close</value></data>
+  <data name="BanListHostDialog.CloseButtonText" xml:space="preserve"><value>Close</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
   <data name="BanListStoppedNotice.Title" xml:space="preserve"><value>Stop server to edit</value></data>
   <data name="BanListStoppedNotice.Message" xml:space="preserve"><value>The ban files are safest to change while the server is stopped. Console ban commands still work while running.</value></data>
   <data name="BanListAddHeader.Text" xml:space="preserve"><value>Add ban</value></data>
   <data name="BanListAddHint.Text" xml:space="preserve"><value>Add a player name, UUID, or IP address to the vanilla ban-list files.</value></data>
-  <data name="BanListTypeBox.Header" xml:space="preserve"><value>Type</value></data>
-  <data name="BanListTypePlayerItem.Content" xml:space="preserve"><value>Player</value></data>
+  <data name="BanListTypeBox.Header" xml:space="preserve"><value>Type</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="BanListTypePlayerItem.Content" xml:space="preserve"><value>Player</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="BanListTypeIpItem.Content" xml:space="preserve"><value>IP address</value></data>
   <data name="BanListTargetBox.Header" xml:space="preserve"><value>Target</value></data>
   <data name="BanListTargetBox.PlaceholderText" xml:space="preserve"><value>Player name, UUID, or IP</value></data>
@@ -347,7 +309,7 @@
   <data name="BanListAddButtonLabel.Text" xml:space="preserve"><value>Add</value></data>
   <data name="BanListEmptyHint.Text" xml:space="preserve"><value>No bans yet.</value></data>
   <data name="BanListRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Remove ban</value></data>
-  <data name="BanList.TypePlayer" xml:space="preserve"><value>Player</value></data>
+  <data name="BanList.TypePlayer" xml:space="preserve"><value>Player</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="BanList.TypeIp" xml:space="preserve"><value>IP</value></data>
   <data name="BanList.NoReason" xml:space="preserve"><value>No reason provided</value></data>
   <data name="BanList.LoadFailed" xml:space="preserve"><value>Could not load ban list.</value></data>
@@ -355,70 +317,43 @@
   <data name="BanList.RemoveFailed" xml:space="preserve"><value>Could not remove ban.</value></data>
   <data name="BanList.TargetRequired" xml:space="preserve"><value>Enter a player, UUID, or IP address.</value></data>
   <data name="BanList.StoppedRequired" xml:space="preserve"><value>Stop the server to edit ban-list files.</value></data>
-<data name="PlayerDialogHost.CloseButtonText" xml:space="preserve"><value>Close</value></data>
   <data name="PlayerDataDialog.ActionName" xml:space="preserve"><value>Raw data</value></data>
-  <data name="PlayerInventoryDialog.ActionName" xml:space="preserve"><value>Inventory</value></data>
-  <data name="PlayerDialogBase.TitleFormat" xml:space="preserve"><value>{0} for {1}</value></data>
+  <data name="PlayerInventoryDialog.ActionName" xml:space="preserve"><value>Inventory</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="PlayerDialogBase.TitleFormat" xml:space="preserve"><value>{0} for {1}</value><comment>Placeholders: {0} = result count; {1} = search query.</comment></data>
   <data name="PlayerRawDataBox.Header" xml:space="preserve"><value>Raw player NBT</value></data>
 
-  <data name="PlayerInventoryEquipmentHeader.Text" xml:space="preserve"><value>Equipment</value></data>
-  <data name="PlayerInventoryMainHeader.Text" xml:space="preserve"><value>Inventory</value></data>
+  <data name="PlayerInventoryEquipmentHeader.Text" xml:space="preserve"><value>Equipment</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="PlayerInventoryMainHeader.Text" xml:space="preserve"><value>Inventory</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="PlayerInventoryHotbarHeader.Text" xml:space="preserve"><value>Hotbar</value></data>
   <data name="PlayerInventoryEnderHeader.Text" xml:space="preserve"><value>Ender Chest</value></data>
   <!-- Performance metrics -->
   <data name="MetricsCpu.Text" xml:space="preserve"><value>CPU</value></data>
-  <data name="MetricsMemory.Text" xml:space="preserve"><value>Memory</value></data>
+  <data name="MetricsMemory.Text" xml:space="preserve"><value>Memory</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="MetricsNetwork.Text" xml:space="preserve"><value>Network</value></data>
   <data name="MetricsNetworkUnavailable.Text" xml:space="preserve"><value>Per-process network usage isn't available on the on-machine backend. Run servers in Docker to see network metrics.</value></data>
   <!-- Plugins / Mods -->
-  <data name="ModsUploadButton.Content" xml:space="preserve"><value>Upload</value></data>
-  <data name="ModsRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Remove</value></data>
+  <data name="CommonRemoveAutomationButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Remove</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
   <data name="ModsRemoveConfirmText.Text" xml:space="preserve"><value>Remove this file?</value></data>
-  <data name="ModsRemoveConfirmButton.Content" xml:space="preserve"><value>Remove</value></data>
   <data name="ModsStoppedHint.Text" xml:space="preserve"><value>Stop the server to add or remove files.</value></data>
   <data name="ModsUnsupportedHint.Text" xml:space="preserve"><value>This server type has no plugins or mods folder.</value></data>
   <data name="Mods.KindPlugins" xml:space="preserve"><value>Plugins</value></data>
   <data name="Mods.KindMods" xml:space="preserve"><value>Mods</value></data>
   <data name="Mods.StoppedRequired" xml:space="preserve"><value>Stop the server before changing plugins or mods.</value></data>
-  <data name="Mods.OperationFailed" xml:space="preserve"><value>The operation failed. Please try again.</value></data>
-  <data name="Mods.OperationFailedDetail" xml:space="preserve"><value>{summary} ({code}) {detail}</value></data>
-  <data name="Mods.TypeMismatch" xml:space="preserve"><value>Built for {loader}; this mod/plugin does not match the server type.</value></data>
-  <data name="Mods.VersionMismatch" xml:space="preserve"><value>Requires Minecraft {version}; this mod/plugin does not match the server version.</value></data>
-  <data name="Mods.TypeAndVersionMismatch" xml:space="preserve"><value>Built for {loader} and Minecraft {version}; neither matches this server.</value></data>
-  <data name="Mods.ParseFailed" xml:space="preserve"><value>Could not read this JAR's metadata: {error}</value></data>
+  <data name="Mods.OperationFailed" xml:space="preserve"><value>The operation failed. Please try again.</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="Mods.OperationFailedDetail" xml:space="preserve"><value>{summary} ({code}) {detail}</value><comment>Placeholders: {code} = diagnostic error code; {detail} = diagnostic error detail; {summary} = localized error summary.</comment></data>
+  <data name="Mods.TypeMismatch" xml:space="preserve"><value>Built for {loader}; this mod/plugin does not match the server type.</value><comment>Placeholders: {loader} = mod loader name.</comment></data>
+  <data name="Mods.VersionMismatch" xml:space="preserve"><value>Requires Minecraft {version}; this mod/plugin does not match the server version.</value><comment>Placeholders: {version} = runtime version.</comment></data>
+  <data name="Mods.TypeAndVersionMismatch" xml:space="preserve"><value>Built for {loader} and Minecraft {version}; neither matches this server.</value><comment>Placeholders: {loader} = mod loader name; {version} = runtime version.</comment></data>
+  <data name="Mods.ParseFailed" xml:space="preserve"><value>Could not read this JAR's metadata: {error}</value><comment>Placeholders: {error} = runtime value.</comment></data>
   <data name="ServerOpenInstanceFolderMenuItem.Text" xml:space="preserve">
     <value>Open instance folder</value>
-  </data>
-  <data name="ServerFolder.NotFoundTitle" xml:space="preserve">
-    <value>Instance folder not found</value>
-  </data>
-  <data name="ServerFolder.NotFoundBody" xml:space="preserve">
-    <value>The instance folder has not been created yet, or the daemon is using a data location that is not exposed by this app version.</value>
-  </data>
-  <data name="PlayerOpButton.Label" xml:space="preserve">
-    <value>OP</value>
-  </data>
-  <data name="PlayerDeopButton.Label" xml:space="preserve">
-    <value>De-op</value>
-  </data>
-  <data name="PlayerKickButton.Label" xml:space="preserve">
-    <value>Kick</value>
-  </data>
-  <data name="PlayerBanButton.Label" xml:space="preserve">
-    <value>Ban</value>
-  </data>
-  <data name="PlayerRawButton.Label" xml:space="preserve">
-    <value>Raw</value>
-  </data>
-  <data name="PlayerInventoryButton.Label" xml:space="preserve">
-    <value>Inventory</value>
   </data>
   <data name="PlayerActionsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Player actions</value>
   </data>
   <data name="PlayerActionsButtonLabel.Text" xml:space="preserve">
     <value>Actions</value>
-  </data>
+  <comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="PlayerOpMenuItem.Text" xml:space="preserve">
     <value>Make operator</value>
   </data>
@@ -440,24 +375,21 @@
   <data name="BackupOpenFolderButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>Open backup folder</value>
   </data>
-  <data name="BackupExportButton.Content" xml:space="preserve">
-    <value>Export</value>
-  </data>
   <data name="BackupActionsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Backup actions</value>
   </data>
   <data name="BackupActionsButtonLabel.Text" xml:space="preserve">
     <value>Actions</value>
-  </data>
+  <comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="BackupExportAction.Text" xml:space="preserve">
     <value>Export</value>
   </data>
   <data name="BackupRestoreAction.Text" xml:space="preserve">
     <value>Restore</value>
   </data>
-  <data name="BackupDeleteAction.Text" xml:space="preserve">
+  <data name="CommonDeleteMenuItem.Text" xml:space="preserve">
     <value>Delete</value>
-  </data>
+  <comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
   <data name="Backups.ExportSourceMissing" xml:space="preserve">
     <value>Backup file was not found in the local data folders. Open the backup folder to export it manually.</value>
   </data>
@@ -466,86 +398,75 @@
   </data>
   <data name="Backups.Exported" xml:space="preserve">
     <value>Exported to {path}</value>
-  </data>
+  <comment>Placeholders: {path} = filesystem path.</comment></data>
   <data name="Backups.FolderMissing" xml:space="preserve">
     <value>Backup folder was not found yet.</value>
   </data>
   <data name="CreateServerCustomJavaArgs.Header" xml:space="preserve"><value>Custom Java arguments (optional)</value></data>
   <data name="CreateServerCustomJavaArgs.PlaceholderText" xml:space="preserve"><value>Example: -Dexample=true -XX:MaxGCPauseMillis=150</value></data>
-  <data name="Common.Save" xml:space="preserve"><value>Save</value></data>
   <data name="HomeTotalServersLabel.Text" xml:space="preserve"><value>Total servers</value></data>
-  <data name="HomeRunningServersLabel.Text" xml:space="preserve"><value>Running</value></data>
+  <data name="HomeRunningServersLabel.Text" xml:space="preserve"><value>Running</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="HomeStoppedServersLabel.Text" xml:space="preserve"><value>Ready</value></data>
   <data name="HomeBusyServersLabel.Text" xml:space="preserve"><value>Changing state</value></data>
-  <data name="HomeCardTypeLabel.Text" xml:space="preserve"><value>Type</value></data>
-  <data name="HomeCardVersionLabel.Text" xml:space="preserve"><value>Version</value></data>
+  <data name="HomeCardTypeLabel.Text" xml:space="preserve"><value>Type</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="HomeCardVersionLabel.Text" xml:space="preserve"><value>Version</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="HomeCardEndpointLabel.Text" xml:space="preserve"><value>Address</value></data>
-  <data name="HomeCardCopyAddressButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Copy address</value></data>
-  <data name="HomeCardRenameButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Rename server</value></data>
-  <data name="HomeCardMoreButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Server actions</value></data>
-  <data name="HomeCardMoveUpButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Move server up</value></data>
-  <data name="HomeCardMoveDownButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Move server down</value></data>
-  <data name="HomeCardEditButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Edit server</value></data>
-  <data name="HomeCardEditMenuItem.Text" xml:space="preserve"><value>Edit server</value></data>
+  <data name="CommonCopyAddressButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Copy address</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
+  <data name="HomeCardRenameButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Rename server</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="HomeCardMoreButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Server actions</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="HomeCardMoveUpButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Move server up</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="HomeCardMoveDownButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Move server down</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="CommonEditServerButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Edit server</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
+  <data name="CommonEditServerMenuItem.Text" xml:space="preserve"><value>Edit server</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
   <data name="HomeCardOpenMenuItem.Text" xml:space="preserve"><value>Open server</value></data>
-  <data name="HomeCardDeleteMenuItem.Text" xml:space="preserve"><value>Delete server</value></data>
-  <data name="ServerEditMenuItem.Text" xml:space="preserve"><value>Edit server</value></data>
-  <data name="ServerTitleRenameButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Rename server</value></data>
-  <data name="RenameServerDialog.Title" xml:space="preserve"><value>Rename server</value></data>
-  <data name="EditServerDialog.Title" xml:space="preserve"><value>Edit server</value></data>
-  <data name="EditServerDialog.PrimaryButtonText" xml:space="preserve"><value>Save</value></data>
-  <data name="EditServerDialog.CloseButtonText" xml:space="preserve"><value>Cancel</value></data>
-  <data name="EditServerName.Header" xml:space="preserve"><value>Name</value></data>
-  <data name="EditServerType.Header" xml:space="preserve"><value>Type</value></data>
-  <data name="EditServerVersion.Header" xml:space="preserve"><value>Version</value></data>
-  <data name="EditServerPort.Header" xml:space="preserve"><value>Port</value></data>
+  <data name="HomeCardDeleteMenuItem.Text" xml:space="preserve"><value>Delete server</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="ServerTitleRenameButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Rename server</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="RenameServerDialog.Title" xml:space="preserve"><value>Rename server</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="EditServerDialog.Title" xml:space="preserve"><value>Edit server</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
+  <data name="EditServerDialog.PrimaryButtonText" xml:space="preserve"><value>Save</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
+  <data name="EditServerDialog.CloseButtonText" xml:space="preserve"><value>Cancel</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
+  <data name="EditServerType.Header" xml:space="preserve"><value>Type</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="EditServerStoppedNotice.Title" xml:space="preserve"><value>Stop the server to change launch settings</value></data>
   <data name="EditServerStoppedNotice.Message" xml:space="preserve"><value>Name changes can be saved while running. Stop the server to change version, memory, custom Java arguments, or port.</value></data>
-  <data name="ServerTeachingTip.InstalledTitle" xml:space="preserve"><value>{server} installed successfully</value></data>
+  <data name="ServerTeachingTip.InstalledTitle" xml:space="preserve"><value>{server} installed successfully</value><comment>Placeholders: {server} = server name.</comment></data>
   <data name="ServerTeachingTip.InstalledMessage" xml:space="preserve"><value>The server is ready to run.</value></data>
-  <data name="ServerTeachingTip.StartedTitle" xml:space="preserve"><value>{server} started</value></data>
+  <data name="ServerTeachingTip.StartedTitle" xml:space="preserve"><value>{server} started</value><comment>Placeholders: {server} = server name.</comment></data>
   <data name="ServerTeachingTip.StartedMessage" xml:space="preserve"><value>The server is now running.</value></data>
-  <data name="ServerTeachingTip.StoppedTitle" xml:space="preserve"><value>{server} stopped</value></data>
+  <data name="ServerTeachingTip.StoppedTitle" xml:space="preserve"><value>{server} stopped</value><comment>Placeholders: {server} = server name.</comment></data>
   <data name="ServerTeachingTip.StoppedMessage" xml:space="preserve"><value>The server stopped successfully.</value></data>
-  <data name="ServerTeachingTip.CrashedTitle" xml:space="preserve"><value>{server} crashed</value></data>
+  <data name="ServerTeachingTip.CrashedTitle" xml:space="preserve"><value>{server} crashed</value><comment>Placeholders: {server} = server name.</comment></data>
   <data name="ServerTeachingTip.CrashedMessage" xml:space="preserve"><value>The server stopped unexpectedly.</value></data>
   <data name="ServerTeachingTip.StartAction" xml:space="preserve"><value>Start server</value></data>
   <data name="install.ready.to.run" xml:space="preserve"><value>Ready to run.</value></data>
-  <data name="NavScripts.Content" xml:space="preserve"><value>Scripts</value></data>
-  <data name="ScriptsPageTitle.Text" xml:space="preserve"><value>Scripts</value></data>
+  <data name="NavScripts.Content" xml:space="preserve"><value>Scripts</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="ScriptsPageTitle.Text" xml:space="preserve"><value>Scripts</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="ScriptsPageSubtitle.Text" xml:space="preserve"><value>Import your own Lua provider and automation scripts, review the permissions they request, and manage what is installed.</value></data>
   <data name="ScriptsProvidersHeader.Text" xml:space="preserve"><value>Providers</value></data>
   <data name="ScriptsParsersHeader.Text" xml:space="preserve"><value>Mod Metadata Parsers</value></data>
-  <data name="ScriptsParsersEmpty.Text" xml:space="preserve"><value>No parsers installed. Parsers read a mod or plugin jar's embedded metadata (name, version, authors, icon) for the server Mods panel.</value></data>
-  <data name="Parsers.Formats" xml:space="preserve"><value>Reads: {formats}</value></data>
+  <data name="Parsers.Formats" xml:space="preserve"><value>Reads: {formats}</value><comment>Placeholders: {formats} = supported metadata formats.</comment></data>
   <data name="ModsWebsiteLink.Content" xml:space="preserve"><value>Website</value></data>
   <data name="ScriptSectionShowInFolderButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Show scripts in folder</value></data>
   <data name="ScriptSectionShowInFolderButtonLabel.Text" xml:space="preserve"><value>Show in Folder</value></data>
-  <data name="ScriptSectionAddScriptsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Add scripts</value></data>
-  <data name="ScriptSectionAddScriptsButtonLabel.Text" xml:space="preserve"><value>Add Scripts</value></data>
-  <data name="ScriptsProvidersEmpty.Text" xml:space="preserve"><value>No providers installed yet.</value></data>
+  <data name="ScriptSectionAddScriptsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Add scripts</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="ScriptSectionAddScriptsButtonLabel.Text" xml:space="preserve"><value>Add Scripts</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="ScriptsAutomationHeader.Text" xml:space="preserve"><value>Automation scripts</value></data>
   <data name="ScriptsAutomationEmpty.Text" xml:space="preserve"><value>No automation scripts installed yet.</value></data>
-  <data name="ScriptsBuiltinBadge.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Built in</value></data>
-  <data name="ScriptsBuiltinBadgeLabel.Text" xml:space="preserve"><value>Built in</value></data>
+  <data name="ScriptsBuiltinBadge.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Built in</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="ScriptsBuiltinBadgeLabel.Text" xml:space="preserve"><value>Built in</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="ScriptsEnabledToggle.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Enable or disable this script</value></data>
-  <data name="ScriptsRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Remove</value></data>
   <data name="ScriptsAllLogsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Open all automation logs in a new window</value></data>
   <data name="ScriptsAllLogsButtonLabel.Text" xml:space="preserve"><value>All Logs</value></data>
   <data name="ScriptsScriptLogsHeader.Text" xml:space="preserve"><value>Logs</value></data>
   <data name="ScriptsScriptLogsEmpty.Text" xml:space="preserve"><value>No output from this script yet.</value></data>
-  <data name="ScriptLogsWindow.Title" xml:space="preserve"><value>All Automation Logs</value></data>
+  <data name="ScriptLogsWindow.Title" xml:space="preserve"><value>All Automation Logs</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="ScriptLogsWindowEmpty.Text" xml:space="preserve"><value>No automation output yet.</value></data>
   <data name="ScriptLogsWindowNoSelection.Text" xml:space="preserve"><value>Select a log entry to view its details.</value></data>
-  <data name="ScriptLogsWindowScriptDetailsHeader.Text" xml:space="preserve"><value>Script</value></data>
-  <data name="ScriptLogsWindowScriptNameLabel.Text" xml:space="preserve"><value>Name</value></data>
-  <data name="ScriptLogsWindowScriptIdLabel.Text" xml:space="preserve"><value>ID</value></data>
   <data name="ScriptLogsWindowDetailHeader.Text" xml:space="preserve"><value>Log detail</value></data>
   <data name="Scripts.SystemLogName" xml:space="preserve"><value>System</value></data>
   <data name="Scripts.LogEntryFallbackTitle" xml:space="preserve"><value>Log entry</value></data>
   <data name="Scripts.OpenFolderFailed" xml:space="preserve"><value>Could not open the scripts folder.</value></data>
   <data name="PermissionConsentDialog.PrimaryButtonText" xml:space="preserve"><value>Allow selected</value></data>
-  <data name="PermissionConsentDialog.CloseButtonText" xml:space="preserve"><value>Cancel</value></data>
+  <data name="PermissionConsentDialog.CloseButtonText" xml:space="preserve"><value>Cancel</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
   <data name="PermissionConsentIntro.Text" xml:space="preserve"><value>This script requests the following permissions. Allow only what you trust it to do.</value></data>
   <data name="PermissionConsentNone.Text" xml:space="preserve"><value>This script does not request any permissions.</value></data>
   <data name="Permission.Network" xml:space="preserve"><value>Network access</value></data>
@@ -563,22 +484,22 @@
   <data name="Scripts.AlreadyExists" xml:space="preserve"><value>A script with that id is already installed.</value></data>
   <data name="Scripts.BuiltinProtected" xml:space="preserve"><value>Built-in scripts cannot be modified.</value></data>
   <data name="Scripts.NotAvailable" xml:space="preserve"><value>The automation engine is not available yet.</value></data>
-  <data name="Scripts.OperationFailed" xml:space="preserve"><value>The operation failed. Please try again.</value></data>
-  <data name="Scripts.RemoveConfirmBody" xml:space="preserve"><value>Remove “{name}”? This cannot be undone.</value></data>
-  <data name="CommonRemoveButton.Content" xml:space="preserve"><value>Remove</value></data>
-  <data name="PermissionConsentTitleNamed" xml:space="preserve"><value>Review permissions — {name}</value></data>
-  <data name="CreateServer.ProviderAuthor" xml:space="preserve"><value>by {author}</value></data>
+  <data name="Scripts.OperationFailed" xml:space="preserve"><value>The operation failed. Please try again.</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="Scripts.RemoveConfirmBody" xml:space="preserve"><value>Remove “{name}”? This cannot be undone.</value><comment>Placeholders: {name} = runtime name.</comment></data>
+  <data name="CommonRemoveButton.Content" xml:space="preserve"><value>Remove</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
+  <data name="PermissionConsentTitleNamed" xml:space="preserve"><value>Review permissions — {name}</value><comment>Placeholders: {name} = runtime name.</comment></data>
+  <data name="CreateServer.ProviderAuthor" xml:space="preserve"><value>by {author}</value><comment>Placeholders: {author} = provider author.</comment></data>
   <data name="CreateServerProviderWebsite.Content" xml:space="preserve"><value>Visit website</value></data>
-  <data name="InstallProgressPreviousButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Previous</value></data>
-  <data name="InstallProgressPreviousButton.ToolTipService.ToolTip" xml:space="preserve"><value>Previous</value></data>
-  <data name="InstallProgressNextButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Next</value></data>
-  <data name="InstallProgressNextButton.ToolTipService.ToolTip" xml:space="preserve"><value>Next</value></data>
-  <data name="HomeCardCopyAddressButton.ToolTipService.ToolTip" xml:space="preserve"><value>Copy address</value></data>
-  <data name="HomeCardRenameButton.ToolTipService.ToolTip" xml:space="preserve"><value>Rename server</value></data>
-  <data name="HomeCardMoreButton.ToolTipService.ToolTip" xml:space="preserve"><value>Server actions</value></data>
-  <data name="HomeCardMoveUpButton.ToolTipService.ToolTip" xml:space="preserve"><value>Move server up</value></data>
-  <data name="HomeCardMoveDownButton.ToolTipService.ToolTip" xml:space="preserve"><value>Move server down</value></data>
-  <data name="HomeCardEditButton.ToolTipService.ToolTip" xml:space="preserve"><value>Edit server</value></data>
+  <data name="InstallProgressPreviousButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Previous</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="InstallProgressPreviousButton.ToolTipService.ToolTip" xml:space="preserve"><value>Previous</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="CommonNextButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Next</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
+  <data name="CommonNextButton.ToolTipService.ToolTip" xml:space="preserve"><value>Next</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
+  <data name="CommonCopyAddressButton.ToolTipService.ToolTip" xml:space="preserve"><value>Copy address</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
+  <data name="HomeCardRenameButton.ToolTipService.ToolTip" xml:space="preserve"><value>Rename server</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="HomeCardMoreButton.ToolTipService.ToolTip" xml:space="preserve"><value>Server actions</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="HomeCardMoveUpButton.ToolTipService.ToolTip" xml:space="preserve"><value>Move server up</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="HomeCardMoveDownButton.ToolTipService.ToolTip" xml:space="preserve"><value>Move server down</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="CommonEditServerButton.ToolTipService.ToolTip" xml:space="preserve"><value>Edit server</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
   <data name="Scripts.CurrentSessionTitle" xml:space="preserve">
 <value>Current session</value>
 </data>
@@ -588,13 +509,12 @@
   <data name="SettingsAboutHeader.Text" xml:space="preserve"><value>About</value></data>
   <data name="SettingsAboutRepo.Text" xml:space="preserve"><value>GitHub Repository</value></data>
   <data name="SettingsAboutIssues.Text" xml:space="preserve"><value>Report an Issue</value></data>
-  <data name="ShopWindow.Title" xml:space="preserve"><value>Mod Shop</value></data>
+  <data name="ShopWindow.Title" xml:space="preserve"><value>Mod Shop</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="ShopDiscoverTitle.Text" xml:space="preserve"><value>Find something brilliant for your server</value></data>
   <data name="ShopDiscoverSubtitle.Text" xml:space="preserve"><value>Explore community projects selected for this server. Compatibility filters are on by default, so what you see is ready to fit.</value></data>
-  <data name="ShopDismissWelcome.ToolTipService.ToolTip" xml:space="preserve"><value>Dismiss</value></data>
+  <data name="CommonDismissTooltipButton.ToolTipService.ToolTip" xml:space="preserve"><value>Dismiss</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
   <data name="ShopSearchResultsHeading.Text" xml:space="preserve"><value>Search results</value></data>
-  <data name="ShopCompactFilters.Content" xml:space="preserve"><value>Filters</value></data>
-  <data name="ShopFilterHeading.Text" xml:space="preserve"><value>Filters</value></data>
+  <data name="ShopFilterHeading.Text" xml:space="preserve"><value>Filters</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="ShopResetFilters.Content" xml:space="preserve"><value>Reset</value></data>
   <data name="ShopCompatibilityHeading.Text" xml:space="preserve"><value>Compatibility</value></data>
   <data name="ShopCompatibilityDescription.Text" xml:space="preserve"><value>Only show projects that support this server.</value></data>
@@ -605,7 +525,7 @@
   <data name="ShopCategoriesDescription.Text" xml:space="preserve"><value>Select one or more categories. Results may match any selection.</value></data>
   <data name="shop.category.adventure" xml:space="preserve"><value>Adventure</value></data>
   <data name="shop.category.decoration" xml:space="preserve"><value>Decoration</value></data>
-  <data name="shop.category.equipment" xml:space="preserve"><value>Equipment</value></data>
+  <data name="shop.category.equipment" xml:space="preserve"><value>Equipment</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="shop.category.game-mechanics" xml:space="preserve"><value>Game mechanics</value></data>
   <data name="shop.category.library" xml:space="preserve"><value>Library</value></data>
   <data name="shop.category.magic" xml:space="preserve"><value>Magic</value></data>
@@ -618,27 +538,23 @@
   <data name="shop.category.utility" xml:space="preserve"><value>Utility</value></data>
   <data name="shop.category.worldgen" xml:space="preserve"><value>World generation</value></data>
   <data name="ShopSearchBox.PlaceholderText" xml:space="preserve"><value>Search mods…</value></data>
-  <data name="ShopBackButton.ToolTipService.ToolTip" xml:space="preserve"><value>Back</value></data>
   <data name="ShopKeyMissingBar.Message" xml:space="preserve"><value>This source needs an API key. Add one in Settings to enable it.</value></data>
   <data name="Shop.KeyMissingTooltip" xml:space="preserve"><value>Needs an API key (see Settings)</value></data>
   <data name="Shop.LoadFailed" xml:space="preserve"><value>Could not load results from this source.</value></data>
-  <data name="Shop.ResultSummary" xml:space="preserve"><value>{0} results for “{1}”</value></data>
+  <data name="Shop.ResultSummary" xml:space="preserve"><value>{0} results for “{1}”</value><comment>Placeholders: {0} = result count; {1} = search query.</comment></data>
   <data name="ShopSortCombo.Header" xml:space="preserve"><value>Sort by</value></data>
   <data name="ShopSortRelevance.Content" xml:space="preserve"><value>Relevance</value></data>
   <data name="ShopSortDownloads.Content" xml:space="preserve"><value>Downloads</value></data>
   <data name="ShopSortFollows.Content" xml:space="preserve"><value>Popularity</value></data>
   <data name="ShopSortNewest.Content" xml:space="preserve"><value>Newest</value></data>
-  <data name="ShopSortUpdated.Content" xml:space="preserve"><value>Recently updated</value></data>
+  <data name="ShopSortUpdated.Content" xml:space="preserve"><value>Recently updated</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="ShopSearchEmpty.Text" xml:space="preserve"><value>No results. Try different keywords or relax the version/loader filters.</value></data>
   <data name="ShopOverviewTab.Text" xml:space="preserve"><value>Details</value></data>
   <data name="ShopVersionsTab.Text" xml:space="preserve"><value>Versions</value></data>
   <data name="ShopOpenWebsite.Content" xml:space="preserve"><value>Open website</value></data>
-  <data name="ShopInstallButton.Content" xml:space="preserve"><value>Install</value></data>
+  <data name="CommonInstallButton.Content" xml:space="preserve"><value>Install</value></data>
   <data name="ShopInstallLatestButton.Content" xml:space="preserve"><value>Install latest release</value></data>
   <data name="ShopNoVersions.Text" xml:space="preserve"><value>No compatible versions for this server. Relax the filters to see more.</value></data>
-  <data name="Shop.DependencyPromptTitle" xml:space="preserve"><value>Required dependencies</value></data>
-  <data name="Shop.DependencyPromptBody" xml:space="preserve"><value>This version needs the following mods. They will be installed together (uncheck any you already have).</value></data>
-  <data name="Shop.InstallConfirm" xml:space="preserve"><value>Install all</value></data>
   <data name="Shop.InstallDone" xml:space="preserve"><value>Installed. The server's mod list has been updated.</value></data>
   <data name="Shop.InstallFailed" xml:space="preserve"><value>Install failed.</value></data>
   <data name="Shop.ErrorNotFound" xml:space="preserve"><value>The source no longer lists this project or version.</value></data>
@@ -651,7 +567,7 @@
   <data name="shop.home.trending_description" xml:space="preserve"><value>Projects gaining attention across the community.</value></data>
   <data name="shop.home.recommended" xml:space="preserve"><value>Recommended for this server</value></data>
   <data name="shop.home.recommended_description" xml:space="preserve"><value>Popular community picks compatible with this server's version and loader.</value></data>
-  <data name="shop.home.updated" xml:space="preserve"><value>Recently updated</value></data>
+  <data name="shop.home.updated" xml:space="preserve"><value>Recently updated</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="shop.home.updated_description" xml:space="preserve"><value>Fresh releases and actively maintained projects.</value></data>
   <data name="shop.home.featured_description" xml:space="preserve"><value>Projects currently featured by this source.</value></data>
   <data name="shop.home.featured" xml:space="preserve"><value>Featured</value></data>
@@ -660,7 +576,7 @@
   <data name="ModsUploadLabel.Text" xml:space="preserve"><value>Add custom jars</value></data>
   <data name="Mods.ExportDone" xml:space="preserve"><value>Exported the mods archive.</value></data>
   <data name="Mods.ExportFailed" xml:space="preserve"><value>Could not export the mods archive.</value></data>
-  <data name="SettingsShopHeader.Text" xml:space="preserve"><value>Mod shop</value></data>
+  <data name="SettingsShopHeader.Text" xml:space="preserve"><value>Mod shop</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="SettingsShopHint.Text" xml:space="preserve"><value>CurseForge requires a personal API key from console.curseforge.com. Modrinth needs no key.</value></data>
   <data name="SettingsCurseForgeKey.Header" xml:space="preserve"><value>CurseForge API key</value></data>
   <data name="SettingsShopKeySaveButton.Content" xml:space="preserve"><value>Save key</value></data>
@@ -668,24 +584,24 @@
   <data name="Settings.ShopKeyUser" xml:space="preserve"><value>A personal CurseForge key is configured. Save an empty key to remove it.</value></data>
   <data name="Settings.ShopKeyBuiltin" xml:space="preserve"><value>Using this build's bundled CurseForge key. A personal key overrides it.</value></data>
   <!-- XAML-owned window and dialog chrome -->
-  <data name="MainWindow.Title" xml:space="preserve"><value>JustHostMC</value></data>
-  <data name="MainWindowTitleBar.Title" xml:space="preserve"><value>JustHostMC</value></data>
-  <data name="EngineStdioWindow.Title" xml:space="preserve"><value>Engine debug monitor</value></data>
-  <data name="EngineMonitorTitleBar.Title" xml:space="preserve"><value>Engine debug monitor</value></data>
-  <data name="ScriptLogsTitleBar.Title" xml:space="preserve"><value>All Automation Logs</value></data>
-  <data name="ShopWindowTitleBar.Title" xml:space="preserve"><value>Mod Shop</value></data>
+  <data name="MainWindow.Title" xml:space="preserve"><value>JustHostMC</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="MainWindowTitleBar.Title" xml:space="preserve"><value>JustHostMC</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="EngineStdioWindow.Title" xml:space="preserve"><value>Engine debug monitor</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="EngineMonitorTitleBar.Title" xml:space="preserve"><value>Engine debug monitor</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="ScriptLogsTitleBar.Title" xml:space="preserve"><value>All Automation Logs</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="ShopWindowTitleBar.Title" xml:space="preserve"><value>Mod Shop</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="DeleteServerDialog.Title" xml:space="preserve"><value>Delete server?</value></data>
   <data name="DeleteServerDialog.Content" xml:space="preserve"><value>This permanently deletes the server and its world. This cannot be undone.</value></data>
-  <data name="DeleteServerDialog.PrimaryButtonText" xml:space="preserve"><value>Delete</value></data>
-  <data name="DeleteServerDialog.CloseButtonText" xml:space="preserve"><value>Cancel</value></data>
-  <data name="RenameServerDialog.PrimaryButtonText" xml:space="preserve"><value>Save</value></data>
-  <data name="RenameServerDialog.CloseButtonText" xml:space="preserve"><value>Cancel</value></data>
-  <data name="RenameServerNameBox.Header" xml:space="preserve"><value>Name</value></data>
+  <data name="DeleteServerDialog.PrimaryButtonText" xml:space="preserve"><value>Delete</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
+  <data name="DeleteServerDialog.CloseButtonText" xml:space="preserve"><value>Cancel</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
+  <data name="RenameServerDialog.PrimaryButtonText" xml:space="preserve"><value>Save</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
+  <data name="RenameServerDialog.CloseButtonText" xml:space="preserve"><value>Cancel</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
+  <data name="RenameServerNameBox.Header" xml:space="preserve"><value>Name</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="ServerFolderMissingDialog.Title" xml:space="preserve"><value>Instance folder not found</value></data>
   <data name="ServerFolderMissingDialog.Content" xml:space="preserve"><value>The instance folder has not been created yet, or the daemon is using a data location that is not exposed by this app version.</value></data>
   <data name="ServerFolderMissingDialog.CloseButtonText" xml:space="preserve"><value>OK</value></data>
   <data name="DependencyPromptDialog.Title" xml:space="preserve"><value>Required dependencies</value></data>
   <data name="DependencyPromptDialog.PrimaryButtonText" xml:space="preserve"><value>Install all</value></data>
-  <data name="DependencyPromptDialog.CloseButtonText" xml:space="preserve"><value>Cancel</value></data>
+  <data name="DependencyPromptDialog.CloseButtonText" xml:space="preserve"><value>Cancel</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
   <data name="DependencyPromptBody.Text" xml:space="preserve"><value>This version needs the following mods. They will be installed together (uncheck any you already have).</value></data>
 </root>

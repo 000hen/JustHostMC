@@ -13,7 +13,6 @@ public sealed class ResourcePolicyTests {
         new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     private static readonly IReadOnlySet<string> Task4MigratedStaticResourceKeys =
         Set(
-            "AppTitle",
             "MainWindow.Title",
             "MainWindowTitleBar.Title",
             "CreateServerDialog.Title",
@@ -21,13 +20,8 @@ public sealed class ResourcePolicyTests {
             "CreateServerDialog.CloseButtonText",
             "BanListStoppedNotice.Title",
             "BanListStoppedNotice.Message",
-            "EngineMonitor.Title",
             "EngineStdioWindow.Title",
             "EngineMonitorTitleBar.Title",
-            "ServerDelete.Title",
-            "ServerDelete.Body",
-            "ServerDelete.Confirm",
-            "Common.Cancel",
             "DeleteServerDialog.Title",
             "DeleteServerDialog.Content",
             "DeleteServerDialog.PrimaryButtonText",
@@ -37,7 +31,6 @@ public sealed class ResourcePolicyTests {
             "EditServerDialog.CloseButtonText",
             "EditServerName.Header",
             "RenameServerDialog.Title",
-            "Common.Save",
             "RenameServerDialog.PrimaryButtonText",
             "RenameServerDialog.CloseButtonText",
             "RenameServerNameBox.Header",
@@ -45,15 +38,9 @@ public sealed class ResourcePolicyTests {
             "ScriptLogsTitleBar.Title",
             "PermissionConsentDialog.PrimaryButtonText",
             "PermissionConsentDialog.CloseButtonText",
-            "BackupsDialog.CloseButtonText",
-            "ServerFolder.NotFoundTitle",
-            "ServerFolder.NotFoundBody",
             "ServerFolderMissingDialog.Title",
             "ServerFolderMissingDialog.Content",
             "ServerFolderMissingDialog.CloseButtonText",
-            "Shop.DependencyPromptTitle",
-            "Shop.DependencyPromptBody",
-            "Shop.InstallConfirm",
             "DependencyPromptDialog.Title",
             "DependencyPromptDialog.PrimaryButtonText",
             "DependencyPromptDialog.CloseButtonText",
@@ -81,12 +68,42 @@ public sealed class ResourcePolicyTests {
     }
 
     [Fact]
+    public void DuplicateEnglishValuesAreDocumented() {
+        var undocumented = LoadResources("en-US")
+            .GroupBy(element => element.Element("value")?.Value.Trim(),
+                     StringComparer.Ordinal)
+            .Where(group => !string.IsNullOrEmpty(group.Key) && group.Count() > 1)
+            .SelectMany(group => group)
+            .Where(element => !(element.Element("comment")?.Value
+                .StartsWith("INTENTIONAL DUPLICATE:",
+                            StringComparison.Ordinal) ?? false))
+            .Select(ResourceName);
+        Assert.Empty(undocumented);
+    }
+
+    [Fact]
     public void LocalePlaceholdersMatch() {
         var english = LoadResourceMap("en-US");
         var chinese = LoadResourceMap("zh-TW");
         foreach (var key in english.Keys) {
             Assert.Equal(Placeholders(english[key]), Placeholders(chinese[key]));
         }
+    }
+
+    [Theory]
+    [InlineData("en-US")]
+    [InlineData("zh-TW")]
+    public void FormattedResourcesExplainEveryPlaceholder(string language) {
+        var undocumented = LoadResources(language)
+            .Select(element => (
+                Element: element,
+                Comment: element.Element("comment")?.Value ?? string.Empty,
+                Placeholders: Placeholders(element.Element("value")?.Value ??
+                                           string.Empty)))
+            .Where(item => item.Placeholders.Any(placeholder =>
+                !item.Comment.Contains(placeholder, StringComparison.Ordinal)))
+            .Select(item => ResourceName(item.Element));
+        Assert.Empty(undocumented);
     }
 
     [Fact]
@@ -168,7 +185,6 @@ public sealed class ResourcePolicyTests {
     [Fact]
     public void Task4StaticResourceKeysAreDetectedInSyntheticSource() {
         const string source = """
-            _localizer.Get("ServerDelete.Title");
             _localizer.Get("DeleteServerDialog.Title");
             _localizer.Get("HomeTitle.Text");
             _localizer.Get("ServerTeachingTip.StartAction");
@@ -176,7 +192,6 @@ public sealed class ResourcePolicyTests {
 
         Assert.Equal(
             [
-                "ServerDelete.Title",
                 "DeleteServerDialog.Title",
                 "HomeTitle.Text",
             ],
@@ -376,6 +391,16 @@ public sealed class ResourcePolicyTests {
     [InlineData("PermissionConsentDialog_Title")]
     [InlineData("Scripts_RemoveConfirmTitle")]
     [InlineData("Scripts_RemoveConfirmCancel")]
+    [InlineData("Common.Save")]
+    [InlineData("Common.Cancel")]
+    [InlineData("BackupsDialog.CloseButtonText")]
+    [InlineData("PlayerDialogHost.CloseButtonText")]
+    [InlineData("ModsRemoveConfirmButton.Content")]
+    [InlineData("ServerEditMenuItem.Text")]
+    [InlineData("ScriptsRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name")]
+    [InlineData("Shop.DependencyPromptTitle")]
+    [InlineData("Shop.DependencyPromptBody")]
+    [InlineData("Shop.InstallConfirm")]
     public void ObsoleteResourceAliasesAreAbsent(string alias) {
         Assert.DoesNotContain(alias, LoadResourceMap("en-US").Keys);
         Assert.DoesNotContain(alias, LoadResourceMap("zh-TW").Keys);
@@ -421,7 +446,7 @@ public sealed class ResourcePolicyTests {
     }
 
     private static string[] Placeholders(string value) =>
-        Regex.Matches(value, @"\{[A-Za-z][A-Za-z0-9_]*\}")
+        Regex.Matches(value, @"\{(?:[A-Za-z][A-Za-z0-9_]*|\d+)\}")
             .Select(match => match.Value)
             .Distinct(StringComparer.Ordinal)
             .Order(StringComparer.Ordinal)
@@ -547,7 +572,13 @@ public sealed class ResourcePolicyTests {
     private static IEnumerable<(string Uid, string Element)> XamlUidElements() {
         XNamespace x = "http://schemas.microsoft.com/winfx/2006/xaml";
         foreach (var path in Directory.EnumerateFiles(
-                     AppRoot, "*.xaml", SearchOption.AllDirectories)) {
+                     AppRoot, "*.xaml", SearchOption.AllDirectories)
+                 .Where(path => !path.Contains(
+                     $"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}",
+                     StringComparison.OrdinalIgnoreCase) &&
+                     !path.Contains(
+                     $"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}",
+                     StringComparison.OrdinalIgnoreCase))) {
             foreach (var element in XDocument.Load(path).Root!.DescendantsAndSelf()) {
                 if (element.Attribute(x + "Uid") is { Value: var uid })
                     yield return (uid, element.Name.LocalName);

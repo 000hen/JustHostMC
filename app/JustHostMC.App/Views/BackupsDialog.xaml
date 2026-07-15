@@ -172,7 +172,7 @@
                                                 <MenuFlyoutSeparator />
 
                                                 <MenuFlyoutItem
-                                                    x:Uid="BackupDeleteAction"
+                                                    x:Uid="CommonDeleteMenuItem"
                                                     Click="OnDeleteBackupConfirmClick"
                                                     Tag="{Binding}">
                                                     <MenuFlyoutItem.Icon>

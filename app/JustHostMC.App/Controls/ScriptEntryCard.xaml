@@ -62,7 +62,7 @@
                 Visibility="{Binding Item.SupportsToggle, ElementName=Root, Converter={StaticResource BoolToVis}}" />
 
             <Button
-                x:Uid="ScriptsRemoveButton"
+                x:Uid="CommonRemoveAutomationButton"
                 Grid.Column="2"
                 VerticalAlignment="Center"
                 IsEnabled="{Binding Item.CanRemove, ElementName=Root}">

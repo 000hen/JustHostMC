@@ -60,7 +60,7 @@
                         <Button x:Uid="EngineMonitorCopyButton" Click="OnCopyClick">
                             <StackPanel Orientation="Horizontal" Spacing="6">
                                 <FontIcon FontSize="14" Glyph="&#xE8C8;" />
-                                <TextBlock x:Uid="EngineMonitorCopyButtonLabel" />
+                                <TextBlock x:Uid="CommonCopyLabel" />
                             </StackPanel>
                         </Button>
                     </StackPanel>

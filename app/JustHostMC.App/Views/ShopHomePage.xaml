@@ -236,7 +236,7 @@
                                     Opacity="0.30"
                                     Source="ms-appx:///Assets/StoreLogo.png" />
                                 <Button
-                                    x:Uid="ShopDismissWelcome"
+                                    x:Uid="CommonDismissTooltipButton"
                                     Width="32"
                                     Height="32"
                                     Padding="0"

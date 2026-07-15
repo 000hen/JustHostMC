@@ -143,7 +143,7 @@
     </server:ServerSectionLayout>
         <ContentDialog
             x:Name="PlayerDialogHost"
-            x:Uid="PlayerDialogHost"
+            x:Uid="CommonCloseDialog"
             DefaultButton="Close" />
         <ContentDialog
             x:Name="BanListHostDialog"

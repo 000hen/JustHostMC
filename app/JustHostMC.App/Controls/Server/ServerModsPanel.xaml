@@ -154,14 +154,14 @@
                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                     Style="{StaticResource CaptionTextBlockStyle}"
                     Text="{x:Bind SizeText}" />
-                <Button x:Uid="ModsRemoveButton" Grid.Column="3">
+                <Button x:Uid="CommonRemoveAutomationButton" Grid.Column="3">
                     <FontIcon FontSize="14" Glyph="&#xE74D;" />
                     <Button.Flyout>
                         <Flyout>
                             <StackPanel MaxWidth="240" Spacing="8">
                                 <TextBlock x:Uid="ModsRemoveConfirmText" TextWrapping="Wrap" />
                                 <Button
-                                    x:Uid="ModsRemoveConfirmButton"
+                                    x:Uid="CommonRemoveButton"
                                     HorizontalAlignment="Right"
                                     Click="OnRemoveModConfirm"
                                     Tag="{x:Bind}" />

@@ -13,7 +13,7 @@
     <Page.Resources>
         <ContentDialog
             x:Key="BackupsHostDialog"
-            x:Uid="BackupsDialog"
+            x:Uid="CommonCloseDialog"
             DefaultButton="Close"
             Style="{StaticResource DefaultContentDialogStyle}" />
         <ContentDialog
@@ -130,7 +130,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind Server.ProgressTracker.CurrentStep, Mode=OneWay}" />
                         <Button
-                            x:Uid="InstallDismissButton"
+                            x:Uid="CommonDismissButton"
                             Grid.Column="1"
                             Command="{x:Bind Server.ProgressTracker.DismissCommand}"
                             Visibility="{x:Bind Server.ProgressTracker.HasFailed, Mode=OneWay, Converter={StaticResource BoolToVis}}" />

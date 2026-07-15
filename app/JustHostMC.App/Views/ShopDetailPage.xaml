@@ -378,7 +378,7 @@
                                         </StackPanel>
                                     </StackPanel>
                                     <Button
-                                        x:Uid="ShopInstallButton"
+                                        x:Uid="CommonInstallButton"
                                         Grid.Column="2"
                                         VerticalAlignment="Center"
                                         Click="OnInstallClick"

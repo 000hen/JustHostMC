@@ -1,6 +1,6 @@
 # Resource lookup inventory
 
-Updated 2026-07-13 after migrating static view, window, dialog, tooltip, and accessibility copy to XAML. The inventory contains **128** `ILocalizer.Get` occurrences. Direct construction is tracked separately so construction-only owners such as `SettingsPage.xaml.cs` are not lost.
+Updated 2026-07-15 after migrating static view, window, dialog, tooltip, and accessibility copy to XAML and normalizing common action resources. The inventory contains **128** `ILocalizer.Get` occurrences. Task 5 renamed 15 XAML-owned resource keys into compatible `Common*` families and removed 66 unreferenced aliases; neither change affects the runtime lookup count. Direct construction is tracked separately so construction-only owners such as `SettingsPage.xaml.cs` are not lost.
 
 | Classification | Count |
 |---|---:|

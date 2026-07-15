@@ -91,7 +91,7 @@
                             <Button.Flyout>
                                 <MenuFlyout>
                                     <MenuFlyoutItem
-                                        x:Uid="HomeCardEditMenuItem"
+                                        x:Uid="CommonEditServerMenuItem"
                                         Click="OnCardEditClick"
                                         Tag="{Binding}">
                                         <MenuFlyoutItem.Icon>
@@ -210,7 +210,7 @@
                                 TextTrimming="CharacterEllipsis"
                                 TextWrapping="NoWrap" />
                             <Button
-                                x:Uid="HomeCardCopyAddressButton"
+                                x:Uid="CommonCopyAddressButton"
                                 Grid.Row="1"
                                 Grid.Column="1"
                                 Width="28"
@@ -272,7 +272,7 @@
                         </Button>
 
                         <Button
-                            x:Uid="HomeCardEditButton"
+                            x:Uid="CommonEditServerButton"
                             Grid.Column="3"
                             Width="36"
                             Height="36"
@@ -340,7 +340,7 @@
                     Text="{x:Bind Main.EngineStatus, Mode=OneWay}" />
             </StackPanel>
             <Button
-                x:Uid="RefreshButton"
+                x:Uid="CommonRefreshButton"
                 Grid.Column="1"
                 Width="40"
                 Height="40"
@@ -502,7 +502,7 @@
                         <FontIcon FontSize="12" Glyph="&#xE76B;" />
                     </Button>
                     <Button
-                        x:Uid="InstallProgressNextButton"
+                        x:Uid="CommonNextButton"
                         Grid.Column="4"
                         MinWidth="32"
                         MinHeight="32"
@@ -547,7 +547,7 @@
                         </ItemsControl>
                     </ScrollViewer>
                     <Button
-                        x:Uid="InstallDismissButton"
+                        x:Uid="CommonDismissButton"
                         HorizontalAlignment="Right"
                         Command="{Binding CurrentActiveTracker.DismissCommand}"
                         Visibility="{Binding CurrentActiveTracker.HasFailed, Mode=OneWay, Converter={StaticResource BoolToVis}}" />

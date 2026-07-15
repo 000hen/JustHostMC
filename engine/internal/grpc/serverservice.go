@@ -26,6 +26,7 @@ import (
 // ServerServiceConfig wires the ServerService to its collaborators.
 type ServerServiceConfig struct {
 	Store     store.Store
+	Changes   store.ChangeSource
 	Providers *scripting.Registry
 	JRE       *jre.Manager
 	Backend   isolation.IsolationBackend
@@ -109,6 +110,47 @@ func (s *ServerService) List(_ context.Context, _ *mcmanagerv1.Empty) (*mcmanage
 		out.Servers = append(out.Servers, r.Proto())
 	}
 	return out, nil
+}
+
+// WatchChanges streams one server registry mutation per event. Existing
+// servers are intentionally obtained through List after the ready handshake.
+func (s *ServerService) WatchChanges(_ *mcmanagerv1.Empty, stream grpc.ServerStreamingServer[mcmanagerv1.ServerChangeEvent]) error {
+	if s.cfg.Changes == nil {
+		return status.Error(codes.Unavailable, "server change stream unavailable")
+	}
+	subscription := s.cfg.Changes.Subscribe()
+	defer subscription.Cancel()
+
+	if err := stream.Send(&mcmanagerv1.ServerChangeEvent{
+		Change: &mcmanagerv1.ServerChangeEvent_Ready{Ready: &mcmanagerv1.Empty{}},
+	}); err != nil {
+		return err
+	}
+
+	for {
+		select {
+		case <-stream.Context().Done():
+			return stream.Context().Err()
+		case change, ok := <-subscription.Events:
+			if !ok {
+				return status.Error(codes.ResourceExhausted, "server change subscriber fell behind")
+			}
+			event := &mcmanagerv1.ServerChangeEvent{}
+			switch change.Kind {
+			case store.ChangeUpsert:
+				event.Change = &mcmanagerv1.ServerChangeEvent_Upsert{Upsert: change.Server.Proto()}
+			case store.ChangeDeleted:
+				event.Change = &mcmanagerv1.ServerChangeEvent_Deleted{
+					Deleted: &mcmanagerv1.ServerId{Id: change.ServerID},
+				}
+			default:
+				continue
+			}
+			if err := stream.Send(event); err != nil {
+				return err
+			}
+		}
+	}
 }
 
 // Instance returns the live instance for a server id, if one is running. It backs

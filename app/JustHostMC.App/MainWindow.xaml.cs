@@ -138,7 +138,7 @@ public sealed partial class MainWindow : Window {
             SetWindowSubclass(_hwnd, _subclassProc, MinWindowSubclassId, 0);
     }
 
-    private void OnClosed(object sender, WindowEventArgs args) {
+    private async void OnClosed(object sender, WindowEventArgs args) {
         AppWindow.Closing -= OnAppWindowClosing;
         _trayIcon?.Dispose();
         if (_hwnd != IntPtr.Zero)
@@ -150,6 +150,8 @@ public sealed partial class MainWindow : Window {
 
         foreach (var server in _trackedServers.Values.ToList())
             UntrackServer(server);
+
+        await Shell.Main.DisposeAsync();
     }
 
     private IntPtr WindowSubclassProc(IntPtr hWnd, uint uMsg, IntPtr wParam,

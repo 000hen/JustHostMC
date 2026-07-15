@@ -186,7 +186,7 @@ status and an owning XAML resource.
 | `Controls/Server/ServerPlayersPanel.xaml.cs:117` | `PlayerDialogBase_CloseButtonText` | StaticXaml | Moved to XAML — `PlayerDialogHost.CloseButtonText` |
 | `Controls/Server/ServerPlayersPanel.xaml.cs:135` | `BanListDialog_Title` | StaticXaml | Moved to XAML — `BanListHostDialog.Title` |
 | `Controls/Server/ServerPlayersPanel.xaml.cs:137` | `BanListDialog_CloseButtonText` | StaticXaml | Moved to XAML — `BanListHostDialog.CloseButtonText` |
-| `MainWindow.xaml.cs:96` | `AppTitle` | StaticXaml | Moved to XAML — `MainWindow.Title` and `MainWindowTitleBar.Title` |
+| `MainWindow.xaml.cs:96` | `AppTitle` | StaticXaml | Removed from native Window — `MainWindow.Title` x:Uid assignment crashes `MainWindow.InitializeComponent`; the custom `MainWindowTitleBar.Title` owns the visible title |
 | `MainWindow.xaml.cs:431` | `CreateServerDialog_Title` | StaticXaml | Moved to XAML — `CreateServerDialog.Title` |
 | `MainWindow.xaml.cs:434` | `CreateServerDialog_PrimaryButtonText` | StaticXaml | Moved to XAML — `CreateServerDialog.PrimaryButtonText` |
 | `MainWindow.xaml.cs:436` | `CreateServerDialog_CloseButtonText` | StaticXaml | Moved to XAML — `CreateServerDialog.CloseButtonText` |

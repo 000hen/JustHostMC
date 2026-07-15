@@ -60,7 +60,7 @@
   </resheader>
 
   <!-- Package manifest (ms-resource: references) -->
-<data name="AppDisplayName" xml:space="preserve"><value>JustHostMC</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical AppDisplayName; the manifest value, Window.Title, and TitleBar.Title have incompatible owners.</comment></data>
+<data name="AppDisplayName" xml:space="preserve"><value>JustHostMC</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical AppDisplayName; the manifest value and custom TitleBar.Title have incompatible owners, while native Window.Title x:Uid assignment crashes at startup.</comment></data>
   <data name="AppDescription" xml:space="preserve"><value>JustHostMC — Minecraft 伺服器管理工具</value></data>
 
   <!-- App + shell -->
@@ -562,8 +562,7 @@
   <data name="Settings.ShopKeyUser" xml:space="preserve"><value>已設定個人 CurseForge 金鑰。儲存空白金鑰即可移除。</value></data>
   <data name="Settings.ShopKeyBuiltin" xml:space="preserve"><value>正在使用此版本內建的 CurseForge 金鑰，個人金鑰可覆蓋它。</value></data>
   <!-- XAML-owned window and dialog chrome -->
-<data name="MainWindow.Title" xml:space="preserve"><value>JustHostMC</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical AppDisplayName; the manifest value, Window.Title, and TitleBar.Title have incompatible owners.</comment></data>
-<data name="MainWindowTitleBar.Title" xml:space="preserve"><value>JustHostMC</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical AppDisplayName; the manifest value, Window.Title, and TitleBar.Title have incompatible owners.</comment></data>
+<data name="MainWindowTitleBar.Title" xml:space="preserve"><value>JustHostMC</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical AppDisplayName; the manifest value and custom TitleBar.Title have incompatible owners, while native Window.Title x:Uid assignment crashes at startup.</comment></data>
 <data name="EngineStdioWindow.Title" xml:space="preserve"><value>引擎監視器</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical EngineStdioWindow.Title; Window.Title and TitleBar.Title have incompatible owners.</comment></data>
 <data name="EngineMonitorTitleBar.Title" xml:space="preserve"><value>引擎監視器</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical EngineStdioWindow.Title; Window.Title and TitleBar.Title have incompatible owners.</comment></data>
 <data name="ScriptLogsTitleBar.Title" xml:space="preserve"><value>所有自動化日誌</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical ScriptLogsWindow.Title; Window.Title and TitleBar.Title have incompatible owners.</comment></data>

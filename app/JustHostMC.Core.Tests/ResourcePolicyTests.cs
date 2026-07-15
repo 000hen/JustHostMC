@@ -13,7 +13,6 @@ public sealed class ResourcePolicyTests {
         new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     private static readonly IReadOnlySet<string> Task4MigratedStaticResourceKeys =
         Set(
-            "MainWindow.Title",
             "MainWindowTitleBar.Title",
             "CreateServerDialog.Title",
             "CreateServerDialog.PrimaryButtonText",
@@ -49,7 +48,7 @@ public sealed class ResourcePolicyTests {
             "ShopWindowTitleBar.Title");
     private static readonly IReadOnlyList<DuplicateResourceRule>
         DuplicateResourceRules = [
-            Rule("JustHostMC", "PROPERTY-CONTEXT", "canonical AppDisplayName; the manifest value, Window.Title, and TitleBar.Title have incompatible owners", "AppDisplayName", "MainWindow.Title", "MainWindowTitleBar.Title"),
+            Rule("JustHostMC", "PROPERTY-CONTEXT", "canonical AppDisplayName; the manifest value and custom TitleBar.Title have incompatible owners, while native Window.Title x:Uid assignment crashes at startup", "AppDisplayName", "MainWindowTitleBar.Title"),
             Rule("Create server", "SEMANTIC-HOMOGRAPH", "CreateServerButtonLabel.Text is an action label while CreateServerDialog.Title is a dialog heading", "CreateServerButtonLabel.Text", "CreateServerDialog.Title"),
             Rule("Running", "SEMANTIC-HOMOGRAPH", "HomeRunningServersLabel.Text labels a server-count summary while ServerStatus.Running is one server's lifecycle state", "HomeRunningServersLabel.Text", "ServerStatus.Running"),
             Rule("Installing", "RUNTIME-CONTRACT", "canonical ServerStatus.Installing; ServerState.Installing is a state-change message key while ServerStatus.Installing is a status-enum key", "ServerState.Installing", "ServerStatus.Installing"),
@@ -208,6 +207,18 @@ public sealed class ResourcePolicyTests {
                 uid + ".", StringComparison.OrdinalIgnoreCase)))
             .Distinct(StringComparer.OrdinalIgnoreCase);
         Assert.Empty(missing);
+    }
+
+    [Fact]
+    public void MainWindowDoesNotUseXUidForNativeTitle() {
+        XNamespace x = "http://schemas.microsoft.com/winfx/2006/xaml";
+        var window = XDocument.Load(Path.Combine(AppRoot, "MainWindow.xaml"))
+            .Root!;
+
+        Assert.Equal("Window", window.Name.LocalName);
+        Assert.Null(window.Attribute(x + "Uid"));
+        Assert.DoesNotContain("MainWindow.Title",
+                              LoadResourceMap("en-US").Keys);
     }
 
     [Fact]

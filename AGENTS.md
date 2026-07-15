@@ -200,10 +200,13 @@ both sides, then implement the Go `*Service` and call it from a C# ViewModel.
 - **i18n**: dynamic display messages travel as a localization **key**
   `"namespace.method.type"` (+ args) in a `LocalizedMessage`; the frontend resolves
   it against `.resw`. Resources live in
-  `app/JustHostMC.App/Strings/{en-US,zh-Hant}/Resources.resw`; **en-US is the base
-  and fallback**. Backend keys use `.` separators; `LocalizationService` rewrites
-  `.` → `_` to match `.resw` keys. Adding a language is a new `.resw` folder, no
-  code change.
+  `app/JustHostMC.App/Strings/{en-US,zh-TW}/Resources.resw`; **en-US is the base
+  and fallback**. Backend and application keys use `.` separators;
+  `LocalizationService` converts them to MRT Core forward-slash paths only at the
+  `ResourceLoader` boundary. Adding a language requires a BCP-47 `.resw` folder,
+  packaged-build manifest/qualifier updates, and resource-policy validation.
+  See [`docs/resources.md`](docs/resources.md) for the complete string, image,
+  manifest, qualifier, `x:Uid`, common-copy, and dynamic-lookup policy.
 
 ### MVVM Toolkit source generation
 

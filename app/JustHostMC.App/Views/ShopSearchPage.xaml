@@ -243,7 +243,7 @@
 
             <controls:AdaptiveFilterLayout.CompactFilterContent>
                 <StackPanel Width="280" Spacing="16">
-                    <TextBlock x:Uid="ShopFilterHeading" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock x:Uid="CommonFiltersLabel" Style="{StaticResource SubtitleTextBlockStyle}" />
                     <ComboBox
                         x:Name="CompactSortCombo"
                         x:Uid="ShopSortCombo"
@@ -306,7 +306,7 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <TextBlock
-                            x:Uid="ShopFilterHeading"
+                            x:Uid="CommonFiltersLabel"
                             VerticalAlignment="Center"
                             Style="{StaticResource SubtitleTextBlockStyle}" />
                         <Button

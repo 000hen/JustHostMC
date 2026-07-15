@@ -78,7 +78,7 @@
                                 Tag="{x:Bind}">
                                 <StackPanel Orientation="Horizontal" Spacing="6">
                                     <FontIcon FontSize="14" Glyph="&#xE712;" />
-                                    <TextBlock x:Uid="PlayerActionsButtonLabel" />
+                                    <TextBlock x:Uid="CommonActionsButtonLabel" />
                                 </StackPanel>
                                 <Button.Flyout>
                                     <MenuFlyout>

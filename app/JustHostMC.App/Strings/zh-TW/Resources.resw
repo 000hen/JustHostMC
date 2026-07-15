@@ -60,13 +60,13 @@
   </resheader>
 
   <!-- Package manifest (ms-resource: references) -->
-  <data name="AppDisplayName" xml:space="preserve"><value>JustHostMC</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="AppDisplayName" xml:space="preserve"><value>JustHostMC</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical AppDisplayName; the manifest value, Window.Title, and TitleBar.Title have incompatible owners.</comment></data>
   <data name="AppDescription" xml:space="preserve"><value>JustHostMC — Minecraft 伺服器管理工具</value></data>
 
   <!-- App + shell -->
   <data name="CommonRefreshButton.ToolTipService.ToolTip" xml:space="preserve"><value>重新整理</value></data>
-  <data name="CreateServerButtonLabel.Text" xml:space="preserve"><value>建立伺服器</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="AdaptiveFilterLayoutFilterButtonLabel.Text" xml:space="preserve"><value>篩選</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="CreateServerButtonLabel.Text" xml:space="preserve"><value>建立伺服器</value><comment>DUPLICATE SEMANTIC-HOMOGRAPH: CreateServerButtonLabel.Text is an action label while CreateServerDialog.Title is a dialog heading.</comment></data>
+  <data name="CommonFiltersLabel.Text" xml:space="preserve"><value>篩選條件</value></data>
 
   <!-- First-run on-machine notice -->
   <data name="OnMachineNotice.Title" xml:space="preserve"><value>伺服器會在這台電腦上執行</value></data>
@@ -78,13 +78,13 @@
   <data name="EngineStatus.Failed" xml:space="preserve"><value>無法連線到引擎。</value></data>
 
   <!-- Server list actions + status -->
-  <data name="ServerStatus.Running" xml:space="preserve"><value>執行中</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="ServerStatus.Running" xml:space="preserve"><value>執行中</value><comment>DUPLICATE SEMANTIC-HOMOGRAPH: HomeRunningServersLabel.Text labels a server-count summary while ServerStatus.Running is one server's lifecycle state.</comment></data>
   <data name="ServerStatus.Stopped" xml:space="preserve"><value>已停止</value></data>
-  <data name="ServerStatus.Installing" xml:space="preserve"><value>安裝中</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="ServerStatus.Starting" xml:space="preserve"><value>啟動中</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="ServerStatus.Stopping" xml:space="preserve"><value>停止中</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="ServerStatus.Installing" xml:space="preserve"><value>安裝中</value><comment>DUPLICATE RUNTIME-CONTRACT: canonical ServerStatus.Installing; ServerState.Installing is a state-change message key while ServerStatus.Installing is a status-enum key.</comment></data>
+<data name="ServerStatus.Starting" xml:space="preserve"><value>啟動中</value><comment>DUPLICATE RUNTIME-CONTRACT: canonical ServerStatus.Starting; ServerState.Starting is a state-change message key while ServerStatus.Starting is a status-enum key.</comment></data>
+<data name="ServerStatus.Stopping" xml:space="preserve"><value>停止中</value><comment>DUPLICATE RUNTIME-CONTRACT: canonical ServerStatus.Stopping; ServerState.Stopping is a state-change message key while ServerStatus.Stopping is a status-enum key.</comment></data>
   <data name="ServerStatus.Crashed" xml:space="preserve"><value>已當機</value></data>
-  <data name="ServerStatus.Unknown" xml:space="preserve"><value>不明</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="ServerStatus.Unknown" xml:space="preserve"><value>不明</value><comment>DUPLICATE SEMANTIC-HOMOGRAPH: the keys mean unavailable memory, unknown lifecycle status, and unknown server type respectively.</comment></data>
   <data name="ServerNav.AutomationName" xml:space="preserve"><value>{name}，{status}</value><comment>Placeholders: {name} = runtime name; {status} = runtime status.</comment></data>
   <data name="ServerNav.StateChangedAutomationName" xml:space="preserve"><value>{name}，狀態已變更為{status}</value><comment>Placeholders: {name} = runtime name; {status} = runtime status.</comment></data>
   <data name="ServerType.Vanilla" xml:space="preserve"><value>原版</value></data>
@@ -93,7 +93,7 @@
   <data name="ServerType.Forge" xml:space="preserve"><value>Forge</value></data>
   <data name="ServerType.NeoForge" xml:space="preserve"><value>NeoForge</value></data>
   <data name="ServerType.Fabric" xml:space="preserve"><value>Fabric</value></data>
-  <data name="ServerType.Unknown" xml:space="preserve"><value>不明</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="ServerType.Unknown" xml:space="preserve"><value>不明</value><comment>DUPLICATE SEMANTIC-HOMOGRAPH: the keys mean unavailable memory, unknown lifecycle status, and unknown server type respectively.</comment></data>
 
   <!-- Console -->
   <data name="ConsoleInput.PlaceholderText" xml:space="preserve"><value>輸入指令後按 Enter</value></data>
@@ -102,26 +102,26 @@
   <data name="ConsoleSendCommandButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>送出指令</value></data>
 
   <!-- Create-server dialog -->
-  <data name="CreateServerDialog.Title" xml:space="preserve"><value>建立伺服器</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="CreateServerDialog.Title" xml:space="preserve"><value>建立伺服器</value><comment>DUPLICATE SEMANTIC-HOMOGRAPH: CreateServerButtonLabel.Text is an action label while CreateServerDialog.Title is a dialog heading.</comment></data>
   <data name="CreateServerDialog.PrimaryButtonText" xml:space="preserve"><value>建立</value></data>
-  <data name="CreateServerDialog.CloseButtonText" xml:space="preserve"><value>取消</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
-  <data name="CreateServerName.Header" xml:space="preserve"><value>名稱</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="CreateServerName.PlaceholderText" xml:space="preserve"><value>我的伺服器</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="CreateServer.DefaultName" xml:space="preserve"><value>我的伺服器</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="CreateServerType.Header" xml:space="preserve"><value>類型</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="CreateServerDialog.CloseButtonText" xml:space="preserve"><value>取消</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CreateServerDialog.CloseButtonText; each ContentDialog x:Uid also owns a distinct title and actions.</comment></data>
+<data name="CreateServerName.Header" xml:space="preserve"><value>名稱</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CreateServerName.Header; CreateServerName also owns PlaceholderText so it cannot share RenameServerNameBox's x:Uid.</comment></data>
+<data name="CreateServerName.PlaceholderText" xml:space="preserve"><value>我的伺服器</value></data>
+<data name="CreateServer.DefaultName" xml:space="preserve"><value>我的伺服器</value></data>
+<data name="CreateServerType.Header" xml:space="preserve"><value>類型</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonTypeLabel.Text; ComboBox.Header owners cannot share a TextBlock x:Uid and retain their other resources.</comment></data>
   <data name="CreateServerVersionHint.Text" xml:space="preserve"><value>版本會從網路取得。</value></data>
-  <data name="CreateServerVersion.Header" xml:space="preserve"><value>版本</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="CreateServerVersion.Header" xml:space="preserve"><value>版本</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonVersionLabel.Text; CreateServerVersion.Header belongs to a ComboBox that also owns PlaceholderText.</comment></data>
   <data name="CreateServerVersionError.Title" xml:space="preserve"><value>無法載入版本</value></data>
   <data name="CreateServerVersionError.Message" xml:space="preserve"><value>請檢查網路連線，然後重新選取伺服器類型。</value></data>
   <data name="CreateServerAdvancedHeader.Text" xml:space="preserve"><value>進階設定</value></data>
   <data name="CreateServerMemory.Header" xml:space="preserve"><value>記憶體 (MB)</value></data>
   <data name="CreateServerMemoryHint.Text" xml:space="preserve"><value>Java 行程的最大堆積記憶體。多數伺服器建議使用 2048 MB。</value></data>
-  <data name="CreateServerPort.Header" xml:space="preserve"><value>連接埠</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="CreateServerPort.Header" xml:space="preserve"><value>連接埠</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical ServerMetaPortLabel.Text; CreateServerPort.Header targets NumberBox.Header rather than TextBlock.Text.</comment></data>
   <data name="CreateServerPortHint.Text" xml:space="preserve"><value>保留為 0 可自動指派可用連接埠。Minecraft 預設值為 25565。</value></data>
 
   <!-- Install progress -->
   <data name="InstallProgressHeader.Text" xml:space="preserve"><value>建立伺服器中</value></data>
-  <data name="CommonDismissButton.Content" xml:space="preserve"><value>關閉</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
+<data name="CommonDismissButton.Content" xml:space="preserve"><value>關閉</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonDismissButton.Content; the icon-only dismiss owner needs ToolTipService.ToolTip instead of Button.Content.</comment></data>
   <data name="install.progress.preparing" xml:space="preserve"><value>準備中</value></data>
   <data name="install.progress.resolving_version" xml:space="preserve"><value>解析版本中</value></data>
   <data name="install.progress.downloading_server" xml:space="preserve"><value>下載伺服器中</value></data>
@@ -141,7 +141,7 @@
   <data name="error.server_running" xml:space="preserve"><value>還原備份前，請先停止伺服器。</value></data>
 
   <!-- Backups -->
-  <data name="CommonCloseDialog.CloseButtonText" xml:space="preserve"><value>關閉</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
+<data name="CommonCloseDialog.CloseButtonText" xml:space="preserve"><value>關閉</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonCloseDialog.CloseButtonText; BanListHostDialog also owns context-specific dialog resources.</comment></data>
   <data name="BackupsEmptyHint.Text" xml:space="preserve"><value>還沒有備份。選取「建立備份」來建立一份。</value></data>
   <data name="Backups.Creating" xml:space="preserve"><value>建立備份中</value></data>
   <data name="Backups.Created" xml:space="preserve"><value>備份已建立。</value></data>
@@ -165,9 +165,9 @@
   <data name="Settings.LoadFailed" xml:space="preserve"><value>無法載入設定。</value></data>
   <data name="Settings.PurgeResult" xml:space="preserve"><value>已清理 {count} 個檔案，釋放 {size}。</value><comment>Placeholders: {count} = item count; {size} = freed size.</comment></data>
   <data name="Settings.PurgeFailed" xml:space="preserve"><value>無法清理記錄。</value></data>
-  <data name="SettingsDataHeader.Text" xml:space="preserve"><value>移除所有資料</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="SettingsDataHeader.Text" xml:space="preserve"><value>移除所有資料</value><comment>DUPLICATE SEMANTIC-HOMOGRAPH: SettingsDataHeader.Text names the data section while SettingsRemoveDataButton.Content is a destructive action.</comment></data>
   <data name="SettingsDataHint.Text" xml:space="preserve"><value>停止所有伺服器，並永久刪除所有伺服器、備份、記錄，以及已下載的 Java 執行階段。此動作無法復原。</value></data>
-  <data name="SettingsRemoveDataButton.Content" xml:space="preserve"><value>移除所有資料</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="SettingsRemoveDataButton.Content" xml:space="preserve"><value>移除所有資料</value><comment>DUPLICATE SEMANTIC-HOMOGRAPH: SettingsDataHeader.Text names the data section while SettingsRemoveDataButton.Content is a destructive action.</comment></data>
   <data name="SettingsRemoveDataConfirmText.Text" xml:space="preserve"><value>要刪除所有伺服器、備份、記錄和 Java 執行階段嗎？此動作無法復原。</value></data>
   <data name="SettingsRemoveDataConfirmButton.Content" xml:space="preserve"><value>全部移除</value></data>
   <data name="Settings.RemovingData" xml:space="preserve"><value>正在移除所有資料</value></data>
@@ -175,8 +175,7 @@
 <data name="Settings.RemoveDataFailed" xml:space="preserve"><value>無法移除所有資料。</value></data>
 
 <!-- Engine stdio monitor -->
-<data name="EngineMonitorStopButton.Content" xml:space="preserve"><value>停止</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-<data name="EngineMonitorFiltersLabel.Text" xml:space="preserve"><value>篩選條件</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="EngineMonitorStopButton.Content" xml:space="preserve"><value>停止</value><comment>DUPLICATE SEMANTIC-HOMOGRAPH: EngineMonitorStopButton.Content is a monitor command while ServerState.Stop is a server-state action label.</comment></data>
 <data name="EngineMonitorStreamsHeading.Text" xml:space="preserve"><value>訊息來源</value></data>
 <data name="EngineMonitorLevelsHeading.Text" xml:space="preserve"><value>記錄層級</value></data>
 <data name="EngineMonitorClearButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>清除引擎輸出</value></data>
@@ -200,47 +199,43 @@
   <data name="Backend.DockerUnavailable" xml:space="preserve"><value>未偵測到 Docker。啟動 Docker Desktop 以啟用此選項。</value></data>
   <data name="Backend.DockerPrefSaved" xml:space="preserve"><value>已儲存。重新啟動應用程式以套用後端變更。</value></data>
   <!-- Navigation shell + Home -->
-  <data name="NavHome.Content" xml:space="preserve"><value>首頁</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="NavHome.Content" xml:space="preserve"><value>首頁</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical HomeTitle.Text; the page heading targets TextBlock.Text while navigation targets NavigationViewItem.Content.</comment></data>
   <data name="NavAddServer.Content" xml:space="preserve"><value>新增伺服器</value></data>
-  <data name="NavSettings.Content" xml:space="preserve"><value>設定</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="HomeTitle.Text" xml:space="preserve"><value>首頁</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="SettingsTitle.Text" xml:space="preserve"><value>設定</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="NavSettings.Content" xml:space="preserve"><value>設定</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical SettingsTitle.Text; the page heading targets TextBlock.Text while navigation targets NavigationViewItem.Content.</comment></data>
+<data name="HomeTitle.Text" xml:space="preserve"><value>首頁</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical HomeTitle.Text; the page heading targets TextBlock.Text while navigation targets NavigationViewItem.Content.</comment></data>
+<data name="SettingsTitle.Text" xml:space="preserve"><value>設定</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical SettingsTitle.Text; the page heading targets TextBlock.Text while navigation targets NavigationViewItem.Content.</comment></data>
   <data name="HomeAddCard.Text" xml:space="preserve"><value>新增伺服器</value></data>
   <!-- Server page: sections, header, state button -->
   <data name="ServerSectionConsole.Text" xml:space="preserve"><value>控制台</value></data>
   <data name="ServerSectionPlayers.Text" xml:space="preserve"><value>玩家</value></data>
-  <data name="ServerSectionPerformance.Text" xml:space="preserve"><value>效能</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="ServerSectionMods.Text" xml:space="preserve"><value>插件 / 模組</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="ServerSectionConfig.Text" xml:space="preserve"><value>設定</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="ServerSectionPerformancePanel.Title" xml:space="preserve"><value>效能</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="ServerSectionModsPanel.Title" xml:space="preserve"><value>插件 / 模組</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="ServerSectionConfigPanel.Title" xml:space="preserve"><value>設定</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="ServerSectionPerformance.Text" xml:space="preserve"><value>效能</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical ServerSectionPerformance.Text; SelectorBarItem.Text and the panel Title property have incompatible owners.</comment></data>
+<data name="ServerSectionMods.Text" xml:space="preserve"><value>插件 / 模組</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical ServerSectionMods.Text; SelectorBarItem.Text and the panel Title property have incompatible owners.</comment></data>
+<data name="ServerSectionConfig.Text" xml:space="preserve"><value>設定</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical ServerSectionConfig.Text; SelectorBarItem.Text and the panel Title property have incompatible owners.</comment></data>
+<data name="ServerSectionPerformancePanel.Title" xml:space="preserve"><value>效能</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical ServerSectionPerformance.Text; SelectorBarItem.Text and the panel Title property have incompatible owners.</comment></data>
+<data name="ServerSectionModsPanel.Title" xml:space="preserve"><value>插件 / 模組</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical ServerSectionMods.Text; SelectorBarItem.Text and the panel Title property have incompatible owners.</comment></data>
+<data name="ServerSectionConfigPanel.Title" xml:space="preserve"><value>設定</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical ServerSectionConfig.Text; SelectorBarItem.Text and the panel Title property have incompatible owners.</comment></data>
   <data name="ServerSectionConfigHint.Text" xml:space="preserve"><value>管理伺服器啟動設定與進階選項</value></data>
   <data name="ServerSectionPerformancePanel.Description" xml:space="preserve"><value>監控伺服器資源使用與網路指標</value></data>
   <data name="ServerSectionPlayersHint.Text" xml:space="preserve"><value>管理線上玩家、管理員與封鎖名單</value></data>
   <data name="ServerSectionModsHint.Text" xml:space="preserve"><value>管理伺服器擴充功能與模組</value></data>
   <data name="ServerBackupsMenuItem.Text" xml:space="preserve"><value>備份</value></data>
-  <data name="ServerDeleteMenuItem.Text" xml:space="preserve"><value>刪除伺服器</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="ServerMoreButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>更多選項</value></data>
-  <data name="ServerMetaTypeLabel.Text" xml:space="preserve"><value>類型</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="ServerMetaVersionLabel.Text" xml:space="preserve"><value>版本</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="ServerMetaPortLabel.Text" xml:space="preserve"><value>連接埠</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="ServerMetaMemoryLabel.Text" xml:space="preserve"><value>記憶體</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="ServerMetaPortLabel.Text" xml:space="preserve"><value>連接埠</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical ServerMetaPortLabel.Text; CreateServerPort.Header targets NumberBox.Header rather than TextBlock.Text.</comment></data>
   <data name="Server.PortLabel" xml:space="preserve"><value>連接埠 {port}</value><comment>Placeholders: {port} = network port.</comment></data>
-  <data name="Server.PortAutoValue" xml:space="preserve"><value>自動</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="Server.PortAutoValue" xml:space="preserve"><value>自動</value><comment>DUPLICATE RUNTIME-CONTRACT: canonical ServerMetaPortAutoValue.Text; Server.PortAutoValue is returned by runtime metadata lookup.</comment></data>
   <data name="Server.MemoryValue" xml:space="preserve"><value>{memory} MB</value><comment>Placeholders: {memory} = memory in megabytes.</comment></data>
-  <data name="ServerMetaPortAutoValue.Text" xml:space="preserve"><value>自動</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="ServerMetaMemoryUnknownValue.Text" xml:space="preserve"><value>未知</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="ServerMetaPortAutoValue.Text" xml:space="preserve"><value>自動</value><comment>DUPLICATE RUNTIME-CONTRACT: canonical ServerMetaPortAutoValue.Text; Server.PortAutoValue is returned by runtime metadata lookup.</comment></data>
+<data name="ServerMetaMemoryUnknownValue.Text" xml:space="preserve"><value>未知</value><comment>DUPLICATE SEMANTIC-HOMOGRAPH: the keys mean unavailable memory, unknown lifecycle status, and unknown server type respectively.</comment></data>
   <data name="ServerState.Start" xml:space="preserve"><value>啟動</value></data>
-  <data name="ServerState.Stop" xml:space="preserve"><value>停止</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="ServerState.Starting" xml:space="preserve"><value>啟動中</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="ServerState.Stopping" xml:space="preserve"><value>停止中</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="ServerState.Installing" xml:space="preserve"><value>安裝中</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="ServerState.Stop" xml:space="preserve"><value>停止</value><comment>DUPLICATE SEMANTIC-HOMOGRAPH: EngineMonitorStopButton.Content is a monitor command while ServerState.Stop is a server-state action label.</comment></data>
+<data name="ServerState.Starting" xml:space="preserve"><value>啟動中</value><comment>DUPLICATE RUNTIME-CONTRACT: canonical ServerStatus.Starting; ServerState.Starting is a state-change message key while ServerStatus.Starting is a status-enum key.</comment></data>
+<data name="ServerState.Stopping" xml:space="preserve"><value>停止中</value><comment>DUPLICATE RUNTIME-CONTRACT: canonical ServerStatus.Stopping; ServerState.Stopping is a state-change message key while ServerStatus.Stopping is a status-enum key.</comment></data>
+<data name="ServerState.Installing" xml:space="preserve"><value>安裝中</value><comment>DUPLICATE RUNTIME-CONTRACT: canonical ServerStatus.Installing; ServerState.Installing is a state-change message key while ServerStatus.Installing is a status-enum key.</comment></data>
   <!-- Players -->
   <data name="Players.Header" xml:space="preserve"><value>玩家（{count}）</value><comment>Placeholders: {count} = item count.</comment></data>
   <data name="PlayersEmptyHint.Text" xml:space="preserve"><value>目前沒有玩家在線上。</value></data>
-  <data name="ManageBansButtonLabel.Text" xml:space="preserve"><value>管理封鎖</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="ManageBansButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>管理封鎖名單</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="ManageBansButtonLabel.Text" xml:space="preserve"><value>管理封鎖</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical ManageBansButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the composed button also needs a child TextBlock.Text label.</comment></data>
+<data name="ManageBansButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>管理封鎖名單</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical ManageBansButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the composed button also needs a child TextBlock.Text label.</comment></data>
   <!-- Configuration -->
   <data name="ConfigStoppedHint.Text" xml:space="preserve"><value>請先停止伺服器，再安全地儲存 server.properties、遊戲規則或封鎖名單變更。</value></data>
   <data name="ConfigPropertiesSection.Title" xml:space="preserve"><value>server.properties</value></data>
@@ -291,13 +286,13 @@
   <data name="ConfigName.doImmediateRespawn" xml:space="preserve"><value>立即重生</value></data>
   <!-- Ban list -->
   <data name="BanListHostDialog.Title" xml:space="preserve"><value>封鎖名單</value></data>
-  <data name="BanListHostDialog.CloseButtonText" xml:space="preserve"><value>關閉</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
+<data name="BanListHostDialog.CloseButtonText" xml:space="preserve"><value>關閉</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonCloseDialog.CloseButtonText; BanListHostDialog also owns context-specific dialog resources.</comment></data>
   <data name="BanListStoppedNotice.Title" xml:space="preserve"><value>停止伺服器後再編輯</value></data>
   <data name="BanListStoppedNotice.Message" xml:space="preserve"><value>封鎖名單檔案最適合在伺服器停止時修改；伺服器執行中仍可使用主控台封鎖指令。</value></data>
   <data name="BanListAddHeader.Text" xml:space="preserve"><value>新增封鎖</value></data>
   <data name="BanListAddHint.Text" xml:space="preserve"><value>將玩家名稱、UUID 或 IP 位址加入原版封鎖名單檔案。</value></data>
-  <data name="BanListTypeBox.Header" xml:space="preserve"><value>類型</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="BanListTypePlayerItem.Content" xml:space="preserve"><value>玩家</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="BanListTypeBox.Header" xml:space="preserve"><value>類型</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonTypeLabel.Text; ComboBox.Header owners cannot share a TextBlock x:Uid and retain their other resources.</comment></data>
+<data name="BanListTypePlayerItem.Content" xml:space="preserve"><value>玩家</value><comment>DUPLICATE SEMANTIC-HOMOGRAPH: BanList.TypePlayer is a ban-entry type while BanListTypePlayerItem.Content is the corresponding picker option.</comment></data>
   <data name="BanListTypeIpItem.Content" xml:space="preserve"><value>IP 位址</value></data>
   <data name="BanListTargetBox.Header" xml:space="preserve"><value>目標</value></data>
   <data name="BanListTargetBox.PlaceholderText" xml:space="preserve"><value>玩家名稱、UUID 或 IP</value></data>
@@ -306,7 +301,7 @@
   <data name="BanListAddButtonLabel.Text" xml:space="preserve"><value>新增</value></data>
   <data name="BanListEmptyHint.Text" xml:space="preserve"><value>目前沒有封鎖項目。</value></data>
   <data name="BanListRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>移除封鎖</value></data>
-  <data name="BanList.TypePlayer" xml:space="preserve"><value>玩家</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="BanList.TypePlayer" xml:space="preserve"><value>玩家</value><comment>DUPLICATE SEMANTIC-HOMOGRAPH: BanList.TypePlayer is a ban-entry type while BanListTypePlayerItem.Content is the corresponding picker option.</comment></data>
   <data name="BanList.TypeIp" xml:space="preserve"><value>IP</value></data>
   <data name="BanList.NoReason" xml:space="preserve"><value>未提供原因</value></data>
   <data name="BanList.LoadFailed" xml:space="preserve"><value>無法載入封鎖名單。</value></data>
@@ -316,26 +311,26 @@
   <data name="BanList.StoppedRequired" xml:space="preserve"><value>請先停止伺服器再編輯封鎖名單檔案。</value></data>
   <data name="PlayerRawDataBox.Header" xml:space="preserve"><value>原始玩家 NBT</value></data>
   <data name="PlayerDataDialog.ActionName" xml:space="preserve"><value>原始資料</value></data>
-  <data name="PlayerInventoryDialog.ActionName" xml:space="preserve"><value>物品欄</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="PlayerDialogBase.TitleFormat" xml:space="preserve"><value>{1} 的{0}</value><comment>Placeholders: {0} = result count; {1} = search query.</comment></data>
-  <data name="PlayerInventoryEquipmentHeader.Text" xml:space="preserve"><value>裝備</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="PlayerInventoryMainHeader.Text" xml:space="preserve"><value>物品欄</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="PlayerInventoryDialog.ActionName" xml:space="preserve"><value>物品欄</value><comment>DUPLICATE SEMANTIC-HOMOGRAPH: PlayerInventoryDialog.ActionName is a dialog-title fragment while PlayerInventoryMainHeader.Text is a section heading.</comment></data>
+  <data name="PlayerDialogBase.TitleFormat" xml:space="preserve"><value>{1} 的{0}</value><comment>Placeholders: {0} = player action name; {1} = player name.</comment></data>
+<data name="PlayerInventoryEquipmentHeader.Text" xml:space="preserve"><value>裝備</value><comment>DUPLICATE SEMANTIC-HOMOGRAPH: PlayerInventoryEquipmentHeader.Text is a player-data section while shop.category.equipment is a mod-shop category.</comment></data>
+<data name="PlayerInventoryMainHeader.Text" xml:space="preserve"><value>物品欄</value><comment>DUPLICATE SEMANTIC-HOMOGRAPH: PlayerInventoryDialog.ActionName is a dialog-title fragment while PlayerInventoryMainHeader.Text is a section heading.</comment></data>
   <data name="PlayerInventoryHotbarHeader.Text" xml:space="preserve"><value>快捷列</value></data>
   <data name="PlayerInventoryEnderHeader.Text" xml:space="preserve"><value>終界箱</value></data>
   <!-- Performance metrics -->
   <data name="MetricsCpu.Text" xml:space="preserve"><value>CPU</value></data>
-  <data name="MetricsMemory.Text" xml:space="preserve"><value>記憶體</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  <data name="CommonMemoryLabel.Text" xml:space="preserve"><value>記憶體</value></data>
   <data name="MetricsNetwork.Text" xml:space="preserve"><value>網路</value></data>
   <data name="MetricsNetworkUnavailable.Text" xml:space="preserve"><value>在本機執行後端無法取得個別行程的網路使用量。使用 Docker 執行伺服器即可查看網路指標。</value></data>
   <!-- Plugins / Mods -->
-  <data name="CommonRemoveAutomationButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>移除</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
+<data name="CommonRemoveAutomationButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>移除</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonRemoveButton.Content; icon-only automation owners cannot use visible Button.Content.</comment></data>
   <data name="ModsRemoveConfirmText.Text" xml:space="preserve"><value>要移除此檔案嗎？</value></data>
   <data name="ModsStoppedHint.Text" xml:space="preserve"><value>請停止伺服器後再新增或移除檔案。</value></data>
   <data name="ModsUnsupportedHint.Text" xml:space="preserve"><value>此伺服器類型沒有插件或模組資料夾。</value></data>
   <data name="Mods.KindPlugins" xml:space="preserve"><value>插件</value></data>
   <data name="Mods.KindMods" xml:space="preserve"><value>模組</value></data>
   <data name="Mods.StoppedRequired" xml:space="preserve"><value>變更插件或模組前，請先停止伺服器。</value></data>
-  <data name="Mods.OperationFailed" xml:space="preserve"><value>作業失敗。請再試一次。</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="Mods.OperationFailed" xml:space="preserve"><value>作業失敗。請再試一次。</value><comment>DUPLICATE SEMANTIC-HOMOGRAPH: Mods.OperationFailed reports mod operations while Scripts.OperationFailed reports automation-script operations.</comment></data>
   <data name="Mods.OperationFailedDetail" xml:space="preserve"><value>{summary}（{code}）{detail}</value><comment>Placeholders: {code} = diagnostic error code; {detail} = diagnostic error detail; {summary} = localized error summary.</comment></data>
   <data name="Mods.TypeMismatch" xml:space="preserve"><value>此項目適用於 {loader}，與伺服器類型不符。</value><comment>Placeholders: {loader} = mod loader name.</comment></data>
   <data name="Mods.VersionMismatch" xml:space="preserve"><value>此項目需要 Minecraft {version}，與伺服器版本不符。</value><comment>Placeholders: {version} = runtime version.</comment></data>
@@ -347,9 +342,9 @@
   <data name="PlayerActionsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>玩家動作</value>
   </data>
-  <data name="PlayerActionsButtonLabel.Text" xml:space="preserve">
+  <data name="CommonActionsButtonLabel.Text" xml:space="preserve">
     <value>動作</value>
-  <comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+  </data>
   <data name="PlayerOpMenuItem.Text" xml:space="preserve">
     <value>設為 OP</value>
   </data>
@@ -385,16 +380,15 @@
   <data name="BackupCreateButtonLabel.Text" xml:space="preserve"><value>建立備份</value></data>
   <data name="BackupSafeOnlineLabel.Text" xml:space="preserve"><value>線上安全備份（暫停儲存）</value></data>
   <data name="BackupActionsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>備份動作</value></data>
-  <data name="BackupActionsButtonLabel.Text" xml:space="preserve"><value>動作</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="BackupExportAction.Text" xml:space="preserve"><value>匯出</value></data>
   <data name="BackupRestoreAction.Text" xml:space="preserve"><value>還原</value></data>
-  <data name="CommonDeleteMenuItem.Text" xml:space="preserve"><value>刪除</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
+<data name="CommonDeleteMenuItem.Text" xml:space="preserve"><value>刪除</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonDeleteMenuItem.Text; menu text and ContentDialog.PrimaryButtonText have incompatible owners.</comment></data>
   <data name="Backups.Deleting" xml:space="preserve"><value>刪除備份中</value></data>
   <data name="Backups.ExportFailed" xml:space="preserve"><value>無法匯出備份。</value></data>
-  <data name="EditServerDialog.Title" xml:space="preserve"><value>編輯伺服器</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
-  <data name="EditServerDialog.PrimaryButtonText" xml:space="preserve"><value>儲存</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
-  <data name="EditServerDialog.CloseButtonText" xml:space="preserve"><value>取消</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
-  <data name="EditServerType.Header" xml:space="preserve"><value>類型</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="EditServerDialog.Title" xml:space="preserve"><value>編輯伺服器</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonEditServerButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; tooltip, menu text, and dialog title target incompatible properties.</comment></data>
+<data name="EditServerDialog.PrimaryButtonText" xml:space="preserve"><value>儲存</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical EditServerDialog.PrimaryButtonText; each ContentDialog x:Uid also owns a distinct title and close action.</comment></data>
+<data name="EditServerDialog.CloseButtonText" xml:space="preserve"><value>取消</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CreateServerDialog.CloseButtonText; each ContentDialog x:Uid also owns a distinct title and actions.</comment></data>
+<data name="EditServerType.Header" xml:space="preserve"><value>類型</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonTypeLabel.Text; ComboBox.Header owners cannot share a TextBlock x:Uid and retain their other resources.</comment></data>
   <data name="EditServerStoppedNotice.Title" xml:space="preserve"><value>停止伺服器才能變更啟動設定</value></data>
   <data name="EditServerStoppedNotice.Message" xml:space="preserve"><value>伺服器執行時仍可儲存名稱變更。若要變更版本、記憶體、自訂 Java 參數或連接埠，請先停止伺服器。</value></data>
   <data name="ServerTeachingTip.InstalledTitle" xml:space="preserve"><value>{server} 已成功安裝</value><comment>Placeholders: {server} = server name.</comment></data>
@@ -407,8 +401,8 @@
   <data name="ServerTeachingTip.CrashedMessage" xml:space="preserve"><value>伺服器意外停止。</value></data>
   <data name="ServerTeachingTip.StartAction" xml:space="preserve"><value>啟動伺服器</value></data>
   <data name="install.ready.to.run" xml:space="preserve"><value>已準備就緒。</value></data>
-  <data name="NavScripts.Content" xml:space="preserve"><value>腳本</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="ScriptsPageTitle.Text" xml:space="preserve"><value>腳本</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="NavScripts.Content" xml:space="preserve"><value>腳本</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical ScriptsPageTitle.Text; the page heading targets TextBlock.Text while navigation targets NavigationViewItem.Content.</comment></data>
+<data name="ScriptsPageTitle.Text" xml:space="preserve"><value>腳本</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical ScriptsPageTitle.Text; the page heading targets TextBlock.Text while navigation targets NavigationViewItem.Content.</comment></data>
   <data name="ScriptsPageSubtitle.Text" xml:space="preserve"><value>匯入您自己的 Lua 提供者與自動化腳本，檢視它們要求的權限，並管理已安裝的項目。</value></data>
   <data name="ScriptsProvidersHeader.Text" xml:space="preserve"><value>提供者</value></data>
   <data name="ScriptsParsersHeader.Text" xml:space="preserve"><value>模組資訊解析器</value></data>
@@ -416,18 +410,18 @@
   <data name="ModsWebsiteLink.Content" xml:space="preserve"><value>網站</value></data>
   <data name="ScriptSectionShowInFolderButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>在資料夾中顯示腳本</value></data>
   <data name="ScriptSectionShowInFolderButtonLabel.Text" xml:space="preserve"><value>在資料夾中顯示</value></data>
-  <data name="ScriptSectionAddScriptsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>新增腳本</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="ScriptSectionAddScriptsButtonLabel.Text" xml:space="preserve"><value>新增腳本</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="ScriptSectionAddScriptsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>新增腳本</value></data>
+<data name="ScriptSectionAddScriptsButtonLabel.Text" xml:space="preserve"><value>新增腳本</value></data>
   <data name="ScriptsAutomationHeader.Text" xml:space="preserve"><value>自動化腳本</value></data>
   <data name="ScriptsAutomationEmpty.Text" xml:space="preserve"><value>尚未安裝任何自動化腳本。</value></data>
-  <data name="ScriptsBuiltinBadge.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>內建</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="ScriptsBuiltinBadgeLabel.Text" xml:space="preserve"><value>內建</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="ScriptsBuiltinBadge.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>內建</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical ScriptsBuiltinBadge.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the badge also needs a child TextBlock.Text label.</comment></data>
+<data name="ScriptsBuiltinBadgeLabel.Text" xml:space="preserve"><value>內建</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical ScriptsBuiltinBadge.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the badge also needs a child TextBlock.Text label.</comment></data>
   <data name="ScriptsEnabledToggle.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>啟用或停用此腳本</value></data>
   <data name="ScriptsAllLogsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>在新視窗中開啟所有自動化日誌</value></data>
   <data name="ScriptsAllLogsButtonLabel.Text" xml:space="preserve"><value>所有日誌</value></data>
   <data name="ScriptsScriptLogsHeader.Text" xml:space="preserve"><value>日誌</value></data>
   <data name="ScriptsScriptLogsEmpty.Text" xml:space="preserve"><value>此腳本尚無輸出。</value></data>
-  <data name="ScriptLogsWindow.Title" xml:space="preserve"><value>所有自動化日誌</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="ScriptLogsWindow.Title" xml:space="preserve"><value>所有自動化日誌</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical ScriptLogsWindow.Title; Window.Title and TitleBar.Title have incompatible owners.</comment></data>
   <data name="ScriptLogsWindowEmpty.Text" xml:space="preserve"><value>尚無自動化輸出。</value></data>
   <data name="ScriptLogsWindowNoSelection.Text" xml:space="preserve"><value>選取日誌項目以檢視詳細資料。</value></data>
   <data name="ScriptLogsWindowDetailHeader.Text" xml:space="preserve"><value>日誌詳細資料</value></data>
@@ -435,7 +429,7 @@
   <data name="Scripts.LogEntryFallbackTitle" xml:space="preserve"><value>日誌項目</value></data>
   <data name="Scripts.OpenFolderFailed" xml:space="preserve"><value>無法開啟腳本資料夾。</value></data>
   <data name="PermissionConsentDialog.PrimaryButtonText" xml:space="preserve"><value>允許所選</value></data>
-  <data name="PermissionConsentDialog.CloseButtonText" xml:space="preserve"><value>取消</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
+<data name="PermissionConsentDialog.CloseButtonText" xml:space="preserve"><value>取消</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CreateServerDialog.CloseButtonText; each ContentDialog x:Uid also owns a distinct title and actions.</comment></data>
   <data name="PermissionConsentIntro.Text" xml:space="preserve"><value>此腳本要求以下權限。請僅允許您信任的項目。</value></data>
   <data name="PermissionConsentNone.Text" xml:space="preserve"><value>此腳本未要求任何權限。</value></data>
   <data name="Permission.Network" xml:space="preserve"><value>網路存取</value></data>
@@ -453,40 +447,39 @@
   <data name="Scripts.AlreadyExists" xml:space="preserve"><value>已安裝相同識別碼的腳本。</value></data>
   <data name="Scripts.BuiltinProtected" xml:space="preserve"><value>內建腳本無法修改。</value></data>
   <data name="Scripts.NotAvailable" xml:space="preserve"><value>自動化引擎尚未可用。</value></data>
-  <data name="Scripts.OperationFailed" xml:space="preserve"><value>操作失敗，請再試一次。</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="Scripts.OperationFailed" xml:space="preserve"><value>操作失敗，請再試一次。</value><comment>DUPLICATE SEMANTIC-HOMOGRAPH: Mods.OperationFailed reports mod operations while Scripts.OperationFailed reports automation-script operations.</comment></data>
   <data name="Scripts.RemoveConfirmBody" xml:space="preserve"><value>要移除「{name}」嗎？此操作無法復原。</value><comment>Placeholders: {name} = runtime name.</comment></data>
-  <data name="CommonRemoveButton.Content" xml:space="preserve"><value>移除</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
+<data name="CommonRemoveButton.Content" xml:space="preserve"><value>移除</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonRemoveButton.Content; icon-only automation owners cannot use visible Button.Content.</comment></data>
   <data name="PermissionConsentTitleNamed" xml:space="preserve"><value>檢視權限 — {name}</value><comment>Placeholders: {name} = runtime name.</comment></data>
   <data name="CreateServer.ProviderAuthor" xml:space="preserve"><value>作者：{author}</value><comment>Placeholders: {author} = provider author.</comment></data>
   <data name="CreateServerProviderWebsite.Content" xml:space="preserve"><value>造訪網站</value></data>
   <data name="HomeTotalServersLabel.Text" xml:space="preserve"><value>總伺服器</value></data>
-  <data name="HomeRunningServersLabel.Text" xml:space="preserve"><value>執行中</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="HomeRunningServersLabel.Text" xml:space="preserve"><value>執行中</value><comment>DUPLICATE SEMANTIC-HOMOGRAPH: HomeRunningServersLabel.Text labels a server-count summary while ServerStatus.Running is one server's lifecycle state.</comment></data>
   <data name="HomeStoppedServersLabel.Text" xml:space="preserve"><value>就緒</value></data>
   <data name="HomeBusyServersLabel.Text" xml:space="preserve"><value>變更狀態中</value></data>
-  <data name="HomeCardTypeLabel.Text" xml:space="preserve"><value>類型</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="HomeCardVersionLabel.Text" xml:space="preserve"><value>版本</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="CommonTypeLabel.Text" xml:space="preserve"><value>類型</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonTypeLabel.Text; ComboBox.Header owners cannot share a TextBlock x:Uid and retain their other resources.</comment></data>
+  <data name="CommonVersionLabel.Text" xml:space="preserve"><value>版本</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonVersionLabel.Text; CreateServerVersion.Header belongs to a ComboBox that also owns PlaceholderText.</comment></data>
   <data name="HomeCardEndpointLabel.Text" xml:space="preserve"><value>位址</value></data>
-  <data name="CommonCopyAddressButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>複製位址</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
-  <data name="CommonCopyAddressButton.ToolTipService.ToolTip" xml:space="preserve"><value>複製位址</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
-  <data name="HomeCardRenameButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>重新命名伺服器</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="HomeCardRenameButton.ToolTipService.ToolTip" xml:space="preserve"><value>重新命名伺服器</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="HomeCardMoreButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>伺服器動作</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="HomeCardMoreButton.ToolTipService.ToolTip" xml:space="preserve"><value>伺服器動作</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="HomeCardMoveUpButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>上移伺服器</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="HomeCardMoveUpButton.ToolTipService.ToolTip" xml:space="preserve"><value>上移伺服器</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="HomeCardMoveDownButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>下移伺服器</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="HomeCardMoveDownButton.ToolTipService.ToolTip" xml:space="preserve"><value>下移伺服器</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="CommonEditServerButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>編輯伺服器</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
-  <data name="CommonEditServerButton.ToolTipService.ToolTip" xml:space="preserve"><value>編輯伺服器</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
-  <data name="CommonEditServerMenuItem.Text" xml:space="preserve"><value>編輯伺服器</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
+<data name="CommonCopyAddressButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>複製位址</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonCopyAddressButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the same icon button also needs ToolTipService.ToolTip.</comment></data>
+<data name="CommonCopyAddressButton.ToolTipService.ToolTip" xml:space="preserve"><value>複製位址</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonCopyAddressButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the same icon button also needs ToolTipService.ToolTip.</comment></data>
+  <data name="CommonRenameServerButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>重新命名伺服器</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonRenameServerButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the tooltip and dialog title target incompatible properties.</comment></data>
+  <data name="CommonRenameServerButton.ToolTipService.ToolTip" xml:space="preserve"><value>重新命名伺服器</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonRenameServerButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the tooltip and dialog title target incompatible properties.</comment></data>
+<data name="HomeCardMoreButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>伺服器動作</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical HomeCardMoreButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the same icon button also needs ToolTipService.ToolTip.</comment></data>
+<data name="HomeCardMoreButton.ToolTipService.ToolTip" xml:space="preserve"><value>伺服器動作</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical HomeCardMoreButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the same icon button also needs ToolTipService.ToolTip.</comment></data>
+<data name="HomeCardMoveUpButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>上移伺服器</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical HomeCardMoveUpButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the same icon button also needs ToolTipService.ToolTip.</comment></data>
+<data name="HomeCardMoveUpButton.ToolTipService.ToolTip" xml:space="preserve"><value>上移伺服器</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical HomeCardMoveUpButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the same icon button also needs ToolTipService.ToolTip.</comment></data>
+<data name="HomeCardMoveDownButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>下移伺服器</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical HomeCardMoveDownButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the same icon button also needs ToolTipService.ToolTip.</comment></data>
+<data name="HomeCardMoveDownButton.ToolTipService.ToolTip" xml:space="preserve"><value>下移伺服器</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical HomeCardMoveDownButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the same icon button also needs ToolTipService.ToolTip.</comment></data>
+<data name="CommonEditServerButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>編輯伺服器</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonEditServerButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; tooltip, menu text, and dialog title target incompatible properties.</comment></data>
+<data name="CommonEditServerButton.ToolTipService.ToolTip" xml:space="preserve"><value>編輯伺服器</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonEditServerButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; tooltip, menu text, and dialog title target incompatible properties.</comment></data>
+<data name="CommonEditServerMenuItem.Text" xml:space="preserve"><value>編輯伺服器</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonEditServerButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; tooltip, menu text, and dialog title target incompatible properties.</comment></data>
   <data name="HomeCardOpenMenuItem.Text" xml:space="preserve"><value>開啟伺服器</value></data>
-  <data name="HomeCardDeleteMenuItem.Text" xml:space="preserve"><value>刪除伺服器</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="ServerTitleRenameButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>重新命名伺服器</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="RenameServerDialog.Title" xml:space="preserve"><value>重新命名伺服器</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="InstallProgressPreviousButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>上一步</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="InstallProgressPreviousButton.ToolTipService.ToolTip" xml:space="preserve"><value>上一步</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="CommonNextButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>下一步</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
-  <data name="CommonNextButton.ToolTipService.ToolTip" xml:space="preserve"><value>下一步</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
+  <data name="CommonDeleteServerMenuItem.Text" xml:space="preserve"><value>刪除伺服器</value></data>
+<data name="RenameServerDialog.Title" xml:space="preserve"><value>重新命名伺服器</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonRenameServerButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the tooltip and dialog title target incompatible properties.</comment></data>
+<data name="InstallProgressPreviousButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>上一步</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical InstallProgressPreviousButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the same icon button also needs ToolTipService.ToolTip.</comment></data>
+<data name="InstallProgressPreviousButton.ToolTipService.ToolTip" xml:space="preserve"><value>上一步</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical InstallProgressPreviousButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the same icon button also needs ToolTipService.ToolTip.</comment></data>
+<data name="CommonNextButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>下一步</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonNextButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the same icon button also needs ToolTipService.ToolTip.</comment></data>
+<data name="CommonNextButton.ToolTipService.ToolTip" xml:space="preserve"><value>下一步</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonNextButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the same icon button also needs ToolTipService.ToolTip.</comment></data>
   <data name="Scripts.CurrentSessionTitle" xml:space="preserve">
 <value>目前工作階段</value>
 </data>
@@ -496,12 +489,11 @@
   <data name="SettingsAboutHeader.Text" xml:space="preserve"><value>關於</value></data>
   <data name="SettingsAboutRepo.Text" xml:space="preserve"><value>GitHub 儲存庫</value></data>
   <data name="SettingsAboutIssues.Text" xml:space="preserve"><value>回報問題</value></data>
-  <data name="ShopWindow.Title" xml:space="preserve"><value>模組商店</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="ShopWindow.Title" xml:space="preserve"><value>模組商店</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical ShopWindow.Title; Window.Title and TitleBar.Title have incompatible owners.</comment></data>
   <data name="ShopDiscoverTitle.Text" xml:space="preserve"><value>為你的伺服器找到精彩內容</value></data>
   <data name="ShopDiscoverSubtitle.Text" xml:space="preserve"><value>探索社群製作的專案。相容性篩選預設開啟，顯示的內容都更適合目前的伺服器。</value></data>
-  <data name="CommonDismissTooltipButton.ToolTipService.ToolTip" xml:space="preserve"><value>關閉</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
+<data name="CommonDismissTooltipButton.ToolTipService.ToolTip" xml:space="preserve"><value>關閉</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonDismissButton.Content; the icon-only dismiss owner needs ToolTipService.ToolTip instead of Button.Content.</comment></data>
   <data name="ShopSearchResultsHeading.Text" xml:space="preserve"><value>搜尋結果</value></data>
-  <data name="ShopFilterHeading.Text" xml:space="preserve"><value>篩選條件</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
   <data name="ShopResetFilters.Content" xml:space="preserve"><value>重設</value></data>
   <data name="ShopCompatibilityHeading.Text" xml:space="preserve"><value>相容性</value></data>
   <data name="ShopCompatibilityDescription.Text" xml:space="preserve"><value>只顯示支援此伺服器的專案。</value></data>
@@ -512,7 +504,7 @@
   <data name="ShopCategoriesDescription.Text" xml:space="preserve"><value>可選取多個分類，結果符合其中任一分類即可。</value></data>
   <data name="shop.category.adventure" xml:space="preserve"><value>冒險</value></data>
   <data name="shop.category.decoration" xml:space="preserve"><value>裝飾</value></data>
-  <data name="shop.category.equipment" xml:space="preserve"><value>裝備</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="shop.category.equipment" xml:space="preserve"><value>裝備</value><comment>DUPLICATE SEMANTIC-HOMOGRAPH: PlayerInventoryEquipmentHeader.Text is a player-data section while shop.category.equipment is a mod-shop category.</comment></data>
   <data name="shop.category.game-mechanics" xml:space="preserve"><value>遊戲機制</value></data>
   <data name="shop.category.library" xml:space="preserve"><value>函式庫</value></data>
   <data name="shop.category.magic" xml:space="preserve"><value>魔法</value></data>
@@ -534,7 +526,7 @@
   <data name="ShopSortDownloads.Content" xml:space="preserve"><value>下載次數</value></data>
   <data name="ShopSortFollows.Content" xml:space="preserve"><value>熱門程度</value></data>
   <data name="ShopSortNewest.Content" xml:space="preserve"><value>最新發布</value></data>
-  <data name="ShopSortUpdated.Content" xml:space="preserve"><value>最近更新</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="ShopSortUpdated.Content" xml:space="preserve"><value>最近更新</value><comment>DUPLICATE SEMANTIC-HOMOGRAPH: ShopSortUpdated.Content is a sort criterion while shop.home.updated is a discovery-section heading.</comment></data>
   <data name="ShopSearchEmpty.Text" xml:space="preserve"><value>沒有結果。請換個關鍵字，或放寬版本／載入器篩選。</value></data>
   <data name="ShopOverviewTab.Text" xml:space="preserve"><value>詳細資料</value></data>
   <data name="ShopVersionsTab.Text" xml:space="preserve"><value>版本</value></data>
@@ -554,7 +546,7 @@
   <data name="shop.home.trending_description" xml:space="preserve"><value>近期受到社群關注的專案。</value></data>
   <data name="shop.home.recommended" xml:space="preserve"><value>推薦給此伺服器</value></data>
   <data name="shop.home.recommended_description" xml:space="preserve"><value>符合此伺服器版本與載入器的熱門社群精選。</value></data>
-  <data name="shop.home.updated" xml:space="preserve"><value>最近更新</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="shop.home.updated" xml:space="preserve"><value>最近更新</value><comment>DUPLICATE SEMANTIC-HOMOGRAPH: ShopSortUpdated.Content is a sort criterion while shop.home.updated is a discovery-section heading.</comment></data>
   <data name="shop.home.updated_description" xml:space="preserve"><value>近期發布新版本並持續維護的專案。</value></data>
   <data name="shop.home.featured_description" xml:space="preserve"><value>目前由此來源精選推薦的專案。</value></data>
   <data name="shop.home.featured" xml:space="preserve"><value>精選</value></data>
@@ -563,7 +555,7 @@
   <data name="ModsUploadLabel.Text" xml:space="preserve"><value>加入自訂 Jar</value></data>
   <data name="Mods.ExportDone" xml:space="preserve"><value>已匯出模組壓縮檔。</value></data>
   <data name="Mods.ExportFailed" xml:space="preserve"><value>無法匯出模組壓縮檔。</value></data>
-  <data name="SettingsShopHeader.Text" xml:space="preserve"><value>模組商店</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="SettingsShopHeader.Text" xml:space="preserve"><value>模組商店</value></data>
   <data name="SettingsShopHint.Text" xml:space="preserve"><value>CurseForge 需要個人 API 金鑰（console.curseforge.com）；Modrinth 不需要金鑰。</value></data>
   <data name="SettingsCurseForgeKey.Header" xml:space="preserve"><value>CurseForge API 金鑰</value></data>
   <data name="SettingsShopKeySaveButton.Content" xml:space="preserve"><value>儲存金鑰</value></data>
@@ -571,24 +563,24 @@
   <data name="Settings.ShopKeyUser" xml:space="preserve"><value>已設定個人 CurseForge 金鑰。儲存空白金鑰即可移除。</value></data>
   <data name="Settings.ShopKeyBuiltin" xml:space="preserve"><value>正在使用此版本內建的 CurseForge 金鑰，個人金鑰可覆蓋它。</value></data>
   <!-- XAML-owned window and dialog chrome -->
-  <data name="MainWindow.Title" xml:space="preserve"><value>JustHostMC</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="MainWindowTitleBar.Title" xml:space="preserve"><value>JustHostMC</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="EngineStdioWindow.Title" xml:space="preserve"><value>引擎監視器</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="EngineMonitorTitleBar.Title" xml:space="preserve"><value>引擎監視器</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="ScriptLogsTitleBar.Title" xml:space="preserve"><value>所有自動化日誌</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
-  <data name="ShopWindowTitleBar.Title" xml:space="preserve"><value>模組商店</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="MainWindow.Title" xml:space="preserve"><value>JustHostMC</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical AppDisplayName; the manifest value, Window.Title, and TitleBar.Title have incompatible owners.</comment></data>
+<data name="MainWindowTitleBar.Title" xml:space="preserve"><value>JustHostMC</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical AppDisplayName; the manifest value, Window.Title, and TitleBar.Title have incompatible owners.</comment></data>
+<data name="EngineStdioWindow.Title" xml:space="preserve"><value>引擎監視器</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical EngineStdioWindow.Title; Window.Title and TitleBar.Title have incompatible owners.</comment></data>
+<data name="EngineMonitorTitleBar.Title" xml:space="preserve"><value>引擎監視器</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical EngineStdioWindow.Title; Window.Title and TitleBar.Title have incompatible owners.</comment></data>
+<data name="ScriptLogsTitleBar.Title" xml:space="preserve"><value>所有自動化日誌</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical ScriptLogsWindow.Title; Window.Title and TitleBar.Title have incompatible owners.</comment></data>
+<data name="ShopWindowTitleBar.Title" xml:space="preserve"><value>模組商店</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical ShopWindow.Title; Window.Title and TitleBar.Title have incompatible owners.</comment></data>
   <data name="DeleteServerDialog.Title" xml:space="preserve"><value>要刪除伺服器嗎？</value></data>
   <data name="DeleteServerDialog.Content" xml:space="preserve"><value>這會永久刪除伺服器及其世界。此動作無法復原。</value></data>
-  <data name="DeleteServerDialog.PrimaryButtonText" xml:space="preserve"><value>刪除</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
-  <data name="DeleteServerDialog.CloseButtonText" xml:space="preserve"><value>取消</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
-  <data name="RenameServerDialog.PrimaryButtonText" xml:space="preserve"><value>儲存</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
-  <data name="RenameServerDialog.CloseButtonText" xml:space="preserve"><value>取消</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
-  <data name="RenameServerNameBox.Header" xml:space="preserve"><value>名稱</value><comment>INTENTIONAL DUPLICATE: the same English wording is used in distinct UI contexts; translate according to this resource&apos;s semantic identifier.</comment></data>
+<data name="DeleteServerDialog.PrimaryButtonText" xml:space="preserve"><value>刪除</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonDeleteMenuItem.Text; menu text and ContentDialog.PrimaryButtonText have incompatible owners.</comment></data>
+<data name="DeleteServerDialog.CloseButtonText" xml:space="preserve"><value>取消</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CreateServerDialog.CloseButtonText; each ContentDialog x:Uid also owns a distinct title and actions.</comment></data>
+<data name="RenameServerDialog.PrimaryButtonText" xml:space="preserve"><value>儲存</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical EditServerDialog.PrimaryButtonText; each ContentDialog x:Uid also owns a distinct title and close action.</comment></data>
+<data name="RenameServerDialog.CloseButtonText" xml:space="preserve"><value>取消</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CreateServerDialog.CloseButtonText; each ContentDialog x:Uid also owns a distinct title and actions.</comment></data>
+<data name="RenameServerNameBox.Header" xml:space="preserve"><value>名稱</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CreateServerName.Header; CreateServerName also owns PlaceholderText so it cannot share RenameServerNameBox's x:Uid.</comment></data>
   <data name="ServerFolderMissingDialog.Title" xml:space="preserve"><value>找不到執行個體資料夾</value></data>
   <data name="ServerFolderMissingDialog.Content" xml:space="preserve"><value>執行個體資料夾尚未建立，或背景服務正在使用此應用程式版本尚未公開的資料位置。</value></data>
   <data name="ServerFolderMissingDialog.CloseButtonText" xml:space="preserve"><value>確定</value></data>
   <data name="DependencyPromptDialog.Title" xml:space="preserve"><value>必要相依模組</value></data>
   <data name="DependencyPromptDialog.PrimaryButtonText" xml:space="preserve"><value>全部安裝</value></data>
-  <data name="DependencyPromptDialog.CloseButtonText" xml:space="preserve"><value>取消</value><comment>INTENTIONAL DUPLICATE: WinUI x:Uid targets a different property or the owning element also has context-specific resources; keep this common action translation aligned.</comment></data>
+<data name="DependencyPromptDialog.CloseButtonText" xml:space="preserve"><value>取消</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CreateServerDialog.CloseButtonText; each ContentDialog x:Uid also owns a distinct title and actions.</comment></data>
   <data name="DependencyPromptBody.Text" xml:space="preserve"><value>此版本需要下列模組，將一併安裝（已擁有的可取消勾選）。</value></data>
 </root>

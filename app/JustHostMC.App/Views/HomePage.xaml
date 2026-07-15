@@ -53,7 +53,7 @@
                         </Grid.ColumnDefinitions>
 
                         <Button
-                            x:Uid="HomeCardRenameButton"
+                            x:Uid="CommonRenameServerButton"
                             Grid.Column="0"
                             Height="32"
                             MaxWidth="210"
@@ -108,7 +108,7 @@
                                     </MenuFlyoutItem>
                                     <MenuFlyoutSeparator />
                                     <MenuFlyoutItem
-                                        x:Uid="HomeCardDeleteMenuItem"
+                                        x:Uid="CommonDeleteServerMenuItem"
                                         Click="OnCardDeleteClick"
                                         Tag="{Binding}">
                                         <MenuFlyoutItem.Icon>
@@ -163,7 +163,7 @@
                             Grid.Column="0"
                             Spacing="2">
                             <TextBlock
-                                x:Uid="HomeCardTypeLabel"
+                                x:Uid="CommonTypeLabel"
                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Style="{StaticResource CaptionTextBlockStyle}" />
                             <TextBlock Text="{Binding TypeText}" TextTrimming="CharacterEllipsis" />
@@ -174,7 +174,7 @@
                             Grid.Column="1"
                             Spacing="2">
                             <TextBlock
-                                x:Uid="HomeCardVersionLabel"
+                                x:Uid="CommonVersionLabel"
                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Style="{StaticResource CaptionTextBlockStyle}" />
                             <TextBlock Text="{Binding McVersion}" TextTrimming="CharacterEllipsis" />

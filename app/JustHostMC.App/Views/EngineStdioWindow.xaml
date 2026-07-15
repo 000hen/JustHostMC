@@ -156,7 +156,7 @@
 
             <controls:AdaptiveFilterLayout.CompactFilterContent>
                 <StackPanel Width="270" Spacing="12">
-                    <TextBlock x:Uid="EngineMonitorFiltersLabel" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock x:Uid="CommonFiltersLabel" Style="{StaticResource SubtitleTextBlockStyle}" />
                     <TextBox
                         x:Name="CompactSearchBox"
                         x:Uid="EngineMonitorSearchBox"
@@ -237,7 +237,7 @@
                 <StackPanel Padding="14" Spacing="12">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon FontSize="14" Glyph="&#xE71C;" />
-                        <TextBlock x:Uid="EngineMonitorFiltersLabel" Style="{StaticResource SubtitleTextBlockStyle}" />
+                        <TextBlock x:Uid="CommonFiltersLabel" Style="{StaticResource SubtitleTextBlockStyle}" />
                     </StackPanel>
                     <TextBox
                         x:Name="WideSearchBox"

@@ -146,7 +146,7 @@
                                         VerticalAlignment="Center"
                                         Tag="{Binding}">
                                         <StackPanel Orientation="Horizontal" Spacing="6">
-                                            <TextBlock x:Uid="BackupActionsButtonLabel" />
+                                            <TextBlock x:Uid="CommonActionsButtonLabel" />
                                             <FontIcon FontSize="12" Glyph="&#xE70D;" />
                                         </StackPanel>
                                         <Button.Flyout>

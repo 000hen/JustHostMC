@@ -55,7 +55,7 @@
                         CornerRadius="8">
                         <StackPanel Spacing="8">
                             <TextBlock
-                                x:Uid="MetricsMemory"
+                                x:Uid="CommonMemoryLabel"
                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Style="{StaticResource CaptionTextBlockStyle}" />
                             <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="{x:Bind Metrics.MemText, Mode=OneWay}" />

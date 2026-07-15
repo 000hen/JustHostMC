@@ -39,7 +39,7 @@
                 Status="{x:Bind Server.Status, Mode=OneWay}" />
             <StackPanel Grid.Column="1" Spacing="2">
                 <Button
-                    x:Uid="ServerTitleRenameButton"
+                    x:Uid="CommonRenameServerButton"
                     MaxWidth="560"
                     Padding="0"
                     HorizontalAlignment="Left"
@@ -110,7 +110,7 @@
                             </MenuFlyoutItem.Icon>
                         </MenuFlyoutItem>
                         <MenuFlyoutSeparator />
-                        <MenuFlyoutItem x:Uid="ServerDeleteMenuItem" Click="OnDeleteClick">
+                        <MenuFlyoutItem x:Uid="CommonDeleteServerMenuItem" Click="OnDeleteClick">
                             <MenuFlyoutItem.Icon>
                                 <FontIcon Glyph="&#xE74D;" />
                             </MenuFlyoutItem.Icon>
@@ -141,7 +141,7 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <TextBlock
-                        x:Uid="ServerMetaTypeLabel"
+                        x:Uid="CommonTypeLabel"
                         Grid.Row="0"
                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                         Style="{StaticResource CaptionTextBlockStyle}" />
@@ -161,7 +161,7 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <TextBlock
-                        x:Uid="ServerMetaVersionLabel"
+                        x:Uid="CommonVersionLabel"
                         Grid.Row="0"
                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                         Style="{StaticResource CaptionTextBlockStyle}" />
@@ -207,7 +207,7 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <TextBlock
-                        x:Uid="ServerMetaMemoryLabel"
+                        x:Uid="CommonMemoryLabel"
                         Grid.Row="0"
                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                         Style="{StaticResource CaptionTextBlockStyle}" />

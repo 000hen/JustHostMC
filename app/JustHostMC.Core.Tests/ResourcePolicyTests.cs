@@ -47,6 +47,53 @@ public sealed class ResourcePolicyTests {
             "DependencyPromptBody.Text",
             "ShopWindow.Title",
             "ShopWindowTitleBar.Title");
+    private static readonly IReadOnlyList<DuplicateResourceRule>
+        DuplicateResourceRules = [
+            Rule("JustHostMC", "PROPERTY-CONTEXT", "canonical AppDisplayName; the manifest value, Window.Title, and TitleBar.Title have incompatible owners", "AppDisplayName", "MainWindow.Title", "MainWindowTitleBar.Title"),
+            Rule("Create server", "SEMANTIC-HOMOGRAPH", "CreateServerButtonLabel.Text is an action label while CreateServerDialog.Title is a dialog heading", "CreateServerButtonLabel.Text", "CreateServerDialog.Title"),
+            Rule("Running", "SEMANTIC-HOMOGRAPH", "HomeRunningServersLabel.Text labels a server-count summary while ServerStatus.Running is one server's lifecycle state", "HomeRunningServersLabel.Text", "ServerStatus.Running"),
+            Rule("Installing", "RUNTIME-CONTRACT", "canonical ServerStatus.Installing; ServerState.Installing is a state-change message key while ServerStatus.Installing is a status-enum key", "ServerState.Installing", "ServerStatus.Installing"),
+            Rule("Starting", "RUNTIME-CONTRACT", "canonical ServerStatus.Starting; ServerState.Starting is a state-change message key while ServerStatus.Starting is a status-enum key", "ServerState.Starting", "ServerStatus.Starting"),
+            Rule("Stopping", "RUNTIME-CONTRACT", "canonical ServerStatus.Stopping; ServerState.Stopping is a state-change message key while ServerStatus.Stopping is a status-enum key", "ServerState.Stopping", "ServerStatus.Stopping"),
+            Rule("Unknown", "SEMANTIC-HOMOGRAPH", "the keys mean unavailable memory, unknown lifecycle status, and unknown server type respectively", "ServerMetaMemoryUnknownValue.Text", "ServerStatus.Unknown", "ServerType.Unknown"),
+            Rule("Cancel", "PROPERTY-CONTEXT", "canonical CreateServerDialog.CloseButtonText; each ContentDialog x:Uid also owns a distinct title and actions", "CreateServerDialog.CloseButtonText", "DeleteServerDialog.CloseButtonText", "DependencyPromptDialog.CloseButtonText", "EditServerDialog.CloseButtonText", "PermissionConsentDialog.CloseButtonText", "RenameServerDialog.CloseButtonText"),
+            Rule("Name", "PROPERTY-CONTEXT", "canonical CreateServerName.Header; CreateServerName also owns PlaceholderText so it cannot share RenameServerNameBox's x:Uid", "CreateServerName.Header", "RenameServerNameBox.Header"),
+            Rule("Type", "PROPERTY-CONTEXT", "canonical CommonTypeLabel.Text; ComboBox.Header owners cannot share a TextBlock x:Uid and retain their other resources", "BanListTypeBox.Header", "CommonTypeLabel.Text", "CreateServerType.Header", "EditServerType.Header"),
+            Rule("Version", "PROPERTY-CONTEXT", "canonical CommonVersionLabel.Text; CreateServerVersion.Header belongs to a ComboBox that also owns PlaceholderText", "CommonVersionLabel.Text", "CreateServerVersion.Header"),
+            Rule("Port", "PROPERTY-CONTEXT", "canonical ServerMetaPortLabel.Text; CreateServerPort.Header targets NumberBox.Header rather than TextBlock.Text", "CreateServerPort.Header", "ServerMetaPortLabel.Text"),
+            Rule("Dismiss", "PROPERTY-CONTEXT", "canonical CommonDismissButton.Content; the icon-only dismiss owner needs ToolTipService.ToolTip instead of Button.Content", "CommonDismissButton.Content", "CommonDismissTooltipButton.ToolTipService.ToolTip"),
+            Rule("Close", "PROPERTY-CONTEXT", "canonical CommonCloseDialog.CloseButtonText; BanListHostDialog also owns context-specific dialog resources", "BanListHostDialog.CloseButtonText", "CommonCloseDialog.CloseButtonText"),
+            Rule("Remove all data", "SEMANTIC-HOMOGRAPH", "SettingsDataHeader.Text names the data section while SettingsRemoveDataButton.Content is a destructive action", "SettingsDataHeader.Text", "SettingsRemoveDataButton.Content"),
+            Rule("Stop", "SEMANTIC-HOMOGRAPH", "EngineMonitorStopButton.Content is a monitor command while ServerState.Stop is a server-state action label", "EngineMonitorStopButton.Content", "ServerState.Stop"),
+            Rule("Home", "PROPERTY-CONTEXT", "canonical HomeTitle.Text; the page heading targets TextBlock.Text while navigation targets NavigationViewItem.Content", "HomeTitle.Text", "NavHome.Content"),
+            Rule("Settings", "PROPERTY-CONTEXT", "canonical SettingsTitle.Text; the page heading targets TextBlock.Text while navigation targets NavigationViewItem.Content", "NavSettings.Content", "SettingsTitle.Text"),
+            Rule("Plugins / Mods", "PROPERTY-CONTEXT", "canonical ServerSectionMods.Text; SelectorBarItem.Text and the panel Title property have incompatible owners", "ServerSectionMods.Text", "ServerSectionModsPanel.Title"),
+            Rule("Configuration", "PROPERTY-CONTEXT", "canonical ServerSectionConfig.Text; SelectorBarItem.Text and the panel Title property have incompatible owners", "ServerSectionConfig.Text", "ServerSectionConfigPanel.Title"),
+            Rule("Performance", "PROPERTY-CONTEXT", "canonical ServerSectionPerformance.Text; SelectorBarItem.Text and the panel Title property have incompatible owners", "ServerSectionPerformance.Text", "ServerSectionPerformancePanel.Title"),
+            Rule("Auto", "RUNTIME-CONTRACT", "canonical ServerMetaPortAutoValue.Text; Server.PortAutoValue is returned by runtime metadata lookup", "Server.PortAutoValue", "ServerMetaPortAutoValue.Text"),
+            Rule("Manage bans", "PROPERTY-CONTEXT", "canonical ManageBansButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the composed button also needs a child TextBlock.Text label", "ManageBansButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name", "ManageBansButtonLabel.Text"),
+            Rule("Player", "SEMANTIC-HOMOGRAPH", "BanList.TypePlayer is a ban-entry type while BanListTypePlayerItem.Content is the corresponding picker option", "BanList.TypePlayer", "BanListTypePlayerItem.Content"),
+            Rule("Inventory", "SEMANTIC-HOMOGRAPH", "PlayerInventoryDialog.ActionName is a dialog-title fragment while PlayerInventoryMainHeader.Text is a section heading", "PlayerInventoryDialog.ActionName", "PlayerInventoryMainHeader.Text"),
+            Rule("Equipment", "SEMANTIC-HOMOGRAPH", "PlayerInventoryEquipmentHeader.Text is a player-data section while shop.category.equipment is a mod-shop category", "PlayerInventoryEquipmentHeader.Text", "shop.category.equipment"),
+            Rule("Remove", "PROPERTY-CONTEXT", "canonical CommonRemoveButton.Content; icon-only automation owners cannot use visible Button.Content", "CommonRemoveAutomationButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name", "CommonRemoveButton.Content"),
+            Rule("The operation failed. Please try again.", "SEMANTIC-HOMOGRAPH", "Mods.OperationFailed reports mod operations while Scripts.OperationFailed reports automation-script operations", "Mods.OperationFailed", "Scripts.OperationFailed"),
+            Rule("Delete", "PROPERTY-CONTEXT", "canonical CommonDeleteMenuItem.Text; menu text and ContentDialog.PrimaryButtonText have incompatible owners", "CommonDeleteMenuItem.Text", "DeleteServerDialog.PrimaryButtonText"),
+            Rule("Copy address", "PROPERTY-CONTEXT", "canonical CommonCopyAddressButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the same icon button also needs ToolTipService.ToolTip", "CommonCopyAddressButton.ToolTipService.ToolTip", "CommonCopyAddressButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name"),
+            Rule("Rename server", "PROPERTY-CONTEXT", "canonical CommonRenameServerButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the tooltip and dialog title target incompatible properties", "CommonRenameServerButton.ToolTipService.ToolTip", "CommonRenameServerButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name", "RenameServerDialog.Title"),
+            Rule("Server actions", "PROPERTY-CONTEXT", "canonical HomeCardMoreButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the same icon button also needs ToolTipService.ToolTip", "HomeCardMoreButton.ToolTipService.ToolTip", "HomeCardMoreButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name"),
+            Rule("Move server up", "PROPERTY-CONTEXT", "canonical HomeCardMoveUpButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the same icon button also needs ToolTipService.ToolTip", "HomeCardMoveUpButton.ToolTipService.ToolTip", "HomeCardMoveUpButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name"),
+            Rule("Move server down", "PROPERTY-CONTEXT", "canonical HomeCardMoveDownButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the same icon button also needs ToolTipService.ToolTip", "HomeCardMoveDownButton.ToolTipService.ToolTip", "HomeCardMoveDownButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name"),
+            Rule("Edit server", "PROPERTY-CONTEXT", "canonical CommonEditServerButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; tooltip, menu text, and dialog title target incompatible properties", "CommonEditServerButton.ToolTipService.ToolTip", "CommonEditServerButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name", "CommonEditServerMenuItem.Text", "EditServerDialog.Title"),
+            Rule("Save", "PROPERTY-CONTEXT", "canonical EditServerDialog.PrimaryButtonText; each ContentDialog x:Uid also owns a distinct title and close action", "EditServerDialog.PrimaryButtonText", "RenameServerDialog.PrimaryButtonText"),
+            Rule("Scripts", "PROPERTY-CONTEXT", "canonical ScriptsPageTitle.Text; the page heading targets TextBlock.Text while navigation targets NavigationViewItem.Content", "NavScripts.Content", "ScriptsPageTitle.Text"),
+            Rule("Built in", "PROPERTY-CONTEXT", "canonical ScriptsBuiltinBadge.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the badge also needs a child TextBlock.Text label", "ScriptsBuiltinBadge.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name", "ScriptsBuiltinBadgeLabel.Text"),
+            Rule("All Automation Logs", "PROPERTY-CONTEXT", "canonical ScriptLogsWindow.Title; Window.Title and TitleBar.Title have incompatible owners", "ScriptLogsTitleBar.Title", "ScriptLogsWindow.Title"),
+            Rule("Previous", "PROPERTY-CONTEXT", "canonical InstallProgressPreviousButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the same icon button also needs ToolTipService.ToolTip", "InstallProgressPreviousButton.ToolTipService.ToolTip", "InstallProgressPreviousButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name"),
+            Rule("Next", "PROPERTY-CONTEXT", "canonical CommonNextButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the same icon button also needs ToolTipService.ToolTip", "CommonNextButton.ToolTipService.ToolTip", "CommonNextButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name"),
+            Rule("Mod Shop", "PROPERTY-CONTEXT", "canonical ShopWindow.Title; Window.Title and TitleBar.Title have incompatible owners", "ShopWindow.Title", "ShopWindowTitleBar.Title"),
+            Rule("Recently updated", "SEMANTIC-HOMOGRAPH", "ShopSortUpdated.Content is a sort criterion while shop.home.updated is a discovery-section heading", "ShopSortUpdated.Content", "shop.home.updated"),
+            Rule("Engine debug monitor", "PROPERTY-CONTEXT", "canonical EngineStdioWindow.Title; Window.Title and TitleBar.Title have incompatible owners", "EngineMonitorTitleBar.Title", "EngineStdioWindow.Title"),
+        ];
 
     [Fact]
     public void LocalesExposeTheSameResourceNames() {
@@ -68,17 +115,30 @@ public sealed class ResourcePolicyTests {
     }
 
     [Fact]
-    public void DuplicateEnglishValuesAreDocumented() {
-        var undocumented = LoadResources("en-US")
-            .GroupBy(element => element.Element("value")?.Value.Trim(),
-                     StringComparer.Ordinal)
-            .Where(group => !string.IsNullOrEmpty(group.Key) && group.Count() > 1)
-            .SelectMany(group => group)
-            .Where(element => !(element.Element("comment")?.Value
-                .StartsWith("INTENTIONAL DUPLICATE:",
-                            StringComparison.Ordinal) ?? false))
-            .Select(ResourceName);
-        Assert.Empty(undocumented);
+    public void DuplicateEnglishValuesHaveExplicitOwnership() {
+        Assert.Empty(DuplicateOwnershipViolations(
+            LoadResources("en-US"), LoadResources("zh-TW"),
+            DuplicateResourceRules));
+    }
+
+    [Fact]
+    public void GenericDuplicateCommentsDoNotApproveUnknownGroups() {
+        var english = SyntheticResources(
+            ("First.Text", "Same", "INTENTIONAL DUPLICATE: generic"),
+            ("Second.Text", "Same", "INTENTIONAL DUPLICATE: generic"));
+        Assert.Contains("unapproved", DuplicateOwnershipViolations(
+            english, english, []).Single(), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void DuplicateOwnershipRejectsAllowlistedMembershipChanges() {
+        var resources = SyntheticResources(
+            ("First.Text", "Same", "DUPLICATE SEMANTIC-HOMOGRAPH: meanings differ"),
+            ("Third.Text", "Same", "DUPLICATE SEMANTIC-HOMOGRAPH: meanings differ"));
+        var rule = Rule("Same", "SEMANTIC-HOMOGRAPH", "meanings differ",
+                        "First.Text", "Second.Text");
+        Assert.Contains("members", DuplicateOwnershipViolations(
+            resources, resources, [rule]).Single(), StringComparison.Ordinal);
     }
 
     [Fact]
@@ -86,8 +146,17 @@ public sealed class ResourcePolicyTests {
         var english = LoadResourceMap("en-US");
         var chinese = LoadResourceMap("zh-TW");
         foreach (var key in english.Keys) {
-            Assert.Equal(Placeholders(english[key]), Placeholders(chinese[key]));
+            Assert.Equal(PlaceholderOccurrences(english[key]),
+                         PlaceholderOccurrences(chinese[key]));
         }
+    }
+
+    [Fact]
+    public void PlaceholderParityPreservesRepeatedOccurrences() {
+        Assert.NotEqual(PlaceholderOccurrences("{0}"),
+                        PlaceholderOccurrences("{0} {0}"));
+        Assert.NotEqual(PlaceholderOccurrences("{name} {name} {count}"),
+                        PlaceholderOccurrences("{name} {count}"));
     }
 
     [Theory]
@@ -98,8 +167,8 @@ public sealed class ResourcePolicyTests {
             .Select(element => (
                 Element: element,
                 Comment: element.Element("comment")?.Value ?? string.Empty,
-                Placeholders: Placeholders(element.Element("value")?.Value ??
-                                           string.Empty)))
+                Placeholders: PlaceholderNames(
+                    element.Element("value")?.Value ?? string.Empty)))
             .Where(item => item.Placeholders.Any(placeholder =>
                 !item.Comment.Contains(placeholder, StringComparison.Ordinal)))
             .Select(item => ResourceName(item.Element));
@@ -410,6 +479,61 @@ public sealed class ResourcePolicyTests {
         XDocument.Load(Path.Combine(AppRoot, "Strings", language, "Resources.resw"))
             .Root!.Elements("data").ToArray();
 
+    private static DuplicateResourceRule Rule(
+        string value, string category, string reason, params string[] keys) =>
+        new(value, category, reason,
+            keys.ToHashSet(StringComparer.Ordinal));
+
+    private static string[] DuplicateOwnershipViolations(
+        IReadOnlyList<XElement> english,
+        IReadOnlyList<XElement> chinese,
+        IReadOnlyList<DuplicateResourceRule> rules) {
+        var actual = english
+            .GroupBy(element => element.Element("value")?.Value.Trim(),
+                     StringComparer.Ordinal)
+            .Where(group => !string.IsNullOrEmpty(group.Key) && group.Count() > 1)
+            .ToDictionary(group => group.Key!, group => group.ToArray(),
+                          StringComparer.Ordinal);
+        var approved = rules.ToDictionary(rule => rule.Value,
+                                           StringComparer.Ordinal);
+        var violations = new List<string>();
+
+        foreach (var (value, elements) in actual) {
+            if (!approved.TryGetValue(value, out var rule)) {
+                violations.Add($"unapproved duplicate value '{value}'");
+                continue;
+            }
+            var keys = elements.Select(ResourceName)
+                .ToHashSet(StringComparer.Ordinal);
+            if (!keys.SetEquals(rule.Keys)) {
+                violations.Add($"duplicate '{value}' members are " +
+                    string.Join(", ", keys.Order(StringComparer.Ordinal)));
+                continue;
+            }
+            foreach (var locale in new[] { english, chinese }) {
+                foreach (var element in locale.Where(element =>
+                             rule.Keys.Contains(ResourceName(element)))) {
+                    var comment = element.Element("comment")?.Value;
+                    if (!string.Equals(comment, rule.Comment,
+                                       StringComparison.Ordinal)) {
+                        violations.Add($"{ResourceName(element)} must document " +
+                            $"'{rule.Comment}'");
+                    }
+                }
+            }
+        }
+        foreach (var rule in rules.Where(rule => !actual.ContainsKey(rule.Value)))
+            violations.Add($"allowlisted duplicate '{rule.Value}' no longer exists");
+        return violations.ToArray();
+    }
+
+    private static IReadOnlyList<XElement> SyntheticResources(
+        params (string Key, string Value, string Comment)[] resources) =>
+        resources.Select(resource => new XElement("data",
+            new XAttribute("name", resource.Key),
+            new XElement("value", resource.Value),
+            new XElement("comment", resource.Comment))).ToArray();
+
     private static Dictionary<string, string> LoadResourceMap(string language) =>
         LoadResources(language).ToDictionary(
             ResourceName,
@@ -445,11 +569,15 @@ public sealed class ResourcePolicyTests {
                 character == '_' && resource[index] == '.').Any(matches => matches));
     }
 
-    private static string[] Placeholders(string value) =>
+    private static string[] PlaceholderOccurrences(string value) =>
         Regex.Matches(value, @"\{(?:[A-Za-z][A-Za-z0-9_]*|\d+)\}")
             .Select(match => match.Value)
-            .Distinct(StringComparer.Ordinal)
             .Order(StringComparer.Ordinal)
+            .ToArray();
+
+    private static string[] PlaceholderNames(string value) =>
+        PlaceholderOccurrences(value)
+            .Distinct(StringComparer.Ordinal)
             .ToArray();
 
     private static readonly IReadOnlyDictionary<string, IReadOnlySet<string>>
@@ -594,5 +722,13 @@ public sealed class ResourcePolicyTests {
                 return directory.FullName;
         }
         throw new DirectoryNotFoundException("Could not locate JustHostMC.sln");
+    }
+
+    private sealed record DuplicateResourceRule(
+        string Value,
+        string Category,
+        string Reason,
+        IReadOnlySet<string> Keys) {
+        public string Comment => $"DUPLICATE {Category}: {Reason}.";
     }
 }

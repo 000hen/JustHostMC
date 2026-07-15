@@ -20,7 +20,7 @@
             <StackPanel x:Name="CreateTypePanel" Spacing="8">
                 <ComboBox
                     x:Name="TypeBox"
-                    x:Uid="CreateServerType"
+                    x:Uid="CommonTypeComboBox"
                     HorizontalAlignment="Stretch"
                     DisplayMemberPath="Display"
                     SelectionChanged="OnTypeChanged" />

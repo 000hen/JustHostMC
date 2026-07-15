@@ -108,7 +108,7 @@
 <data name="CreateServerName.Header" xml:space="preserve"><value>名稱</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CreateServerName.Header; CreateServerName also owns PlaceholderText so it cannot share RenameServerNameBox's x:Uid.</comment></data>
 <data name="CreateServerName.PlaceholderText" xml:space="preserve"><value>我的伺服器</value></data>
 <data name="CreateServer.DefaultName" xml:space="preserve"><value>我的伺服器</value></data>
-<data name="CreateServerType.Header" xml:space="preserve"><value>類型</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonTypeLabel.Text; ComboBox.Header owners cannot share a TextBlock x:Uid and retain their other resources.</comment></data>
+<data name="CommonTypeComboBox.Header" xml:space="preserve"><value>類型</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonTypeComboBox.Header; TextBox.Header and TextBlock.Text target incompatible control/property variants.</comment></data>
   <data name="CreateServerVersionHint.Text" xml:space="preserve"><value>版本會從網路取得。</value></data>
 <data name="CreateServerVersion.Header" xml:space="preserve"><value>版本</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonVersionLabel.Text; CreateServerVersion.Header belongs to a ComboBox that also owns PlaceholderText.</comment></data>
   <data name="CreateServerVersionError.Title" xml:space="preserve"><value>無法載入版本</value></data>
@@ -291,7 +291,6 @@
   <data name="BanListStoppedNotice.Message" xml:space="preserve"><value>封鎖名單檔案最適合在伺服器停止時修改；伺服器執行中仍可使用主控台封鎖指令。</value></data>
   <data name="BanListAddHeader.Text" xml:space="preserve"><value>新增封鎖</value></data>
   <data name="BanListAddHint.Text" xml:space="preserve"><value>將玩家名稱、UUID 或 IP 位址加入原版封鎖名單檔案。</value></data>
-<data name="BanListTypeBox.Header" xml:space="preserve"><value>類型</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonTypeLabel.Text; ComboBox.Header owners cannot share a TextBlock x:Uid and retain their other resources.</comment></data>
 <data name="BanListTypePlayerItem.Content" xml:space="preserve"><value>玩家</value><comment>DUPLICATE SEMANTIC-HOMOGRAPH: BanList.TypePlayer is a ban-entry type while BanListTypePlayerItem.Content is the corresponding picker option.</comment></data>
   <data name="BanListTypeIpItem.Content" xml:space="preserve"><value>IP 位址</value></data>
   <data name="BanListTargetBox.Header" xml:space="preserve"><value>目標</value></data>
@@ -388,7 +387,7 @@
 <data name="EditServerDialog.Title" xml:space="preserve"><value>編輯伺服器</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonEditServerButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; tooltip, menu text, and dialog title target incompatible properties.</comment></data>
 <data name="EditServerDialog.PrimaryButtonText" xml:space="preserve"><value>儲存</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical EditServerDialog.PrimaryButtonText; each ContentDialog x:Uid also owns a distinct title and close action.</comment></data>
 <data name="EditServerDialog.CloseButtonText" xml:space="preserve"><value>取消</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CreateServerDialog.CloseButtonText; each ContentDialog x:Uid also owns a distinct title and actions.</comment></data>
-<data name="EditServerType.Header" xml:space="preserve"><value>類型</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonTypeLabel.Text; ComboBox.Header owners cannot share a TextBlock x:Uid and retain their other resources.</comment></data>
+<data name="EditServerType.Header" xml:space="preserve"><value>類型</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonTypeComboBox.Header; TextBox.Header and TextBlock.Text target incompatible control/property variants.</comment></data>
   <data name="EditServerStoppedNotice.Title" xml:space="preserve"><value>停止伺服器才能變更啟動設定</value></data>
   <data name="EditServerStoppedNotice.Message" xml:space="preserve"><value>伺服器執行時仍可儲存名稱變更。若要變更版本、記憶體、自訂 Java 參數或連接埠，請先停止伺服器。</value></data>
   <data name="ServerTeachingTip.InstalledTitle" xml:space="preserve"><value>{server} 已成功安裝</value><comment>Placeholders: {server} = server name.</comment></data>
@@ -457,7 +456,7 @@
 <data name="HomeRunningServersLabel.Text" xml:space="preserve"><value>執行中</value><comment>DUPLICATE SEMANTIC-HOMOGRAPH: HomeRunningServersLabel.Text labels a server-count summary while ServerStatus.Running is one server's lifecycle state.</comment></data>
   <data name="HomeStoppedServersLabel.Text" xml:space="preserve"><value>就緒</value></data>
   <data name="HomeBusyServersLabel.Text" xml:space="preserve"><value>變更狀態中</value></data>
-<data name="CommonTypeLabel.Text" xml:space="preserve"><value>類型</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonTypeLabel.Text; ComboBox.Header owners cannot share a TextBlock x:Uid and retain their other resources.</comment></data>
+<data name="CommonTypeLabel.Text" xml:space="preserve"><value>類型</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonTypeComboBox.Header; TextBox.Header and TextBlock.Text target incompatible control/property variants.</comment></data>
   <data name="CommonVersionLabel.Text" xml:space="preserve"><value>版本</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonVersionLabel.Text; CreateServerVersion.Header belongs to a ComboBox that also owns PlaceholderText.</comment></data>
   <data name="HomeCardEndpointLabel.Text" xml:space="preserve"><value>位址</value></data>
 <data name="CommonCopyAddressButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>複製位址</value><comment>DUPLICATE PROPERTY-CONTEXT: canonical CommonCopyAddressButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; the same icon button also needs ToolTipService.ToolTip.</comment></data>

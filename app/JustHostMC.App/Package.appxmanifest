@@ -10,7 +10,7 @@
   <Identity
     Name="MuisnowDevs.JustHostMC"
     Publisher="CN=D695C2EB-16D9-4BB6-8331-4FE2F278B676"
-    Version="1.1.1.0" />
+    Version="1.1.2.0" />
 
   <Properties>
     <DisplayName>ms-resource:AppDisplayName</DisplayName>

@@ -200,17 +200,13 @@
                 <!--  About Section  -->
                 <toolkit:SettingsExpander Description="{x:Bind ViewModel.AppVersionText, Mode=OneWay}" Header="{x:Bind ViewModel.AppName, Mode=OneWay}">
                     <toolkit:SettingsExpander.HeaderIcon>
-                        <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///Assets/Square44x44Logo.png" />
+                        <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///Assets/StoreLogo.png" />
                     </toolkit:SettingsExpander.HeaderIcon>
                     <toolkit:SettingsExpander.Items>
-
-                        <toolkit:SettingsCard IsClickEnabled="True">
+                        <toolkit:SettingsCard>
                             <toolkit:SettingsCard.Header>
                                 <TextBlock x:Uid="SettingsAboutRepo" />
                             </toolkit:SettingsCard.Header>
-                            <toolkit:SettingsCard.ActionIcon>
-                                <FontIcon Glyph="&#xE8A7;" />
-                            </toolkit:SettingsCard.ActionIcon>
                             <HyperlinkButton NavigateUri="https://github.com/000hen/JustHostMC">
                                 <StackPanel Orientation="Horizontal" Spacing="6">
                                     <TextBlock VerticalAlignment="Center" Text="github.com/000hen/JustHostMC" />
@@ -222,13 +218,10 @@
                             </HyperlinkButton>
                         </toolkit:SettingsCard>
 
-                        <toolkit:SettingsCard IsClickEnabled="True">
+                        <toolkit:SettingsCard>
                             <toolkit:SettingsCard.Header>
                                 <TextBlock x:Uid="SettingsAboutIssues" />
                             </toolkit:SettingsCard.Header>
-                            <toolkit:SettingsCard.ActionIcon>
-                                <FontIcon Glyph="&#xE8A7;" />
-                            </toolkit:SettingsCard.ActionIcon>
                             <HyperlinkButton NavigateUri="https://github.com/000hen/JustHostMC/issues">
                                 <StackPanel Orientation="Horizontal" Spacing="6">
                                     <TextBlock VerticalAlignment="Center" Text="github.com/000hen/JustHostMC/issues" />

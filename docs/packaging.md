@@ -109,7 +109,7 @@ built automatically by the `release.yml` workflow whenever a version tag
 
 | Artifact | Description |
 |----------|-------------|
-| `*-portable.exe` | Self-contained single-file executable. Extract-and-run, no installation needed. |
+| `*-portable.zip` | Self-contained unpackaged folder payload. Extract the zip, then run `JustHostMC.App.exe`. |
 | `*.msi` | Windows Installer package. Installs to Program Files, creates Start Menu shortcut, supports upgrades and uninstall via Add/Remove Programs. |
 | `SHA256SUMS.txt` | SHA-256 checksums for all release artifacts. |
 
@@ -169,7 +169,7 @@ The `DistributionChannel` MSBuild property selects the build profile:
 | Value | Behavior |
 |-------|----------|
 | `Dev` (default) | Unpackaged, self-contained, for F5 / local development |
-| `GitHubPortable` | Single-file EXE, self-contained, no MSIX tooling |
+| `GitHubPortable` | Folder-based payload (zipped by CI), self-contained, no MSIX tooling |
 | `GitHubMsi` | Folder-based publish output for MSI packaging |
 | _(Store/MSIX)_ | Governed by `GenerateAppxPackageOnBuild` / `WindowsPackageType=MSIX` |
 

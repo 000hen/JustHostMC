@@ -196,7 +196,7 @@ jobs:
           $utf8NoBom = [System.Text.UTF8Encoding]::new($false)
           [System.IO.File]::WriteAllText($path, $updated, $utf8NoBom)
 
-      - name: Publish portable executable
+      - name: Publish portable payload
         shell: pwsh
         run: |
           dotnet publish app/JustHostMC.App/JustHostMC.App.csproj `
@@ -209,8 +209,7 @@ jobs:
             -p:WindowsPackageType=None `
             -p:EnableMsixTooling=false `
             -p:WindowsAppSDKSelfContained=true `
-            -p:PublishSingleFile=true `
-            -p:IncludeAllContentForSelfExtract=true `
+            -p:PublishSingleFile=false `
             -p:PublishTrimmed=false `
             -p:PublishReadyToRun=false `
             -p:Version="$env:APP_VERSION" `
@@ -222,20 +221,21 @@ jobs:
             -p:SkipEngineBuild=true `
             -p:SkipProtobufGenerate=true
 
-      - name: Verify portable executable
+      - name: Verify portable payload
         shell: pwsh
         run: |
-          $exe = Get-ChildItem artifacts/portable `
-            -Filter "JustHostMC.App.exe" `
-            -File `
-            -Recurse | Select-Object -First 1
+          $required = @(
+            "artifacts/portable/JustHostMC.App.exe",
+            "artifacts/portable/JustHostMC.App.dll",
+            "artifacts/portable/Microsoft.UI.Xaml.dll",
+            "artifacts/portable/Microsoft.UI.Xaml.Controls.pri"
+          )
 
-          if (-not $exe) {
-            throw "Portable JustHostMC.App.exe was not produced."
+          foreach ($path in $required) {
+            if (-not (Test-Path $path)) {
+              throw "Portable payload is missing: $path"
+            }
           }
-
-          Write-Host "Portable executable: $($exe.FullName)"
-          Write-Host "Size: $($exe.Length) bytes"
 
       - name: Publish MSI payload
         shell: pwsh
@@ -302,26 +302,23 @@ jobs:
           $releaseDir = "release"
           New-Item -ItemType Directory -Force $releaseDir | Out-Null
 
-          $portableExe = Get-ChildItem artifacts/portable `
-            -Filter "JustHostMC.App.exe" `
-            -File `
-            -Recurse | Select-Object -First 1
+          $portableRoot = (Resolve-Path artifacts/portable).Path
+          $portableZip = "$releaseDir/JustHostMC-$version-windows-$arch-portable.zip"
+          if (Test-Path $portableZip) {
+            Remove-Item $portableZip -Force
+          }
+          Compress-Archive `
+            -Path "$portableRoot\\*" `
+            -DestinationPath $portableZip
 
           $msi = Get-ChildItem artifacts/msi `
             -Filter "*.msi" `
             -File `
             -Recurse | Select-Object -First 1
 
-          if (-not $portableExe) {
-            throw "Portable executable is missing."
-          }
           if (-not $msi) {
             throw "MSI installer is missing."
           }
-
-          Copy-Item `
-            $portableExe.FullName `
-            "$releaseDir/JustHostMC-$version-windows-$arch-portable.exe"
 
           Copy-Item `
             $msi.FullName `
@@ -383,7 +380,7 @@ jobs:
           set -euo pipefail
 
           gh release upload "$RELEASE_TAG" \
-            artifacts/*.exe \
+            artifacts/*.zip \
             artifacts/*.msi \
             artifacts/SHA256SUMS.txt \
             --clobber \

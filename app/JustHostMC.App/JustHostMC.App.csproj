@@ -30,20 +30,17 @@
     <DistributionChannel Condition="'$(DistributionChannel)' == ''">Dev</DistributionChannel>
   </PropertyGroup>
 
-  <!-- GitHub Portable: self-contained single-file EXE, no MSIX tooling.
-       Windows App SDK 2.0.4+ validates this combination in SingleFile.targets;
-       disable that guard for our unpackaged portable publish path. -->
+  <!-- GitHub Portable: self-contained unpackaged folder payload (zipped in CI),
+       no MSIX tooling. -->
   <PropertyGroup Condition="'$(DistributionChannel)' == 'GitHubPortable'">
     <WindowsPackageType>None</WindowsPackageType>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <SelfContained>true</SelfContained>
-    <PublishSingleFile>true</PublishSingleFile>
-    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+    <PublishSingleFile>false</PublishSingleFile>
     <PublishTrimmed>false</PublishTrimmed>
     <DebugType>None</DebugType>
     <DebugSymbols>false</DebugSymbols>
     <EnableMsixTooling>false</EnableMsixTooling>
-    <WindowsAppSDKSingleFileVerifyConfiguration>false</WindowsAppSDKSingleFileVerifyConfiguration>
   </PropertyGroup>
 
   <!-- GitHub MSI: self-contained folder-based payload for WiX packaging. -->

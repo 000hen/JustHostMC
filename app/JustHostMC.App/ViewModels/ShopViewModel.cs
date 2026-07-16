@@ -238,7 +238,7 @@ public sealed partial class ShopViewModel : ObservableObject {
     }
 
     private string GetSectionDescription(string titleKey) {
-        var descriptionKey = $"{titleKey}.description";
+        var descriptionKey = $"{titleKey}_description";
         var description    = _localizer.Get(descriptionKey);
         return description == descriptionKey ? "" : description;
     }

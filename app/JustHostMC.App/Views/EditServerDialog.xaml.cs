@@ -13,9 +13,9 @@ public sealed partial class EditServerDialog : ContentDialog {
         _content = new ServerDialog(viewModel, ServerDialogMode.Edit, server);
         DialogBody.Content = _content;
 
-        IsPrimaryButtonEnabled = _content.CanSubmit;
-        _content.CanSubmitChanged += (_, _) =>
-            IsPrimaryButtonEnabled = _content.CanSubmit;
+        IsPrimaryButtonEnabled               = _content.CanSubmit;
+        _content.CanSubmitChanged += (_, _) => IsPrimaryButtonEnabled =
+            _content.CanSubmit;
     }
 
     public UpdateServerRequest BuildUpdateRequest() =>

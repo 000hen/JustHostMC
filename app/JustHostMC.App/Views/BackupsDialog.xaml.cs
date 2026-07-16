@@ -32,8 +32,9 @@ public sealed partial class BackupsDialog : UserControl {
     /// busy.</summary>
     public bool Not(bool value) => !value;
 
-    public Visibility ShowWhenEmpty(int count) =>
-        count == 0 ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility ShowWhenEmpty(int count) => count == 0
+                                                      ? Visibility.Visible
+                                                      : Visibility.Collapsed;
 
     private async void OnExportBackupClick(object sender, RoutedEventArgs e) {
         if (ViewModel.IsBusy)

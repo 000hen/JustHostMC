@@ -5,15 +5,14 @@ namespace JustHostMC.App.ResourceTests;
 public sealed class FeatureFiniteStateTests {
     [Fact]
     public void ModsFiniteLabelsUseSemanticStateAndXamlResources() {
-        var viewModel = RepositoryLayout.ReadAppFile(
-            "ViewModels", "ModsViewModel.cs");
-        var xaml = RepositoryLayout.ReadAppFile(
-            "Controls", "Server", "ServerModsPanel.xaml");
+        var viewModel =
+            RepositoryLayout.ReadAppFile("ViewModels", "ModsViewModel.cs");
+        var xaml = RepositoryLayout.ReadAppFile("Controls", "Server",
+                                                "ServerModsPanel.xaml");
 
         Assert.Contains("ModsWorkflowStatus", viewModel,
                         StringComparison.Ordinal);
-        Assert.DoesNotContain("KindLabel", viewModel,
-                              StringComparison.Ordinal);
+        Assert.DoesNotContain("KindLabel", viewModel, StringComparison.Ordinal);
         Assert.DoesNotContain("_localizer.Get(\"Mods_Export", viewModel,
                               StringComparison.Ordinal);
         Assert.Contains("x:Uid=\"ServerModsTitleConverter\"", xaml,
@@ -26,8 +25,8 @@ public sealed class FeatureFiniteStateTests {
 
     [Fact]
     public void SettingsFiniteLabelsUseSemanticStateAndXamlResources() {
-        var viewModel = RepositoryLayout.ReadAppFile(
-            "ViewModels", "SettingsViewModel.cs");
+        var viewModel =
+            RepositoryLayout.ReadAppFile("ViewModels", "SettingsViewModel.cs");
         var xaml = RepositoryLayout.ReadAppFile("Views", "SettingsPage.xaml");
 
         Assert.Contains("SettingsWorkflowStatus", viewModel,
@@ -50,20 +49,19 @@ public sealed class FeatureFiniteStateTests {
                      "SettingsStatusSaved",
                      "SettingsStatusSaveFailed",
                  }) {
-            Assert.Contains($"x:Uid=\"{uid}\"", xaml,
-                            StringComparison.Ordinal);
+            Assert.Contains($"x:Uid=\"{uid}\"", xaml, StringComparison.Ordinal);
         }
     }
 
     [Fact]
     public void ShopFiniteLabelsUseSemanticStateAndXamlResources() {
-        var shop = RepositoryLayout.ReadAppFile(
-            "ViewModels", "ShopViewModel.cs");
-        var detail = RepositoryLayout.ReadAppFile(
-            "ViewModels", "ShopDetailViewModel.cs");
+        var shop =
+            RepositoryLayout.ReadAppFile("ViewModels", "ShopViewModel.cs");
+        var detail = RepositoryLayout.ReadAppFile("ViewModels",
+                                                  "ShopDetailViewModel.cs");
         var window = RepositoryLayout.ReadAppFile("Views", "ShopWindow.xaml");
-        var detailXaml = RepositoryLayout.ReadAppFile(
-            "Views", "ShopDetailPage.xaml");
+        var detailXaml =
+            RepositoryLayout.ReadAppFile("Views", "ShopDetailPage.xaml");
 
         Assert.Contains("HasLoadFailure", shop, StringComparison.Ordinal);
         Assert.DoesNotContain("_localizer.Get(\"Shop_LoadFailed\")", shop,
@@ -83,10 +81,10 @@ public sealed class FeatureFiniteStateTests {
 
     [Fact]
     public void ScriptLogFiniteLabelsAreRenderedByXaml() {
-        var viewModel = RepositoryLayout.ReadAppFile(
-            "ViewModels", "ScriptsViewModel.cs");
-        var xaml = RepositoryLayout.ReadAppFile(
-            "Views", "ScriptLogsWindow.xaml");
+        var viewModel =
+            RepositoryLayout.ReadAppFile("ViewModels", "ScriptsViewModel.cs");
+        var xaml =
+            RepositoryLayout.ReadAppFile("Views", "ScriptLogsWindow.xaml");
 
         foreach (var key in new[] {
                      "Scripts_SystemLogName",

@@ -325,8 +325,7 @@ public sealed partial class ScriptsViewModel : ObservableObject,
         var session   = GetOrCreateLogSession(sessionId, sessionStartedAt,
                                               isCurrentSession);
         session.Entries.Insert(
-            0, new ScriptLogEntry(
-                   displayId, scriptName, line, timestamp, ""));
+            0, new ScriptLogEntry(displayId, scriptName, line, timestamp, ""));
         while (session.Entries.Count > MaxLogLinesPerSession)
             session.Entries.RemoveAt(session.Entries.Count - 1);
 
@@ -362,8 +361,8 @@ public sealed partial class ScriptsViewModel : ObservableObject,
         // Title is intentionally a semantic marker: empty means current,
         // non-empty means historical. ScriptLogsWindow owns the localized
         // presentation for both branches.
-        var session = new ScriptLogSession(
-            sessionId, startedAt, isCurrentSession ? "" : "previous");
+        var session = new ScriptLogSession(sessionId, startedAt,
+                                           isCurrentSession ? "" : "previous");
         _logSessionsById[sessionId] = session;
 
         var index = 0;

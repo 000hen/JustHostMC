@@ -8,7 +8,7 @@ public sealed partial class PlayerInventoryContentDialog : ContentDialog {
 
     public PlayerInventoryContentDialog(string serverId, PlayerItem player) {
         var view = new PlayerInventoryDialog(serverId, player);
-        Body = new PlayerDialogBase(player, view);
+        Body     = new PlayerDialogBase(player, view);
         InitializeComponent();
 
         Title = string.Format(Title?.ToString() ?? "{0}", player.Name);

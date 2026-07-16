@@ -118,9 +118,7 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
         DetailStatus == ShopDetailStatus.InstallFailed;
 
     [ObservableProperty]
-    public partial bool InstallSucceeded {
-        get; private set;
-    }
+    public partial bool InstallSucceeded { get; private set; }
 
     [ObservableProperty]
     public partial string WebsiteUrl {
@@ -160,7 +158,8 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
                 RefreshPrimaryAction();
             });
         } catch {
-            await RunOnUIAsync(() => DetailStatus = ShopDetailStatus.LoadFailed);
+            await RunOnUIAsync(() => DetailStatus =
+                                   ShopDetailStatus.LoadFailed);
         } finally {
             await RunOnUIAsync(() => IsLoading = false);
         }
@@ -192,7 +191,8 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
                 RefreshPrimaryAction();
             });
         } catch {
-            await RunOnUIAsync(() => DetailStatus = ShopDetailStatus.LoadFailed);
+            await RunOnUIAsync(() => DetailStatus =
+                                   ShopDetailStatus.LoadFailed);
         } finally {
             await RunOnUIAsync(() => IsVersionsLoading = false);
         }
@@ -263,7 +263,8 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
                 StatusMessage = _localizer.Get(key);
             });
         } catch {
-            await RunOnUIAsync(() => DetailStatus = ShopDetailStatus.InstallFailed);
+            await RunOnUIAsync(() => DetailStatus =
+                                   ShopDetailStatus.InstallFailed);
         } finally {
             await RunOnUIAsync(() => { IsInstalling = false; });
         }

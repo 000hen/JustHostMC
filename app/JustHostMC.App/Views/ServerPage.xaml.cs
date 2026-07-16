@@ -239,7 +239,7 @@ public sealed partial class ServerPage : Page {
         ContentDialog confirm = Server.IsIncompleteInstallation
                                     ? new IncompleteServerRemovalDialog()
                                     : new DeleteServerDialog();
-        confirm.XamlRoot = XamlRoot;
+        confirm.XamlRoot      = XamlRoot;
         if (await confirm.ShowAsync() != ContentDialogResult.Primary)
             return;
         _main.DeleteServerCommand.Execute(Server);

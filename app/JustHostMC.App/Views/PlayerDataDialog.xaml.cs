@@ -21,7 +21,7 @@ public sealed partial class PlayerDataDialog : UserControl {
     }
 
     private async Task LoadAsync() {
-        BusyBar.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
+        BusyBar.Visibility        = Microsoft.UI.Xaml.Visibility.Visible;
         LoadFailedText.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
         try {
             var daemon = await App.Current.DaemonReady;

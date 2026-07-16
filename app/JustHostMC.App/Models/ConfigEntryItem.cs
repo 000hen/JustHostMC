@@ -28,8 +28,8 @@ public sealed partial class ConfigEntryItem : ObservableObject {
     public ConfigValueType Type { get; }
     public bool IsBoolean => Type == ConfigValueType.ConfigBoolean;
     public bool IsInteger => Type == ConfigValueType.ConfigInteger;
-    public bool IsChoice => Type == ConfigValueType.ConfigEnum;
-    public bool IsText => !IsBoolean && !IsInteger && !IsChoice;
+    public bool IsChoice  => Type == ConfigValueType.ConfigEnum;
+    public bool IsText    => !IsBoolean && !IsInteger && !IsChoice;
     public bool Supported { get; }
     public string SinceVersion { get; }
     public string Description { get; }

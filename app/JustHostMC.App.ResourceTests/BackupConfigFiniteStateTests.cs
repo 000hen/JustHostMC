@@ -5,10 +5,10 @@ namespace JustHostMC.App.ResourceTests;
 public sealed class BackupConfigFiniteStateTests {
     [Fact]
     public void BackupWorkflowUsesSemanticStateAndXamlResources() {
-        var viewModel = File.ReadAllText(RepositoryLayout.AppPath(
-            "ViewModels", "BackupsViewModel.cs"));
-        var xaml = File.ReadAllText(RepositoryLayout.AppPath(
-            "Views", "BackupsDialog.xaml"));
+        var viewModel = File.ReadAllText(
+            RepositoryLayout.AppPath("ViewModels", "BackupsViewModel.cs"));
+        var xaml = File.ReadAllText(
+            RepositoryLayout.AppPath("Views", "BackupsDialog.xaml"));
 
         Assert.Contains("BackupStatus", viewModel, StringComparison.Ordinal);
         Assert.DoesNotContain("_localizer.Get(\"Backups_", viewModel,
@@ -33,8 +33,8 @@ public sealed class BackupConfigFiniteStateTests {
 
     [Fact]
     public void ConfigWorkflowUsesSemanticStateAndXamlResources() {
-        var viewModel = File.ReadAllText(RepositoryLayout.AppPath(
-            "ViewModels", "ServerConfigViewModel.cs"));
+        var viewModel = File.ReadAllText(
+            RepositoryLayout.AppPath("ViewModels", "ServerConfigViewModel.cs"));
         var xaml = File.ReadAllText(RepositoryLayout.AppPath(
             "Controls", "Server", "ServerConfigPanel.xaml"));
 
@@ -51,10 +51,10 @@ public sealed class BackupConfigFiniteStateTests {
 
     [Fact]
     public void ConfigValueTypesUseSemanticFlagsAndXamlResources() {
-        var model = File.ReadAllText(RepositoryLayout.AppPath(
-            "Models", "ConfigEntryItem.cs"));
-        var xaml = File.ReadAllText(RepositoryLayout.AppPath(
-            "Controls", "ConfigEntryEditor.xaml"));
+        var model = File.ReadAllText(
+            RepositoryLayout.AppPath("Models", "ConfigEntryItem.cs"));
+        var xaml = File.ReadAllText(
+            RepositoryLayout.AppPath("Controls", "ConfigEntryEditor.xaml"));
 
         Assert.DoesNotContain("TypeText", model, StringComparison.Ordinal);
         Assert.DoesNotContain("ConfigType_", model, StringComparison.Ordinal);

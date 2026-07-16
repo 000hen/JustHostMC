@@ -111,7 +111,8 @@ public sealed partial class ModsViewModel : ObservableObject {
         get; private set;
     }
 
-    public bool IsExportedStatus => WorkflowStatus == ModsWorkflowStatus.Exported;
+    public bool IsExportedStatus =>
+        WorkflowStatus == ModsWorkflowStatus.Exported;
     public bool IsExportFailedStatus =>
         WorkflowStatus == ModsWorkflowStatus.ExportFailed;
 
@@ -309,8 +310,8 @@ public sealed partial class ModsViewModel : ObservableObject {
         using var backgroundTask =
             App.Current.BackgroundTasks.Begin("mod-upload");
         RunOnUI(() => {
-            IsBusy        = true;
-            StatusMessage = "";
+            IsBusy         = true;
+            StatusMessage  = "";
             WorkflowStatus = ModsWorkflowStatus.None;
         });
         try {
@@ -397,8 +398,8 @@ public sealed partial class ModsViewModel : ObservableObject {
         using var backgroundTask =
             App.Current.BackgroundTasks.Begin("mod-export");
         RunOnUI(() => {
-            IsBusy        = true;
-            StatusMessage = "";
+            IsBusy         = true;
+            StatusMessage  = "";
             WorkflowStatus = ModsWorkflowStatus.None;
         });
         try {

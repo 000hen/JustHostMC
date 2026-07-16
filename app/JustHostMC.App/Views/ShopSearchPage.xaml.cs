@@ -122,5 +122,4 @@ public sealed partial class ShopSearchPage : Page {
 
     public Visibility ShowLoadMoreIndicator(bool loading, int resultCount) =>
         loading && resultCount > 0? Visibility.Visible : Visibility.Collapsed;
-
 }

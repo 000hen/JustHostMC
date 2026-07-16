@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <UserControl
     x:Class="JustHostMC.App.Controls.InventoryItemDetails"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -10,10 +10,25 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Image Width="52" Height="52" Source="{Binding Icon}" Stretch="Uniform" />
-            <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                <TextBlock FontSize="16" FontWeight="SemiBold" Text="{Binding StyledName}" TextWrapping="Wrap" />
-                <TextBlock FontFamily="Consolas" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{Binding ItemId}" />
+            <Image
+                Width="52"
+                Height="52"
+                Source="{Binding Icon}"
+                Stretch="Uniform" />
+            <StackPanel
+                Grid.Column="1"
+                VerticalAlignment="Center"
+                Spacing="2">
+                <TextBlock
+                    FontSize="16"
+                    FontWeight="SemiBold"
+                    Text="{Binding StyledName}"
+                    TextWrapping="Wrap" />
+                <TextBlock
+                    FontFamily="Consolas"
+                    FontSize="12"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Text="{Binding ItemId}" />
             </StackPanel>
         </Grid>
 
@@ -30,8 +45,15 @@
                                             <ColumnDefinition Width="120" />
                                             <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock FontWeight="SemiBold" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind Label}" TextWrapping="Wrap" />
-                                        <TextBlock Grid.Column="1" Text="{x:Bind Value}" TextWrapping="Wrap" />
+                                        <TextBlock
+                                            FontWeight="SemiBold"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                            Text="{x:Bind Label}"
+                                            TextWrapping="Wrap" />
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            Text="{x:Bind Value}"
+                                            TextWrapping="Wrap" />
                                     </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -58,12 +80,12 @@
             HorizontalAlignment="Stretch"
             HorizontalContentAlignment="Stretch">
             <TextBox
+                MaxHeight="260"
+                HorizontalAlignment="Stretch"
                 AcceptsReturn="True"
                 FontFamily="Consolas"
                 FontSize="11"
-                HorizontalAlignment="Stretch"
                 IsReadOnly="True"
-                MaxHeight="260"
                 Text="{Binding FormattedNbt}"
                 TextWrapping="Wrap" />
         </Expander>

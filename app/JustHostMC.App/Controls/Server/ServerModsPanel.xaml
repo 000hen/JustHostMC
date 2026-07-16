@@ -10,12 +10,8 @@
     mc:Ignorable="d">
 
     <UserControl.Resources>
-        <converters:BoolToObjectConverter
-            x:Key="ServerModsDescriptionConverter"
-            x:Uid="ServerModsDescriptionConverter" />
-        <converters:BoolToObjectConverter
-            x:Key="ServerModsTitleConverter"
-            x:Uid="ServerModsTitleConverter" />
+        <converters:BoolToObjectConverter x:Key="ServerModsDescriptionConverter" x:Uid="ServerModsDescriptionConverter" />
+        <converters:BoolToObjectConverter x:Key="ServerModsTitleConverter" x:Uid="ServerModsTitleConverter" />
 
         <DataTemplate x:Key="ModFileSkeletonTemplate">
             <Grid

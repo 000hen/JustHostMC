@@ -12,9 +12,9 @@ public sealed partial class CreateServerDialog : ContentDialog {
         _content = new ServerDialog(viewModel, ServerDialogMode.Create);
         DialogBody.Content = _content;
 
-        IsPrimaryButtonEnabled = _content.CanSubmit;
-        _content.CanSubmitChanged += (_, _) =>
-            IsPrimaryButtonEnabled = _content.CanSubmit;
+        IsPrimaryButtonEnabled               = _content.CanSubmit;
+        _content.CanSubmitChanged += (_, _) => IsPrimaryButtonEnabled =
+            _content.CanSubmit;
     }
 
     public CreateServerRequest? BuildCreateRequest() =>

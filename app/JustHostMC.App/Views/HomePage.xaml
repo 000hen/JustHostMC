@@ -304,21 +304,11 @@
                                 Spacing="8">
                                 <FontIcon FontSize="14" Glyph="{Binding StateActionGlyph}" />
                                 <Grid>
-                                    <TextBlock
-                                        x:Uid="ServerStateStartText"
-                                        Visibility="{Binding ShowStartAction, Converter={StaticResource BoolToVis}}" />
-                                    <TextBlock
-                                        x:Uid="ServerStateStopText"
-                                        Visibility="{Binding IsRunning, Converter={StaticResource BoolToVis}}" />
-                                    <TextBlock
-                                        x:Uid="ServerStateStartingText"
-                                        Visibility="{Binding IsStarting, Converter={StaticResource BoolToVis}}" />
-                                    <TextBlock
-                                        x:Uid="ServerStateStoppingText"
-                                        Visibility="{Binding IsStopping, Converter={StaticResource BoolToVis}}" />
-                                    <TextBlock
-                                        x:Uid="ServerStateInstallingText"
-                                        Visibility="{Binding IsInstalling, Converter={StaticResource BoolToVis}}" />
+                                    <TextBlock x:Uid="ServerStateStartText" Visibility="{Binding ShowStartAction, Converter={StaticResource BoolToVis}}" />
+                                    <TextBlock x:Uid="ServerStateStopText" Visibility="{Binding IsRunning, Converter={StaticResource BoolToVis}}" />
+                                    <TextBlock x:Uid="ServerStateStartingText" Visibility="{Binding IsStarting, Converter={StaticResource BoolToVis}}" />
+                                    <TextBlock x:Uid="ServerStateStoppingText" Visibility="{Binding IsStopping, Converter={StaticResource BoolToVis}}" />
+                                    <TextBlock x:Uid="ServerStateInstallingText" Visibility="{Binding IsInstalling, Converter={StaticResource BoolToVis}}" />
                                 </Grid>
                             </StackPanel>
                         </Button>

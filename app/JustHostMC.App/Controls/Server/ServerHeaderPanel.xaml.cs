@@ -134,14 +134,13 @@ public sealed partial class ServerHeaderPanel : UserControl {
         ServerStatus.Running;
 
     private Visibility PositiveValueVisibility(int value) =>
-        value > 0 ? Visibility.Visible : Visibility.Collapsed;
+        value > 0? Visibility.Visible : Visibility.Collapsed;
 
     private Visibility NonPositiveValueVisibility(int value) =>
-        value > 0 ? Visibility.Collapsed : Visibility.Visible;
+        value > 0? Visibility.Collapsed : Visibility.Visible;
 
     private string ValueText(int value) => value.ToString();
 
     private string MemoryText(int memoryMb) =>
-        _localizer.Get("Server_MemoryValue",
-                       ("memory", memoryMb.ToString()));
+        _localizer.Get("Server_MemoryValue", ("memory", memoryMb.ToString()));
 }

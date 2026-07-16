@@ -163,10 +163,10 @@ public sealed partial class ScriptsPage : Page {
     private async Task<IReadOnlyList<PermissionKind>?> RequestConsentAsync(
         string scriptName, string luaSource) {
         var permissions = LuaPermissions.Parse(luaSource);
-        var dialog = new PermissionConsentContentDialog(
-            scriptName, permissions) {
-            XamlRoot = XamlRoot,
-        };
+        var dialog =
+            new PermissionConsentContentDialog(scriptName, permissions) {
+                XamlRoot = XamlRoot,
+            };
         ContentDialogSizing.Apply(dialog);
 
         if (await dialog.ShowAsync() != ContentDialogResult.Primary)

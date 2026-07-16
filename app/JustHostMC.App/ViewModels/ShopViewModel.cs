@@ -97,7 +97,7 @@ public sealed partial class ShopViewModel : ObservableObject {
         // source.
         Interlocked.Increment(ref _homeGeneration);
         HomeSections.Clear();
-        IsHomeLoading = false;
+        IsHomeLoading  = false;
         HasLoadFailure = false;
 
         OnPropertyChanged(nameof(SelectedShopName));
@@ -195,7 +195,7 @@ public sealed partial class ShopViewModel : ObservableObject {
         }
         var generation = Interlocked.Increment(ref _homeGeneration);
         await RunOnUIAsync(() => {
-            IsHomeLoading = true;
+            IsHomeLoading  = true;
             HasLoadFailure = false;
         });
         try {
@@ -247,7 +247,7 @@ public sealed partial class ShopViewModel : ObservableObject {
     public async Task StartSearchAsync() {
         await RunOnUIAsync(() => {
             HasLoadFailure = false;
-            TotalResults  = 0;
+            TotalResults   = 0;
             SearchResults.Reset();
         });
         // The ListView pulls the first page through ISupportIncrementalLoading,

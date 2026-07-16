@@ -12,75 +12,90 @@ public sealed partial class ResourceIntegrityTests {
         foreach (var locale in Locales) {
             var entries = Entries(locale);
             Assert.Empty(ResourceCatalog.DuplicateNames(entries));
-            Assert.DoesNotContain(entries, entry =>
-                string.IsNullOrWhiteSpace(entry.Name) ||
-                string.IsNullOrWhiteSpace(entry.Value));
+            Assert.DoesNotContain(
+                entries, entry => string.IsNullOrWhiteSpace(entry.Name) ||
+                                  string.IsNullOrWhiteSpace(entry.Value));
         }
     }
 
     [Fact]
     public void LocaleFilesHaveIdenticalIdentifiers() {
-        var english = Entries("en-US").Select(entry => entry.Name).ToHashSet(
-            StringComparer.OrdinalIgnoreCase);
-        var chinese = Entries("zh-TW").Select(entry => entry.Name).ToHashSet(
-            StringComparer.OrdinalIgnoreCase);
+        var english = Entries("en-US")
+                          .Select(entry => entry.Name)
+                          .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var chinese = Entries("zh-TW")
+                          .Select(entry => entry.Name)
+                          .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        Assert.True(english.SetEquals(chinese),
+        Assert.True(
+            english.SetEquals(chinese),
             $"en-US only: {string.Join(", ", english.Except(chinese))}; " +
-            $"zh-TW only: {string.Join(", ", chinese.Except(english))}");
+                $"zh-TW only: {string.Join(", ", chinese.Except(english))}");
     }
 
     [Fact]
     public void DuplicateVisibleValuesHaveTranslatorContext() {
         foreach (var locale in Locales) {
-            var undocumented = Entries(locale)
-                .GroupBy(entry => entry.Value, StringComparer.Ordinal)
-                .Where(group => group.Count() > 1)
-                .SelectMany(group => group)
-                .Where(entry => string.IsNullOrWhiteSpace(entry.Comment))
-                .Select(entry => entry.Name)
-                .Order(StringComparer.OrdinalIgnoreCase)
-                .ToArray();
+            var undocumented =
+                Entries(locale)
+                    .GroupBy(entry => entry.Value, StringComparer.Ordinal)
+                    .Where(group => group.Count() > 1)
+                    .SelectMany(group => group)
+                    .Where(entry => string.IsNullOrWhiteSpace(entry.Comment))
+                    .Select(entry => entry.Name)
+                    .Order(StringComparer.OrdinalIgnoreCase)
+                    .ToArray();
 
-            Assert.True(undocumented.Length == 0,
+            Assert.True(
+                undocumented.Length == 0,
                 $"{locale} has undocumented duplicate visible values: " +
-                string.Join(", ", undocumented));
+                    string.Join(", ", undocumented));
         }
     }
 
     [Fact]
     public void EveryXamlUidHasAResourcePropertyInEveryLocale() {
-        var uids = Directory.EnumerateFiles(RepositoryLayout.AppPath(), "*.xaml",
-                                           SearchOption.AllDirectories)
-            .Where(path => !IsGenerated(path))
-            .SelectMany(path => XamlUidRegex().Matches(File.ReadAllText(path)))
-            .Select(match => match.Groups[1].Value)
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var uids = Directory
+                       .EnumerateFiles(RepositoryLayout.AppPath(), "*.xaml",
+                                       SearchOption.AllDirectories)
+                       .Where(path => !IsGenerated(path))
+                       .SelectMany(path => XamlUidRegex().Matches(
+                                       File.ReadAllText(path)))
+                       .Select(match => match.Groups[1].Value)
+                       .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         foreach (var locale in Locales) {
             var names = Entries(locale).Select(entry => entry.Name).ToArray();
-            var missing = uids.Where(uid => !names.Any(name =>
-                    name.StartsWith(uid + ".", StringComparison.OrdinalIgnoreCase)))
-                .Order(StringComparer.OrdinalIgnoreCase)
-                .ToArray();
-            Assert.True(missing.Length == 0,
+            var missing =
+                uids.Where(
+                        uid => !names.Any(
+                            name => name.StartsWith(
+                                uid + ".", StringComparison.OrdinalIgnoreCase)))
+                    .Order(StringComparer.OrdinalIgnoreCase)
+                    .ToArray();
+            Assert.True(
+                missing.Length == 0,
                 $"{locale} has no property resource for x:Uid values: " +
-                string.Join(", ", missing));
+                    string.Join(", ", missing));
         }
     }
 
     [Fact]
     public void WindowRootsDoNotUseXamlUidLocalization() {
-        var offenders = SourceFiles("*.xaml")
-            .Where(path => WindowRootUidRegex().IsMatch(File.ReadAllText(path)))
-            .Select(path => Path.GetRelativePath(RepositoryLayout.Root, path))
-            .Order(StringComparer.OrdinalIgnoreCase)
-            .ToArray();
+        var offenders =
+            SourceFiles("*.xaml")
+                .Where(path =>
+                           WindowRootUidRegex().IsMatch(File.ReadAllText(path)))
+                .Select(path =>
+                            Path.GetRelativePath(RepositoryLayout.Root, path))
+                .Order(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
 
-        Assert.True(offenders.Length == 0,
+        Assert.True(
+            offenders.Length == 0,
             "Window roots cannot use x:Uid because applying Window.Title " +
-            "during XAML loading crashes at runtime: " +
-            string.Join(", ", offenders));
+                "during XAML loading crashes at runtime: " +
+                string.Join(", ", offenders));
     }
 
     [Fact]
@@ -91,14 +106,13 @@ public sealed partial class ResourceIntegrityTests {
              TitleBar: "SimpleTitleBar", TitleBarUid: "MainTitleBar",
              WindowUid: "MainWindow"),
             (Xaml: RepositoryLayout.AppPath("Views", "EngineStdioWindow.xaml"),
-             Source: RepositoryLayout.AppPath(
-                 "Views", "EngineStdioWindow.xaml.cs"),
-             TitleBar: "MonitorTitleBar",
-             TitleBarUid: "EngineMonitorTitleBar",
+             Source: RepositoryLayout.AppPath("Views",
+                                              "EngineStdioWindow.xaml.cs"),
+             TitleBar: "MonitorTitleBar", TitleBarUid: "EngineMonitorTitleBar",
              WindowUid: "EngineMonitorWindow"),
             (Xaml: RepositoryLayout.AppPath("Views", "ScriptLogsWindow.xaml"),
-             Source: RepositoryLayout.AppPath(
-                 "Views", "ScriptLogsWindow.xaml.cs"),
+             Source: RepositoryLayout.AppPath("Views",
+                                              "ScriptLogsWindow.xaml.cs"),
              TitleBar: "LogsTitleBar", TitleBarUid: "ScriptLogsTitleBar",
              WindowUid: "ScriptLogsWindow"),
             (Xaml: RepositoryLayout.AppPath("Views", "ShopWindow.xaml"),
@@ -109,24 +123,28 @@ public sealed partial class ResourceIntegrityTests {
 
         XNamespace x = "http://schemas.microsoft.com/winfx/2006/xaml";
         foreach (var window in windows) {
-            var source = File.ReadAllText(window.Source);
-            var initializeIndex = source.IndexOf(
-                "InitializeComponent();", StringComparison.Ordinal);
-            var titleCopyIndex = source.IndexOf(
+            var source          = File.ReadAllText(window.Source);
+            var initializeIndex = source.IndexOf("InitializeComponent();",
+                                                 StringComparison.Ordinal);
+            var titleCopyIndex  = source.IndexOf(
                 $"Title = {window.TitleBar}.Title;", StringComparison.Ordinal);
-            Assert.True(initializeIndex >= 0 && titleCopyIndex > initializeIndex,
+            Assert.True(
+                initializeIndex >= 0 && titleCopyIndex > initializeIndex,
                 $"{Path.GetFileName(window.Source)} must copy the localized " +
-                "TitleBar title after InitializeComponent");
+                    "TitleBar title after InitializeComponent");
 
-            var titleBar = XDocument.Load(window.Xaml).Descendants()
-                .Single(element =>
-                    element.Name.LocalName == "TitleBar" &&
-                    (string?)element.Attribute(x + "Name") == window.TitleBar);
+            var titleBar =
+                XDocument.Load(window.Xaml)
+                    .Descendants()
+                    .Single(element => element.Name.LocalName == "TitleBar" &&
+                                       (string?)element.Attribute(x + "Name") ==
+                                           window.TitleBar);
             Assert.Equal(window.TitleBarUid,
                          (string?)titleBar.Attribute(x + "Uid"));
 
             foreach (var locale in Locales) {
-                var names = Entries(locale).Select(entry => entry.Name).ToArray();
+                var names =
+                    Entries(locale).Select(entry => entry.Name).ToArray();
                 Assert.Contains(window.TitleBarUid + ".Title", names);
                 Assert.DoesNotContain(window.WindowUid + ".Title", names);
             }
@@ -136,26 +154,28 @@ public sealed partial class ResourceIntegrityTests {
     [Fact]
     public void BackendResourceIdentifiersUseDotsNotLegacyUnderscores() {
         foreach (var locale in Locales) {
-            var legacy = Entries(locale).Select(entry => entry.Name)
-                .Where(name => name.StartsWith("install_progress_",
-                                               StringComparison.Ordinal) ||
-                               name == "install_ready_to_run" ||
-                               name.StartsWith("shop_category_",
-                                               StringComparison.Ordinal) ||
-                               name.StartsWith("shop.category.curseforge_",
-                                               StringComparison.Ordinal) ||
-                               name.StartsWith("shop_home_",
-                                               StringComparison.Ordinal) ||
-                               name == "error_server_running")
-                .ToArray();
+            var legacy =
+                Entries(locale)
+                    .Select(entry => entry.Name)
+                    .Where(name => name.StartsWith("install_progress_",
+                                                   StringComparison.Ordinal) ||
+                                   name == "install_ready_to_run" ||
+                                   name.StartsWith("shop_category_",
+                                                   StringComparison.Ordinal) ||
+                                   name.StartsWith("shop.category.curseforge_",
+                                                   StringComparison.Ordinal) ||
+                                   name.StartsWith("shop_home_",
+                                                   StringComparison.Ordinal) ||
+                                   name == "error_server_running")
+                    .ToArray();
             Assert.Empty(legacy);
         }
     }
 
     [Fact]
     public void ProgrammaticDottedKeysUseSlashLookupPaths() {
-        var source = File.ReadAllText(RepositoryLayout.AppPath(
-            "Services", "LocalizationService.cs"));
+        var source = File.ReadAllText(
+            RepositoryLayout.AppPath("Services", "LocalizationService.cs"));
         Assert.Contains("key.Replace('.', '/')", source,
                         StringComparison.Ordinal);
         Assert.DoesNotContain("key.Replace('.', '_')", source,
@@ -164,21 +184,24 @@ public sealed partial class ResourceIntegrityTests {
 
     [Fact]
     public void LiteralProgrammaticResourceKeysExistInEveryLocale() {
-        var referenced = SourceFiles("*.cs")
-            .SelectMany(path => LiteralLocalizerKeyRegex()
-                .Matches(File.ReadAllText(path)))
-            .Select(match => match.Groups[1].Value)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .Order(StringComparer.OrdinalIgnoreCase)
-            .ToArray();
+        var referenced =
+            SourceFiles("*.cs")
+                .SelectMany(path => LiteralLocalizerKeyRegex().Matches(
+                                File.ReadAllText(path)))
+                .Select(match => match.Groups[1].Value)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Order(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
 
         foreach (var locale in Locales) {
-            var names = Entries(locale).Select(entry => entry.Name).ToHashSet(
-                StringComparer.OrdinalIgnoreCase);
-            var missing = referenced.Where(key => !names.Contains(key)).ToArray();
+            var names = Entries(locale)
+                            .Select(entry => entry.Name)
+                            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var missing =
+                referenced.Where(key => !names.Contains(key)).ToArray();
             Assert.True(missing.Length == 0,
-                $"{locale} is missing literal C# resource keys: " +
-                string.Join(", ", missing));
+                        $"{locale} is missing literal C# resource keys: " +
+                            string.Join(", ", missing));
         }
     }
 
@@ -186,144 +209,147 @@ public sealed partial class ResourceIntegrityTests {
     public void ResourceArchitectureIsDocumentedForFutureChanges() {
         var guide = RepositoryLayout.RootPath("docs", "resources.md");
         Assert.True(File.Exists(guide), "docs/resources.md is required");
-        Assert.Contains("docs/resources.md",
+        Assert.Contains(
+            "docs/resources.md",
             File.ReadAllText(RepositoryLayout.RootPath("AGENTS.md")),
             StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
     public void EveryProgrammaticLocalizationSourceIsDocumented() {
-        var guide = File.ReadAllText(RepositoryLayout.RootPath(
-            "docs", "resources.md"));
-        var undocumented = SourceFiles("*.cs")
-            .Where(path => ProgrammaticLocalizerCallRegex().IsMatch(
-                File.ReadAllText(path)))
-            .Select(path => Path.GetRelativePath(RepositoryLayout.Root, path)
-                .Replace('\\', '/'))
-            .Where(path => !guide.Contains($"`{path}`",
-                StringComparison.Ordinal))
-            .Order(StringComparer.OrdinalIgnoreCase)
-            .ToArray();
+        var guide =
+            File.ReadAllText(RepositoryLayout.RootPath("docs", "resources.md"));
+        var undocumented =
+            SourceFiles("*.cs")
+                .Where(path => ProgrammaticLocalizerCallRegex().IsMatch(
+                           File.ReadAllText(path)))
+                .Select(path =>
+                            Path.GetRelativePath(RepositoryLayout.Root, path)
+                                .Replace('\\', '/'))
+                .Where(path => !guide.Contains($"`{path}`",
+                                               StringComparison.Ordinal))
+                .Order(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
 
-        Assert.True(undocumented.Length == 0,
+        Assert.True(
+            undocumented.Length == 0,
             "Programmatic localization sources missing from the approved " +
-            "exception inventory: " + string.Join(", ", undocumented));
+                "exception inventory: " + string.Join(", ", undocumented));
     }
 
     [Fact]
     public void LocalizedDialogsAreDeclaredInXaml() {
         var offenders = SourceFiles("*.cs")
-            .Where(path => NewContentDialogRegex().IsMatch(File.ReadAllText(path)))
-            .Select(path => Path.GetRelativePath(RepositoryLayout.Root, path))
-            .ToArray();
+                            .Where(path => NewContentDialogRegex().IsMatch(
+                                       File.ReadAllText(path)))
+                            .Select(path => Path.GetRelativePath(
+                                        RepositoryLayout.Root, path))
+                            .ToArray();
         Assert.Empty(offenders);
     }
 
     [Fact]
     public void RenameServerDialogUsesTheStandardDialogLayout() {
-        var dialogXaml = File.ReadAllText(RepositoryLayout.AppPath(
-            "Views", "RenameServerDialog.xaml"));
-        Assert.Contains(
-            "Style=\"{StaticResource DefaultContentDialogStyle}\"",
-            dialogXaml, StringComparison.Ordinal);
+        var dialogXaml = File.ReadAllText(
+            RepositoryLayout.AppPath("Views", "RenameServerDialog.xaml"));
+        Assert.Contains("Style=\"{StaticResource DefaultContentDialogStyle}\"",
+                        dialogXaml, StringComparison.Ordinal);
 
         foreach (var sourceName in new[] { "HomePage.xaml.cs",
                                            "ServerPage.xaml.cs" }) {
-            var source = File.ReadAllText(RepositoryLayout.AppPath(
-                "Views", sourceName));
-            Assert.Matches(
-                "new\\s+RenameServerDialog\\([\\s\\S]*?" +
-                "ContentDialogSizing\\.Apply\\(dialog\\);",
-                source);
+            var source =
+                File.ReadAllText(RepositoryLayout.AppPath("Views", sourceName));
+            Assert.Matches("new\\s+RenameServerDialog\\([\\s\\S]*?" +
+                               "ContentDialogSizing\\.Apply\\(dialog\\);",
+                           source);
         }
     }
 
     [Fact]
     public void EditServerDialogUsesOneReadOnlyProviderTypeField() {
-        var xaml = File.ReadAllText(RepositoryLayout.AppPath(
-            "Views", "ServerDialog.xaml"));
+        var xaml = File.ReadAllText(
+            RepositoryLayout.AppPath("Views", "ServerDialog.xaml"));
         Assert.Contains("x:Name=\"EditTypeBox\"", xaml,
                         StringComparison.Ordinal);
         Assert.Contains("x:Uid=\"EditServerType\"", xaml,
                         StringComparison.Ordinal);
-        Assert.Contains("IsReadOnly=\"True\"", xaml,
-                        StringComparison.Ordinal);
+        Assert.Contains("IsReadOnly=\"True\"", xaml, StringComparison.Ordinal);
         Assert.DoesNotContain("EditVanillaTypeBox", xaml,
                               StringComparison.Ordinal);
         Assert.DoesNotContain("EditPaperTypeBox", xaml,
                               StringComparison.Ordinal);
 
-        var source = File.ReadAllText(RepositoryLayout.AppPath(
-            "Views", "ServerDialog.xaml.cs"));
+        var source = File.ReadAllText(
+            RepositoryLayout.AppPath("Views", "ServerDialog.xaml.cs"));
         Assert.Contains("? server.ProviderId", source,
                         StringComparison.Ordinal);
-        Assert.Contains(": server.TypeText;", source,
-                        StringComparison.Ordinal);
+        Assert.Contains(": server.TypeText;", source, StringComparison.Ordinal);
     }
 
     [Fact]
     public void LocalizedTooltipsAreNotInjectedFromCode() {
         var offenders = SourceFiles("*.cs")
-            .Where(path => File.ReadAllText(path).Contains(
-                "ToolTipService.SetToolTip", StringComparison.Ordinal))
-            .Select(path => Path.GetRelativePath(RepositoryLayout.Root, path))
-            .ToArray();
+                            .Where(path => File.ReadAllText(path).Contains(
+                                       "ToolTipService.SetToolTip",
+                                       StringComparison.Ordinal))
+                            .Select(path => Path.GetRelativePath(
+                                        RepositoryLayout.Root, path))
+                            .ToArray();
         Assert.Empty(offenders);
     }
 
     [Fact]
     public void LocalizedXamlElementsAreNotUsedAsStringCarriers() {
         var offenders = SourceFiles("*.xaml.cs")
-            .Where(path => XamlTextCarrierRegex().IsMatch(File.ReadAllText(path)))
-            .Select(path => Path.GetRelativePath(RepositoryLayout.Root, path))
-            .ToArray();
+                            .Where(path => XamlTextCarrierRegex().IsMatch(
+                                       File.ReadAllText(path)))
+                            .Select(path => Path.GetRelativePath(
+                                        RepositoryLayout.Root, path))
+                            .ToArray();
         Assert.Empty(offenders);
     }
 
     [Fact]
     public void PermissionLabelsAreRenderedFromSemanticKindsInXaml() {
-        var controlXaml = File.ReadAllText(RepositoryLayout.AppPath(
-            "Controls", "PermissionLabel.xaml"));
+        var controlXaml = File.ReadAllText(
+            RepositoryLayout.AppPath("Controls", "PermissionLabel.xaml"));
         var expectedUids = new[] {
-            "PermissionLabelNetwork",
-            "PermissionLabelInstall",
-            "PermissionLabelFsServer",
-            "PermissionLabelConsoleRead",
-            "PermissionLabelConsoleWrite",
-            "PermissionLabelServerControl",
-            "PermissionLabelSchedule",
-            "PermissionLabelServerQuery",
-            "PermissionLabelPlayerManage",
-            "PermissionLabelUnknown",
+            "PermissionLabelNetwork",      "PermissionLabelInstall",
+            "PermissionLabelFsServer",     "PermissionLabelConsoleRead",
+            "PermissionLabelConsoleWrite", "PermissionLabelServerControl",
+            "PermissionLabelSchedule",     "PermissionLabelServerQuery",
+            "PermissionLabelPlayerManage", "PermissionLabelUnknown",
         };
         foreach (var uid in expectedUids)
             Assert.Contains($"x:Uid=\"{uid}\"", controlXaml,
                             StringComparison.Ordinal);
 
-        var scriptCard = File.ReadAllText(RepositoryLayout.AppPath(
-            "Controls", "ScriptEntryCard.xaml"));
+        var scriptCard = File.ReadAllText(
+            RepositoryLayout.AppPath("Controls", "ScriptEntryCard.xaml"));
         Assert.Contains("Item.Granted", scriptCard, StringComparison.Ordinal);
         Assert.Contains("controls:PermissionLabel", scriptCard,
                         StringComparison.Ordinal);
 
-        var consentDialog = File.ReadAllText(RepositoryLayout.AppPath(
-            "Views", "PermissionConsentDialog.xaml"));
+        var consentDialog = File.ReadAllText(
+            RepositoryLayout.AppPath("Views", "PermissionConsentDialog.xaml"));
         Assert.Contains("controls:PermissionLabel", consentDialog,
                         StringComparison.Ordinal);
         Assert.Contains("Kind=\"{x:Bind Kind}\"", consentDialog,
                         StringComparison.Ordinal);
 
-        var sources = SourceFiles("*.cs")
-            .Select(path => (Path: path, Source: File.ReadAllText(path)))
-            .ToArray();
-        Assert.DoesNotContain(sources, item =>
-            item.Source.Contains("PermissionLabels.Label(",
-                                 StringComparison.Ordinal) ||
-            item.Source.Contains("GrantedSummary", StringComparison.Ordinal));
+        var sources =
+            SourceFiles("*.cs")
+                .Select(path => (Path: path, Source: File.ReadAllText(path)))
+                .ToArray();
+        Assert.DoesNotContain(
+            sources, item => item.Source.Contains("PermissionLabels.Label(",
+                                                  StringComparison.Ordinal) ||
+                             item.Source.Contains("GrantedSummary",
+                                                  StringComparison.Ordinal));
         Assert.DoesNotContain("public string Label { get; }",
-            File.ReadAllText(RepositoryLayout.AppPath(
-                "Views", "PermissionConsentDialog.xaml.cs")),
-            StringComparison.Ordinal);
+                              File.ReadAllText(RepositoryLayout.AppPath(
+                                  "Views", "PermissionConsentDialog.xaml.cs")),
+                              StringComparison.Ordinal);
     }
 
     [Fact]
@@ -333,28 +359,34 @@ public sealed partial class ResourceIntegrityTests {
             @"\(\""detail\""\s*,\s*ex\.Message\)",
             @"ex\.GetType\(\)\.Name",
         };
-        var offenders = SourceFiles("*.cs")
-            .Where(path => forbidden.Any(pattern => Regex.IsMatch(
-                File.ReadAllText(path), pattern)))
-            .Select(path => Path.GetRelativePath(RepositoryLayout.Root, path))
-            .ToArray();
+        var offenders =
+            SourceFiles("*.cs")
+                .Where(path =>
+                           forbidden.Any(pattern => Regex.IsMatch(
+                                             File.ReadAllText(path), pattern)))
+                .Select(path =>
+                            Path.GetRelativePath(RepositoryLayout.Root, path))
+                .ToArray();
         Assert.Empty(offenders);
     }
 
     private static IEnumerable<string> SourceFiles(string pattern) =>
-        Directory.EnumerateFiles(RepositoryLayout.AppPath(), pattern,
-                                 SearchOption.AllDirectories)
+        Directory
+            .EnumerateFiles(RepositoryLayout.AppPath(), pattern,
+                            SearchOption.AllDirectories)
             .Where(path => !IsGenerated(path));
 
     private static bool IsGenerated(string path) =>
-        path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}",
-                      StringComparison.OrdinalIgnoreCase) ||
-        path.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}",
-                      StringComparison.OrdinalIgnoreCase);
+        path.Contains(
+            $"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}",
+            StringComparison.OrdinalIgnoreCase) ||
+        path.Contains(
+            $"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}",
+            StringComparison.OrdinalIgnoreCase);
 
     private static IReadOnlyList<ResourceEntry> Entries(string locale) =>
-        ResourceCatalog.Load(RepositoryLayout.AppPath(
-            "Strings", locale, "Resources.resw"));
+        ResourceCatalog.Load(RepositoryLayout.AppPath("Strings", locale,
+                                                      "Resources.resw"));
 
     [GeneratedRegex("x:Uid\\s*=\\s*[\"']([^\"']+)[\"']")]
     private static partial Regex XamlUidRegex();
@@ -365,13 +397,17 @@ public sealed partial class ResourceIntegrityTests {
     [GeneratedRegex("new\\s+ContentDialog\\s*\\{")]
     private static partial Regex NewContentDialogRegex();
 
-    [GeneratedRegex("(?:\\b\\w*[Ll]ocalizer|new\\s+LocalizationService\\(\\))\\.Get\\(\\s*[\"']([^\"']+)[\"']",
+    [GeneratedRegex(
+        "(?:\\b\\w*[Ll]ocalizer|new\\s+LocalizationService\\(\\))\\.Get\\(\\s*[\"']([^\"']+)[\"']",
         RegexOptions.IgnoreCase)]
     private static partial Regex LiteralLocalizerKeyRegex();
 
-    [GeneratedRegex("(?:\\b\\w*[Ll]ocalizer|new\\s+LocalizationService\\(\\))\\.Get\\(", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(
+        "(?:\\b\\w*[Ll]ocalizer|new\\s+LocalizationService\\(\\))\\.Get\\(",
+        RegexOptions.IgnoreCase)]
     private static partial Regex ProgrammaticLocalizerCallRegex();
 
-    [GeneratedRegex("(?:=\\s*|string\\.Format\\()\\w+(?:Text|Label|Header)\\.Text\\b")]
+    [GeneratedRegex(
+        "(?:=\\s*|string\\.Format\\()\\w+(?:Text|Label|Header)\\.Text\\b")]
     private static partial Regex XamlTextCarrierRegex();
 }

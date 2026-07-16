@@ -120,21 +120,11 @@
                 <StackPanel Orientation="Horizontal" Spacing="8">
                     <FontIcon FontSize="16" Glyph="{x:Bind Server.StateActionGlyph, Mode=OneWay}" />
                     <Grid VerticalAlignment="Center">
-                        <TextBlock
-                            x:Uid="ServerStateStartText"
-                            Visibility="{x:Bind Server.ShowStartAction, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
-                        <TextBlock
-                            x:Uid="ServerStateStopText"
-                            Visibility="{x:Bind Server.IsRunning, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
-                        <TextBlock
-                            x:Uid="ServerStateStartingText"
-                            Visibility="{x:Bind Server.IsStarting, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
-                        <TextBlock
-                            x:Uid="ServerStateStoppingText"
-                            Visibility="{x:Bind Server.IsStopping, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
-                        <TextBlock
-                            x:Uid="ServerStateInstallingText"
-                            Visibility="{x:Bind Server.IsInstalling, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                        <TextBlock x:Uid="ServerStateStartText" Visibility="{x:Bind Server.ShowStartAction, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                        <TextBlock x:Uid="ServerStateStopText" Visibility="{x:Bind Server.IsRunning, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                        <TextBlock x:Uid="ServerStateStartingText" Visibility="{x:Bind Server.IsStarting, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                        <TextBlock x:Uid="ServerStateStoppingText" Visibility="{x:Bind Server.IsStopping, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                        <TextBlock x:Uid="ServerStateInstallingText" Visibility="{x:Bind Server.IsInstalling, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
                     </Grid>
                 </StackPanel>
             </Button>

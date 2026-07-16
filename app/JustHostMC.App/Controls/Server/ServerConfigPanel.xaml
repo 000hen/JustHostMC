@@ -10,9 +10,7 @@
     mc:Ignorable="d">
 
     <UserControl.Resources>
-        <converters:BoolToObjectConverter
-            x:Key="ServerConfigDescriptionConverter"
-            x:Uid="ServerConfigDescriptionConverter" />
+        <converters:BoolToObjectConverter x:Key="ServerConfigDescriptionConverter" x:Uid="ServerConfigDescriptionConverter" />
     </UserControl.Resources>
 
     <server:ServerSectionLayout

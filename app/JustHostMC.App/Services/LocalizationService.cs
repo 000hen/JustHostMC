@@ -19,7 +19,8 @@ public sealed class LocalizationService : ILocalizer {
             Debug.WriteLine($"Missing localization resource: {key}");
             return key;
         } catch (Exception ex) {
-            Debug.WriteLine($"Failed to load localization resource '{key}': {ex}");
+            Debug.WriteLine(
+                $"Failed to load localization resource '{key}': {ex}");
             return key;
         }
     }
@@ -29,7 +30,8 @@ public sealed class LocalizationService : ILocalizer {
         try {
             format = _loader.GetString(NormalizeKey(key));
         } catch (Exception ex) {
-            Debug.WriteLine($"Failed to load localization resource '{key}': {ex}");
+            Debug.WriteLine(
+                $"Failed to load localization resource '{key}': {ex}");
             format = key;
         }
         foreach (var (name, value) in args)

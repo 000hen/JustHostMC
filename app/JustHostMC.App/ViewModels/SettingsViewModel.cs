@@ -88,14 +88,14 @@ public sealed partial class SettingsViewModel : ObservableObject {
     public bool IsRemoveDataFailedStatus =>
         WorkflowStatus == SettingsWorkflowStatus.RemoveDataFailed;
     public bool IsRemovingIncompleteStatus =>
-        WorkflowStatus == SettingsWorkflowStatus.RemovingIncompleteInstallations;
+        WorkflowStatus ==
+        SettingsWorkflowStatus.RemovingIncompleteInstallations;
     public bool IsRemoveIncompleteFailedStatus =>
-        WorkflowStatus == SettingsWorkflowStatus.RemoveIncompleteInstallationsFailed;
+        WorkflowStatus ==
+        SettingsWorkflowStatus.RemoveIncompleteInstallationsFailed;
 
     [ObservableProperty]
-    public partial bool IsBusy {
-        get; private set;
-    }
+    public partial bool IsBusy { get; private set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasIncompleteInstallations))]
@@ -115,14 +115,12 @@ public sealed partial class SettingsViewModel : ObservableObject {
     [NotifyPropertyChangedFor(nameof(IsDockerUnavailable))]
     public partial BackendMode ActiveBackendMode { get; private set; }
 
-    public bool IsDockerMode => ActiveBackendMode == BackendMode.Docker;
+    public bool IsDockerMode    => ActiveBackendMode == BackendMode.Docker;
     public bool IsOnMachineMode => ActiveBackendMode == BackendMode.OnMachine;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsDockerUnavailable))]
-    public partial bool IsDockerAvailable {
-        get; private set;
-    }
+    public partial bool IsDockerAvailable { get; private set; }
 
     public bool IsDockerUnavailable =>
         ActiveBackendMode != BackendMode.Unknown && !IsDockerAvailable;
@@ -266,11 +264,11 @@ public sealed partial class SettingsViewModel : ObservableObject {
                                         ? BackendMode.Docker
                                         : BackendMode.OnMachine;
                 IsDockerAvailable = info.DockerAvailable;
-                DockerAvailableText = info.DockerAvailable
-                                          ? _localizer.Get(
-                                                "Backend_DockerAvailable",
-                                                ("version", info.DockerVersion))
-                                          : "";
+                DockerAvailableText =
+                    info.DockerAvailable
+                        ? _localizer.Get("Backend_DockerAvailable",
+                                         ("version", info.DockerVersion))
+                        : "";
                 _loadingBackend = true;
                 UseDocker       = info.UseDocker;
                 _loadingBackend = false;
@@ -334,7 +332,8 @@ public sealed partial class SettingsViewModel : ObservableObject {
                         ("count", result.RemovedFiles.ToString()),
                         ("size", FormatSize(result.FreedBytes)))));
         } catch (RpcException) {
-            RunOnUI(() => SetWorkflowStatus(SettingsWorkflowStatus.PurgeFailed));
+            RunOnUI(() =>
+                        SetWorkflowStatus(SettingsWorkflowStatus.PurgeFailed));
         } finally {
             RunOnUI(() => IsBusy = false);
         }
@@ -350,7 +349,8 @@ public sealed partial class SettingsViewModel : ObservableObject {
             var daemon = await App.Current.DaemonReady;
             await daemon.Servers.RemoveAllDataAsync(
                 new Empty(), deadline: DateTime.UtcNow.AddMinutes(2));
-            RunOnUI(() => SetWorkflowStatus(SettingsWorkflowStatus.DataRemoved));
+            RunOnUI(() =>
+                        SetWorkflowStatus(SettingsWorkflowStatus.DataRemoved));
         } catch (RpcException) {
             RunOnUI(() => SetWorkflowStatus(
                         SettingsWorkflowStatus.RemoveDataFailed));
@@ -384,7 +384,8 @@ public sealed partial class SettingsViewModel : ObservableObject {
                         ("count", incomplete.Length.ToString()))));
         } catch (RpcException) {
             RunOnUI(() => SetWorkflowStatus(
-                        SettingsWorkflowStatus.RemoveIncompleteInstallationsFailed));
+                        SettingsWorkflowStatus
+                            .RemoveIncompleteInstallationsFailed));
         } finally {
             await RefreshIncompleteInstallationsAsync();
             RunOnUI(() => IsBusy = false);

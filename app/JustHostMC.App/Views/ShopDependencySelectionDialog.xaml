@@ -1,17 +1,15 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentDialog
     x:Class="JustHostMC.App.Views.ShopDependencySelectionDialog"
-    x:Uid="ShopDependencySelectionDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Uid="ShopDependencySelectionDialog"
     DefaultButton="Primary"
     Style="{StaticResource DefaultContentDialogStyle}">
 
     <ScrollViewer MaxHeight="320">
         <StackPanel x:Name="ChoicesPanel" Spacing="8">
-            <TextBlock
-                x:Uid="ShopDependencySelectionDialogIntro"
-                TextWrapping="Wrap" />
+            <TextBlock x:Uid="ShopDependencySelectionDialogIntro" TextWrapping="Wrap" />
         </StackPanel>
     </ScrollViewer>
 </ContentDialog>

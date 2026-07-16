@@ -70,7 +70,7 @@ public sealed partial class PlayerInventoryDialog : UserControl {
             var enderBySlot     = ender.ToDictionary(item => item.Slot);
 
             var inventorySlotFormat = _localizer.Get("player.inventory.slot");
-            var hotbarSlotFormat = _localizer.Get("player.inventory.hotbar");
+            var hotbarSlotFormat    = _localizer.Get("player.inventory.hotbar");
             var enderSlotFormat = _localizer.Get("player.inventory.ender_slot");
             FillSlots(MainSlots, Enumerable.Range(9, 27), inventoryBySlot,
                       slot => string.Format(inventorySlotFormat, slot - 8));
@@ -104,17 +104,18 @@ public sealed partial class PlayerInventoryDialog : UserControl {
 
     private string EquipmentName(int slot) {
         var key = slot switch {
-            103  => "player.inventory.helmet",
-            102  => "player.inventory.chestplate",
-            101  => "player.inventory.leggings",
-            100  => "player.inventory.boots",
-            -106 => "player.inventory.offhand",
-            _    => "",
+            103 => "player.inventory.helmet",
+            102 => "player.inventory.chestplate",
+            101 => "player.inventory.leggings",
+            100 => "player.inventory.boots",
+            -
+            106 => "player.inventory.offhand",
+            _   => "",
         };
         return key.Length > 0
                    ? _localizer.Get(key)
                    : string.Format(
-                       _localizer.Get("player.inventory.generic_slot"), slot);
+                         _localizer.Get("player.inventory.generic_slot"), slot);
     }
 
     private void OnInventorySlotClick(object sender, RoutedEventArgs e) {
@@ -126,9 +127,9 @@ public sealed partial class PlayerInventoryDialog : UserControl {
         var flyout = new Flyout {
             Content =
                 new ScrollViewer {
-                                  Content                     = new InventoryItemDetails(item),
-                                  MaxHeight                   = 540,
-                                  HorizontalContentAlignment  = HorizontalAlignment.Stretch,
+                                  Content                    = new InventoryItemDetails(item),
+                                  MaxHeight                  = 540,
+                                  HorizontalContentAlignment = HorizontalAlignment.Stretch,
                                   VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
                                   },
         };

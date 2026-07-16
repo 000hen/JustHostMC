@@ -79,7 +79,7 @@ public sealed partial class ShopWindow : Window {
         InitializeComponent();
         Title = ShopTitleBar.Title;
 
-        ExtendsContentIntoTitleBar = true;
+        ExtendsContentIntoTitleBar               = true;
         AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
         SetTitleBar(ShopTitleBar);
         InstallMinimumWindowSizeHook();
@@ -138,8 +138,8 @@ public sealed partial class ShopWindow : Window {
             var item = new SelectorBarItem { Text = shop.Name, Tag = shop,
                                              IsEnabled = shop.Ready };
             if (!shop.Ready)
-                item.Style = (Style)Root.Resources[
-                    "ShopUnavailableSelectorItemStyle"];
+                item.Style =
+                    (Style)Root.Resources["ShopUnavailableSelectorItemStyle"];
             ShopSelector.Items.Add(item);
         }
         var selected = ShopSelector.Items.FirstOrDefault(

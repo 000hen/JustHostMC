@@ -163,9 +163,7 @@
                 FontSize="28"
                 Foreground="{ThemeResource TextFillColorTertiaryBrush}"
                 Glyph="&#xE783;" />
-            <TextBlock
-                x:Uid="ShopStatusLoadFailed"
-                Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+            <TextBlock x:Uid="ShopStatusLoadFailed" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
         </StackPanel>
 
         <ScrollViewer

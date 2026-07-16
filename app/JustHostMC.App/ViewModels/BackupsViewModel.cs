@@ -55,13 +55,19 @@ public sealed partial class BackupsViewModel : ObservableObject {
     [NotifyPropertyChangedFor(nameof(IsRestoreBlockedStatus))]
     [NotifyPropertyChangedFor(nameof(IsFolderMissingStatus))]
     [NotifyPropertyChangedFor(nameof(IsErrorStatus))]
-    public partial BackupStatus Status { get; private set; }
+    public partial BackupStatus Status {
+        get; private set;
+    }
 
     [ObservableProperty]
-    public partial string ErrorMessage { get; private set; } = "";
+    public partial string ErrorMessage {
+        get; private set;
+    } = "";
 
     [ObservableProperty]
-    public partial string ExportPath { get; private set; } = "";
+    public partial string ExportPath {
+        get; private set;
+    } = "";
 
     public BackupsViewModel(string serverId, bool serverRunning,
                             DispatcherQueue dispatcher, ILocalizer localizer) {
@@ -83,20 +89,19 @@ public sealed partial class BackupsViewModel : ObservableObject {
 
     public bool CanRestore => !ServerRunning && !IsBusy;
 
-    public bool IsCreatingStatus => Status == BackupStatus.Creating;
-    public bool IsCreatedStatus  => Status == BackupStatus.Created;
+    public bool IsCreatingStatus  => Status == BackupStatus.Creating;
+    public bool IsCreatedStatus   => Status == BackupStatus.Created;
     public bool IsRestoringStatus => Status == BackupStatus.Restoring;
-    public bool IsRestoredStatus => Status == BackupStatus.Restored;
-    public bool IsDeletingStatus => Status == BackupStatus.Deleting;
-    public bool IsDeletedStatus  => Status == BackupStatus.Deleted;
+    public bool IsRestoredStatus  => Status == BackupStatus.Restored;
+    public bool IsDeletingStatus  => Status == BackupStatus.Deleting;
+    public bool IsDeletedStatus   => Status == BackupStatus.Deleted;
     public bool IsExportSourceMissingStatus =>
         Status == BackupStatus.ExportSourceMissing;
-    public bool IsExportedStatus => Status == BackupStatus.Exported;
-    public bool IsExportFailedStatus => Status == BackupStatus.ExportFailed;
-    public bool IsRestoreBlockedStatus =>
-        Status == BackupStatus.RestoreBlocked;
-    public bool IsFolderMissingStatus => Status == BackupStatus.FolderMissing;
-    public bool IsErrorStatus    => Status == BackupStatus.Error;
+    public bool IsExportedStatus       => Status == BackupStatus.Exported;
+    public bool IsExportFailedStatus   => Status == BackupStatus.ExportFailed;
+    public bool IsRestoreBlockedStatus => Status == BackupStatus.RestoreBlocked;
+    public bool IsFolderMissingStatus  => Status == BackupStatus.FolderMissing;
+    public bool IsErrorStatus          => Status == BackupStatus.Error;
 
     public void ReportExportSourceMissing() =>
         SetStatus(BackupStatus.ExportSourceMissing);
@@ -111,8 +116,7 @@ public sealed partial class BackupsViewModel : ObservableObject {
     public void ReportRestoreBlocked() =>
         SetStatus(BackupStatus.RestoreBlocked);
 
-    public void ReportFolderMissing() =>
-        SetStatus(BackupStatus.FolderMissing);
+    public void ReportFolderMissing() => SetStatus(BackupStatus.FolderMissing);
 
     /// <summary>Loads (or reloads) the server's backups, newest
     /// first.</summary>
@@ -206,7 +210,7 @@ public sealed partial class BackupsViewModel : ObservableObject {
         ErrorMessage = "";
         if (status != BackupStatus.Exported)
             ExportPath = "";
-        Status       = status;
+        Status = status;
     }
 
     private void SetError(RpcException ex) {

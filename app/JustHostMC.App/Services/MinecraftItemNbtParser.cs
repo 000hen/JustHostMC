@@ -15,10 +15,10 @@ public enum NbtDetailKind {
     Code,
 }
 
-public sealed record NbtDetailEntry(
-    string Label, string Value, NbtDetailKind Kind = NbtDetailKind.Default);
+public sealed record NbtDetailEntry(string Label, string Value,
+                                    NbtDetailKind Kind = NbtDetailKind.Default);
 public sealed record NbtDetailSection(string Title,
-                                        IReadOnlyList<NbtDetailEntry> Entries);
+                                      IReadOnlyList<NbtDetailEntry> Entries);
 
 internal sealed record MinecraftItemNbtPresentation(
     string? DisplayName, IReadOnlyList<NbtDetailSection> Sections,

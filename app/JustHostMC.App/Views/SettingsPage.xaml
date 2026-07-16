@@ -162,15 +162,9 @@
                         <toolkit:SettingsCard x:Uid="SettingsCurseForgeKey">
                             <toolkit:SettingsCard.Description>
                                 <StackPanel>
-                                    <TextBlock
-                                        x:Uid="SettingsShopKeyNone"
-                                        Visibility="{x:Bind ViewModel.HasNoShopKey, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
-                                    <TextBlock
-                                        x:Uid="SettingsShopKeyUser"
-                                        Visibility="{x:Bind ViewModel.HasUserShopKey, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
-                                    <TextBlock
-                                        x:Uid="SettingsShopKeyBuiltin"
-                                        Visibility="{x:Bind ViewModel.HasBuiltinShopKey, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                                    <TextBlock x:Uid="SettingsShopKeyNone" Visibility="{x:Bind ViewModel.HasNoShopKey, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                                    <TextBlock x:Uid="SettingsShopKeyUser" Visibility="{x:Bind ViewModel.HasUserShopKey, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                                    <TextBlock x:Uid="SettingsShopKeyBuiltin" Visibility="{x:Bind ViewModel.HasBuiltinShopKey, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
                                 </StackPanel>
                             </toolkit:SettingsCard.Description>
                             <StackPanel Orientation="Horizontal" Spacing="8">

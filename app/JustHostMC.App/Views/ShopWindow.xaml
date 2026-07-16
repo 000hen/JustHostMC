@@ -14,9 +14,11 @@
 
     <Grid x:Name="Root" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.Resources>
-            <!-- SelectorBar items must remain imperative because the WinUI
-                 ItemsSource/DataTemplate path crashes for these managed items.
-                 Code selects this XAML-defined style; localization stays here. -->
+            <!--
+                SelectorBar items must remain imperative because the WinUI
+                ItemsSource/DataTemplate path crashes for these managed items.
+                Code selects this XAML-defined style; localization stays here.
+            -->
             <Style x:Key="ShopUnavailableSelectorItemStyle" TargetType="SelectorBarItem">
                 <Setter Property="ToolTipService.ToolTip">
                     <Setter.Value>

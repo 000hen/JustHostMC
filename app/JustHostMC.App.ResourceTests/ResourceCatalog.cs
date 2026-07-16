@@ -9,11 +9,11 @@ internal static class ResourceCatalog {
         var document = XDocument.Load(path, LoadOptions.SetLineInfo);
         return document.Root?.Elements("data")
                    .Select(element => new ResourceEntry(
-                       (string?)element.Attribute("name") ?? "",
-                       element.Element("value")?.Value ?? "",
-                       element.Element("comment")?.Value ?? ""))
-                   .ToArray()
-               ?? [];
+                               (string?)element.Attribute("name") ?? "",
+                               element.Element("value")?.Value ?? "",
+                               element.Element("comment")?.Value ?? ""))
+                   .ToArray() ??
+               [];
     }
 
     public static IReadOnlyList<string> DuplicateNames(

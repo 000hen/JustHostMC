@@ -234,11 +234,26 @@
                     x:Name="BusyBar"
                     IsIndeterminate="True"
                     Visibility="Collapsed" />
-                <TextBlock x:Name="LoadFailedText" x:Uid="BanListLoadFailedText" Visibility="Collapsed" />
-                <TextBlock x:Name="TargetRequiredText" x:Uid="BanListTargetRequiredText" Visibility="Collapsed" />
-                <TextBlock x:Name="AddFailedText" x:Uid="BanListAddFailedText" Visibility="Collapsed" />
-                <TextBlock x:Name="StoppedRequiredText" x:Uid="BanListStoppedRequiredText" Visibility="Collapsed" />
-                <TextBlock x:Name="RemoveFailedText" x:Uid="BanListRemoveFailedText" Visibility="Collapsed" />
+                <TextBlock
+                    x:Name="LoadFailedText"
+                    x:Uid="BanListLoadFailedText"
+                    Visibility="Collapsed" />
+                <TextBlock
+                    x:Name="TargetRequiredText"
+                    x:Uid="BanListTargetRequiredText"
+                    Visibility="Collapsed" />
+                <TextBlock
+                    x:Name="AddFailedText"
+                    x:Uid="BanListAddFailedText"
+                    Visibility="Collapsed" />
+                <TextBlock
+                    x:Name="StoppedRequiredText"
+                    x:Uid="BanListStoppedRequiredText"
+                    Visibility="Collapsed" />
+                <TextBlock
+                    x:Name="RemoveFailedText"
+                    x:Uid="BanListRemoveFailedText"
+                    Visibility="Collapsed" />
             </StackPanel>
         </Grid>
     </ScrollViewer>

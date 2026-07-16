@@ -79,9 +79,7 @@ public sealed partial class ServerConfigViewModel : ObservableObject {
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasGameRulesMessage))]
-    public partial string GameRulesMessage {
-        get; private set;
-    } = "";
+    public partial string GameRulesMessage { get; private set; } = "";
 
     public bool HasGameRulesMessage =>
         !string.IsNullOrWhiteSpace(GameRulesMessage);

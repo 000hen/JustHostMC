@@ -10,15 +10,16 @@ public sealed partial class ShopDependencySelectionDialog : ContentDialog {
         IReadOnlyList<ShopDependency> dependencies) {
         InitializeComponent();
 
-        _choices = dependencies.Select(dependency => new CheckBox {
-            Content = dependency.Title.Length > 0
-                          ? dependency.Title
-                          : dependency.ProjectId,
-            IsChecked = true,
-            Tag       = dependency,
-        }).ToArray();
-        foreach (var choice in _choices)
-            ChoicesPanel.Children.Add(choice);
+        _choices = dependencies
+                       .Select(dependency => new CheckBox {
+                           Content   = dependency.Title.Length > 0
+                                           ? dependency.Title
+                                           : dependency.ProjectId,
+                           IsChecked = true,
+                           Tag       = dependency,
+                       })
+                       .ToArray();
+        foreach (var choice in _choices) ChoicesPanel.Children.Add(choice);
     }
 
     public IReadOnlyList<ShopDependency> SelectedDependencies =>

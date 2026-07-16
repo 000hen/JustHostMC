@@ -123,12 +123,8 @@
                             Style="{StaticResource AccentButtonStyle}"
                             Tag="{x:Bind ViewModel.LatestRelease, Mode=OneWay}">
                             <Grid>
-                                <TextBlock
-                                    x:Uid="ShopInstallActionText"
-                                    Visibility="{x:Bind ViewModel.IsWebsiteAction, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=True}" />
-                                <TextBlock
-                                    Text="{x:Bind ViewModel.WebsiteActionLabel, Mode=OneWay}"
-                                    Visibility="{x:Bind ViewModel.IsWebsiteAction, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                                <TextBlock x:Uid="ShopInstallActionText" Visibility="{x:Bind ViewModel.IsWebsiteAction, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=True}" />
+                                <TextBlock Text="{x:Bind ViewModel.WebsiteActionLabel, Mode=OneWay}" Visibility="{x:Bind ViewModel.IsWebsiteAction, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
                             </Grid>
                         </Button>
 
@@ -259,12 +255,8 @@
                                 Style="{StaticResource AccentButtonStyle}"
                                 Tag="{x:Bind ViewModel.LatestRelease, Mode=OneWay}">
                                 <Grid>
-                                    <TextBlock
-                                        x:Uid="ShopInstallActionText"
-                                        Visibility="{x:Bind ViewModel.IsWebsiteAction, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=True}" />
-                                    <TextBlock
-                                        Text="{x:Bind ViewModel.WebsiteActionLabel, Mode=OneWay}"
-                                        Visibility="{x:Bind ViewModel.IsWebsiteAction, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                                    <TextBlock x:Uid="ShopInstallActionText" Visibility="{x:Bind ViewModel.IsWebsiteAction, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=True}" />
+                                    <TextBlock Text="{x:Bind ViewModel.WebsiteActionLabel, Mode=OneWay}" Visibility="{x:Bind ViewModel.IsWebsiteAction, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
                                 </Grid>
                             </Button>
                             <HyperlinkButton
@@ -386,12 +378,8 @@
                                         Style="{StaticResource AccentButtonStyle}"
                                         Tag="{x:Bind}">
                                         <Grid>
-                                            <TextBlock
-                                                x:Uid="ShopInstallActionText"
-                                                Visibility="{x:Bind ActionLabel, Converter={StaticResource ObjectToVisInverse}}" />
-                                            <TextBlock
-                                                Text="{x:Bind ActionLabel, Mode=OneWay}"
-                                                Visibility="{x:Bind ActionLabel, Converter={StaticResource ObjectToVis}}" />
+                                            <TextBlock x:Uid="ShopInstallActionText" Visibility="{x:Bind ActionLabel, Converter={StaticResource ObjectToVisInverse}}" />
+                                            <TextBlock Text="{x:Bind ActionLabel, Mode=OneWay}" Visibility="{x:Bind ActionLabel, Converter={StaticResource ObjectToVis}}" />
                                         </Grid>
                                     </Button>
                                 </Grid>

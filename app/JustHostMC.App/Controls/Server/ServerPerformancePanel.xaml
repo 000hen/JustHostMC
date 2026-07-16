@@ -8,9 +8,7 @@
     xmlns:server="using:JustHostMC.App.Controls.Server"
     mc:Ignorable="d">
 
-    <server:ServerSectionLayout
-        x:Uid="ServerPerformanceSection"
-        IconGlyph="&#xE9D9;">
+    <server:ServerSectionLayout x:Uid="ServerPerformanceSection" IconGlyph="&#xE9D9;">
         <server:ServerSectionLayout.Body>
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <Grid ColumnSpacing="4" RowSpacing="4">

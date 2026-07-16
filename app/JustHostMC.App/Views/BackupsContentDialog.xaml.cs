@@ -12,9 +12,9 @@ public sealed partial class BackupsContentDialog : ContentDialog {
         InitializeComponent();
         Title = serverName;
 
-        _content = new BackupsDialog(serverId, serverName, serverRunning,
-                                     dispatcher);
-        DialogBody.Content = _content;
+        _content =
+            new BackupsDialog(serverId, serverName, serverRunning, dispatcher);
+        DialogBody.Content      = _content;
         Opened += async (_, _) => await _content.LoadAsync();
     }
 }

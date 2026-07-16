@@ -6,7 +6,8 @@ namespace JustHostMC.App.Services;
 /// translator-controlled formats, error mappings, and non-XAML OS surfaces.
 /// </summary>
 public interface ILocalizer {
-    /// <summary>Resolves a dotted key to the current language's string.</summary>
+    /// <summary>Resolves a dotted key to the current language's
+    /// string.</summary>
     string Get(string key);
 
     /// <summary>Resolves a key and substitutes <c>{name}</c>

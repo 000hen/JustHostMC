@@ -90,7 +90,7 @@ public sealed partial class HomePage : Page {
         ContentDialog confirm = item.IsIncompleteInstallation
                                     ? new IncompleteServerRemovalDialog()
                                     : new DeleteServerDialog();
-        confirm.XamlRoot = XamlRoot;
+        confirm.XamlRoot      = XamlRoot;
         if (await confirm.ShowAsync() == ContentDialogResult.Primary)
             Main.DeleteServerCommand.Execute(item);
     }

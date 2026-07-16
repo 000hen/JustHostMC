@@ -70,8 +70,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
     [NotifyPropertyChangedFor(nameof(IsEngineConnected))]
     [NotifyPropertyChangedFor(nameof(IsEngineConnectionFailed))]
     public partial EngineConnectionStatus EngineConnectionState {
-        get;
-        private set;
+        get; private set;
     } = EngineConnectionStatus.Connecting;
 
     public bool IsEngineConnecting =>
@@ -82,9 +81,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
         EngineConnectionState == EngineConnectionStatus.Failed;
 
     [ObservableProperty]
-    public partial bool IsInstalling {
-        get; private set;
-    }
+    public partial bool IsInstalling { get; private set; }
 
     [ObservableProperty]
     public partial bool InstallFailed {
@@ -135,7 +132,8 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
             _serverChangesSession ??= CreateServerChangeSession(daemon);
             await _serverChangesSession.StartAsync();
         } catch (Exception) {
-            RunOnUI(() => EngineConnectionState = EngineConnectionStatus.Failed);
+            RunOnUI(() => EngineConnectionState =
+                        EngineConnectionStatus.Failed);
         }
     }
 
@@ -198,8 +196,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
             tracker.IsReadyToRun     = false;
             tracker.IsIndeterminate  = true;
             tracker.ProgressFraction = 0;
-            tracker.CurrentStep =
-                _localizer.Get("install.progress.preparing");
+            tracker.CurrentStep = _localizer.Get("install.progress.preparing");
 
             InstallLog.Clear();
             InstallFailed          = false;
@@ -226,9 +223,9 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
                 tracker.IsInstalling = false;
                 tracker.IsActive     = false;
                 tracker.IsReadyToRun = true;
-                tracker.CurrentStep =
-                    _localizer.Get("install.progress.done") + " " +
-                    _localizer.Get("install.ready_to_run");
+                tracker.CurrentStep  = _localizer.Get("install.progress.done") +
+                                       " " +
+                                       _localizer.Get("install.ready_to_run");
             });
         } catch (RpcException ex) {
             await progressBuffer.FlushAsync();

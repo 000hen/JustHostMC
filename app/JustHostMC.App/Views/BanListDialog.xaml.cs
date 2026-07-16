@@ -107,11 +107,8 @@ public sealed partial class BanListDialog : UserControl {
         status.Visibility = Visibility.Visible;
     }
 
-    private IEnumerable<TextBlock> StatusElements => [
-        LoadFailedText,
-        TargetRequiredText,
-        AddFailedText,
-        StoppedRequiredText,
-        RemoveFailedText,
+    private IEnumerable<TextBlock>
+        StatusElements => [LoadFailedText, TargetRequiredText, AddFailedText,
+                           StoppedRequiredText, RemoveFailedText,
     ];
 }

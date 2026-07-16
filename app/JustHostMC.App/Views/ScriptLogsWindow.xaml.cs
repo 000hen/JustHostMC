@@ -13,14 +13,15 @@ public sealed partial class ScriptLogsWindow : Window {
 
     public ObservableCollection<ScriptLogSession> LogSessions { get; }
 
-    public Visibility ShowWhenEmpty(int count) =>
-        count == 0 ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility ShowWhenEmpty(int count) => count == 0
+                                                      ? Visibility.Visible
+                                                      : Visibility.Collapsed;
 
     public ScriptLogsWindow(
         ObservableCollection<ScriptLogSession> logSessions) {
         LogSessions = logSessions;
         InitializeComponent();
-        Title = LogsTitleBar.Title;
+        Title            = LogsTitleBar.Title;
         Root.DataContext = this;
 
         ExtendsContentIntoTitleBar = true;

@@ -167,42 +167,43 @@ public sealed partial class ServerItem : ObservableObject {
             return ProviderId;
         }
     }
-    public bool HasTypeText => !string.IsNullOrWhiteSpace(TypeText);
-    public bool IsVanillaProvider => ProviderId == "vanilla";
-    public bool IsPaperProvider => ProviderId == "paper";
-    public bool IsSpigotProvider => ProviderId == "spigot";
-    public bool IsForgeProvider => ProviderId == "forge";
+    public bool HasTypeText        => !string.IsNullOrWhiteSpace(TypeText);
+    public bool IsVanillaProvider  => ProviderId == "vanilla";
+    public bool IsPaperProvider    => ProviderId == "paper";
+    public bool IsSpigotProvider   => ProviderId == "spigot";
+    public bool IsForgeProvider    => ProviderId == "forge";
     public bool IsNeoForgeProvider => ProviderId == "neoforge";
-    public bool IsFabricProvider => ProviderId == "fabric";
-    public bool IsTypeUnknown => string.IsNullOrWhiteSpace(ProviderId);
-    private bool IsBuiltInProvider =>
-        IsVanillaProvider || IsPaperProvider || IsSpigotProvider ||
-        IsForgeProvider || IsNeoForgeProvider || IsFabricProvider;
+    public bool IsFabricProvider   => ProviderId == "fabric";
+    public bool IsTypeUnknown      => string.IsNullOrWhiteSpace(ProviderId);
+    private bool IsBuiltInProvider => IsVanillaProvider || IsPaperProvider ||
+                                      IsSpigotProvider || IsForgeProvider ||
+                                      IsNeoForgeProvider || IsFabricProvider;
 
     public bool CanStart =>
         Status is ServerStatus.Stopped or ServerStatus.Crashed;
     public bool CanStop =>
         Status is ServerStatus.Running or ServerStatus.Starting;
-    public bool CanToggleState           => CanStart || CanStop;
-    public bool IsRunning                => Status is ServerStatus.Running;
-    public bool IsStopped                => Status is ServerStatus.Stopped;
-    public bool IsInstalling             => Status is ServerStatus.Installing;
-    public bool IsStarting               => Status is ServerStatus.Starting;
-    public bool IsStopping               => Status is ServerStatus.Stopping;
-    public bool IsCrashed                => Status is ServerStatus.Crashed;
-    public bool IsStatusUnknown => Status is not (
+    public bool CanToggleState  => CanStart || CanStop;
+    public bool IsRunning       => Status is ServerStatus.Running;
+    public bool IsStopped       => Status is ServerStatus.Stopped;
+    public bool IsInstalling    => Status is ServerStatus.Installing;
+    public bool IsStarting      => Status is ServerStatus.Starting;
+    public bool IsStopping      => Status is ServerStatus.Stopping;
+    public bool IsCrashed       => Status is ServerStatus.Crashed;
+    public bool IsStatusUnknown => Status is not(
         ServerStatus.Running or ServerStatus.Stopped or
-        ServerStatus.Installing or ServerStatus.Starting or
-        ServerStatus.Stopping or ServerStatus.Crashed);
-    public bool ShowStartAction => Status is not (
+            ServerStatus.Installing or ServerStatus.Starting or
+                ServerStatus.Stopping or ServerStatus.Crashed);
+    public bool ShowStartAction => Status is not(
         ServerStatus.Running or ServerStatus.Installing or
-        ServerStatus.Starting or ServerStatus.Stopping);
+            ServerStatus.Starting or ServerStatus.Stopping);
     public bool IsIncompleteInstallation => Status is ServerStatus.Installing;
     public bool CanEditLaunchSettings =>
         Status is ServerStatus.Stopped or ServerStatus.Crashed;
     public bool HasEndpoint => Port > 0;
-    public string EndpointText => Port <= 0 ? "" : ConnectHost.Value
-        is { Length : > 0 } host
+    public string EndpointText =>
+        Port <= 0 ? ""
+        : ConnectHost.Value is { Length : > 0 } host
             ? $"{host}:{Port}"
             : _localizer.Get("Server_PortLabel", ("port", Port.ToString()));
     public string StateActionGlyph => Status switch {

@@ -6,14 +6,14 @@ namespace JustHostMC.App.Models;
 /// banned-ips.json.</summary>
 public sealed class BanEntryItem {
     public BanEntryItem(BanEntry entry) {
-        Type    = entry.Type;
-        Target  = entry.Target;
-        Name    = entry.Name;
-        Uuid    = entry.Uuid;
-        Created = entry.Created;
-        Source  = entry.Source;
-        Expires = entry.Expires;
-        Reason  = entry.Reason;
+        Type         = entry.Type;
+        Target       = entry.Target;
+        Name         = entry.Name;
+        Uuid         = entry.Uuid;
+        Created      = entry.Created;
+        Source       = entry.Source;
+        Expires      = entry.Expires;
+        Reason       = entry.Reason;
         IdentityText = !string.IsNullOrWhiteSpace(Uuid) ? Uuid : Source;
         CreatedText  = string.IsNullOrWhiteSpace(Created) ? Expires : Created;
     }
@@ -26,7 +26,7 @@ public sealed class BanEntryItem {
     public string Source { get; }
     public string Expires { get; }
     public string Reason { get; }
-    public bool IsIpBan => Type == BanListType.IpBans;
+    public bool IsIpBan   => Type == BanListType.IpBans;
     public bool HasReason => !string.IsNullOrWhiteSpace(Reason);
     public string IdentityText { get; }
     public string CreatedText { get; }

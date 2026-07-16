@@ -126,7 +126,7 @@ public sealed partial class ResourceIntegrityTests {
             var source          = File.ReadAllText(window.Source);
             var initializeIndex = source.IndexOf("InitializeComponent();",
                                                  StringComparison.Ordinal);
-            var titleCopy = Regex.Match(
+            var titleCopy       = Regex.Match(
                 source,
                 $@"Title\s*=\s*{Regex.Escape(window.TitleBar)}\.Title;");
             Assert.True(
@@ -271,28 +271,32 @@ public sealed partial class ResourceIntegrityTests {
             "PlayerDataContentDialog",
             "PlayerInventoryContentDialog",
         };
-        var dialogSources = ContentDialogXamlFiles()
-            .Select(path => Path.ChangeExtension(path, ".xaml.cs"))
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var dialogSources =
+            ContentDialogXamlFiles()
+                .Select(path => Path.ChangeExtension(path, ".xaml.cs"))
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         foreach (var sourcePath in dialogSources) {
             var dialogName = Path.GetFileNameWithoutExtension(
                 Path.GetFileNameWithoutExtension(sourcePath));
             var expected = wideDialogs.Contains(dialogName)
                                ? "ContentDialogSizing.Apply(this, " +
-                                 "useWideLayout: true);"
+                                     "useWideLayout: true);"
                                : "ContentDialogSizing.Apply(this);";
             Assert.Contains(expected, File.ReadAllText(sourcePath),
                             StringComparison.Ordinal);
         }
 
-        var parentOffenders = SourceFiles("*.cs")
-            .Where(path => !dialogSources.Contains(path))
-            .Where(path => File.ReadAllText(path).Contains(
-                "ContentDialogSizing.Apply(", StringComparison.Ordinal))
-            .Select(path => Path.GetRelativePath(RepositoryLayout.Root, path))
-            .Order(StringComparer.OrdinalIgnoreCase)
-            .ToArray();
+        var parentOffenders =
+            SourceFiles("*.cs")
+                .Where(path => !dialogSources.Contains(path))
+                .Where(
+                    path => File.ReadAllText(path).Contains(
+                        "ContentDialogSizing.Apply(", StringComparison.Ordinal))
+                .Select(path =>
+                            Path.GetRelativePath(RepositoryLayout.Root, path))
+                .Order(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
         Assert.Empty(parentOffenders);
     }
 
@@ -408,8 +412,9 @@ public sealed partial class ResourceIntegrityTests {
             .Where(path => !IsGenerated(path));
 
     private static IEnumerable<string> ContentDialogXamlFiles() =>
-        Directory.EnumerateFiles(RepositoryLayout.AppPath(), "*.xaml",
-                                 SearchOption.AllDirectories)
+        Directory
+            .EnumerateFiles(RepositoryLayout.AppPath(), "*.xaml",
+                            SearchOption.AllDirectories)
             .Where(path => !IsGenerated(path))
             .Where(path => XDocument.Load(path).Root?.Name.LocalName ==
                            "ContentDialog");

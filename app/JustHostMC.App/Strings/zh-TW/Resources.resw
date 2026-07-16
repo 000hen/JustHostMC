@@ -60,88 +60,73 @@
   </resheader>
 
   <!-- Package manifest (ms-resource: references) -->
-  <data name="AppDisplayName" xml:space="preserve"><value>JustHostMC</value></data>
+  <data name="AppDisplayName" xml:space="preserve"><value>JustHostMC</value><comment>Canonical duplicate value in this locale; semantic identifier: AppDisplayName.</comment></data>
   <data name="AppDescription" xml:space="preserve"><value>JustHostMC — Minecraft 伺服器管理工具</value></data>
   <data name="AppPublisherDisplayName" xml:space="preserve"><value>Muisnow Devs</value></data>
 
   <!-- App + shell -->
-  <data name="AppTitle" xml:space="preserve"><value>JustHostMC</value></data>
+  <data name="AppTitle" xml:space="preserve"><value>JustHostMC</value><comment>Same visible value as AppDisplayName; kept separate for this property or translation context.</comment></data>
   <data name="MainTitle.Text" xml:space="preserve"><value>JustHostMC - Minecraft 伺服器管理工具</value></data>
-  <data name="RefreshButton.ToolTipService.ToolTip" xml:space="preserve"><value>重新整理</value></data>
-  <data name="CreateServerButtonLabel.Text" xml:space="preserve"><value>建立伺服器</value></data>
+  <data name="RefreshButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>重新整理</value></data>
+  <data name="CreateServerButtonLabel.Text" xml:space="preserve"><value>建立伺服器</value><comment>Canonical duplicate value in this locale; semantic identifier: CreateServerButtonLabel.Text.</comment></data>
   <data name="NoServersHint.Text" xml:space="preserve"><value>還沒有伺服器。選取「建立伺服器」來新增一個。</value></data>
-  <data name="AdaptiveFilterLayoutFilterButtonLabel.Text" xml:space="preserve"><value>篩選</value></data>
+  <data name="AdaptiveFilterLayoutFilterButtonLabel.Text" xml:space="preserve"><value>篩選</value><comment>Canonical duplicate value in this locale; semantic identifier: AdaptiveFilterLayoutFilterButtonLabel.Text.</comment></data>
 
   <!-- First-run on-machine notice -->
   <data name="OnMachineNotice.Title" xml:space="preserve"><value>伺服器會在這台電腦上執行</value></data>
   <data name="OnMachineNotice.Message" xml:space="preserve"><value>未使用 Docker 時，伺服器會直接在你的電腦上執行（不在容器中）。每個伺服器的記憶體限制仍會套用。</value></data>
 
-  <!-- Engine status -->
-  <data name="EngineStatus_Connecting" xml:space="preserve"><value>正在連線到引擎</value></data>
-  <data name="EngineStatus_Connected" xml:space="preserve"><value>引擎已連線。</value></data>
-  <data name="EngineStatus_Failed" xml:space="preserve"><value>無法連線到引擎。</value></data>
-
   <!-- Server list actions + status -->
-  <data name="ServerStartButton.Content" xml:space="preserve"><value>啟動</value></data>
-  <data name="ServerStopButton.Content" xml:space="preserve"><value>停止</value></data>
-  <data name="ServerDeleteButton.Content" xml:space="preserve"><value>刪除</value></data>
-  <data name="ServerStatus_Running" xml:space="preserve"><value>執行中</value></data>
-  <data name="ServerStatus_Stopped" xml:space="preserve"><value>已停止</value></data>
-  <data name="ServerStatus_Installing" xml:space="preserve"><value>安裝中</value></data>
-  <data name="ServerStatus_Starting" xml:space="preserve"><value>啟動中</value></data>
-  <data name="ServerStatus_Stopping" xml:space="preserve"><value>停止中</value></data>
-  <data name="ServerStatus_Crashed" xml:space="preserve"><value>已當機</value></data>
-  <data name="ServerStatus_Unknown" xml:space="preserve"><value>不明</value></data>
+  <data name="ServerStartButton.Content" xml:space="preserve"><value>啟動</value><comment>Canonical duplicate value in this locale; semantic identifier: ServerStartButton.Content.</comment></data>
+  <data name="ServerStopButton.Content" xml:space="preserve"><value>停止</value><comment>Canonical duplicate value in this locale; semantic identifier: ServerStopButton.Content.</comment></data>
+  <data name="ServerDeleteButton.Content" xml:space="preserve"><value>刪除</value><comment>Canonical duplicate value in this locale; semantic identifier: ServerDeleteButton.Content.</comment></data>
+  <data name="ServerStatus_Running" xml:space="preserve"><value>執行中</value><comment>Canonical duplicate value in this locale; semantic identifier: ServerStatus_Running.</comment></data>
+  <data name="ServerStatus_Stopped" xml:space="preserve"><value>已停止</value><comment>Canonical duplicate value in this locale; semantic identifier: ServerStatus_Stopped.</comment></data>
+  <data name="ServerStatus_Installing" xml:space="preserve"><value>安裝中</value><comment>Canonical duplicate value in this locale; semantic identifier: ServerStatus_Installing.</comment></data>
+  <data name="ServerStatus_Starting" xml:space="preserve"><value>啟動中</value><comment>Canonical duplicate value in this locale; semantic identifier: ServerStatus_Starting.</comment></data>
+  <data name="ServerStatus_Stopping" xml:space="preserve"><value>停止中</value><comment>Canonical duplicate value in this locale; semantic identifier: ServerStatus_Stopping.</comment></data>
+  <data name="ServerStatus_Crashed" xml:space="preserve"><value>已當機</value><comment>Canonical duplicate value in this locale; semantic identifier: ServerStatus_Crashed.</comment></data>
+  <data name="ServerStatus_Unknown" xml:space="preserve"><value>不明</value><comment>Canonical duplicate value in this locale; semantic identifier: ServerStatus_Unknown.</comment></data>
   <data name="ServerNav_AutomationName" xml:space="preserve"><value>{name}，{status}</value></data>
   <data name="ServerNav_StateChangedAutomationName" xml:space="preserve"><value>{name}，狀態已變更為{status}</value></data>
-  <data name="ServerType_Vanilla" xml:space="preserve"><value>原版</value></data>
-  <data name="ServerType_Paper" xml:space="preserve"><value>Paper</value></data>
-  <data name="ServerType_Spigot" xml:space="preserve"><value>Spigot</value></data>
-  <data name="ServerType_Forge" xml:space="preserve"><value>Forge</value></data>
-  <data name="ServerType_NeoForge" xml:space="preserve"><value>NeoForge</value></data>
-  <data name="ServerType_Fabric" xml:space="preserve"><value>Fabric</value></data>
-  <data name="ServerType_Unknown" xml:space="preserve"><value>不明</value></data>
 
   <!-- Console -->
-  <data name="ServerConsoleButton.Content" xml:space="preserve"><value>控制台</value></data>
-  <data name="ConsoleDialog.Title" xml:space="preserve"><value>控制台</value></data>
-  <data name="ConsoleDialog.CloseButtonText" xml:space="preserve"><value>關閉</value></data>
+  <data name="ServerConsoleButton.Content" xml:space="preserve"><value>控制台</value><comment>Canonical duplicate value in this locale; semantic identifier: ServerConsoleButton.Content.</comment></data>
+  <data name="ConsoleDialog.Title" xml:space="preserve"><value>控制台</value><comment>Same visible value as ServerConsoleButton.Content; kept separate for this property or translation context.</comment></data>
+  <data name="ConsoleDialog.CloseButtonText" xml:space="preserve"><value>關閉</value><comment>Canonical duplicate value in this locale; semantic identifier: ConsoleDialog.CloseButtonText.</comment></data>
   <data name="ConsoleInput.PlaceholderText" xml:space="preserve"><value>輸入指令後按 Enter</value></data>
-  <data name="ConsoleSendButton.Content" xml:space="preserve"><value>送出</value></data>
+  <data name="ConsoleSendButton.Content" xml:space="preserve"><value>送出</value><comment>Canonical duplicate value in this locale; semantic identifier: ConsoleSendButton.Content.</comment></data>
   <data name="ConsoleOutputHeader.Text" xml:space="preserve"><value>控制台輸出</value></data>
-  <data name="ConsoleSendButtonLabel.Text" xml:space="preserve"><value>送出</value></data>
+  <data name="ConsoleSendButtonLabel.Text" xml:space="preserve"><value>送出</value><comment>Same visible value as ConsoleSendButton.Content; kept separate for this property or translation context.</comment></data>
   <data name="ConsoleSendCommandButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>送出指令</value></data>
 
   <!-- Create-server dialog -->
-  <data name="CreateServerDialog_Title" xml:space="preserve"><value>建立伺服器</value></data>
-  <data name="CreateServerDialog_PrimaryButtonText" xml:space="preserve"><value>建立</value></data>
-  <data name="CreateServerDialog_CloseButtonText" xml:space="preserve"><value>取消</value></data>
-  <data name="CreateServerName.Header" xml:space="preserve"><value>名稱</value></data>
-  <data name="CreateServerName.PlaceholderText" xml:space="preserve"><value>我的伺服器</value></data>
-  <data name="CreateServer_DefaultName" xml:space="preserve"><value>我的伺服器</value></data>
-  <data name="CreateServerType.Header" xml:space="preserve"><value>類型</value></data>
-  <data name="ServerTypeVanillaItem.Content" xml:space="preserve"><value>原版</value></data>
+  <data name="CreateServerName.Header" xml:space="preserve"><value>名稱</value><comment>Canonical duplicate value in this locale; semantic identifier: CreateServerName.Header.</comment></data>
+  <data name="CreateServerName.PlaceholderText" xml:space="preserve"><value>我的伺服器</value><comment>Canonical duplicate value in this locale; semantic identifier: CreateServerName.PlaceholderText.</comment></data>
+  <data name="CreateServer_DefaultName" xml:space="preserve"><value>我的伺服器</value><comment>Same visible value as CreateServerName.PlaceholderText; kept separate for this property or translation context.</comment></data>
+  <data name="CreateServerType.Header" xml:space="preserve"><value>類型</value><comment>Canonical duplicate value in this locale; semantic identifier: CreateServerType.Header.</comment></data>
+  <data name="ServerTypeVanillaItem.Content" xml:space="preserve"><value>原版</value><comment>Same visible value as ServerTypeVanillaText.Text; kept separate for this property or translation context.</comment></data>
   <data name="CreateServerVersionHint.Text" xml:space="preserve"><value>版本會從網路取得。</value></data>
-  <data name="CreateServerVersion.Header" xml:space="preserve"><value>版本</value></data>
+  <data name="CreateServerVersion.Header" xml:space="preserve"><value>版本</value><comment>Canonical duplicate value in this locale; semantic identifier: CreateServerVersion.Header.</comment></data>
   <data name="CreateServerVersionError.Title" xml:space="preserve"><value>無法載入版本</value></data>
   <data name="CreateServerVersionError.Message" xml:space="preserve"><value>請檢查網路連線，然後重新選取伺服器類型。</value></data>
   <data name="CreateServerAdvancedHeader.Text" xml:space="preserve"><value>進階設定</value></data>
   <data name="CreateServerMemory.Header" xml:space="preserve"><value>記憶體 (MB)</value></data>
   <data name="CreateServerMemoryHint.Text" xml:space="preserve"><value>Java 行程的最大堆積記憶體。多數伺服器建議使用 2048 MB。</value></data>
-  <data name="CreateServerPort.Header" xml:space="preserve"><value>連接埠</value></data>
+  <data name="CreateServerPort.Header" xml:space="preserve"><value>連接埠</value><comment>Canonical duplicate value in this locale; semantic identifier: CreateServerPort.Header.</comment></data>
   <data name="CreateServerPortHint.Text" xml:space="preserve"><value>保留為 0 可自動指派可用連接埠。Minecraft 預設值為 25565。</value></data>
 
   <!-- Install progress -->
   <data name="InstallProgressHeader.Text" xml:space="preserve"><value>建立伺服器中</value></data>
-  <data name="InstallDismissButton.Content" xml:space="preserve"><value>關閉</value></data>
-  <data name="install_progress_preparing" xml:space="preserve"><value>準備中</value></data>
-  <data name="install_progress_resolving_version" xml:space="preserve"><value>解析版本中</value></data>
-  <data name="install_progress_downloading_server" xml:space="preserve"><value>下載伺服器中</value></data>
-  <data name="install_progress_downloading_jre" xml:space="preserve"><value>下載 Java 執行階段中</value></data>
-  <data name="install_progress_extracting_jre" xml:space="preserve"><value>解壓縮 Java 執行階段中</value></data>
-  <data name="install_progress_downloading_installer" xml:space="preserve"><value>下載安裝程式中</value></data>
-  <data name="install_progress_running_installer" xml:space="preserve"><value>執行安裝程式中</value></data>
-  <data name="install_progress_done" xml:space="preserve"><value>完成。</value></data>
+  <data name="InstallDismissButton.Content" xml:space="preserve"><value>關閉</value><comment>Same visible value as ConsoleDialog.CloseButtonText; kept separate for this property or translation context.</comment></data>
+  <data name="install.progress.preparing" xml:space="preserve"><value>準備中</value></data>
+  <data name="install.progress.resolving_version" xml:space="preserve"><value>解析版本中</value></data>
+  <data name="install.progress.downloading_server" xml:space="preserve"><value>下載伺服器中</value></data>
+  <data name="install.progress.downloading_jre" xml:space="preserve"><value>下載 Java 執行階段中</value></data>
+  <data name="install.progress.extracting_jre" xml:space="preserve"><value>解壓縮 Java 執行階段中</value></data>
+  <data name="install.progress.downloading_installer" xml:space="preserve"><value>下載安裝程式中</value></data>
+  <data name="install.progress.running_installer" xml:space="preserve"><value>執行安裝程式中</value></data>
+  <data name="install.progress.done" xml:space="preserve"><value>完成。</value></data>
 
   <!-- Errors (mapped from ErrorCode / status) -->
   <data name="error_version_not_found" xml:space="preserve"><value>找不到該版本。</value></data>
@@ -150,30 +135,24 @@
   <data name="error_install_failed" xml:space="preserve"><value>安裝失敗。請查看記錄以了解詳細資訊。</value></data>
   <data name="error_backup_failed" xml:space="preserve"><value>備份作業失敗。請查看記錄以了解詳細資訊。</value></data>
   <data name="error_backup_not_found" xml:space="preserve"><value>找不到該備份。</value></data>
-  <data name="error_server_running" xml:space="preserve"><value>還原備份前，請先停止伺服器。</value></data>
+  <data name="error.server_running" xml:space="preserve"><value>還原備份前，請先停止伺服器。</value><comment>Canonical duplicate value in this locale; semantic identifier: error.server_running.</comment></data>
 
   <!-- Backups -->
-  <data name="ServerBackupsButton.Content" xml:space="preserve"><value>備份</value></data>
-  <data name="BackupsDialog_CloseButtonText" xml:space="preserve"><value>關閉</value></data>
-  <data name="BackupCreateButton.Content" xml:space="preserve"><value>建立備份</value></data>
-  <data name="BackupSafeOnline.Content" xml:space="preserve"><value>線上安全備份（暫停儲存）</value></data>
+  <data name="ServerBackupsButton.Content" xml:space="preserve"><value>備份</value><comment>Canonical duplicate value in this locale; semantic identifier: ServerBackupsButton.Content.</comment></data>
+  <data name="BackupCreateButton.Content" xml:space="preserve"><value>建立備份</value><comment>Canonical duplicate value in this locale; semantic identifier: BackupCreateButton.Content.</comment></data>
+  <data name="BackupSafeOnline.Content" xml:space="preserve"><value>線上安全備份（暫停儲存）</value><comment>Canonical duplicate value in this locale; semantic identifier: BackupSafeOnline.Content.</comment></data>
   <data name="BackupsEmptyHint.Text" xml:space="preserve"><value>還沒有備份。選取「建立備份」來建立一份。</value></data>
-  <data name="BackupRestoreButton.Content" xml:space="preserve"><value>還原</value></data>
+  <data name="BackupRestoreButton.Content" xml:space="preserve"><value>還原</value><comment>Canonical duplicate value in this locale; semantic identifier: BackupRestoreButton.Content.</comment></data>
   <data name="BackupRestoreConfirmText.Text" xml:space="preserve"><value>要還原這份備份嗎？這會取代伺服器目前的世界與檔案。伺服器必須先停止。</value></data>
-  <data name="BackupRestoreConfirmButton.Content" xml:space="preserve"><value>還原</value></data>
-  <data name="BackupDeleteButton.Content" xml:space="preserve"><value>刪除</value></data>
+  <data name="BackupRestoreConfirmButton.Content" xml:space="preserve"><value>還原</value><comment>Same visible value as BackupRestoreButton.Content; kept separate for this property or translation context.</comment></data>
+  <data name="BackupDeleteButton.Content" xml:space="preserve"><value>刪除</value><comment>Same visible value as ServerDeleteButton.Content; kept separate for this property or translation context.</comment></data>
   <data name="BackupDeleteConfirmText.Text" xml:space="preserve"><value>要永久刪除這份備份嗎？</value></data>
-  <data name="BackupDeleteConfirmButton.Content" xml:space="preserve"><value>刪除</value></data>
-  <data name="Backups_Creating" xml:space="preserve"><value>建立備份中</value></data>
-  <data name="Backups_Created" xml:space="preserve"><value>備份已建立。</value></data>
-  <data name="Backups_Restoring" xml:space="preserve"><value>還原備份中</value></data>
-  <data name="Backups_Restored" xml:space="preserve"><value>備份已還原。</value></data>
-  <data name="Backups_Deleted" xml:space="preserve"><value>備份已刪除。</value></data>
+  <data name="BackupDeleteConfirmButton.Content" xml:space="preserve"><value>刪除</value><comment>Same visible value as ServerDeleteButton.Content; kept separate for this property or translation context.</comment></data>
 
   <!-- Settings -->
-  <data name="SettingsButton.Content" xml:space="preserve"><value>設定</value></data>
-  <data name="SettingsDialog.Title" xml:space="preserve"><value>設定</value></data>
-  <data name="SettingsDialog.CloseButtonText" xml:space="preserve"><value>關閉</value></data>
+  <data name="SettingsButton.Content" xml:space="preserve"><value>設定</value><comment>Canonical duplicate value in this locale; semantic identifier: SettingsButton.Content.</comment></data>
+  <data name="SettingsDialog.Title" xml:space="preserve"><value>設定</value><comment>Same visible value as SettingsButton.Content; kept separate for this property or translation context.</comment></data>
+  <data name="SettingsDialog.CloseButtonText" xml:space="preserve"><value>關閉</value><comment>Same visible value as ConsoleDialog.CloseButtonText; kept separate for this property or translation context.</comment></data>
   <data name="SettingsCategoryEngine.Text" xml:space="preserve"><value>引擎與伺服器</value></data>
   <data name="SettingsCategoryIntegrations.Text" xml:space="preserve"><value>整合</value></data>
   <data name="SettingsCategoryApp.Text" xml:space="preserve"><value>應用程式</value></data>
@@ -181,37 +160,27 @@
   <data name="SettingsRetentionHint.Text" xml:space="preserve"><value>安裝與控制台記錄會自動清理。使用 0 表示不限制。</value></data>
   <data name="SettingsKeepDays.Header" xml:space="preserve"><value>記錄保留天數</value></data>
   <data name="SettingsMaxSize.Header" xml:space="preserve"><value>總大小上限 (MB)</value></data>
-  <data name="SettingsSaveButton.Content" xml:space="preserve"><value>儲存</value></data>
+  <data name="SettingsSaveButton.Content" xml:space="preserve"><value>儲存</value><comment>Canonical duplicate value in this locale; semantic identifier: SettingsSaveButton.Content.</comment></data>
 <data name="SettingsPurgeButton.Content" xml:space="preserve"><value>立即清理</value></data>
 <data name="SettingsEngineMonitorHeader.Text" xml:space="preserve"><value>引擎診斷</value></data>
 <data name="SettingsEngineMonitorHint.Text" xml:space="preserve"><value>檢視引擎行程的即時標準輸出、錯誤輸出與輸入監看生命週期。</value></data>
 <data name="SettingsEngineMonitorButton.Content" xml:space="preserve"><value>開啟引擎監視器</value></data>
-  <data name="Settings_Saved" xml:space="preserve"><value>設定已儲存。</value></data>
-  <data name="Settings_SaveFailed" xml:space="preserve"><value>無法儲存設定。</value></data>
-  <data name="Settings_LoadFailed" xml:space="preserve"><value>無法載入設定。</value></data>
   <data name="Settings_PurgeResult" xml:space="preserve"><value>已清理 {count} 個檔案，釋放 {size}。</value></data>
-  <data name="Settings_PurgeFailed" xml:space="preserve"><value>無法清理記錄。</value></data>
-  <data name="SettingsDataHeader.Text" xml:space="preserve"><value>移除所有資料</value></data>
+  <data name="SettingsDataHeader.Text" xml:space="preserve"><value>移除所有資料</value><comment>Canonical duplicate value in this locale; semantic identifier: SettingsDataHeader.Text.</comment></data>
   <data name="SettingsDataHint.Text" xml:space="preserve"><value>停止所有伺服器，並永久刪除所有伺服器、備份、記錄，以及已下載的 Java 執行階段。此動作無法復原。</value></data>
-  <data name="SettingsRemoveDataButton.Content" xml:space="preserve"><value>移除所有資料</value></data>
+  <data name="SettingsRemoveDataButton.Content" xml:space="preserve"><value>移除所有資料</value><comment>Same visible value as SettingsDataHeader.Text; kept separate for this property or translation context.</comment></data>
   <data name="SettingsRemoveDataConfirmText.Text" xml:space="preserve"><value>要刪除所有伺服器、備份、記錄和 Java 執行階段嗎？此動作無法復原。</value></data>
   <data name="SettingsRemoveDataConfirmButton.Content" xml:space="preserve"><value>全部移除</value></data>
-  <data name="Settings_RemovingData" xml:space="preserve"><value>正在移除所有資料</value></data>
-  <data name="Settings_DataRemoved" xml:space="preserve"><value>所有資料已移除。</value></data>
   <data name="SettingsIncompleteInstallationsHeader.Text" xml:space="preserve"><value>未完成的伺服器安裝</value></data>
   <data name="Settings_IncompleteInstallationsDescription" xml:space="preserve"><value>可移除 {count} 個未完成的安裝。</value></data>
-  <data name="SettingsRemoveIncompleteInstallationsButton.Content" xml:space="preserve"><value>移除未完成的安裝</value></data>
-  <data name="Settings_RemovingIncompleteInstallations" xml:space="preserve"><value>正在移除未完成的伺服器安裝…</value></data>
+  <data name="SettingsRemoveIncompleteInstallationsButton.Content" xml:space="preserve"><value>移除未完成的安裝</value><comment>Canonical duplicate value in this locale; semantic identifier: SettingsRemoveIncompleteInstallationsButton.Content.</comment></data>
   <data name="Settings_IncompleteInstallationsRemoved" xml:space="preserve"><value>已移除 {count} 個未完成的安裝。</value></data>
-  <data name="Settings_RemoveIncompleteInstallationsFailed" xml:space="preserve"><value>移除未完成的伺服器安裝失敗。</value></data>
-<data name="Settings_RemoveDataFailed" xml:space="preserve"><value>無法移除所有資料。</value></data>
 
 <!-- Engine stdio monitor -->
-<data name="EngineMonitorStopButton.Content" xml:space="preserve"><value>停止</value></data>
-<data name="EngineMonitorFiltersLabel.Text" xml:space="preserve"><value>篩選條件</value></data>
+<data name="EngineMonitorStopButton.Content" xml:space="preserve"><value>停止</value><comment>Same visible value as ServerStopButton.Content; kept separate for this property or translation context.</comment></data>
+<data name="EngineMonitorFiltersLabel.Text" xml:space="preserve"><value>篩選條件</value><comment>Canonical duplicate value in this locale; semantic identifier: EngineMonitorFiltersLabel.Text.</comment></data>
 <data name="EngineMonitorStreamsHeading.Text" xml:space="preserve"><value>訊息來源</value></data>
 <data name="EngineMonitorLevelsHeading.Text" xml:space="preserve"><value>記錄層級</value></data>
-<data name="EngineMonitor_Title" xml:space="preserve"><value>引擎監視器</value></data>
 <data name="EngineMonitorClearButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>清除引擎輸出</value></data>
 <data name="EngineMonitorClearButtonLabel.Text" xml:space="preserve"><value>清除</value></data>
 <data name="EngineMonitorCopyButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>複製顯示中的引擎輸出</value></data>
@@ -228,69 +197,45 @@
   <data name="SettingsBackendHeader.Text" xml:space="preserve"><value>伺服器執行位置</value></data>
   <data name="SettingsUseDocker.Header" xml:space="preserve"><value>可用時使用 Docker</value></data>
   <data name="SettingsBackendHint.Text" xml:space="preserve"><value>重新啟動應用程式後生效。JustHostMC 不會安裝 Docker、WSL 或 Hyper-V；是否啟用由你決定。</value></data>
-  <data name="Backend_Mode_OnMachine" xml:space="preserve"><value>伺服器會直接在這台電腦上執行（使用 Windows Job Objects 隔離）。</value></data>
-  <data name="Backend_Mode_Docker" xml:space="preserve"><value>伺服器會在這台電腦上的 Docker 容器中執行。</value></data>
   <data name="Backend_DockerAvailable" xml:space="preserve"><value>偵測到 Docker（版本 {version}）。</value></data>
-  <data name="Backend_DockerUnavailable" xml:space="preserve"><value>未偵測到 Docker。啟動 Docker Desktop 以啟用此選項。</value></data>
-  <data name="Backend_DockerPrefSaved" xml:space="preserve"><value>已儲存。重新啟動應用程式以套用後端變更。</value></data>
   <!-- Navigation shell + Home -->
-  <data name="NavHome.Content" xml:space="preserve"><value>首頁</value></data>
-  <data name="NavAddServer.Content" xml:space="preserve"><value>新增伺服器</value></data>
-  <data name="NavSettings.Content" xml:space="preserve"><value>設定</value></data>
-  <data name="HomeTitle.Text" xml:space="preserve"><value>首頁</value></data>
-  <data name="SettingsTitle.Text" xml:space="preserve"><value>設定</value></data>
-  <data name="HomeAddCard.Text" xml:space="preserve"><value>新增伺服器</value></data>
+  <data name="NavHome.Content" xml:space="preserve"><value>首頁</value><comment>Canonical duplicate value in this locale; semantic identifier: NavHome.Content.</comment></data>
+  <data name="NavAddServer.Content" xml:space="preserve"><value>新增伺服器</value><comment>Canonical duplicate value in this locale; semantic identifier: NavAddServer.Content.</comment></data>
+  <data name="NavSettings.Content" xml:space="preserve"><value>設定</value><comment>Same visible value as SettingsButton.Content; kept separate for this property or translation context.</comment></data>
+  <data name="HomeTitle.Text" xml:space="preserve"><value>首頁</value><comment>Same visible value as NavHome.Content; kept separate for this property or translation context.</comment></data>
+  <data name="SettingsTitle.Text" xml:space="preserve"><value>設定</value><comment>Same visible value as SettingsButton.Content; kept separate for this property or translation context.</comment></data>
+  <data name="HomeAddCard.Text" xml:space="preserve"><value>新增伺服器</value><comment>Same visible value as NavAddServer.Content; kept separate for this property or translation context.</comment></data>
   <!-- Server page: sections, header, state button -->
-  <data name="ServerSectionConsole.Text" xml:space="preserve"><value>控制台</value></data>
-  <data name="ServerSectionPlayers.Text" xml:space="preserve"><value>玩家</value></data>
-  <data name="ServerSectionPerformance.Text" xml:space="preserve"><value>效能</value></data>
+  <data name="ServerSectionConsole.Text" xml:space="preserve"><value>控制台</value><comment>Same visible value as ServerConsoleButton.Content; kept separate for this property or translation context.</comment></data>
+  <data name="ServerSectionPlayers.Text" xml:space="preserve"><value>玩家</value><comment>Canonical duplicate value in this locale; semantic identifier: ServerSectionPlayers.Text.</comment></data>
+  <data name="ServerSectionPerformance.Text" xml:space="preserve"><value>效能</value><comment>Canonical duplicate value in this locale; semantic identifier: ServerSectionPerformance.Text.</comment></data>
   <data name="ServerSectionMods.Text" xml:space="preserve"><value>插件 / 模組</value></data>
-  <data name="ServerSectionConfig.Text" xml:space="preserve"><value>設定</value></data>
-  <data name="ServerSectionConfigHint.Text" xml:space="preserve"><value>管理伺服器啟動設定與進階選項</value></data>
-  <data name="ServerSectionPerformanceHint.Text" xml:space="preserve"><value>監控伺服器資源使用與網路指標</value></data>
-  <data name="ServerSectionPlayersHint.Text" xml:space="preserve"><value>管理線上玩家、管理員與封鎖名單</value></data>
-  <data name="ServerSectionModsHint.Text" xml:space="preserve"><value>管理伺服器擴充功能與模組</value></data>
-  <data name="ServerEditMenuItem.Text" xml:space="preserve"><value>編輯伺服器</value></data>
-  <data name="ServerBackupsMenuItem.Text" xml:space="preserve"><value>備份</value></data>
-  <data name="ServerDeleteMenuItem.Text" xml:space="preserve"><value>刪除伺服器</value></data>
+  <data name="ServerSectionConfig.Text" xml:space="preserve"><value>設定</value><comment>Same visible value as SettingsButton.Content; kept separate for this property or translation context.</comment></data>
+  <data name="ServerEditMenuItem.Text" xml:space="preserve"><value>編輯伺服器</value><comment>Canonical duplicate value in this locale; semantic identifier: ServerEditMenuItem.Text.</comment></data>
+  <data name="ServerBackupsMenuItem.Text" xml:space="preserve"><value>備份</value><comment>Same visible value as ServerBackupsButton.Content; kept separate for this property or translation context.</comment></data>
+  <data name="ServerDeleteMenuItem.Text" xml:space="preserve"><value>刪除伺服器</value><comment>Canonical duplicate value in this locale; semantic identifier: ServerDeleteMenuItem.Text.</comment></data>
   <data name="ServerMoreButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>更多選項</value></data>
-  <data name="ServerMetaTypeLabel.Text" xml:space="preserve"><value>類型</value></data>
-  <data name="ServerMetaVersionLabel.Text" xml:space="preserve"><value>版本</value></data>
-  <data name="ServerMetaPortLabel.Text" xml:space="preserve"><value>連接埠</value></data>
-  <data name="ServerMetaMemoryLabel.Text" xml:space="preserve"><value>記憶體</value></data>
-  <data name="ServerMetaNameLabel.Text" xml:space="preserve"><value>名稱</value></data>
+  <data name="ServerMetaTypeLabel.Text" xml:space="preserve"><value>類型</value><comment>Same visible value as CreateServerType.Header; kept separate for this property or translation context.</comment></data>
+  <data name="ServerMetaVersionLabel.Text" xml:space="preserve"><value>版本</value><comment>Same visible value as CreateServerVersion.Header; kept separate for this property or translation context.</comment></data>
+  <data name="ServerMetaPortLabel.Text" xml:space="preserve"><value>連接埠</value><comment>Same visible value as CreateServerPort.Header; kept separate for this property or translation context.</comment></data>
+  <data name="ServerMetaMemoryLabel.Text" xml:space="preserve"><value>記憶體</value><comment>Canonical duplicate value in this locale; semantic identifier: ServerMetaMemoryLabel.Text.</comment></data>
+  <data name="ServerMetaNameLabel.Text" xml:space="preserve"><value>名稱</value><comment>Same visible value as CreateServerName.Header; kept separate for this property or translation context.</comment></data>
   <data name="ServerMetaCustomJavaArgsLabel.Text" xml:space="preserve"><value>自訂 Java 參數</value></data>
   <data name="Server_PortLabel" xml:space="preserve"><value>連接埠 {port}</value></data>
-  <data name="Server_PortAutoValue" xml:space="preserve"><value>自動</value></data>
+  <data name="Server_PortAutoValue" xml:space="preserve"><value>自動</value><comment>Canonical duplicate value in this locale; semantic identifier: Server_PortAutoValue.</comment></data>
   <data name="Server_MemoryValue" xml:space="preserve"><value>{memory} MB</value></data>
-  <data name="Server_ValueUnknown" xml:space="preserve"><value>未知</value></data>
-  <data name="ServerState_Start" xml:space="preserve"><value>啟動</value></data>
-  <data name="ServerState_Stop" xml:space="preserve"><value>停止</value></data>
-  <data name="ServerState_Starting" xml:space="preserve"><value>啟動中</value></data>
-  <data name="ServerState_Stopping" xml:space="preserve"><value>停止中</value></data>
-  <data name="ServerState_Installing" xml:space="preserve"><value>安裝中</value></data>
-  <data name="ServerDelete_Title" xml:space="preserve"><value>要刪除伺服器嗎？</value></data>
-  <data name="ServerDelete_Body" xml:space="preserve"><value>這會永久刪除伺服器及其世界。此動作無法復原。</value></data>
-  <data name="ServerDelete_Confirm" xml:space="preserve"><value>刪除</value></data>
-  <data name="ServerDelete_Action" xml:space="preserve"><value>刪除伺服器</value></data>
-  <data name="ServerInstallRemove_Title" xml:space="preserve"><value>要移除未完成的安裝嗎？</value></data>
-  <data name="ServerInstallRemove_Body" xml:space="preserve"><value>這會取消安裝，並移除此伺服器已下載的所有檔案。</value></data>
-  <data name="ServerInstallRemove_Confirm" xml:space="preserve"><value>移除</value></data>
-  <data name="ServerInstallRemove_Action" xml:space="preserve"><value>移除未完成的安裝</value></data>
-  <data name="CloseBusy_Title" xml:space="preserve"><value>目前工作仍在執行</value></data>
-  <data name="CloseBusy_Body" xml:space="preserve"><value>現在關閉會中斷目前的工作。您可以讓 JustHostMC 繼續在系統匣執行，或仍然關閉。</value></data>
-  <data name="CloseBusy_HideToTray" xml:space="preserve"><value>隱藏到系統匣</value></data>
-  <data name="CloseBusy_CloseAnyway" xml:space="preserve"><value>仍然關閉</value></data>
+  <data name="ServerState_Start" xml:space="preserve"><value>啟動</value><comment>Same visible value as ServerStartButton.Content; kept separate for this property or translation context.</comment></data>
+  <data name="ServerState_Stop" xml:space="preserve"><value>停止</value><comment>Same visible value as ServerStopButton.Content; kept separate for this property or translation context.</comment></data>
+  <data name="ServerState_Starting" xml:space="preserve"><value>啟動中</value><comment>Same visible value as ServerStatus_Starting; kept separate for this property or translation context.</comment></data>
+  <data name="ServerState_Stopping" xml:space="preserve"><value>停止中</value><comment>Same visible value as ServerStatus_Stopping; kept separate for this property or translation context.</comment></data>
+  <data name="ServerState_Installing" xml:space="preserve"><value>安裝中</value><comment>Same visible value as ServerStatus_Installing; kept separate for this property or translation context.</comment></data>
   <data name="Tray_Restore" xml:space="preserve"><value>開啟 JustHostMC</value></data>
   <data name="Tray_Exit" xml:space="preserve"><value>結束</value></data>
-  <data name="Common_Cancel" xml:space="preserve"><value>取消</value></data>
   <!-- Players -->
   <data name="Players_Header" xml:space="preserve"><value>玩家（{count}）</value></data>
-  <data name="PlayersEmptyHint.Text" xml:space="preserve"><value>目前沒有玩家在線上。</value></data>
   <data name="ManageBansButtonLabel.Text" xml:space="preserve"><value>管理封鎖</value></data>
   <data name="ManageBansButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>管理封鎖名單</value></data>
   <!-- Configuration -->
-  <data name="ConfigStoppedHint.Text" xml:space="preserve"><value>請先停止伺服器，再安全地儲存 server.properties、遊戲規則或封鎖名單變更。</value></data>
   <data name="ConfigPropertiesSection.Title" xml:space="preserve"><value>server.properties</value></data>
   <data name="ConfigPropertiesSection.Description" xml:space="preserve"><value>可用屬性與編輯器會依此伺服器的 Minecraft 版本篩選。</value></data>
   <data name="ConfigSavePropertiesButton.Content" xml:space="preserve"><value>儲存屬性</value></data>
@@ -300,13 +245,10 @@
   <data name="ConfigDiscardButtonLabel.Text" xml:space="preserve"><value>放棄</value></data>
   <data name="ConfigSaveModifiedButtonLabel.Text" xml:space="preserve"><value>儲存變更</value></data>
   <data name="ConfigSaveGameRulesButton.Content" xml:space="preserve"><value>儲存遊戲規則</value></data>
-  <data name="Config_LoadFailed" xml:space="preserve"><value>無法載入伺服器設定。</value></data>
-  <data name="Config_SaveFailed" xml:space="preserve"><value>無法儲存伺服器設定。</value></data>
-  <data name="Config_Saved" xml:space="preserve"><value>設定已儲存。</value></data>
-  <data name="ConfigType_Boolean" xml:space="preserve"><value>布林值</value></data>
-  <data name="ConfigType_Integer" xml:space="preserve"><value>整數</value></data>
-  <data name="ConfigType_Choice" xml:space="preserve"><value>選項</value></data>
-  <data name="ConfigType_Text" xml:space="preserve"><value>文字</value></data>
+  <data name="ConfigTypeBooleanText.Text" xml:space="preserve"><value>布林值</value></data>
+  <data name="ConfigTypeIntegerText.Text" xml:space="preserve"><value>整數</value></data>
+  <data name="ConfigTypeChoiceText.Text" xml:space="preserve"><value>選項</value></data>
+  <data name="ConfigTypeTextText.Text" xml:space="preserve"><value>文字</value></data>
   <data name="ConfigName_server_port" xml:space="preserve"><value>伺服器連接埠</value></data>
   <data name="ConfigName_query_port" xml:space="preserve"><value>查詢連接埠</value></data>
   <data name="ConfigName_motd" xml:space="preserve"><value>伺服器訊息</value></data>
@@ -340,16 +282,12 @@
   <data name="ConfigName_playersSleepingPercentage" xml:space="preserve"><value>睡覺玩家百分比</value></data>
   <data name="ConfigName_doImmediateRespawn" xml:space="preserve"><value>立即重生</value></data>
   <!-- Ban list -->
-  <data name="BanListDialog_Title" xml:space="preserve"><value>封鎖名單</value></data>
-  <data name="BanListDialog_CloseButtonText" xml:space="preserve"><value>關閉</value></data>
   <data name="BanListStoppedNotice.Title" xml:space="preserve"><value>停止伺服器後再編輯</value></data>
   <data name="BanListStoppedNotice.Message" xml:space="preserve"><value>封鎖名單檔案最適合在伺服器停止時修改；伺服器執行中仍可使用主控台封鎖指令。</value></data>
-  <data name="BanListStoppedNotice_Title" xml:space="preserve"><value>停止伺服器後再編輯</value></data>
-  <data name="BanListStoppedNotice_Message" xml:space="preserve"><value>封鎖名單檔案最適合在伺服器停止時修改；伺服器執行中仍可使用主控台封鎖指令。</value></data>
   <data name="BanListAddHeader.Text" xml:space="preserve"><value>新增封鎖</value></data>
   <data name="BanListAddHint.Text" xml:space="preserve"><value>將玩家名稱、UUID 或 IP 位址加入原版封鎖名單檔案。</value></data>
-  <data name="BanListTypeBox.Header" xml:space="preserve"><value>類型</value></data>
-  <data name="BanListTypePlayerItem.Content" xml:space="preserve"><value>玩家</value></data>
+  <data name="BanListTypeBox.Header" xml:space="preserve"><value>類型</value><comment>Same visible value as CreateServerType.Header; kept separate for this property or translation context.</comment></data>
+  <data name="BanListTypePlayerItem.Content" xml:space="preserve"><value>玩家</value><comment>Same visible value as ServerSectionPlayers.Text; kept separate for this property or translation context.</comment></data>
   <data name="BanListTypeIpItem.Content" xml:space="preserve"><value>IP 位址</value></data>
   <data name="BanListTargetBox.Header" xml:space="preserve"><value>目標</value></data>
   <data name="BanListTargetBox.PlaceholderText" xml:space="preserve"><value>玩家名稱、UUID 或 IP</value></data>
@@ -358,52 +296,34 @@
   <data name="BanListAddButtonLabel.Text" xml:space="preserve"><value>新增</value></data>
   <data name="BanListEmptyHint.Text" xml:space="preserve"><value>目前沒有封鎖項目。</value></data>
   <data name="BanListRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>移除封鎖</value></data>
-  <data name="BanList_TypePlayer" xml:space="preserve"><value>玩家</value></data>
-  <data name="BanList_TypeIp" xml:space="preserve"><value>IP</value></data>
-  <data name="BanList_NoReason" xml:space="preserve"><value>未提供原因</value></data>
-  <data name="BanList_LoadFailed" xml:space="preserve"><value>無法載入封鎖名單。</value></data>
-  <data name="BanList_AddFailed" xml:space="preserve"><value>無法新增封鎖。</value></data>
-  <data name="BanList_RemoveFailed" xml:space="preserve"><value>無法移除封鎖。</value></data>
-  <data name="BanList_TargetRequired" xml:space="preserve"><value>請輸入玩家、UUID 或 IP 位址。</value></data>
-  <data name="BanList_StoppedRequired" xml:space="preserve"><value>請先停止伺服器再編輯封鎖名單檔案。</value></data>
-  <data name="PlayerDialogBase_CloseButtonText" xml:space="preserve"><value>關閉</value></data>
+  <data name="BanListEntryPlayerTypeText.Text" xml:space="preserve"><value>玩家</value><comment>Same visible value as ServerSectionPlayers.Text; kept separate for this TextBlock property.</comment></data>
+  <data name="BanListEntryIpTypeText.Text" xml:space="preserve"><value>IP</value></data>
+  <data name="BanListEntryNoReasonText.Text" xml:space="preserve"><value>未提供原因</value></data>
   <data name="PlayerRawDataBox.Header" xml:space="preserve"><value>原始玩家 NBT</value></data>
-  <data name="PlayerDataDialog_ActionName" xml:space="preserve"><value>原始資料</value></data>
-  <data name="PlayerInventoryDialog_ActionName" xml:space="preserve"><value>物品欄</value></data>
-  <data name="PlayerDialogBase_TitleFormat" xml:space="preserve"><value>{1} 的{0}</value></data>
-  <data name="PlayerInventoryEquipmentHeader.Text" xml:space="preserve"><value>裝備</value></data>
-  <data name="PlayerInventoryMainHeader.Text" xml:space="preserve"><value>物品欄</value></data>
+  <data name="PlayerInventoryEquipmentHeader.Text" xml:space="preserve"><value>裝備</value><comment>Canonical duplicate value in this locale; semantic identifier: PlayerInventoryEquipmentHeader.Text.</comment></data>
+  <data name="PlayerInventoryMainHeader.Text" xml:space="preserve"><value>物品欄</value><comment>Canonical duplicate value in this locale; semantic identifier: PlayerInventoryMainHeader.Text.</comment></data>
   <data name="PlayerInventoryHotbarHeader.Text" xml:space="preserve"><value>快捷列</value></data>
   <data name="PlayerInventoryEnderHeader.Text" xml:space="preserve"><value>終界箱</value></data>
   <!-- Performance metrics -->
   <data name="MetricsCpu.Text" xml:space="preserve"><value>CPU</value></data>
-  <data name="MetricsMemory.Text" xml:space="preserve"><value>記憶體</value></data>
+  <data name="MetricsMemory.Text" xml:space="preserve"><value>記憶體</value><comment>Same visible value as ServerMetaMemoryLabel.Text; kept separate for this property or translation context.</comment></data>
   <data name="MetricsNetwork.Text" xml:space="preserve"><value>網路</value></data>
   <data name="MetricsNetworkUnavailable.Text" xml:space="preserve"><value>在本機執行後端無法取得個別行程的網路使用量。使用 Docker 執行伺服器即可查看網路指標。</value></data>
   <!-- Plugins / Mods -->
   <data name="ModsUploadButton.Content" xml:space="preserve"><value>上傳</value></data>
-  <data name="ModsRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>移除</value></data>
+  <data name="ModsRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>移除</value><comment>Canonical duplicate value in this locale; semantic identifier: ModsRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name.</comment></data>
   <data name="ModsRemoveConfirmText.Text" xml:space="preserve"><value>要移除此檔案嗎？</value></data>
-  <data name="ModsRemoveConfirmButton.Content" xml:space="preserve"><value>移除</value></data>
-  <data name="ModsStoppedHint.Text" xml:space="preserve"><value>請停止伺服器後再新增或移除檔案。</value></data>
+  <data name="ModsRemoveConfirmButton.Content" xml:space="preserve"><value>移除</value><comment>Same visible value as ModsRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; kept separate for this property or translation context.</comment></data>
   <data name="ModsUnsupportedHint.Text" xml:space="preserve"><value>此伺服器類型沒有插件或模組資料夾。</value></data>
-  <data name="Mods_KindPlugins" xml:space="preserve"><value>插件</value></data>
-  <data name="Mods_KindMods" xml:space="preserve"><value>模組</value></data>
   <data name="Mods_StoppedRequired" xml:space="preserve"><value>變更插件或模組前，請先停止伺服器。</value></data>
   <data name="Mods_OperationFailed" xml:space="preserve"><value>作業失敗。請再試一次。</value></data>
   <data name="Mods_OperationFailedDetail" xml:space="preserve"><value>{summary}（{code}）{detail}</value></data>
   <data name="Mods_TypeMismatch" xml:space="preserve"><value>此項目適用於 {loader}，與伺服器類型不符。</value></data>
   <data name="Mods_VersionMismatch" xml:space="preserve"><value>此項目需要 Minecraft {version}，與伺服器版本不符。</value></data>
   <data name="Mods_TypeAndVersionMismatch" xml:space="preserve"><value>此項目適用於 {loader} 與 Minecraft {version}，類型及版本皆與伺服器不符。</value></data>
-  <data name="Mods_ParseFailed" xml:space="preserve"><value>無法讀取此 JAR 的中繼資料：{error}</value></data>
+  <data name="Mods_ParseFailed" xml:space="preserve"><value>無法讀取此 JAR 的中繼資料。</value></data>
   <data name="ServerOpenInstanceFolderMenuItem.Text" xml:space="preserve">
     <value>開啟執行個體資料夾</value>
-  </data>
-  <data name="ServerFolder_NotFoundTitle" xml:space="preserve">
-    <value>找不到執行個體資料夾</value>
-  </data>
-  <data name="ServerFolder_NotFoundBody" xml:space="preserve">
-    <value>執行個體資料夾尚未建立，或背景服務正在使用此應用程式版本尚未公開的資料位置。</value>
   </data>
   <data name="PlayerOpButton.Label" xml:space="preserve">
     <value>OP</value>
@@ -422,13 +342,13 @@
   </data>
   <data name="PlayerInventoryButton.Label" xml:space="preserve">
     <value>物品欄</value>
-  </data>
+  <comment>Same visible value as PlayerInventoryMainHeader.Text; kept separate for this property or translation context.</comment></data>
   <data name="PlayerActionsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>玩家動作</value>
   </data>
   <data name="PlayerActionsButtonLabel.Text" xml:space="preserve">
     <value>動作</value>
-  </data>
+  <comment>Canonical duplicate value in this locale; semantic identifier: PlayerActionsButtonLabel.Text.</comment></data>
   <data name="PlayerOpMenuItem.Text" xml:space="preserve">
     <value>設為 OP</value>
   </data>
@@ -447,54 +367,34 @@
   <data name="PlayerInventoryMenuItem.Text" xml:space="preserve">
     <value>顯示物品欄</value>
   </data>
-  <data name="BackupOpenFolderButton.ToolTipService.ToolTip" xml:space="preserve">
+  <data name="BackupOpenFolderButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>開啟備份資料夾</value>
   </data>
   <data name="BackupExportButton.Content" xml:space="preserve">
     <value>匯出</value>
-  </data>
-  <data name="Backups_ExportSourceMissing" xml:space="preserve">
-    <value>在本機資料夾中找不到備份檔。請開啟備份資料夾手動匯出。</value>
-  </data>
-  <data name="Backups_Exported" xml:space="preserve">
-    <value>已匯出至 {path}</value>
-  </data>
-  <data name="Backups_FolderMissing" xml:space="preserve">
-    <value>尚未找到備份資料夾。</value>
-  </data>
+  <comment>Canonical duplicate value in this locale; semantic identifier: BackupExportButton.Content.</comment></data>
   <data name="CreateServerCustomJavaArgs.Header" xml:space="preserve"><value>自訂 Java 參數（選填）</value></data>
   <data name="CreateServerCustomJavaArgs.PlaceholderText" xml:space="preserve"><value>範例：-Dexample=true -XX:MaxGCPauseMillis=150</value></data>
-  <data name="BackupCreateButtonLabel.Text" xml:space="preserve"><value>建立備份</value></data>
-  <data name="BackupSafeOnlineLabel.Text" xml:space="preserve"><value>線上安全備份（暫停儲存）</value></data>
+  <data name="BackupCreateButtonLabel.Text" xml:space="preserve"><value>建立備份</value><comment>Same visible value as BackupCreateButton.Content; kept separate for this property or translation context.</comment></data>
+  <data name="BackupSafeOnlineLabel.Text" xml:space="preserve"><value>線上安全備份（暫停儲存）</value><comment>Same visible value as BackupSafeOnline.Content; kept separate for this property or translation context.</comment></data>
   <data name="BackupActionsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>備份動作</value></data>
-  <data name="BackupActionsButtonLabel.Text" xml:space="preserve"><value>動作</value></data>
-  <data name="BackupExportAction.Text" xml:space="preserve"><value>匯出</value></data>
-  <data name="BackupRestoreAction.Text" xml:space="preserve"><value>還原</value></data>
-  <data name="BackupDeleteAction.Text" xml:space="preserve"><value>刪除</value></data>
-  <data name="Backups_Deleting" xml:space="preserve"><value>刪除備份中</value></data>
-  <data name="Backups_ExportFailed" xml:space="preserve"><value>無法匯出備份。</value></data>
-  <data name="EditServerDialog_Title" xml:space="preserve"><value>編輯伺服器</value></data>
-  <data name="EditServerDialog_PrimaryButtonText" xml:space="preserve"><value>儲存</value></data>
-  <data name="EditServerDialog_CloseButtonText" xml:space="preserve"><value>取消</value></data>
-  <data name="EditServerName.Header" xml:space="preserve"><value>名稱</value></data>
-  <data name="EditServerName_Header" xml:space="preserve"><value>名稱</value></data>
-  <data name="EditServerType.Header" xml:space="preserve"><value>類型</value></data>
-  <data name="EditServerVersion.Header" xml:space="preserve"><value>版本</value></data>
-  <data name="EditServerPort.Header" xml:space="preserve"><value>連接埠</value></data>
+  <data name="BackupActionsButtonLabel.Text" xml:space="preserve"><value>動作</value><comment>Same visible value as PlayerActionsButtonLabel.Text; kept separate for this property or translation context.</comment></data>
+  <data name="BackupExportAction.Text" xml:space="preserve"><value>匯出</value><comment>Same visible value as BackupExportButton.Content; kept separate for this property or translation context.</comment></data>
+  <data name="BackupRestoreAction.Text" xml:space="preserve"><value>還原</value><comment>Same visible value as BackupRestoreButton.Content; kept separate for this property or translation context.</comment></data>
+  <data name="BackupDeleteAction.Text" xml:space="preserve"><value>刪除</value><comment>Same visible value as ServerDeleteButton.Content; kept separate for this property or translation context.</comment></data>
+  <data name="EditServerName.Header" xml:space="preserve"><value>名稱</value><comment>Same visible value as CreateServerName.Header; kept separate for this property or translation context.</comment></data>
+  <data name="EditServerType.Header" xml:space="preserve"><value>類型</value><comment>Same visible value as CreateServerType.Header; kept separate for this property or translation context.</comment></data>
+  <data name="EditServerVersion.Header" xml:space="preserve"><value>版本</value><comment>Same visible value as CreateServerVersion.Header; kept separate for this property or translation context.</comment></data>
+  <data name="EditServerPort.Header" xml:space="preserve"><value>連接埠</value><comment>Same visible value as CreateServerPort.Header; kept separate for this property or translation context.</comment></data>
   <data name="EditServerStoppedNotice.Title" xml:space="preserve"><value>停止伺服器才能變更啟動設定</value></data>
   <data name="EditServerStoppedNotice.Message" xml:space="preserve"><value>伺服器執行時仍可儲存名稱變更。若要變更版本、記憶體、自訂 Java 參數或連接埠，請先停止伺服器。</value></data>
   <data name="ServerTeachingTip_InstalledTitle" xml:space="preserve"><value>{server} 已成功安裝</value></data>
-  <data name="ServerTeachingTip_InstalledMessage" xml:space="preserve"><value>伺服器已準備好執行。</value></data>
   <data name="ServerTeachingTip_StartedTitle" xml:space="preserve"><value>{server} 已啟動</value></data>
-  <data name="ServerTeachingTip_StartedMessage" xml:space="preserve"><value>伺服器目前正在執行。</value></data>
   <data name="ServerTeachingTip_StoppedTitle" xml:space="preserve"><value>{server} 已停止</value></data>
-  <data name="ServerTeachingTip_StoppedMessage" xml:space="preserve"><value>伺服器已順利停止。</value></data>
   <data name="ServerTeachingTip_CrashedTitle" xml:space="preserve"><value>{server} 已當機</value></data>
-  <data name="ServerTeachingTip_CrashedMessage" xml:space="preserve"><value>伺服器意外停止。</value></data>
-  <data name="ServerTeachingTip_StartAction" xml:space="preserve"><value>啟動伺服器</value></data>
-  <data name="install_ready_to_run" xml:space="preserve"><value>已準備就緒。</value></data>
-  <data name="NavScripts.Content" xml:space="preserve"><value>腳本</value></data>
-  <data name="ScriptsPageTitle.Text" xml:space="preserve"><value>腳本</value></data>
+  <data name="install.ready_to_run" xml:space="preserve"><value>已準備就緒。</value></data>
+  <data name="NavScripts.Content" xml:space="preserve"><value>腳本</value><comment>Canonical duplicate value in this locale; semantic identifier: NavScripts.Content.</comment></data>
+  <data name="ScriptsPageTitle.Text" xml:space="preserve"><value>腳本</value><comment>Same visible value as NavScripts.Content; kept separate for this property or translation context.</comment></data>
   <data name="ScriptsPageSubtitle.Text" xml:space="preserve"><value>匯入您自己的 Lua 提供者與自動化腳本，檢視它們要求的權限，並管理已安裝的項目。</value></data>
   <data name="ScriptsProvidersHeader.Text" xml:space="preserve"><value>提供者</value></data>
   <data name="ScriptsParsersHeader.Text" xml:space="preserve"><value>模組資訊解析器</value></data>
@@ -503,45 +403,38 @@
   <data name="ModsWebsiteLink.Content" xml:space="preserve"><value>網站</value></data>
   <data name="ScriptSectionShowInFolderButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>在資料夾中顯示腳本</value></data>
   <data name="ScriptSectionShowInFolderButtonLabel.Text" xml:space="preserve"><value>在資料夾中顯示</value></data>
-  <data name="ScriptSectionAddScriptsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>新增腳本</value></data>
-  <data name="ScriptSectionAddScriptsButtonLabel.Text" xml:space="preserve"><value>新增腳本</value></data>
+  <data name="ScriptSectionAddScriptsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>新增腳本</value><comment>Canonical duplicate value in this locale; semantic identifier: ScriptSectionAddScriptsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name.</comment></data>
+  <data name="ScriptSectionAddScriptsButtonLabel.Text" xml:space="preserve"><value>新增腳本</value><comment>Same visible value as ScriptSectionAddScriptsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; kept separate for this property or translation context.</comment></data>
   <data name="ScriptsProvidersEmpty.Text" xml:space="preserve"><value>尚未安裝任何提供者。</value></data>
   <data name="ScriptsAutomationHeader.Text" xml:space="preserve"><value>自動化腳本</value></data>
   <data name="ScriptsAutomationEmpty.Text" xml:space="preserve"><value>尚未安裝任何自動化腳本。</value></data>
-  <data name="ScriptsBuiltinBadge.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>內建</value></data>
-  <data name="ScriptsBuiltinBadgeLabel.Text" xml:space="preserve"><value>內建</value></data>
+  <data name="ScriptsBuiltinBadge.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>內建</value><comment>Canonical duplicate value in this locale; semantic identifier: ScriptsBuiltinBadge.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name.</comment></data>
+  <data name="ScriptsBuiltinBadgeLabel.Text" xml:space="preserve"><value>內建</value><comment>Same visible value as ScriptsBuiltinBadge.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; kept separate for this property or translation context.</comment></data>
   <data name="ScriptsEnabledToggle.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>啟用或停用此腳本</value></data>
-  <data name="ScriptsRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>移除</value></data>
+  <data name="ScriptsRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>移除</value><comment>Same visible value as ModsRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; kept separate for this property or translation context.</comment></data>
   <data name="ScriptsAllLogsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>在新視窗中開啟所有自動化日誌</value></data>
   <data name="ScriptsAllLogsButtonLabel.Text" xml:space="preserve"><value>所有日誌</value></data>
   <data name="ScriptsScriptLogsHeader.Text" xml:space="preserve"><value>日誌</value></data>
   <data name="ScriptsScriptLogsEmpty.Text" xml:space="preserve"><value>此腳本尚無輸出。</value></data>
-  <data name="ScriptLogsWindow_Title" xml:space="preserve"><value>所有自動化日誌</value></data>
+  <data name="ScriptLogsTitleBar.Title" xml:space="preserve"><value>所有自動化日誌</value><comment>自動化日誌視窗的標準標題；XAML 初始化後複製到 Window.Title。</comment></data>
   <data name="ScriptLogsWindowEmpty.Text" xml:space="preserve"><value>尚無自動化輸出。</value></data>
   <data name="ScriptLogsWindowNoSelection.Text" xml:space="preserve"><value>選取日誌項目以檢視詳細資料。</value></data>
-  <data name="ScriptLogsWindowScriptDetailsHeader.Text" xml:space="preserve"><value>腳本</value></data>
-  <data name="ScriptLogsWindowScriptNameLabel.Text" xml:space="preserve"><value>名稱</value></data>
+  <data name="ScriptLogsWindowScriptDetailsHeader.Text" xml:space="preserve"><value>腳本</value><comment>Same visible value as NavScripts.Content; kept separate for this property or translation context.</comment></data>
+  <data name="ScriptLogsWindowScriptNameLabel.Text" xml:space="preserve"><value>名稱</value><comment>Same visible value as CreateServerName.Header; kept separate for this property or translation context.</comment></data>
   <data name="ScriptLogsWindowScriptIdLabel.Text" xml:space="preserve"><value>識別碼</value></data>
   <data name="ScriptLogsWindowDetailHeader.Text" xml:space="preserve"><value>日誌詳細資料</value></data>
-  <data name="Scripts_SystemLogName" xml:space="preserve"><value>系統</value></data>
-  <data name="Scripts_LogEntryFallbackTitle" xml:space="preserve"><value>日誌項目</value></data>
-  <data name="Scripts_OpenFolderFailed" xml:space="preserve"><value>無法開啟腳本資料夾。</value></data>
-  <data name="PermissionConsentDialog_Title" xml:space="preserve"><value>檢視權限</value></data>
-  <data name="PermissionConsentDialog_PrimaryButtonText" xml:space="preserve"><value>允許所選</value></data>
-  <data name="PermissionConsentDialog_CloseButtonText" xml:space="preserve"><value>取消</value></data>
   <data name="PermissionConsentIntro.Text" xml:space="preserve"><value>此腳本要求以下權限。請僅允許您信任的項目。</value></data>
   <data name="PermissionConsentNone.Text" xml:space="preserve"><value>此腳本未要求任何權限。</value></data>
-  <data name="Permission_Network" xml:space="preserve"><value>網路存取</value></data>
-  <data name="Permission_Install" xml:space="preserve"><value>安裝檔案</value></data>
-  <data name="Permission_FsServer" xml:space="preserve"><value>存取伺服器資料夾</value></data>
-  <data name="Permission_ConsoleRead" xml:space="preserve"><value>讀取伺服器主控台</value></data>
-  <data name="Permission_ConsoleWrite" xml:space="preserve"><value>寫入伺服器主控台</value></data>
-  <data name="Permission_ServerControl" xml:space="preserve"><value>啟動與停止伺服器</value></data>
-  <data name="Permission_Schedule" xml:space="preserve"><value>依排程執行</value></data>
-  <data name="Permission_ServerQuery" xml:space="preserve"><value>列出並檢視您的伺服器</value></data>
-  <data name="Permission_PlayerManage" xml:space="preserve"><value>檢視與管理玩家（踢出／封鎖）</value></data>
-  <data name="Permission_Unknown" xml:space="preserve"><value>未知權限</value></data>
-  <data name="Scripts_ReadFailed" xml:space="preserve"><value>無法讀取所選的檔案。</value></data>
+  <data name="PermissionLabelNetwork.Text" xml:space="preserve"><value>網路存取</value></data>
+  <data name="PermissionLabelInstall.Text" xml:space="preserve"><value>安裝檔案</value></data>
+  <data name="PermissionLabelFsServer.Text" xml:space="preserve"><value>存取伺服器資料夾</value></data>
+  <data name="PermissionLabelConsoleRead.Text" xml:space="preserve"><value>讀取伺服器主控台</value></data>
+  <data name="PermissionLabelConsoleWrite.Text" xml:space="preserve"><value>寫入伺服器主控台</value></data>
+  <data name="PermissionLabelServerControl.Text" xml:space="preserve"><value>啟動與停止伺服器</value></data>
+  <data name="PermissionLabelSchedule.Text" xml:space="preserve"><value>依排程執行</value></data>
+  <data name="PermissionLabelServerQuery.Text" xml:space="preserve"><value>列出並檢視您的伺服器</value></data>
+  <data name="PermissionLabelPlayerManage.Text" xml:space="preserve"><value>檢視與管理玩家（踢出／封鎖）</value></data>
+  <data name="PermissionLabelUnknown.Text" xml:space="preserve"><value>未知權限</value></data>
   <data name="Scripts_ImportInvalid" xml:space="preserve"><value>腳本無效，無法匯入。</value></data>
   <data name="Scripts_AlreadyExists" xml:space="preserve"><value>已安裝相同識別碼的腳本。</value></data>
   <data name="Scripts_BuiltinProtected" xml:space="preserve"><value>內建腳本無法修改。</value></data>
@@ -549,56 +442,46 @@
   <data name="Scripts_OperationFailed" xml:space="preserve"><value>操作失敗，請再試一次。</value></data>
   <data name="Scripts_RemoveConfirmTitle" xml:space="preserve"><value>移除腳本</value></data>
   <data name="Scripts_RemoveConfirmBody" xml:space="preserve"><value>要移除「{name}」嗎？此操作無法復原。</value></data>
-  <data name="Scripts_RemoveConfirmPrimary" xml:space="preserve"><value>移除</value></data>
-  <data name="Scripts_RemoveConfirmCancel" xml:space="preserve"><value>取消</value></data>
-  <data name="PermissionConsentTitleNamed" xml:space="preserve"><value>檢視權限 — {name}</value></data>
+  <data name="Scripts_RemoveConfirmCancel" xml:space="preserve"><value>取消</value><comment>Canonical duplicate value in this locale; semantic identifier: Scripts_RemoveConfirmCancel.</comment></data>
   <data name="CreateServer_ProviderAuthor" xml:space="preserve"><value>作者：{author}</value></data>
   <data name="CreateServerProviderWebsite.Content" xml:space="preserve"><value>造訪網站</value></data>
   <data name="HomeTotalServersLabel.Text" xml:space="preserve"><value>總伺服器</value></data>
-  <data name="HomeRunningServersLabel.Text" xml:space="preserve"><value>執行中</value></data>
+  <data name="HomeRunningServersLabel.Text" xml:space="preserve"><value>執行中</value><comment>Same visible value as ServerStatus_Running; kept separate for this property or translation context.</comment></data>
   <data name="HomeStoppedServersLabel.Text" xml:space="preserve"><value>就緒</value></data>
   <data name="HomeBusyServersLabel.Text" xml:space="preserve"><value>變更狀態中</value></data>
-  <data name="HomeCardTypeLabel.Text" xml:space="preserve"><value>類型</value></data>
-  <data name="HomeCardVersionLabel.Text" xml:space="preserve"><value>版本</value></data>
+  <data name="HomeCardTypeLabel.Text" xml:space="preserve"><value>類型</value><comment>Same visible value as CreateServerType.Header; kept separate for this property or translation context.</comment></data>
+  <data name="HomeCardVersionLabel.Text" xml:space="preserve"><value>版本</value><comment>Same visible value as CreateServerVersion.Header; kept separate for this property or translation context.</comment></data>
   <data name="HomeCardEndpointLabel.Text" xml:space="preserve"><value>位址</value></data>
-  <data name="HomeCardCopyAddressButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>複製位址</value></data>
-  <data name="HomeCardCopyAddressButton.ToolTipService.ToolTip" xml:space="preserve"><value>複製位址</value></data>
-  <data name="HomeCardRenameButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>重新命名伺服器</value></data>
-  <data name="HomeCardRenameButton.ToolTipService.ToolTip" xml:space="preserve"><value>重新命名伺服器</value></data>
-  <data name="HomeCardMoreButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>伺服器動作</value></data>
-  <data name="HomeCardMoreButton.ToolTipService.ToolTip" xml:space="preserve"><value>伺服器動作</value></data>
-  <data name="HomeCardMoveUpButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>上移伺服器</value></data>
-  <data name="HomeCardMoveUpButton.ToolTipService.ToolTip" xml:space="preserve"><value>上移伺服器</value></data>
-  <data name="HomeCardMoveDownButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>下移伺服器</value></data>
-  <data name="HomeCardMoveDownButton.ToolTipService.ToolTip" xml:space="preserve"><value>下移伺服器</value></data>
-  <data name="HomeCardEditButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>編輯伺服器</value></data>
-  <data name="HomeCardEditButton.ToolTipService.ToolTip" xml:space="preserve"><value>編輯伺服器</value></data>
-  <data name="HomeCardEditMenuItem.Text" xml:space="preserve"><value>編輯伺服器</value></data>
+  <data name="HomeCardCopyAddressButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>複製位址</value><comment>Canonical duplicate value in this locale; semantic identifier: HomeCardCopyAddressButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name.</comment></data>
+  <data name="HomeCardCopyAddressButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>複製位址</value><comment>Same visible value as HomeCardCopyAddressButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; kept separate for this property or translation context.</comment></data>
+  <data name="HomeCardRenameButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>重新命名伺服器</value><comment>Canonical duplicate value in this locale; semantic identifier: HomeCardRenameButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name.</comment></data>
+  <data name="HomeCardRenameButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>重新命名伺服器</value><comment>Same visible value as HomeCardRenameButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; kept separate for this property or translation context.</comment></data>
+  <data name="HomeCardMoreButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>伺服器動作</value><comment>Canonical duplicate value in this locale; semantic identifier: HomeCardMoreButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name.</comment></data>
+  <data name="HomeCardMoreButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>伺服器動作</value><comment>Same visible value as HomeCardMoreButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; kept separate for this property or translation context.</comment></data>
+  <data name="HomeCardMoveUpButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>上移伺服器</value><comment>Canonical duplicate value in this locale; semantic identifier: HomeCardMoveUpButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name.</comment></data>
+  <data name="HomeCardMoveUpButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>上移伺服器</value><comment>Same visible value as HomeCardMoveUpButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; kept separate for this property or translation context.</comment></data>
+  <data name="HomeCardMoveDownButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>下移伺服器</value><comment>Canonical duplicate value in this locale; semantic identifier: HomeCardMoveDownButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name.</comment></data>
+  <data name="HomeCardMoveDownButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>下移伺服器</value><comment>Same visible value as HomeCardMoveDownButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; kept separate for this property or translation context.</comment></data>
+  <data name="HomeCardEditButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>編輯伺服器</value><comment>Same visible value as ServerEditMenuItem.Text; kept separate for this property or translation context.</comment></data>
+  <data name="HomeCardEditButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>編輯伺服器</value><comment>Same visible value as ServerEditMenuItem.Text; kept separate for this property or translation context.</comment></data>
+  <data name="HomeCardEditMenuItem.Text" xml:space="preserve"><value>編輯伺服器</value><comment>Same visible value as ServerEditMenuItem.Text; kept separate for this property or translation context.</comment></data>
   <data name="HomeCardOpenMenuItem.Text" xml:space="preserve"><value>開啟伺服器</value></data>
-  <data name="HomeCardDeleteMenuItem.Text" xml:space="preserve"><value>刪除伺服器</value></data>
-  <data name="ServerTitleRenameButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>重新命名伺服器</value></data>
-  <data name="RenameServerDialog_Title" xml:space="preserve"><value>重新命名伺服器</value></data>
-  <data name="EditServerName_Header" xml:space="preserve"><value>名稱</value></data>
-  <data name="InstallProgressPreviousButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>上一步</value></data>
-  <data name="InstallProgressPreviousButton.ToolTipService.ToolTip" xml:space="preserve"><value>上一步</value></data>
-  <data name="InstallProgressNextButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>下一步</value></data>
-  <data name="InstallProgressNextButton.ToolTipService.ToolTip" xml:space="preserve"><value>下一步</value></data>
-  <data name="Scripts_CurrentSessionTitle" xml:space="preserve">
-<value>目前工作階段</value>
-</data>
-  <data name="Scripts_PreviousSessionTitle" xml:space="preserve">
-<value>工作階段</value>
-</data>
+  <data name="HomeCardDeleteMenuItem.Text" xml:space="preserve"><value>刪除伺服器</value><comment>Same visible value as ServerDeleteMenuItem.Text; kept separate for this property or translation context.</comment></data>
+  <data name="ServerTitleRenameButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>重新命名伺服器</value><comment>Same visible value as HomeCardRenameButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; kept separate for this property or translation context.</comment></data>
+  <data name="InstallProgressPreviousButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>上一步</value><comment>Canonical duplicate value in this locale; semantic identifier: InstallProgressPreviousButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name.</comment></data>
+  <data name="InstallProgressPreviousButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>上一步</value><comment>Same visible value as InstallProgressPreviousButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; kept separate for this property or translation context.</comment></data>
+  <data name="InstallProgressNextButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>下一步</value><comment>Canonical duplicate value in this locale; semantic identifier: InstallProgressNextButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name.</comment></data>
+  <data name="InstallProgressNextButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>下一步</value><comment>Same visible value as InstallProgressNextButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; kept separate for this property or translation context.</comment></data>
   <data name="SettingsAboutHeader.Text" xml:space="preserve"><value>關於</value></data>
   <data name="SettingsAboutRepo.Text" xml:space="preserve"><value>GitHub 儲存庫</value></data>
   <data name="SettingsAboutIssues.Text" xml:space="preserve"><value>回報問題</value></data>
-  <data name="ShopWindow_Title" xml:space="preserve"><value>模組商店</value></data>
+<data name="ShopTitleBar.Title" xml:space="preserve"><value>模組商店</value><comment>模組商店視窗的標準標題；XAML 初始化後複製到 Window.Title。</comment></data>
   <data name="ShopDiscoverTitle.Text" xml:space="preserve"><value>為你的伺服器找到精彩內容</value></data>
   <data name="ShopDiscoverSubtitle.Text" xml:space="preserve"><value>探索社群製作的專案。相容性篩選預設開啟，顯示的內容都更適合目前的伺服器。</value></data>
-  <data name="ShopDismissWelcome.ToolTipService.ToolTip" xml:space="preserve"><value>關閉</value></data>
+  <data name="ShopDismissWelcome.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>關閉</value><comment>Same visible value as ConsoleDialog.CloseButtonText; kept separate for this property or translation context.</comment></data>
   <data name="ShopSearchResultsHeading.Text" xml:space="preserve"><value>搜尋結果</value></data>
-  <data name="ShopCompactFilters.Content" xml:space="preserve"><value>篩選</value></data>
-  <data name="ShopFilterHeading.Text" xml:space="preserve"><value>篩選條件</value></data>
+  <data name="ShopCompactFilters.Content" xml:space="preserve"><value>篩選</value><comment>Same visible value as AdaptiveFilterLayoutFilterButtonLabel.Text; kept separate for this property or translation context.</comment></data>
+  <data name="ShopFilterHeading.Text" xml:space="preserve"><value>篩選條件</value><comment>Same visible value as EngineMonitorFiltersLabel.Text; kept separate for this property or translation context.</comment></data>
   <data name="ShopResetFilters.Content" xml:space="preserve"><value>重設</value></data>
   <data name="ShopCompatibilityHeading.Text" xml:space="preserve"><value>相容性</value></data>
   <data name="ShopCompatibilityDescription.Text" xml:space="preserve"><value>只顯示支援此伺服器的專案。</value></data>
@@ -607,106 +490,242 @@
   <data name="ShopFilterHint.Message" xml:space="preserve"><value>關閉相容性篩選可查看更多結果。</value></data>
   <data name="ShopCategoriesHeading.Text" xml:space="preserve"><value>分類</value></data>
   <data name="ShopCategoriesDescription.Text" xml:space="preserve"><value>可選取多個分類，結果符合其中任一分類即可。</value></data>
-  <data name="shop_category_adventure" xml:space="preserve"><value>冒險</value></data>
-  <data name="shop_category_decoration" xml:space="preserve"><value>裝飾</value></data>
-  <data name="shop_category_equipment" xml:space="preserve"><value>裝備</value></data>
-  <data name="shop_category_game-mechanics" xml:space="preserve"><value>遊戲機制</value></data>
-  <data name="shop_category_library" xml:space="preserve"><value>函式庫</value></data>
-  <data name="shop_category_magic" xml:space="preserve"><value>魔法</value></data>
-  <data name="shop_category_management" xml:space="preserve"><value>管理</value></data>
-  <data name="shop_category_mobs" xml:space="preserve"><value>生物</value></data>
-  <data name="shop_category_optimization" xml:space="preserve"><value>最佳化</value></data>
-  <data name="shop_category_storage" xml:space="preserve"><value>儲存</value></data>
-  <data name="shop_category_technology" xml:space="preserve"><value>科技</value></data>
-  <data name="shop_category_transportation" xml:space="preserve"><value>交通</value></data>
-  <data name="shop_category_utility" xml:space="preserve"><value>工具</value></data>
-  <data name="shop_category_worldgen" xml:space="preserve"><value>世界生成</value></data>
+  <data name="shop.category.adventure" xml:space="preserve"><value>冒險</value></data>
+  <data name="shop.category.decoration" xml:space="preserve"><value>裝飾</value></data>
+  <data name="shop.category.equipment" xml:space="preserve"><value>裝備</value><comment>Same visible value as PlayerInventoryEquipmentHeader.Text; kept separate for this property or translation context.</comment></data>
+  <data name="shop.category.game-mechanics" xml:space="preserve"><value>遊戲機制</value><comment>Canonical duplicate value in this locale; semantic identifier: shop.category.game-mechanics.</comment></data>
+  <data name="shop.category.library" xml:space="preserve"><value>函式庫</value></data>
+  <data name="shop.category.magic" xml:space="preserve"><value>魔法</value><comment>Canonical duplicate value in this locale; semantic identifier: shop.category.magic.</comment></data>
+  <data name="shop.category.management" xml:space="preserve"><value>管理</value></data>
+  <data name="shop.category.mobs" xml:space="preserve"><value>生物</value><comment>Canonical duplicate value in this locale; semantic identifier: shop.category.mobs.</comment></data>
+  <data name="shop.category.optimization" xml:space="preserve"><value>最佳化</value></data>
+  <data name="shop.category.storage" xml:space="preserve"><value>儲存</value><comment>Same visible value as SettingsSaveButton.Content; kept separate for this property or translation context.</comment></data>
+  <data name="shop.category.technology" xml:space="preserve"><value>科技</value><comment>Canonical duplicate value in this locale; semantic identifier: shop.category.technology.</comment></data>
+  <data name="shop.category.transportation" xml:space="preserve"><value>交通</value></data>
+  <data name="shop.category.utility" xml:space="preserve"><value>工具</value></data>
+  <data name="shop.category.worldgen" xml:space="preserve"><value>世界生成</value><comment>Canonical duplicate value in this locale; semantic identifier: shop.category.worldgen.</comment></data>
   <data name="ShopSearchBox.PlaceholderText" xml:space="preserve"><value>搜尋模組…</value></data>
-  <data name="ShopBackButton.ToolTipService.ToolTip" xml:space="preserve"><value>返回</value></data>
+  <data name="ShopBackButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>返回</value></data>
   <data name="ShopKeyMissingBar.Message" xml:space="preserve"><value>此來源需要 API 金鑰，請先到「設定」新增金鑰。</value></data>
-  <data name="Shop_KeyMissingTooltip" xml:space="preserve"><value>需要 API 金鑰（請見「設定」）</value></data>
-  <data name="Shop_LoadFailed" xml:space="preserve"><value>無法從此來源載入結果。</value></data>
+<data name="ShopKeyMissingTooltip.Content" xml:space="preserve"><value>需要 API 金鑰（請見「設定」）</value></data>
   <data name="Shop_ResultSummary" xml:space="preserve"><value>「{1}」共 {0} 筆結果</value></data>
   <data name="ShopSortCombo.Header" xml:space="preserve"><value>排序方式</value></data>
   <data name="ShopSortRelevance.Content" xml:space="preserve"><value>關聯性</value></data>
   <data name="ShopSortDownloads.Content" xml:space="preserve"><value>下載次數</value></data>
   <data name="ShopSortFollows.Content" xml:space="preserve"><value>熱門程度</value></data>
   <data name="ShopSortNewest.Content" xml:space="preserve"><value>最新發布</value></data>
-  <data name="ShopSortUpdated.Content" xml:space="preserve"><value>最近更新</value></data>
+  <data name="ShopSortUpdated.Content" xml:space="preserve"><value>最近更新</value><comment>Canonical duplicate value in this locale; semantic identifier: ShopSortUpdated.Content.</comment></data>
   <data name="ShopSearchEmpty.Text" xml:space="preserve"><value>沒有結果。請換個關鍵字，或放寬版本／載入器篩選。</value></data>
   <data name="ShopOverviewTab.Text" xml:space="preserve"><value>詳細資料</value></data>
-  <data name="ShopVersionsTab.Text" xml:space="preserve"><value>版本</value></data>
+  <data name="ShopVersionsTab.Text" xml:space="preserve"><value>版本</value><comment>Same visible value as CreateServerVersion.Header; kept separate for this property or translation context.</comment></data>
   <data name="ShopOpenWebsite.Content" xml:space="preserve"><value>開啟網站</value></data>
-  <data name="Shop_InstallAction" xml:space="preserve"><value>安裝</value></data>
   <data name="Shop_GetOnSource" xml:space="preserve"><value>前往 {source} 取得</value></data>
-  <data name="shop_category_curseforge_adventure-and-rpg" xml:space="preserve"><value>冒險與角色扮演</value></data>
-  <data name="shop_category_curseforge_api-and-library" xml:space="preserve"><value>API 與函式庫</value></data>
-  <data name="shop_category_curseforge_armor-weapons-tools" xml:space="preserve"><value>護甲、武器與工具</value></data>
-  <data name="shop_category_curseforge_cosmetic" xml:space="preserve"><value>外觀</value></data>
-  <data name="shop_category_curseforge_education" xml:space="preserve"><value>教育</value></data>
-  <data name="shop_category_curseforge_food" xml:space="preserve"><value>食物</value></data>
-  <data name="shop_category_curseforge_game-mechanics" xml:space="preserve"><value>遊戲機制</value></data>
-  <data name="shop_category_curseforge_magic" xml:space="preserve"><value>魔法</value></data>
-  <data name="shop_category_curseforge_map-and-information" xml:space="preserve"><value>地圖與資訊</value></data>
-  <data name="shop_category_curseforge_mc-miscellaneous" xml:space="preserve"><value>Minecraft 雜項</value></data>
-  <data name="shop_category_curseforge_mobs" xml:space="preserve"><value>生物</value></data>
-  <data name="shop_category_curseforge_optimization" xml:space="preserve"><value>效能最佳化</value></data>
-  <data name="shop_category_curseforge_redstone" xml:space="preserve"><value>紅石</value></data>
-  <data name="shop_category_curseforge_server-utility" xml:space="preserve"><value>伺服器工具</value></data>
-  <data name="shop_category_curseforge_storage" xml:space="preserve"><value>儲存</value></data>
-  <data name="shop_category_curseforge_technology" xml:space="preserve"><value>科技</value></data>
-  <data name="shop_category_curseforge_transport" xml:space="preserve"><value>運輸</value></data>
-  <data name="shop_category_curseforge_world-gen" xml:space="preserve"><value>世界生成</value></data>
-  <data name="shop_category_curseforge_admin-tools" xml:space="preserve"><value>管理工具</value></data>
-  <data name="shop_category_curseforge_anti-griefing-tools" xml:space="preserve"><value>防破壞工具</value></data>
-  <data name="shop_category_curseforge_chat-related" xml:space="preserve"><value>聊天</value></data>
-  <data name="shop_category_curseforge_developer-tools" xml:space="preserve"><value>開發工具</value></data>
-  <data name="shop_category_curseforge_economy" xml:space="preserve"><value>經濟</value></data>
-  <data name="shop_category_curseforge_fixes" xml:space="preserve"><value>修正</value></data>
-  <data name="shop_category_curseforge_fun" xml:space="preserve"><value>娛樂</value></data>
-  <data name="shop_category_curseforge_general" xml:space="preserve"><value>一般</value></data>
-  <data name="shop_category_curseforge_informational" xml:space="preserve"><value>資訊</value></data>
-  <data name="shop_category_curseforge_mechanics" xml:space="preserve"><value>機制</value></data>
-  <data name="shop_category_curseforge_miscellaneous" xml:space="preserve"><value>雜項</value></data>
-  <data name="shop_category_curseforge_role-playing" xml:space="preserve"><value>角色扮演</value></data>
-  <data name="shop_category_curseforge_teleportation" xml:space="preserve"><value>傳送</value></data>
-  <data name="shop_category_curseforge_world-editing-and-management" xml:space="preserve"><value>世界編輯與管理</value></data>
-  <data name="shop_category_curseforge_world-generators" xml:space="preserve"><value>世界生成器</value></data>
-  <data name="ShopInstallButton.Content" xml:space="preserve"><value>安裝</value></data>
+  <data name="shop.category.curseforge.adventure-and-rpg" xml:space="preserve"><value>冒險與角色扮演</value></data>
+  <data name="shop.category.curseforge.api-and-library" xml:space="preserve"><value>API 與函式庫</value></data>
+  <data name="shop.category.curseforge.armor-weapons-tools" xml:space="preserve"><value>護甲、武器與工具</value></data>
+  <data name="shop.category.curseforge.cosmetic" xml:space="preserve"><value>外觀</value></data>
+  <data name="shop.category.curseforge.education" xml:space="preserve"><value>教育</value></data>
+  <data name="shop.category.curseforge.food" xml:space="preserve"><value>食物</value></data>
+  <data name="shop.category.curseforge.game-mechanics" xml:space="preserve"><value>遊戲機制</value><comment>Same visible value as shop.category.game-mechanics; kept separate for this property or translation context.</comment></data>
+  <data name="shop.category.curseforge.magic" xml:space="preserve"><value>魔法</value><comment>Same visible value as shop.category.magic; kept separate for this property or translation context.</comment></data>
+  <data name="shop.category.curseforge.map-and-information" xml:space="preserve"><value>地圖與資訊</value></data>
+  <data name="shop.category.curseforge.mc-miscellaneous" xml:space="preserve"><value>Minecraft 雜項</value></data>
+  <data name="shop.category.curseforge.mobs" xml:space="preserve"><value>生物</value><comment>Same visible value as shop.category.mobs; kept separate for this property or translation context.</comment></data>
+  <data name="shop.category.curseforge.optimization" xml:space="preserve"><value>效能最佳化</value></data>
+  <data name="shop.category.curseforge.redstone" xml:space="preserve"><value>紅石</value></data>
+  <data name="shop.category.curseforge.server-utility" xml:space="preserve"><value>伺服器工具</value></data>
+  <data name="shop.category.curseforge.storage" xml:space="preserve"><value>儲存</value><comment>Same visible value as SettingsSaveButton.Content; kept separate for this property or translation context.</comment></data>
+  <data name="shop.category.curseforge.technology" xml:space="preserve"><value>科技</value><comment>Same visible value as shop.category.technology; kept separate for this property or translation context.</comment></data>
+  <data name="shop.category.curseforge.transport" xml:space="preserve"><value>運輸</value></data>
+  <data name="shop.category.curseforge.world-gen" xml:space="preserve"><value>世界生成</value><comment>Same visible value as shop.category.worldgen; kept separate for this property or translation context.</comment></data>
+  <data name="shop.category.curseforge.admin-tools" xml:space="preserve"><value>管理工具</value></data>
+  <data name="shop.category.curseforge.anti-griefing-tools" xml:space="preserve"><value>防破壞工具</value></data>
+  <data name="shop.category.curseforge.chat-related" xml:space="preserve"><value>聊天</value></data>
+  <data name="shop.category.curseforge.developer-tools" xml:space="preserve"><value>開發工具</value></data>
+  <data name="shop.category.curseforge.economy" xml:space="preserve"><value>經濟</value></data>
+  <data name="shop.category.curseforge.fixes" xml:space="preserve"><value>修正</value></data>
+  <data name="shop.category.curseforge.fun" xml:space="preserve"><value>娛樂</value></data>
+  <data name="shop.category.curseforge.general" xml:space="preserve"><value>一般</value></data>
+  <data name="shop.category.curseforge.informational" xml:space="preserve"><value>資訊</value></data>
+  <data name="shop.category.curseforge.mechanics" xml:space="preserve"><value>機制</value></data>
+  <data name="shop.category.curseforge.miscellaneous" xml:space="preserve"><value>雜項</value></data>
+  <data name="shop.category.curseforge.role-playing" xml:space="preserve"><value>角色扮演</value></data>
+  <data name="shop.category.curseforge.teleportation" xml:space="preserve"><value>傳送</value></data>
+  <data name="shop.category.curseforge.world-editing-and-management" xml:space="preserve"><value>世界編輯與管理</value></data>
+  <data name="shop.category.curseforge.world-generators" xml:space="preserve"><value>世界生成器</value></data>
+  <data name="ShopInstallButton.Content" xml:space="preserve"><value>安裝</value><comment>Canonical duplicate value in this locale; semantic identifier: ShopInstallButton.Content.</comment></data>
   <data name="ShopInstallLatestButton.Content" xml:space="preserve"><value>安裝最新正式版</value></data>
   <data name="ShopNoVersions.Text" xml:space="preserve"><value>沒有與此伺服器相容的版本，放寬篩選即可看到更多。</value></data>
-  <data name="Shop_DependencyPromptTitle" xml:space="preserve"><value>必要相依模組</value></data>
-  <data name="Shop_DependencyPromptBody" xml:space="preserve"><value>此版本需要下列模組，將一併安裝（已擁有的可取消勾選）。</value></data>
-  <data name="Shop_InstallConfirm" xml:space="preserve"><value>全部安裝</value></data>
-  <data name="Shop_InstallDone" xml:space="preserve"><value>安裝完成，伺服器的模組清單已更新。</value></data>
-  <data name="Shop_InstallFailed" xml:space="preserve"><value>安裝失敗。</value></data>
   <data name="Shop_ErrorNotFound" xml:space="preserve"><value>來源已不再提供此專案或版本。</value></data>
   <data name="Shop_ErrorNotDistributable" xml:space="preserve"><value>作者不允許第三方下載此檔案，請改用「開啟網站」。</value></data>
   <data name="Shop_ErrorKeyMissing" xml:space="preserve"><value>此來源需要 API 金鑰，請到「設定」新增。</value></data>
   <data name="Shop_ErrorServerRunning" xml:space="preserve"><value>請先停止伺服器再安裝模組。</value></data>
-  <data name="shop_home_popular" xml:space="preserve"><value>下載最多</value></data>
-  <data name="shop_home_popular_description" xml:space="preserve"><value>經過社群長期使用與肯定的熱門專案。</value></data>
-  <data name="shop_home_trending" xml:space="preserve"><value>熱門趨勢</value></data>
-  <data name="shop_home_trending_description" xml:space="preserve"><value>近期受到社群關注的專案。</value></data>
-  <data name="shop_home_recommended" xml:space="preserve"><value>推薦給此伺服器</value></data>
-  <data name="shop_home_recommended_description" xml:space="preserve"><value>符合此伺服器版本與載入器的熱門社群精選。</value></data>
-  <data name="shop_home_updated" xml:space="preserve"><value>最近更新</value></data>
-  <data name="shop_home_updated_description" xml:space="preserve"><value>近期發布新版本並持續維護的專案。</value></data>
-  <data name="shop_home_featured_description" xml:space="preserve"><value>目前由此來源精選推薦的專案。</value></data>
-  <data name="shop_home_featured" xml:space="preserve"><value>精選</value></data>
+  <data name="shop.home.popular" xml:space="preserve"><value>下載最多</value></data>
+  <data name="shop.home.popular_description" xml:space="preserve"><value>經過社群長期使用與肯定的熱門專案。</value></data>
+  <data name="shop.home.trending" xml:space="preserve"><value>熱門趨勢</value></data>
+  <data name="shop.home.trending_description" xml:space="preserve"><value>近期受到社群關注的專案。</value></data>
+  <data name="shop.home.recommended" xml:space="preserve"><value>推薦給此伺服器</value></data>
+  <data name="shop.home.recommended_description" xml:space="preserve"><value>符合此伺服器版本與載入器的熱門社群精選。</value></data>
+  <data name="shop.home.updated" xml:space="preserve"><value>最近更新</value><comment>Same visible value as ShopSortUpdated.Content; kept separate for this property or translation context.</comment></data>
+  <data name="shop.home.updated_description" xml:space="preserve"><value>近期發布新版本並持續維護的專案。</value></data>
+  <data name="shop.home.featured_description" xml:space="preserve"><value>目前由此來源精選推薦的專案。</value></data>
+  <data name="shop.home.featured" xml:space="preserve"><value>精選</value></data>
   <data name="ModsExportAllLabel.Text" xml:space="preserve"><value>全部下載</value></data>
   <data name="ModsBrowseLabel.Text" xml:space="preserve"><value>瀏覽</value></data>
   <data name="ModsUploadLabel.Text" xml:space="preserve"><value>加入自訂 Jar</value></data>
-  <data name="Mods_ExportDone" xml:space="preserve"><value>已匯出模組壓縮檔。</value></data>
-  <data name="Mods_ExportFailed" xml:space="preserve"><value>無法匯出模組壓縮檔。</value></data>
-  <data name="SettingsShopHeader.Text" xml:space="preserve"><value>模組商店</value></data>
+  <data name="SettingsShopHeader.Text" xml:space="preserve"><value>模組商店</value><comment>Same visible value as ShopWindow.Title; kept separate for this property or translation context.</comment></data>
   <data name="SettingsShopHint.Text" xml:space="preserve"><value>CurseForge 需要個人 API 金鑰（console.curseforge.com）；Modrinth 不需要金鑰。</value></data>
   <data name="SettingsCurseForgeKey.Header" xml:space="preserve"><value>CurseForge API 金鑰</value></data>
   <data name="SettingsShopKeySaveButton.Content" xml:space="preserve"><value>儲存金鑰</value></data>
-  <data name="Settings_ShopKeyNone" xml:space="preserve"><value>尚未設定 CurseForge 金鑰，CurseForge 分頁將維持停用。</value></data>
-  <data name="Settings_ShopKeyUser" xml:space="preserve"><value>已設定個人 CurseForge 金鑰。儲存空白金鑰即可移除。</value></data>
-  <data name="Settings_ShopKeyBuiltin" xml:space="preserve"><value>正在使用此版本內建的 CurseForge 金鑰，個人金鑰可覆蓋它。</value></data>
-  <data name="LogViewer_JumpToLatest" xml:space="preserve">
-    <value>跳至最新記錄</value>
-  </data>
+  <!-- ContentDialog property resources. Runtime placeholders are formatted by each dialog wrapper after InitializeComponent. -->
+  <data name="CloseBusyDialog.Title" xml:space="preserve"><value>目前工作仍在執行</value></data>
+  <data name="CloseBusyDialog.PrimaryButtonText" xml:space="preserve"><value>隱藏到系統匣</value></data>
+  <data name="CloseBusyDialog.SecondaryButtonText" xml:space="preserve"><value>仍然關閉</value></data>
+  <data name="CloseBusyDialog.CloseButtonText" xml:space="preserve"><value>取消</value><comment>Same visible value as Scripts_RemoveConfirmCancel; kept separate for this property or translation context.</comment></data>
+  <data name="CloseBusyDialogBody.Text" xml:space="preserve"><value>現在關閉會中斷目前的工作。您可以讓 JustHostMC 繼續在系統匣執行，或仍然關閉。</value></data>
+  <data name="CreateServerDialog.Title" xml:space="preserve"><value>建立伺服器</value><comment>Same visible value as CreateServerButtonLabel.Text; kept separate for this property or translation context.</comment></data>
+  <data name="CreateServerDialog.PrimaryButtonText" xml:space="preserve"><value>建立</value></data>
+  <data name="CreateServerDialog.CloseButtonText" xml:space="preserve"><value>取消</value><comment>Same visible value as Scripts_RemoveConfirmCancel; kept separate for this property or translation context.</comment></data>
+  <data name="EditServerDialog.Title" xml:space="preserve"><value>編輯伺服器</value><comment>Same visible value as ServerEditMenuItem.Text; kept separate for this property or translation context.</comment></data>
+  <data name="EditServerDialog.PrimaryButtonText" xml:space="preserve"><value>儲存</value><comment>Same visible value as SettingsSaveButton.Content; kept separate for this property or translation context.</comment></data>
+  <data name="EditServerDialog.CloseButtonText" xml:space="preserve"><value>取消</value><comment>Same visible value as Scripts_RemoveConfirmCancel; kept separate for this property or translation context.</comment></data>
+  <data name="RenameServerDialog.Title" xml:space="preserve"><value>重新命名伺服器</value><comment>Same visible value as HomeCardRenameButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; kept separate for this property or translation context.</comment></data>
+  <data name="RenameServerDialog.PrimaryButtonText" xml:space="preserve"><value>儲存</value><comment>Same visible value as SettingsSaveButton.Content; kept separate for this property or translation context.</comment></data>
+  <data name="RenameServerDialog.CloseButtonText" xml:space="preserve"><value>取消</value><comment>Same visible value as Scripts_RemoveConfirmCancel; kept separate for this property or translation context.</comment></data>
+  <data name="RenameServerNameBox.Header" xml:space="preserve"><value>名稱</value><comment>Same visible value as CreateServerName.Header; kept separate for this property or translation context.</comment></data>
+  <data name="DeleteServerDialog.Title" xml:space="preserve"><value>要刪除伺服器嗎？</value></data>
+  <data name="DeleteServerDialog.PrimaryButtonText" xml:space="preserve"><value>刪除</value><comment>Same visible value as ServerDeleteButton.Content; kept separate for this property or translation context.</comment></data>
+  <data name="DeleteServerDialog.CloseButtonText" xml:space="preserve"><value>取消</value><comment>Same visible value as Scripts_RemoveConfirmCancel; kept separate for this property or translation context.</comment></data>
+  <data name="DeleteServerDialogBody.Text" xml:space="preserve"><value>這會永久刪除伺服器及其世界。此動作無法復原。</value></data>
+  <data name="IncompleteServerRemovalDialog.Title" xml:space="preserve"><value>要移除未完成的安裝嗎？</value></data>
+  <data name="IncompleteServerRemovalDialog.PrimaryButtonText" xml:space="preserve"><value>移除</value><comment>Same visible value as ModsRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; kept separate for this property or translation context.</comment></data>
+  <data name="IncompleteServerRemovalDialog.CloseButtonText" xml:space="preserve"><value>取消</value><comment>Same visible value as Scripts_RemoveConfirmCancel; kept separate for this property or translation context.</comment></data>
+  <data name="IncompleteServerRemovalDialogBody.Text" xml:space="preserve"><value>這會取消安裝，並移除此伺服器已下載的所有檔案。</value></data>
+  <data name="BackupsContentDialog.CloseButtonText" xml:space="preserve"><value>關閉</value><comment>Same visible value as ConsoleDialog.CloseButtonText; kept separate for this property or translation context.</comment></data>
+  <data name="ServerFolderNotFoundDialog.Title" xml:space="preserve"><value>找不到執行個體資料夾</value></data>
+  <data name="ServerFolderNotFoundDialog.CloseButtonText" xml:space="preserve"><value>確定</value></data>
+  <data name="ServerFolderNotFoundDialogBody.Text" xml:space="preserve"><value>執行個體資料夾尚未建立，或背景服務正在使用此應用程式版本尚未公開的資料位置。</value></data>
+  <data name="PlayerDataContentDialog.Title" xml:space="preserve"><value>{0} 的原始資料</value></data>
+  <data name="PlayerDataContentDialog.CloseButtonText" xml:space="preserve"><value>關閉</value><comment>Same visible value as ConsoleDialog.CloseButtonText; kept separate for this property or translation context.</comment></data>
+  <data name="PlayerInventoryContentDialog.Title" xml:space="preserve"><value>{0} 的物品欄</value></data>
+  <data name="PlayerInventoryContentDialog.CloseButtonText" xml:space="preserve"><value>關閉</value><comment>Same visible value as ConsoleDialog.CloseButtonText; kept separate for this property or translation context.</comment></data>
+  <data name="BanListContentDialog.Title" xml:space="preserve"><value>封鎖名單</value></data>
+  <data name="BanListContentDialog.CloseButtonText" xml:space="preserve"><value>關閉</value><comment>Same visible value as ConsoleDialog.CloseButtonText; kept separate for this property or translation context.</comment></data>
+  <data name="PermissionConsentContentDialog.Title" xml:space="preserve"><value>檢視權限 — {name}</value></data>
+  <data name="PermissionConsentContentDialog.PrimaryButtonText" xml:space="preserve"><value>允許所選</value></data>
+  <data name="PermissionConsentContentDialog.CloseButtonText" xml:space="preserve"><value>取消</value><comment>Same visible value as Scripts_RemoveConfirmCancel; kept separate for this property or translation context.</comment></data>
+  <data name="ShopDependencySelectionDialog.Title" xml:space="preserve"><value>必要相依模組</value></data>
+  <data name="ShopDependencySelectionDialog.PrimaryButtonText" xml:space="preserve"><value>全部安裝</value></data>
+  <data name="ShopDependencySelectionDialog.CloseButtonText" xml:space="preserve"><value>取消</value><comment>Same visible value as Scripts_RemoveConfirmCancel; kept separate for this property or translation context.</comment></data>
+  <data name="ShopDependencySelectionDialogIntro.Text" xml:space="preserve"><value>此版本需要下列模組，將一併安裝（已擁有的可取消勾選）。</value></data>
+  <!-- Static view and finite-state resources migrated from programmatic localization. -->
+  <data name="LogViewerJumpToLatestButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>跳至最新記錄</value></data>
+  <data name="ScriptsRemoveConfirmButton.Content" xml:space="preserve"><value>移除</value><comment>Same visible value as ModsRemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; kept separate for this property or translation context.</comment></data>
+  <data name="ServerConfigSection.Title" xml:space="preserve"><value>設定</value><comment>Same visible value as SettingsButton.Content; kept separate for this property or translation context.</comment></data>
+  <data name="ServerConfigDescriptionConverter.TrueValue" xml:space="preserve"><value>管理伺服器啟動設定與進階選項</value></data>
+  <data name="ServerConfigDescriptionConverter.FalseValue" xml:space="preserve"><value>請先停止伺服器，再安全地儲存 server.properties、遊戲規則或封鎖名單變更。</value></data>
+  <data name="ServerPortAutoValueText.Text" xml:space="preserve"><value>自動</value><comment>Same visible value as Server_PortAutoValue; kept separate for this property or translation context.</comment></data>
+  <data name="ServerMemoryUnknownValueText.Text" xml:space="preserve"><value>未知</value></data>
+  <data name="ServerModsDescriptionConverter.TrueValue" xml:space="preserve"><value>管理伺服器擴充功能與模組</value></data>
+  <data name="ServerModsDescriptionConverter.FalseValue" xml:space="preserve"><value>請停止伺服器後再新增或移除檔案。</value></data>
+  <data name="ServerPerformanceSection.Title" xml:space="preserve"><value>效能</value><comment>Same visible value as ServerSectionPerformance.Text; kept separate for this property or translation context.</comment></data>
+  <data name="ServerPerformanceSection.Description" xml:space="preserve"><value>監控伺服器資源使用與網路指標</value></data>
+  <data name="ServerPlayersEmptyDescriptionText.Text" xml:space="preserve"><value>目前沒有玩家在線上。</value></data>
+  <data name="ServerPlayersActiveDescriptionText.Text" xml:space="preserve"><value>管理線上玩家、管理員與封鎖名單</value></data>
+  <data name="SettingsCurseForgeKeyBox.PlaceholderText" xml:space="preserve"><value>API 金鑰</value></data>
+  <data name="MainTitleBar.Title" xml:space="preserve"><value>JustHostMC</value><comment>Same visible value as AppDisplayName; kept separate for this property or translation context.</comment></data>
+  <data name="ServerTeachingTipStartActionText.Text" xml:space="preserve"><value>啟動伺服器</value></data>
+  <data name="ServerTeachingTipInstalledMessageText.Text" xml:space="preserve"><value>伺服器已準備好執行。</value></data>
+  <data name="ServerTeachingTipStartedMessageText.Text" xml:space="preserve"><value>伺服器目前正在執行。</value></data>
+  <data name="ServerTeachingTipStoppedMessageText.Text" xml:space="preserve"><value>伺服器已順利停止。</value></data>
+  <data name="ServerTeachingTipCrashedMessageText.Text" xml:space="preserve"><value>伺服器意外停止。</value></data>
+  <data name="UnknownServerStatusText.Text" xml:space="preserve"><value>不明</value><comment>Same visible value as ServerStatus_Unknown; kept separate for this property or translation context.</comment></data>
+  <data name="EngineMonitorTitleBar.Title" xml:space="preserve"><value>引擎監視器</value><comment>引擎監視器視窗的標準標題；XAML 初始化後複製到 Window.Title。</comment></data>
+  <data name="BanListLoadFailedText.Text" xml:space="preserve"><value>無法載入封鎖名單。</value></data>
+  <data name="BanListTargetRequiredText.Text" xml:space="preserve"><value>請輸入玩家、UUID 或 IP 位址。</value></data>
+  <data name="BanListAddFailedText.Text" xml:space="preserve"><value>無法新增封鎖。</value></data>
+  <data name="BanListStoppedRequiredText.Text" xml:space="preserve"><value>請先停止伺服器再編輯封鎖名單檔案。</value></data>
+  <data name="BanListRemoveFailedText.Text" xml:space="preserve"><value>無法移除封鎖。</value></data>
+  <data name="PlayerDataLoadFailedText.Text" xml:space="preserve"><value>無法載入玩家資料。玩家可能需要先加入一次，伺服器也可能需要先儲存資料。</value></data>
+  <data name="PlayerInventoryLoadFailedText.Text" xml:space="preserve"><value>無法載入玩家物品欄。玩家可能需要先加入一次，伺服器也可能需要先儲存資料。</value></data>
+  <data name="player.inventory.slot" xml:space="preserve"><value>物品欄 {0}</value></data>
+  <data name="player.inventory.hotbar" xml:space="preserve"><value>快捷欄 {0}</value></data>
+  <data name="player.inventory.ender_slot" xml:space="preserve"><value>終界箱 {0}</value></data>
+  <data name="player.inventory.helmet" xml:space="preserve"><value>頭盔</value></data>
+  <data name="player.inventory.chestplate" xml:space="preserve"><value>胸甲</value></data>
+  <data name="player.inventory.leggings" xml:space="preserve"><value>護腿</value></data>
+  <data name="player.inventory.boots" xml:space="preserve"><value>靴子</value></data>
+  <data name="player.inventory.offhand" xml:space="preserve"><value>副手</value></data>
+  <data name="player.inventory.generic_slot" xml:space="preserve"><value>欄位 {0}</value></data>
+  <data name="InventoryItemDetailsNoCustomNbtText.Text" xml:space="preserve"><value>此物品沒有自訂 NBT 中繼資料。</value></data>
+  <data name="InventoryItemDetailsParseFailedText.Text" xml:space="preserve"><value>無法解析 NBT。</value></data>
+  <data name="InventoryItemDetailsRawNbtExpander.Header" xml:space="preserve"><value>原始 NBT</value></data>
+  <data name="ScriptsReadFailedText.Text" xml:space="preserve"><value>無法讀取所選的檔案。</value></data>
+  <data name="ScriptsOpenFolderFailedText.Text" xml:space="preserve"><value>無法開啟腳本資料夾。</value></data>
+  <data name="EngineStatusConnectingText.Text" xml:space="preserve"><value>正在連線到引擎</value></data>
+  <data name="EngineStatusConnectedText.Text" xml:space="preserve"><value>引擎已連線。</value></data>
+  <data name="EngineStatusFailedText.Text" xml:space="preserve"><value>無法連線到引擎。</value></data>
+  <data name="ServerStatusRunningText.Text" xml:space="preserve"><value>執行中</value><comment>Same visible value as ServerStatus_Running; kept separate for this property or translation context.</comment></data>
+  <data name="ServerStatusStoppedText.Text" xml:space="preserve"><value>已停止</value><comment>Same visible value as ServerStatus_Stopped; kept separate for this property or translation context.</comment></data>
+  <data name="ServerStatusInstallingText.Text" xml:space="preserve"><value>安裝中</value><comment>Same visible value as ServerStatus_Installing; kept separate for this property or translation context.</comment></data>
+  <data name="ServerStatusStartingText.Text" xml:space="preserve"><value>啟動中</value><comment>Same visible value as ServerStatus_Starting; kept separate for this property or translation context.</comment></data>
+  <data name="ServerStatusStoppingText.Text" xml:space="preserve"><value>停止中</value><comment>Same visible value as ServerStatus_Stopping; kept separate for this property or translation context.</comment></data>
+  <data name="ServerStatusCrashedText.Text" xml:space="preserve"><value>已當機</value><comment>Same visible value as ServerStatus_Crashed; kept separate for this property or translation context.</comment></data>
+  <data name="ServerStatusUnknownText.Text" xml:space="preserve"><value>不明</value><comment>Same visible value as ServerStatus_Unknown; kept separate for this property or translation context.</comment></data>
+  <data name="ServerStateStartText.Text" xml:space="preserve"><value>啟動</value><comment>Same visible value as ServerStartButton.Content; kept separate for this property or translation context.</comment></data>
+  <data name="ServerStateStopText.Text" xml:space="preserve"><value>停止</value><comment>Same visible value as ServerStopButton.Content; kept separate for this property or translation context.</comment></data>
+  <data name="ServerStateStartingText.Text" xml:space="preserve"><value>啟動中</value><comment>Same visible value as ServerStatus_Starting; kept separate for this property or translation context.</comment></data>
+  <data name="ServerStateStoppingText.Text" xml:space="preserve"><value>停止中</value><comment>Same visible value as ServerStatus_Stopping; kept separate for this property or translation context.</comment></data>
+  <data name="ServerStateInstallingText.Text" xml:space="preserve"><value>安裝中</value><comment>Same visible value as ServerStatus_Installing; kept separate for this property or translation context.</comment></data>
+  <data name="ServerTypeUnknownText.Text" xml:space="preserve"><value>不明</value><comment>Same visible value as ServerStatus_Unknown; kept separate for this property or translation context.</comment></data>
+  <data name="HomeCardRemoveIncompleteMenuItem.Text" xml:space="preserve"><value>移除未完成的安裝</value><comment>Same visible value as SettingsRemoveIncompleteInstallationsButton.Content; kept separate for this property or translation context.</comment></data>
+  <data name="ServerRemoveIncompleteMenuItem.Text" xml:space="preserve"><value>移除未完成的安裝</value><comment>Same visible value as SettingsRemoveIncompleteInstallationsButton.Content; kept separate for this property or translation context.</comment></data>
+  <data name="BackupsStatusCreating.Text" xml:space="preserve"><value>建立備份中</value></data>
+  <data name="BackupsStatusCreated.Text" xml:space="preserve"><value>備份已建立。</value></data>
+  <data name="BackupsStatusRestoring.Text" xml:space="preserve"><value>還原備份中</value></data>
+  <data name="BackupsStatusRestored.Text" xml:space="preserve"><value>備份已還原。</value></data>
+  <data name="BackupsStatusDeleting.Text" xml:space="preserve"><value>刪除備份中</value></data>
+  <data name="BackupsStatusDeleted.Text" xml:space="preserve"><value>備份已刪除。</value></data>
+  <data name="BackupsStatusExportSourceMissing.Text" xml:space="preserve"><value>在本機資料夾中找不到備份檔。請開啟備份資料夾手動匯出。</value></data>
+  <data name="BackupsStatusExportedLabel.Text" xml:space="preserve"><value>已匯出至：</value></data>
+  <data name="BackupsStatusExportFailed.Text" xml:space="preserve"><value>無法匯出備份。</value></data>
+  <data name="BackupsStatusRestoreBlocked.Text" xml:space="preserve"><value>還原備份前，請先停止伺服器。</value><comment>Same visible value as error.server_running; kept separate for this property or translation context.</comment></data>
+  <data name="BackupsStatusFolderMissing.Text" xml:space="preserve"><value>尚未找到備份資料夾。</value></data>
+  <data name="ConfigStatusSaved.Text" xml:space="preserve"><value>設定已儲存。</value><comment>Canonical duplicate value in this locale; semantic identifier: ConfigStatusSaved.Text.</comment></data>
+  <data name="ConfigStatusLoadFailed.Text" xml:space="preserve"><value>無法載入伺服器設定。</value></data>
+  <data name="ConfigStatusSaveFailed.Text" xml:space="preserve"><value>無法儲存伺服器設定。</value></data>
+  <data name="ServerTypeVanillaText.Text" xml:space="preserve"><value>原版</value><comment>Same visible value as ServerTypeVanillaItem.Content; kept separate for this property or translation context.</comment></data>
+  <data name="ServerTypePaperText.Text" xml:space="preserve"><value>Paper</value></data>
+  <data name="ServerTypeSpigotText.Text" xml:space="preserve"><value>Spigot</value></data>
+  <data name="ServerTypeForgeText.Text" xml:space="preserve"><value>Forge</value></data>
+  <data name="ServerTypeNeoForgeText.Text" xml:space="preserve"><value>NeoForge</value></data>
+  <data name="ServerTypeFabricText.Text" xml:space="preserve"><value>Fabric</value></data>
+  <data name="ServerModsTitleConverter.TrueValue" xml:space="preserve"><value>模組</value></data>
+  <data name="ServerModsTitleConverter.FalseValue" xml:space="preserve"><value>插件</value></data>
+  <data name="ModsStatusExported.Text" xml:space="preserve"><value>已匯出模組壓縮檔。</value></data>
+  <data name="ModsStatusExportFailed.Text" xml:space="preserve"><value>無法匯出模組壓縮檔。</value></data>
+  <data name="ScriptLogsSystemName.Text" xml:space="preserve"><value>系統</value></data>
+  <data name="ScriptLogsCurrentSessionTitle.Text" xml:space="preserve"><value>目前工作階段</value></data>
+  <data name="ScriptLogsPreviousSessionTitle.Text" xml:space="preserve"><value>工作階段</value></data>
+  <data name="SettingsBackendModeDocker.Text" xml:space="preserve"><value>伺服器會在這台電腦上的 Docker 容器中執行。</value></data>
+  <data name="SettingsBackendModeOnMachine.Text" xml:space="preserve"><value>伺服器會直接在這台電腦上執行（使用 Windows Job Objects 隔離）。</value></data>
+  <data name="SettingsDockerUnavailable.Text" xml:space="preserve"><value>未偵測到 Docker。啟動 Docker Desktop 以啟用此選項。</value></data>
+  <data name="SettingsShopKeyNone.Text" xml:space="preserve"><value>尚未設定 CurseForge 金鑰，CurseForge 分頁將維持停用。</value></data>
+  <data name="SettingsShopKeyUser.Text" xml:space="preserve"><value>已設定個人 CurseForge 金鑰。儲存空白金鑰即可移除。</value></data>
+  <data name="SettingsShopKeyBuiltin.Text" xml:space="preserve"><value>正在使用此版本內建的 CurseForge 金鑰，個人金鑰可覆蓋它。</value></data>
+  <data name="SettingsStatusLoadFailed.Text" xml:space="preserve"><value>無法載入設定。</value></data>
+  <data name="SettingsStatusSaved.Text" xml:space="preserve"><value>設定已儲存。</value><comment>Same visible value as ConfigStatusSaved.Text; kept separate for this property or translation context.</comment></data>
+  <data name="SettingsStatusSaveFailed.Text" xml:space="preserve"><value>無法儲存設定。</value></data>
+  <data name="SettingsStatusDockerPreferenceSaved.Text" xml:space="preserve"><value>已儲存。重新啟動應用程式以套用後端變更。</value></data>
+  <data name="SettingsStatusPurgeFailed.Text" xml:space="preserve"><value>無法清理記錄。</value></data>
+  <data name="SettingsStatusRemovingData.Text" xml:space="preserve"><value>正在移除所有資料</value></data>
+  <data name="SettingsStatusDataRemoved.Text" xml:space="preserve"><value>所有資料已移除。</value></data>
+  <data name="SettingsStatusRemoveDataFailed.Text" xml:space="preserve"><value>無法移除所有資料。</value></data>
+  <data name="SettingsStatusRemovingIncomplete.Text" xml:space="preserve"><value>正在移除未完成的伺服器安裝…</value></data>
+  <data name="SettingsStatusRemoveIncompleteFailed.Text" xml:space="preserve"><value>移除未完成的伺服器安裝失敗。</value></data>
+  <data name="ShopLoadFailedBar.Message" xml:space="preserve"><value>無法從此來源載入結果。</value><comment>Canonical duplicate value in this locale; semantic identifier: ShopLoadFailedBar.Message.</comment></data>
+  <data name="ShopStatusLoadFailed.Text" xml:space="preserve"><value>無法從此來源載入結果。</value><comment>Same visible value as ShopLoadFailedBar.Message; kept separate for this property or translation context.</comment></data>
+  <data name="ShopInstallActionText.Text" xml:space="preserve"><value>安裝</value><comment>Same visible value as ShopInstallButton.Content; kept separate for this property or translation context.</comment></data>
+  <data name="ShopStatusInstallDone.Text" xml:space="preserve"><value>安裝完成，伺服器的模組清單已更新。</value></data>
+  <data name="ShopStatusInstallFailed.Text" xml:space="preserve"><value>安裝失敗。</value></data>
 </root>

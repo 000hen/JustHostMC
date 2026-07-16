@@ -87,7 +87,7 @@
                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                         TextAlignment="Center"
                         TextWrapping="WrapWholeWords"
-                        Visibility="{x:Bind ViewModel.Backups.Count, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
+                        Visibility="{x:Bind ShowWhenEmpty(ViewModel.Backups.Count), Mode=OneWay}" />
                     <ListView
                         Background="Transparent"
                         ItemsSource="{x:Bind ViewModel.Backups, Mode=OneWay}"
@@ -187,11 +187,73 @@
                 </Grid>
             </Border>
 
-            <TextBlock
-                Grid.Row="3"
-                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
-                TextWrapping="WrapWholeWords" />
+            <StackPanel Grid.Row="3">
+                <TextBlock
+                    x:Uid="BackupsStatusCreating"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    TextWrapping="WrapWholeWords"
+                    Visibility="{x:Bind ViewModel.IsCreatingStatus, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                <TextBlock
+                    x:Uid="BackupsStatusCreated"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    TextWrapping="WrapWholeWords"
+                    Visibility="{x:Bind ViewModel.IsCreatedStatus, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                <TextBlock
+                    x:Uid="BackupsStatusRestoring"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    TextWrapping="WrapWholeWords"
+                    Visibility="{x:Bind ViewModel.IsRestoringStatus, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                <TextBlock
+                    x:Uid="BackupsStatusRestored"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    TextWrapping="WrapWholeWords"
+                    Visibility="{x:Bind ViewModel.IsRestoredStatus, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                <TextBlock
+                    x:Uid="BackupsStatusDeleting"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    TextWrapping="WrapWholeWords"
+                    Visibility="{x:Bind ViewModel.IsDeletingStatus, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                <TextBlock
+                    x:Uid="BackupsStatusDeleted"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    TextWrapping="WrapWholeWords"
+                    Visibility="{x:Bind ViewModel.IsDeletedStatus, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                <TextBlock
+                    x:Uid="BackupsStatusExportSourceMissing"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    TextWrapping="WrapWholeWords"
+                    Visibility="{x:Bind ViewModel.IsExportSourceMissingStatus, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                <StackPanel Visibility="{x:Bind ViewModel.IsExportedStatus, Mode=OneWay, Converter={StaticResource BoolToVis}}">
+                    <TextBlock
+                        x:Uid="BackupsStatusExportedLabel"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        TextWrapping="WrapWholeWords" />
+                    <TextBlock
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Text="{x:Bind ViewModel.ExportPath, Mode=OneWay}"
+                        TextWrapping="WrapWholeWords" />
+                </StackPanel>
+                <TextBlock
+                    x:Uid="BackupsStatusExportFailed"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    TextWrapping="WrapWholeWords"
+                    Visibility="{x:Bind ViewModel.IsExportFailedStatus, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                <TextBlock
+                    x:Uid="BackupsStatusRestoreBlocked"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    TextWrapping="WrapWholeWords"
+                    Visibility="{x:Bind ViewModel.IsRestoreBlockedStatus, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                <TextBlock
+                    x:Uid="BackupsStatusFolderMissing"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    TextWrapping="WrapWholeWords"
+                    Visibility="{x:Bind ViewModel.IsFolderMissingStatus, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                <TextBlock
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Text="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+                    TextWrapping="WrapWholeWords"
+                    Visibility="{x:Bind ViewModel.IsErrorStatus, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+            </StackPanel>
         </Grid>
     </ScrollViewer>
 </UserControl>

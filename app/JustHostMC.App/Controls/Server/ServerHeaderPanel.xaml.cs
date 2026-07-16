@@ -133,14 +133,14 @@ public sealed partial class ServerHeaderPanel : UserControl {
         s is ServerStatus.Stopped or ServerStatus.Crashed or
         ServerStatus.Running;
 
-    private string PortValueText(int port) => port >
-                                              0? port.ToString()
-        : _localizer.Get("Server_PortAutoValue");
+    private Visibility PositiveValueVisibility(int value) =>
+        value > 0? Visibility.Visible : Visibility.Collapsed;
 
-    private string MemoryText(int memoryMb) => memoryMb >
-                                               0? _localizer
-                                                   .Get("Server_MemoryValue",
-                                                        ("memory",
-                                                         memoryMb.ToString()))
-        : _localizer.Get("Server_ValueUnknown");
+    private Visibility NonPositiveValueVisibility(int value) =>
+        value > 0? Visibility.Collapsed : Visibility.Visible;
+
+    private string ValueText(int value) => value.ToString();
+
+    private string MemoryText(int memoryMb) =>
+        _localizer.Get("Server_MemoryValue", ("memory", memoryMb.ToString()));
 }

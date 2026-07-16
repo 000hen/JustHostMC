@@ -96,35 +96,14 @@ public sealed partial class ShopDetailPage : Page {
         }
 
         var dependencies = ViewModel.MissingDependencies(version);
-        var chosen       = new List<ShopDependency>();
+        IReadOnlyList<ShopDependency> chosen = [];
         if (dependencies.Count > 0) {
-            var picks =
-                dependencies
-                    .Select(d => new CheckBox {
-                        Content   = d.Title.Length > 0 ? d.Title : d.ProjectId,
-                        IsChecked = true,
-                        Tag       = d,
-                    })
-                    .ToArray();
-            var panel = new StackPanel { Spacing = 8 };
-            panel.Children.Add(new TextBlock {
-                Text         = _localizer.Get("Shop_DependencyPromptBody"),
-                TextWrapping = TextWrapping.Wrap,
-            });
-            foreach (var pick in picks) panel.Children.Add(pick);
-
-            var dialog = new ContentDialog {
+            var dialog = new ShopDependencySelectionDialog(dependencies) {
                 XamlRoot = XamlRoot,
-                Title    = _localizer.Get("Shop_DependencyPromptTitle"),
-                Content = new ScrollViewer { Content = panel, MaxHeight = 320 },
-                PrimaryButtonText = _localizer.Get("Shop_InstallConfirm"),
-                CloseButtonText   = _localizer.Get("Common_Cancel"),
-                DefaultButton     = ContentDialogButton.Primary,
             };
             if (await dialog.ShowAsync() != ContentDialogResult.Primary)
                 return;
-            chosen.AddRange(picks.Where(p => p.IsChecked == true)
-                                .Select(p => (ShopDependency)p.Tag));
+            chosen = dialog.SelectedDependencies;
         }
 
         await ViewModel.InstallAsync(version, chosen);
@@ -138,9 +117,6 @@ public sealed partial class ShopDetailPage : Page {
         if (Uri.TryCreate(ViewModel.WebsiteUrl, UriKind.Absolute, out var uri))
             await Windows.System.Launcher.LaunchUriAsync(uri);
     }
-
-    public Visibility BoolToVisibility(bool value) =>
-        value ? Visibility.Visible : Visibility.Collapsed;
 
     public Visibility BodyVisibility(bool loading, string body) =>
         !loading && body.Length > 0? Visibility.Visible : Visibility.Collapsed;

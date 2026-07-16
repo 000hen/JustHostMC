@@ -2,6 +2,7 @@
     x:Class="JustHostMC.App.Controls.Server.ServerModsPanel"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:JustHostMC.App.Models"
@@ -9,6 +10,9 @@
     mc:Ignorable="d">
 
     <UserControl.Resources>
+        <converters:BoolToObjectConverter x:Key="ServerModsDescriptionConverter" x:Uid="ServerModsDescriptionConverter" />
+        <converters:BoolToObjectConverter x:Key="ServerModsTitleConverter" x:Uid="ServerModsTitleConverter" />
+
         <DataTemplate x:Key="ModFileSkeletonTemplate">
             <Grid
                 MinHeight="68"
@@ -174,8 +178,8 @@
     </UserControl.Resources>
 
     <server:ServerSectionLayout
-        Title="{x:Bind Mods.KindLabel, Mode=OneWay}"
-        Description="{x:Bind ModsDescription(Mods.CanModify), Mode=OneWay}"
+        Title="{x:Bind Mods.IsModKind, Mode=OneWay, Converter={StaticResource ServerModsTitleConverter}}"
+        Description="{x:Bind Mods.CanModify, Mode=OneWay, Converter={StaticResource ServerModsDescriptionConverter}}"
         IconGlyph="&#xE7B8;">
         <server:ServerSectionLayout.HeaderContent>
             <StackPanel Orientation="Horizontal" Spacing="8">
@@ -216,7 +220,7 @@
                         x:Uid="ModsUnsupportedHint"
                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                         TextWrapping="Wrap"
-                        Visibility="{x:Bind Mods.Supported, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
+                        Visibility="{x:Bind Mods.Supported, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=True}" />
 
                     <ItemsControl
                         IsHitTestVisible="False"
@@ -227,12 +231,22 @@
                     <ListView
                         ItemTemplate="{StaticResource ModFileRowTemplate}"
                         ItemsSource="{x:Bind Mods.Files, Mode=OneWay}"
-                        Visibility="{x:Bind Mods.IsInitialLoading, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
+                        Visibility="{x:Bind Mods.IsInitialLoading, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=True}" />
 
                     <TextBlock
                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                         Text="{x:Bind Mods.StatusMessage, Mode=OneWay}"
                         TextWrapping="Wrap" />
+                    <TextBlock
+                        x:Uid="ModsStatusExported"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        TextWrapping="Wrap"
+                        Visibility="{x:Bind Mods.IsExportedStatus, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                    <TextBlock
+                        x:Uid="ModsStatusExportFailed"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        TextWrapping="Wrap"
+                        Visibility="{x:Bind Mods.IsExportFailedStatus, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
                 </StackPanel>
             </ScrollViewer>
         </server:ServerSectionLayout.Body>

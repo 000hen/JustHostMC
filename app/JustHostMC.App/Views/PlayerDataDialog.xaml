@@ -18,18 +18,15 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-
+        <TextBlock
+            x:Name="LoadFailedText"
+            x:Uid="PlayerDataLoadFailedText"
+            Visibility="Collapsed" />
 
         <ProgressBar
             x:Name="BusyBar"
             Grid.Row="1"
             IsIndeterminate="True" />
-
-        <TextBlock
-            x:Name="StatusText"
-            Grid.Row="2"
-            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-            TextWrapping="Wrap" />
 
         <TextBox
             x:Name="RawBox"

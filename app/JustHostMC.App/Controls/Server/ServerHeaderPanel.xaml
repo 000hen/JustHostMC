@@ -63,10 +63,43 @@
                             Glyph="&#xE70F;" />
                     </StackPanel>
                 </Button>
-                <TextBlock
-                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    Style="{StaticResource CaptionTextBlockStyle}"
-                    Text="{x:Bind Server.StatusText, Mode=OneWay}" />
+                <Grid>
+                    <TextBlock
+                        x:Uid="ServerStatusRunningText"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Visibility="{x:Bind Server.IsRunning, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                    <TextBlock
+                        x:Uid="ServerStatusStoppedText"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Visibility="{x:Bind Server.IsStopped, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                    <TextBlock
+                        x:Uid="ServerStatusInstallingText"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Visibility="{x:Bind Server.IsInstalling, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                    <TextBlock
+                        x:Uid="ServerStatusStartingText"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Visibility="{x:Bind Server.IsStarting, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                    <TextBlock
+                        x:Uid="ServerStatusStoppingText"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Visibility="{x:Bind Server.IsStopping, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                    <TextBlock
+                        x:Uid="ServerStatusCrashedText"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Visibility="{x:Bind Server.IsCrashed, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                    <TextBlock
+                        x:Uid="ServerStatusUnknownText"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Visibility="{x:Bind Server.IsStatusUnknown, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                </Grid>
             </StackPanel>
         </Grid>
 
@@ -86,7 +119,13 @@
                 IsEnabled="{x:Bind StateEnabled(Server.Status), Mode=OneWay}">
                 <StackPanel Orientation="Horizontal" Spacing="8">
                     <FontIcon FontSize="16" Glyph="{x:Bind Server.StateActionGlyph, Mode=OneWay}" />
-                    <TextBlock VerticalAlignment="Center" Text="{x:Bind Server.StateActionText, Mode=OneWay}" />
+                    <Grid VerticalAlignment="Center">
+                        <TextBlock x:Uid="ServerStateStartText" Visibility="{x:Bind Server.ShowStartAction, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                        <TextBlock x:Uid="ServerStateStopText" Visibility="{x:Bind Server.IsRunning, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                        <TextBlock x:Uid="ServerStateStartingText" Visibility="{x:Bind Server.IsStarting, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                        <TextBlock x:Uid="ServerStateStoppingText" Visibility="{x:Bind Server.IsStopping, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                        <TextBlock x:Uid="ServerStateInstallingText" Visibility="{x:Bind Server.IsInstalling, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                    </Grid>
                 </StackPanel>
             </Button>
 
@@ -110,7 +149,18 @@
                             </MenuFlyoutItem.Icon>
                         </MenuFlyoutItem>
                         <MenuFlyoutSeparator />
-                        <MenuFlyoutItem Click="OnDeleteClick" Text="{x:Bind Server.DeleteActionText, Mode=OneWay}">
+                        <MenuFlyoutItem
+                            x:Uid="ServerDeleteMenuItem"
+                            Click="OnDeleteClick"
+                            Visibility="{x:Bind Server.IsIncompleteInstallation, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=True}">
+                            <MenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE74D;" />
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutItem
+                            x:Uid="ServerRemoveIncompleteMenuItem"
+                            Click="OnDeleteClick"
+                            Visibility="{x:Bind Server.IsIncompleteInstallation, Mode=OneWay, Converter={StaticResource BoolToVis}}">
                             <MenuFlyoutItem.Icon>
                                 <FontIcon Glyph="&#xE74D;" />
                             </MenuFlyoutItem.Icon>
@@ -145,10 +195,40 @@
                         Grid.Row="0"
                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                         Style="{StaticResource CaptionTextBlockStyle}" />
-                    <TextBlock
-                        Grid.Row="1"
-                        Text="{x:Bind Server.TypeText, Mode=OneWay}"
-                        TextWrapping="WrapWholeWords" />
+                    <Grid Grid.Row="1">
+                        <TextBlock
+                            Text="{x:Bind Server.TypeText, Mode=OneWay}"
+                            TextWrapping="WrapWholeWords"
+                            Visibility="{x:Bind Server.HasTypeText, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                        <TextBlock
+                            x:Uid="ServerTypeVanillaText"
+                            TextWrapping="WrapWholeWords"
+                            Visibility="{x:Bind Server.IsVanillaProvider, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                        <TextBlock
+                            x:Uid="ServerTypePaperText"
+                            TextWrapping="WrapWholeWords"
+                            Visibility="{x:Bind Server.IsPaperProvider, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                        <TextBlock
+                            x:Uid="ServerTypeSpigotText"
+                            TextWrapping="WrapWholeWords"
+                            Visibility="{x:Bind Server.IsSpigotProvider, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                        <TextBlock
+                            x:Uid="ServerTypeForgeText"
+                            TextWrapping="WrapWholeWords"
+                            Visibility="{x:Bind Server.IsForgeProvider, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                        <TextBlock
+                            x:Uid="ServerTypeNeoForgeText"
+                            TextWrapping="WrapWholeWords"
+                            Visibility="{x:Bind Server.IsNeoForgeProvider, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                        <TextBlock
+                            x:Uid="ServerTypeFabricText"
+                            TextWrapping="WrapWholeWords"
+                            Visibility="{x:Bind Server.IsFabricProvider, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                        <TextBlock
+                            x:Uid="ServerTypeUnknownText"
+                            TextWrapping="WrapWholeWords"
+                            Visibility="{x:Bind Server.IsTypeUnknown, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                    </Grid>
                 </Grid>
 
                 <Grid
@@ -185,10 +265,16 @@
                         Grid.Row="0"
                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                         Style="{StaticResource CaptionTextBlockStyle}" />
-                    <TextBlock
-                        Grid.Row="1"
-                        Text="{x:Bind PortValueText(Server.Port), Mode=OneWay}"
-                        TextWrapping="WrapWholeWords" />
+                    <Grid Grid.Row="1">
+                        <TextBlock
+                            Text="{x:Bind ValueText(Server.Port), Mode=OneWay}"
+                            TextWrapping="WrapWholeWords"
+                            Visibility="{x:Bind PositiveValueVisibility(Server.Port), Mode=OneWay}" />
+                        <TextBlock
+                            x:Uid="ServerPortAutoValueText"
+                            TextWrapping="WrapWholeWords"
+                            Visibility="{x:Bind NonPositiveValueVisibility(Server.Port), Mode=OneWay}" />
+                    </Grid>
                 </Grid>
 
                 <Grid
@@ -205,10 +291,16 @@
                         Grid.Row="0"
                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                         Style="{StaticResource CaptionTextBlockStyle}" />
-                    <TextBlock
-                        Grid.Row="1"
-                        Text="{x:Bind MemoryText(Server.MemoryMb), Mode=OneWay}"
-                        TextWrapping="WrapWholeWords" />
+                    <Grid Grid.Row="1">
+                        <TextBlock
+                            Text="{x:Bind MemoryText(Server.MemoryMb), Mode=OneWay}"
+                            TextWrapping="WrapWholeWords"
+                            Visibility="{x:Bind PositiveValueVisibility(Server.MemoryMb), Mode=OneWay}" />
+                        <TextBlock
+                            x:Uid="ServerMemoryUnknownValueText"
+                            TextWrapping="WrapWholeWords"
+                            Visibility="{x:Bind NonPositiveValueVisibility(Server.MemoryMb), Mode=OneWay}" />
+                    </Grid>
                 </Grid>
 
             </Grid>

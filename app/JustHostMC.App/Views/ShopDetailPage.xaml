@@ -119,10 +119,14 @@
                             HorizontalContentAlignment="Center"
                             AutomationProperties.AutomationId="ShopInstallLatest"
                             Click="OnInstallClick"
-                            Content="{x:Bind ViewModel.PrimaryActionLabel, Mode=OneWay}"
                             IsEnabled="{x:Bind ViewModel.CanInstallLatest, Mode=OneWay}"
                             Style="{StaticResource AccentButtonStyle}"
-                            Tag="{x:Bind ViewModel.LatestRelease, Mode=OneWay}" />
+                            Tag="{x:Bind ViewModel.LatestRelease, Mode=OneWay}">
+                            <Grid>
+                                <TextBlock x:Uid="ShopInstallActionText" Visibility="{x:Bind ViewModel.IsWebsiteAction, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=True}" />
+                                <TextBlock Text="{x:Bind ViewModel.WebsiteActionLabel, Mode=OneWay}" Visibility="{x:Bind ViewModel.IsWebsiteAction, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                            </Grid>
+                        </Button>
 
                         <HyperlinkButton
                             x:Uid="ShopOpenWebsite"
@@ -135,7 +139,7 @@
                             Height="210"
                             CornerRadius="8"
                             ItemsSource="{x:Bind ViewModel.Gallery, Mode=OneWay}"
-                            Visibility="{x:Bind BoolToVisibility(ViewModel.HasGallery), Mode=OneWay}">
+                            Visibility="{x:Bind ViewModel.HasGallery, Mode=OneWay, Converter={StaticResource BoolToVis}}">
                             <FlipView.ItemTemplate>
                                 <DataTemplate x:DataType="models:ShopGalleryItem">
                                     <Grid Background="{ThemeResource ControlFillColorSecondaryBrush}">
@@ -247,10 +251,14 @@
                                 HorizontalContentAlignment="Center"
                                 AutomationProperties.AutomationId="ShopInstallLatestCompact"
                                 Click="OnInstallClick"
-                                Content="{x:Bind ViewModel.PrimaryActionLabel, Mode=OneWay}"
                                 IsEnabled="{x:Bind ViewModel.CanInstallLatest, Mode=OneWay}"
                                 Style="{StaticResource AccentButtonStyle}"
-                                Tag="{x:Bind ViewModel.LatestRelease, Mode=OneWay}" />
+                                Tag="{x:Bind ViewModel.LatestRelease, Mode=OneWay}">
+                                <Grid>
+                                    <TextBlock x:Uid="ShopInstallActionText" Visibility="{x:Bind ViewModel.IsWebsiteAction, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=True}" />
+                                    <TextBlock Text="{x:Bind ViewModel.WebsiteActionLabel, Mode=OneWay}" Visibility="{x:Bind ViewModel.IsWebsiteAction, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                                </Grid>
+                            </Button>
                             <HyperlinkButton
                                 x:Uid="ShopOpenWebsite"
                                 Padding="0"
@@ -366,10 +374,14 @@
                                         Grid.Column="2"
                                         VerticalAlignment="Center"
                                         Click="OnInstallClick"
-                                        Content="{x:Bind ActionLabel, Mode=OneWay}"
                                         IsEnabled="{x:Bind ActionEnabled, Mode=OneWay}"
                                         Style="{StaticResource AccentButtonStyle}"
-                                        Tag="{x:Bind}" />
+                                        Tag="{x:Bind}">
+                                        <Grid>
+                                            <TextBlock x:Uid="ShopInstallActionText" Visibility="{x:Bind ActionLabel, Converter={StaticResource ObjectToVisInverse}}" />
+                                            <TextBlock Text="{x:Bind ActionLabel, Mode=OneWay}" Visibility="{x:Bind ActionLabel, Converter={StaticResource ObjectToVis}}" />
+                                        </Grid>
+                                    </Button>
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
@@ -396,12 +408,20 @@
             <ProgressBar
                 Maximum="100"
                 Value="{x:Bind ProgressPercent(ViewModel.InstallProgress), Mode=OneWay}"
-                Visibility="{x:Bind BoolToVisibility(ViewModel.IsInstalling), Mode=OneWay}" />
+                Visibility="{x:Bind ViewModel.IsInstalling, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
             <InfoBar
                 IsClosable="False"
-                IsOpen="{x:Bind HasStatus(ViewModel.StatusMessage), Mode=OneWay}"
-                Message="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
-                Severity="{x:Bind StatusSeverity(ViewModel.InstallSucceeded), Mode=OneWay}" />
+                IsOpen="{x:Bind ViewModel.HasStatus, Mode=OneWay}"
+                Severity="{x:Bind StatusSeverity(ViewModel.InstallSucceeded), Mode=OneWay}">
+                <InfoBar.Content>
+                    <StackPanel>
+                        <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" />
+                        <TextBlock x:Uid="ShopStatusLoadFailed" Visibility="{x:Bind ViewModel.IsLoadFailedStatus, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                        <TextBlock x:Uid="ShopStatusInstallDone" Visibility="{x:Bind ViewModel.IsInstallDoneStatus, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                        <TextBlock x:Uid="ShopStatusInstallFailed" Visibility="{x:Bind ViewModel.IsInstallFailedStatus, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                    </StackPanel>
+                </InfoBar.Content>
+            </InfoBar>
         </StackPanel>
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup>

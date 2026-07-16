@@ -1,7 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using JustHostMC.App.Models;
-using JustHostMC.App.Services;
 using Microsoft.UI.Xaml;
 using Windows.Graphics;
 
@@ -14,15 +13,17 @@ public sealed partial class ScriptLogsWindow : Window {
 
     public ObservableCollection<ScriptLogSession> LogSessions { get; }
 
+    public Visibility ShowWhenEmpty(int count) => count == 0
+                                                      ? Visibility.Visible
+                                                      : Visibility.Collapsed;
+
     public ScriptLogsWindow(
         ObservableCollection<ScriptLogSession> logSessions) {
         LogSessions = logSessions;
         InitializeComponent();
+        Title            = LogsTitleBar.Title;
         Root.DataContext = this;
 
-        var title = new LocalizationService().Get("ScriptLogsWindow_Title");
-        Title     = title;
-        LogsTitleBar.Title         = title;
         ExtendsContentIntoTitleBar = true;
         AppWindow.Resize(new SizeInt32(960, 640));
 

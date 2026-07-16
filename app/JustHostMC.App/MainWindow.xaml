@@ -21,7 +21,7 @@
 
         <TitleBar
             x:Name="SimpleTitleBar"
-            Title="JustHostMC"
+            x:Uid="MainTitleBar"
             BackRequested="OnTitleBarBackRequested"
             IsBackButtonEnabled="{x:Bind ContentFrame.CanGoBack, Mode=OneWay}"
             IsBackButtonVisible="{x:Bind ContentFrame.CanGoBack, Mode=OneWay}"
@@ -181,7 +181,7 @@
                     <Grid
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
-                        Visibility="{Binding ElementName=Nav, Path=IsPaneOpen, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter='invert'}">
+                        Visibility="{Binding ElementName=Nav, Path=IsPaneOpen, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=True}">
                         <ProgressRing
                             Width="20"
                             Height="20"
@@ -200,5 +200,15 @@
             Grid.RowSpan="2"
             IsLightDismissEnabled="True"
             PreferredPlacement="Right" />
+
+        <!--  Localized finite-state text consumed by the teaching-tip controller.  -->
+        <StackPanel Visibility="Collapsed">
+            <TextBlock x:Name="ServerTeachingTipStartActionText" x:Uid="ServerTeachingTipStartActionText" />
+            <TextBlock x:Name="ServerTeachingTipInstalledMessageText" x:Uid="ServerTeachingTipInstalledMessageText" />
+            <TextBlock x:Name="ServerTeachingTipStartedMessageText" x:Uid="ServerTeachingTipStartedMessageText" />
+            <TextBlock x:Name="ServerTeachingTipStoppedMessageText" x:Uid="ServerTeachingTipStoppedMessageText" />
+            <TextBlock x:Name="ServerTeachingTipCrashedMessageText" x:Uid="ServerTeachingTipCrashedMessageText" />
+            <TextBlock x:Name="UnknownServerStatusText" x:Uid="UnknownServerStatusText" />
+        </StackPanel>
     </Grid>
 </Window>

@@ -29,30 +29,43 @@ public sealed partial class ServerItem : ObservableObject {
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(TypeText))]
+    [NotifyPropertyChangedFor(nameof(HasTypeText))]
+    [NotifyPropertyChangedFor(nameof(IsVanillaProvider))]
+    [NotifyPropertyChangedFor(nameof(IsPaperProvider))]
+    [NotifyPropertyChangedFor(nameof(IsSpigotProvider))]
+    [NotifyPropertyChangedFor(nameof(IsForgeProvider))]
+    [NotifyPropertyChangedFor(nameof(IsNeoForgeProvider))]
+    [NotifyPropertyChangedFor(nameof(IsFabricProvider))]
+    [NotifyPropertyChangedFor(nameof(IsTypeUnknown))]
     public partial string ProviderId {
         get; private set;
     } = "";
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(StatusText))]
     [NotifyPropertyChangedFor(nameof(CanStart))]
     [NotifyPropertyChangedFor(nameof(CanStop))]
     [NotifyPropertyChangedFor(nameof(CanToggleState))]
     [NotifyPropertyChangedFor(nameof(IsTransitional))]
     [NotifyPropertyChangedFor(nameof(IsRunning))]
+    [NotifyPropertyChangedFor(nameof(IsStopped))]
+    [NotifyPropertyChangedFor(nameof(IsInstalling))]
+    [NotifyPropertyChangedFor(nameof(IsStarting))]
+    [NotifyPropertyChangedFor(nameof(IsStopping))]
+    [NotifyPropertyChangedFor(nameof(IsCrashed))]
+    [NotifyPropertyChangedFor(nameof(IsStatusUnknown))]
+    [NotifyPropertyChangedFor(nameof(ShowStartAction))]
     [NotifyPropertyChangedFor(nameof(CanEditLaunchSettings))]
-    [NotifyPropertyChangedFor(nameof(StateActionText))]
     [NotifyPropertyChangedFor(nameof(StateActionGlyph))]
     [NotifyPropertyChangedFor(nameof(NavigationAutomationName))]
     [NotifyPropertyChangedFor(nameof(NavigationStatusBrush))]
     [NotifyPropertyChangedFor(nameof(IsIncompleteInstallation))]
-    [NotifyPropertyChangedFor(nameof(DeleteActionText))]
     public partial ServerStatus Status {
         get; private set;
     }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(EndpointText))]
+    [NotifyPropertyChangedFor(nameof(HasEndpoint))]
     public partial int Port {
         get; private set;
     }
@@ -103,7 +116,10 @@ public sealed partial class ServerItem : ObservableObject {
         if (_providers is not null)
             _providers.Loaded -= OnProvidersLoaded;
 
-        void Refresh() => OnPropertyChanged(nameof(TypeText));
+        void Refresh() {
+            OnPropertyChanged(nameof(TypeText));
+            OnPropertyChanged(nameof(HasTypeText));
+        }
         if (_dispatcher is not null)
             _dispatcher.TryEnqueue(Refresh);
         else
@@ -113,7 +129,7 @@ public sealed partial class ServerItem : ObservableObject {
     public string Id { get; }
     public ServerProgressTracker ProgressTracker { get; set; } = null!;
 
-    public string StatusText => _localizer.Get(Status switch {
+    private string LocalizedStatusText => _localizer.Get(Status switch {
         ServerStatus.Running    => "ServerStatus_Running",
         ServerStatus.Stopped    => "ServerStatus_Stopped",
         ServerStatus.Installing => "ServerStatus_Installing",
@@ -138,53 +154,58 @@ public sealed partial class ServerItem : ObservableObject {
     public string NavigationAutomationName => _localizer.Get(
         HasUnreadStateChange ? "ServerNav_StateChangedAutomationName"
                              : "ServerNav_AutomationName",
-        ("name", Name), ("status", StatusText));
+        ("name", Name), ("status", LocalizedStatusText));
 
-    // Prefer the live provider list's friendly name; fall back to the built-in
-    // id→localized-name map, then to the raw id.
+    // Custom provider names are runtime script data. Built-in and unknown
+    // provider labels are rendered by x:Uid-backed branches in each view.
     public string TypeText {
         get {
+            if (IsBuiltInProvider)
+                return "";
             if (_providers?.NameFor(ProviderId) is { Length : > 0 } name)
                 return name;
-            return ProviderId switch {
-                "vanilla"  => _localizer.Get("ServerType_Vanilla"),
-                "paper"    => _localizer.Get("ServerType_Paper"),
-                "spigot"   => _localizer.Get("ServerType_Spigot"),
-                "forge"    => _localizer.Get("ServerType_Forge"),
-                "neoforge" => _localizer.Get("ServerType_NeoForge"),
-                "fabric"   => _localizer.Get("ServerType_Fabric"),
-                ""         => _localizer.Get("ServerType_Unknown"),
-                _          => ProviderId,
-            };
+            return ProviderId;
         }
     }
+    public bool HasTypeText        => !string.IsNullOrWhiteSpace(TypeText);
+    public bool IsVanillaProvider  => ProviderId == "vanilla";
+    public bool IsPaperProvider    => ProviderId == "paper";
+    public bool IsSpigotProvider   => ProviderId == "spigot";
+    public bool IsForgeProvider    => ProviderId == "forge";
+    public bool IsNeoForgeProvider => ProviderId == "neoforge";
+    public bool IsFabricProvider   => ProviderId == "fabric";
+    public bool IsTypeUnknown      => string.IsNullOrWhiteSpace(ProviderId);
+    private bool IsBuiltInProvider => IsVanillaProvider || IsPaperProvider ||
+                                      IsSpigotProvider || IsForgeProvider ||
+                                      IsNeoForgeProvider || IsFabricProvider;
 
     public bool CanStart =>
         Status is ServerStatus.Stopped or ServerStatus.Crashed;
     public bool CanStop =>
         Status is ServerStatus.Running or ServerStatus.Starting;
-    public bool CanToggleState           => CanStart || CanStop;
-    public bool IsRunning                => Status is ServerStatus.Running;
+    public bool CanToggleState  => CanStart || CanStop;
+    public bool IsRunning       => Status is ServerStatus.Running;
+    public bool IsStopped       => Status is ServerStatus.Stopped;
+    public bool IsInstalling    => Status is ServerStatus.Installing;
+    public bool IsStarting      => Status is ServerStatus.Starting;
+    public bool IsStopping      => Status is ServerStatus.Stopping;
+    public bool IsCrashed       => Status is ServerStatus.Crashed;
+    public bool IsStatusUnknown => Status is not(
+        ServerStatus.Running or ServerStatus.Stopped or
+            ServerStatus.Installing or ServerStatus.Starting or
+                ServerStatus.Stopping or ServerStatus.Crashed);
+    public bool ShowStartAction => Status is not(
+        ServerStatus.Running or ServerStatus.Installing or
+            ServerStatus.Starting or ServerStatus.Stopping);
     public bool IsIncompleteInstallation => Status is ServerStatus.Installing;
-    public string DeleteActionText =>
-        _localizer.Get(IsIncompleteInstallation ? "ServerInstallRemove_Action"
-                                                : "ServerDelete_Action");
     public bool CanEditLaunchSettings =>
         Status is ServerStatus.Stopped or ServerStatus.Crashed;
-    public string EndpointText     => Port > 0? ConnectHost.Value
-                                              is { Length : > 0 } host
-                                          ? $"{host}:{Port}"
-                                          : _localizer
-                                                .Get("Server_PortLabel",
-                                                     ("port", Port.ToString()))
-        : _localizer.Get("Server_PortAutoValue");
-    public string StateActionText  => _localizer.Get(Status switch {
-        ServerStatus.Running    => "ServerState_Stop",
-        ServerStatus.Starting   => "ServerState_Starting",
-        ServerStatus.Stopping   => "ServerState_Stopping",
-        ServerStatus.Installing => "ServerState_Installing",
-        _                       => "ServerState_Start",
-    });
+    public bool HasEndpoint => Port > 0;
+    public string EndpointText =>
+        Port <= 0 ? ""
+        : ConnectHost.Value is { Length : > 0 } host
+            ? $"{host}:{Port}"
+            : _localizer.Get("Server_PortLabel", ("port", Port.ToString()));
     public string StateActionGlyph => Status switch {
         ServerStatus.Running => "\uE71A",
         ServerStatus.Starting or ServerStatus.Stopping or

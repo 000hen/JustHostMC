@@ -18,13 +18,12 @@
             </Grid.RowDefinitions>
 
             <InfoBar
-                Title="{x:Bind StoppedNoticeTitle}"
+                x:Uid="BanListStoppedNotice"
                 Grid.Row="0"
                 IsClosable="False"
                 IsOpen="True"
-                Message="{x:Bind StoppedNoticeMessage}"
                 Severity="Informational"
-                Visibility="{x:Bind CanModify, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
+                Visibility="{x:Bind CanModify, Converter={StaticResource BoolToVis}, ConverterParameter=True}" />
 
             <Border
                 Grid.Row="1"
@@ -159,10 +158,18 @@
                                         VerticalAlignment="Center"
                                         Background="{ThemeResource ControlFillColorDefaultBrush}"
                                         CornerRadius="4">
-                                        <TextBlock
-                                            Style="{StaticResource CaptionTextBlockStyle}"
-                                            Text="{x:Bind TypeText}"
-                                            TextAlignment="Center" />
+                                        <Grid>
+                                            <TextBlock
+                                                x:Uid="BanListEntryIpTypeText"
+                                                Style="{StaticResource CaptionTextBlockStyle}"
+                                                TextAlignment="Center"
+                                                Visibility="{x:Bind IsIpBan, Converter={StaticResource BoolToVis}}" />
+                                            <TextBlock
+                                                x:Uid="BanListEntryPlayerTypeText"
+                                                Style="{StaticResource CaptionTextBlockStyle}"
+                                                TextAlignment="Center"
+                                                Visibility="{x:Bind IsIpBan, Converter={StaticResource BoolToVis}, ConverterParameter=True}" />
+                                        </Grid>
                                     </Border>
 
                                     <StackPanel
@@ -173,10 +180,18 @@
                                             Style="{StaticResource BodyStrongTextBlockStyle}"
                                             Text="{x:Bind Target}"
                                             TextTrimming="CharacterEllipsis" />
-                                        <TextBlock
-                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                            Text="{x:Bind ReasonText}"
-                                            TextTrimming="CharacterEllipsis" />
+                                        <Grid>
+                                            <TextBlock
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                Text="{x:Bind Reason}"
+                                                TextTrimming="CharacterEllipsis"
+                                                Visibility="{x:Bind HasReason, Converter={StaticResource BoolToVis}}" />
+                                            <TextBlock
+                                                x:Uid="BanListEntryNoReasonText"
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                TextTrimming="CharacterEllipsis"
+                                                Visibility="{x:Bind HasReason, Converter={StaticResource BoolToVis}, ConverterParameter=True}" />
+                                        </Grid>
                                         <Grid ColumnSpacing="10">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto" />
@@ -220,9 +235,25 @@
                     IsIndeterminate="True"
                     Visibility="Collapsed" />
                 <TextBlock
-                    x:Name="StatusText"
-                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    TextWrapping="WrapWholeWords" />
+                    x:Name="LoadFailedText"
+                    x:Uid="BanListLoadFailedText"
+                    Visibility="Collapsed" />
+                <TextBlock
+                    x:Name="TargetRequiredText"
+                    x:Uid="BanListTargetRequiredText"
+                    Visibility="Collapsed" />
+                <TextBlock
+                    x:Name="AddFailedText"
+                    x:Uid="BanListAddFailedText"
+                    Visibility="Collapsed" />
+                <TextBlock
+                    x:Name="StoppedRequiredText"
+                    x:Uid="BanListStoppedRequiredText"
+                    Visibility="Collapsed" />
+                <TextBlock
+                    x:Name="RemoveFailedText"
+                    x:Uid="BanListRemoveFailedText"
+                    Visibility="Collapsed" />
             </StackPanel>
         </Grid>
     </ScrollViewer>

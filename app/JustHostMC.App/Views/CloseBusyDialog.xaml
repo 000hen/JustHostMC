@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentDialog
+    x:Class="JustHostMC.App.Views.CloseBusyDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Uid="CloseBusyDialog"
+    DefaultButton="Primary"
+    Style="{StaticResource DefaultContentDialogStyle}">
+
+    <TextBlock x:Uid="CloseBusyDialogBody" TextWrapping="Wrap" />
+</ContentDialog>

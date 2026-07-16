@@ -1,7 +1,5 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
-using JustHostMC.App.Models;
-using JustHostMC.App.Services;
 using McManager.Grpc;
 using Microsoft.UI.Xaml.Controls;
 
@@ -10,16 +8,13 @@ namespace JustHostMC.App.Views;
 /// <summary>One requested permission row with an allow/deny toggle, bound in
 /// the consent dialog.</summary>
 public sealed partial class ConsentRow : ObservableObject {
-    public ConsentRow(Permission permission, ILocalizer localizer,
-                      bool allowed) {
+    public ConsentRow(Permission permission, bool allowed) {
         Kind    = permission.Kind;
-        Label   = PermissionLabels.Label(permission.Kind, localizer);
         Reason  = permission.Reason;
         Allowed = allowed;
     }
 
     public PermissionKind Kind { get; }
-    public string Label { get; }
     public string Reason { get; }
 
     [ObservableProperty]
@@ -34,15 +29,14 @@ public sealed partial class ConsentRow : ObservableObject {
 public sealed partial class PermissionConsentDialog : UserControl {
     public ObservableCollection<ConsentRow> Rows { get; } = new();
 
-    public PermissionConsentDialog(IEnumerable<Permission> permissions,
-                                   ILocalizer localizer) {
+    public PermissionConsentDialog(IEnumerable<Permission> permissions) {
         // Populate before InitializeComponent so the OneTime x:Bind to
         // Rows.Count (used to toggle the "no permissions" hint) sees the final
         // count.
         foreach (var p in permissions) {
             // Default-allow each requested permission; the user can deny
             // individually.
-            Rows.Add(new ConsentRow(p, localizer, allowed: true));
+            Rows.Add(new ConsentRow(p, allowed: true));
         }
 
         InitializeComponent();

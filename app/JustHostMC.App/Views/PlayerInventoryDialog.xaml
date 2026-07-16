@@ -84,18 +84,18 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-
-
         <ProgressBar
             x:Name="BusyBar"
             Grid.Row="1"
             IsIndeterminate="True" />
 
         <TextBlock
-            x:Name="StatusText"
+            x:Name="LoadFailedText"
+            x:Uid="PlayerInventoryLoadFailedText"
             Grid.Row="2"
             Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-            TextWrapping="Wrap" />
+            TextWrapping="Wrap"
+            Visibility="Collapsed" />
 
         <ScrollViewer
             x:Name="LoadingSkeleton"

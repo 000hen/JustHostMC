@@ -17,7 +17,6 @@ public sealed partial class ConfigEntryItem : ObservableObject {
         _originalValue = entry.Value;
         Value          = entry.Value;
         Type           = entry.Type;
-        TypeText       = ResolveTypeText(localizer, entry.Type);
         Supported      = entry.Supported;
         SinceVersion   = entry.SinceVersion;
         Description    = entry.Description;
@@ -27,7 +26,10 @@ public sealed partial class ConfigEntryItem : ObservableObject {
     public string Key { get; }
     public string DisplayName { get; }
     public ConfigValueType Type { get; }
-    public string TypeText { get; }
+    public bool IsBoolean => Type == ConfigValueType.ConfigBoolean;
+    public bool IsInteger => Type == ConfigValueType.ConfigInteger;
+    public bool IsChoice  => Type == ConfigValueType.ConfigEnum;
+    public bool IsText    => !IsBoolean && !IsInteger && !IsChoice;
     public bool Supported { get; }
     public string SinceVersion { get; }
     public string Description { get; }
@@ -54,25 +56,6 @@ public sealed partial class ConfigEntryItem : ObservableObject {
         var localized = SafeGet(localizer, "ConfigName_" + ResourceKey(key));
         return string.IsNullOrWhiteSpace(localized) ? HumanizeKey(key)
                                                     : localized;
-    }
-
-    private static string ResolveTypeText(ILocalizer localizer,
-                                          ConfigValueType type) {
-        var key = type switch {
-            ConfigValueType.ConfigBoolean => "ConfigType_Boolean",
-            ConfigValueType.ConfigInteger => "ConfigType_Integer",
-            ConfigValueType.ConfigEnum    => "ConfigType_Choice",
-            _                             => "ConfigType_Text",
-        };
-        var localized = SafeGet(localizer, key);
-        if (!string.IsNullOrWhiteSpace(localized))
-            return localized;
-        return type switch {
-            ConfigValueType.ConfigBoolean => "Boolean",
-            ConfigValueType.ConfigInteger => "Integer",
-            ConfigValueType.ConfigEnum    => "Choice",
-            _                             => "Text",
-        };
     }
 
     private static string SafeGet(ILocalizer localizer, string key) {

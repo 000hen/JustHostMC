@@ -8,117 +8,128 @@
     xmlns:server="using:JustHostMC.App.Controls.Server"
     mc:Ignorable="d">
 
-    <server:ServerSectionLayout
-        Title="{x:Bind PlayersHeader(Players.Count), Mode=OneWay}"
-        Description="{x:Bind PlayersDescription(Players.Count), Mode=OneWay}"
-        IconGlyph="&#xE716;">
-        <server:ServerSectionLayout.HeaderContent>
-            <Button
-                x:Uid="ManageBansButton"
-                VerticalAlignment="Center"
-                Click="OnManageBansClick">
-                <StackPanel Orientation="Horizontal" Spacing="6">
-                    <SymbolIcon Symbol="BlockContact" />
-                    <TextBlock x:Uid="ManageBansButtonLabel" />
-                </StackPanel>
-            </Button>
-        </server:ServerSectionLayout.HeaderContent>
-        <server:ServerSectionLayout.Body>
-            <ListView ItemsSource="{x:Bind Players.Players, Mode=OneWay}">
-                <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="models:PlayerItem">
-                        <Grid MinHeight="48" ColumnSpacing="10">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <Border
-                                Grid.Column="0"
-                                Width="32"
-                                Height="32"
-                                Margin="0,0,8,0"
-                                Background="{ThemeResource ControlFillColorDefaultBrush}"
-                                CornerRadius="4">
-                                <Image
+    <Grid>
+        <TextBlock
+            x:Name="PlayersEmptyDescriptionText"
+            x:Uid="ServerPlayersEmptyDescriptionText"
+            Visibility="Collapsed" />
+        <TextBlock
+            x:Name="PlayersActiveDescriptionText"
+            x:Uid="ServerPlayersActiveDescriptionText"
+            Visibility="Collapsed" />
+
+        <server:ServerSectionLayout
+            Title="{x:Bind PlayersHeader(Players.Count), Mode=OneWay}"
+            Description="{x:Bind PlayersDescription(Players.Count), Mode=OneWay}"
+            IconGlyph="&#xE716;">
+            <server:ServerSectionLayout.HeaderContent>
+                <Button
+                    x:Uid="ManageBansButton"
+                    VerticalAlignment="Center"
+                    Click="OnManageBansClick">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <SymbolIcon Symbol="BlockContact" />
+                        <TextBlock x:Uid="ManageBansButtonLabel" />
+                    </StackPanel>
+                </Button>
+            </server:ServerSectionLayout.HeaderContent>
+            <server:ServerSectionLayout.Body>
+                <ListView ItemsSource="{x:Bind Players.Players, Mode=OneWay}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="models:PlayerItem">
+                            <Grid MinHeight="48" ColumnSpacing="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Border
+                                    Grid.Column="0"
                                     Width="32"
                                     Height="32"
-                                    Source="{x:Bind HeadImage}"
-                                    Stretch="UniformToFill" />
-                            </Border>
-                            <TextBlock
-                                Grid.Column="1"
-                                VerticalAlignment="Center"
-                                Text="{x:Bind Name}"
-                                TextTrimming="CharacterEllipsis" />
-                            <Button
-                                x:Uid="PlayerActionsButton"
-                                Grid.Column="2"
-                                MinWidth="88"
-                                Padding="10,6"
-                                Tag="{x:Bind}">
-                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <FontIcon FontSize="14" Glyph="&#xE712;" />
-                                    <TextBlock x:Uid="PlayerActionsButtonLabel" />
-                                </StackPanel>
-                                <Button.Flyout>
-                                    <MenuFlyout>
-                                        <MenuFlyoutItem
-                                            x:Uid="PlayerOpMenuItem"
-                                            Click="OnPlayerOpClick"
-                                            Tag="{x:Bind}">
-                                            <MenuFlyoutItem.Icon>
-                                                <SymbolIcon Symbol="Permissions" />
-                                            </MenuFlyoutItem.Icon>
-                                        </MenuFlyoutItem>
-                                        <MenuFlyoutItem
-                                            x:Uid="PlayerDeopMenuItem"
-                                            Click="OnPlayerDeopClick"
-                                            Tag="{x:Bind}">
-                                            <MenuFlyoutItem.Icon>
-                                                <SymbolIcon Symbol="Permissions" />
-                                            </MenuFlyoutItem.Icon>
-                                        </MenuFlyoutItem>
-                                        <MenuFlyoutItem
-                                            x:Uid="PlayerKickMenuItem"
-                                            Click="OnPlayerKickClick"
-                                            Tag="{x:Bind}">
-                                            <MenuFlyoutItem.Icon>
-                                                <SymbolIcon Symbol="Cancel" />
-                                            </MenuFlyoutItem.Icon>
-                                        </MenuFlyoutItem>
-                                        <MenuFlyoutItem
-                                            x:Uid="PlayerBanMenuItem"
-                                            Click="OnPlayerBanClick"
-                                            Tag="{x:Bind}">
-                                            <MenuFlyoutItem.Icon>
-                                                <SymbolIcon Symbol="BlockContact" />
-                                            </MenuFlyoutItem.Icon>
-                                        </MenuFlyoutItem>
-                                        <MenuFlyoutSeparator />
-                                        <MenuFlyoutItem
-                                            x:Uid="PlayerRawMenuItem"
-                                            Click="OnPlayerRawClick"
-                                            Tag="{x:Bind}">
-                                            <MenuFlyoutItem.Icon>
-                                                <SymbolIcon Symbol="View" />
-                                            </MenuFlyoutItem.Icon>
-                                        </MenuFlyoutItem>
-                                        <MenuFlyoutItem
-                                            x:Uid="PlayerInventoryMenuItem"
-                                            Click="OnPlayerInventoryClick"
-                                            Tag="{x:Bind}">
-                                            <MenuFlyoutItem.Icon>
-                                                <SymbolIcon Symbol="List" />
-                                            </MenuFlyoutItem.Icon>
-                                        </MenuFlyoutItem>
-                                    </MenuFlyout>
-                                </Button.Flyout>
-                            </Button>
-                        </Grid>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-        </server:ServerSectionLayout.Body>
-    </server:ServerSectionLayout>
+                                    Margin="0,0,8,0"
+                                    Background="{ThemeResource ControlFillColorDefaultBrush}"
+                                    CornerRadius="4">
+                                    <Image
+                                        Width="32"
+                                        Height="32"
+                                        Source="{x:Bind HeadImage}"
+                                        Stretch="UniformToFill" />
+                                </Border>
+                                <TextBlock
+                                    Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    Text="{x:Bind Name}"
+                                    TextTrimming="CharacterEllipsis" />
+                                <Button
+                                    x:Uid="PlayerActionsButton"
+                                    Grid.Column="2"
+                                    MinWidth="88"
+                                    Padding="10,6"
+                                    Tag="{x:Bind}">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <FontIcon FontSize="14" Glyph="&#xE712;" />
+                                        <TextBlock x:Uid="PlayerActionsButtonLabel" />
+                                    </StackPanel>
+                                    <Button.Flyout>
+                                        <MenuFlyout>
+                                            <MenuFlyoutItem
+                                                x:Uid="PlayerOpMenuItem"
+                                                Click="OnPlayerOpClick"
+                                                Tag="{x:Bind}">
+                                                <MenuFlyoutItem.Icon>
+                                                    <SymbolIcon Symbol="Permissions" />
+                                                </MenuFlyoutItem.Icon>
+                                            </MenuFlyoutItem>
+                                            <MenuFlyoutItem
+                                                x:Uid="PlayerDeopMenuItem"
+                                                Click="OnPlayerDeopClick"
+                                                Tag="{x:Bind}">
+                                                <MenuFlyoutItem.Icon>
+                                                    <SymbolIcon Symbol="Permissions" />
+                                                </MenuFlyoutItem.Icon>
+                                            </MenuFlyoutItem>
+                                            <MenuFlyoutItem
+                                                x:Uid="PlayerKickMenuItem"
+                                                Click="OnPlayerKickClick"
+                                                Tag="{x:Bind}">
+                                                <MenuFlyoutItem.Icon>
+                                                    <SymbolIcon Symbol="Cancel" />
+                                                </MenuFlyoutItem.Icon>
+                                            </MenuFlyoutItem>
+                                            <MenuFlyoutItem
+                                                x:Uid="PlayerBanMenuItem"
+                                                Click="OnPlayerBanClick"
+                                                Tag="{x:Bind}">
+                                                <MenuFlyoutItem.Icon>
+                                                    <SymbolIcon Symbol="BlockContact" />
+                                                </MenuFlyoutItem.Icon>
+                                            </MenuFlyoutItem>
+                                            <MenuFlyoutSeparator />
+                                            <MenuFlyoutItem
+                                                x:Uid="PlayerRawMenuItem"
+                                                Click="OnPlayerRawClick"
+                                                Tag="{x:Bind}">
+                                                <MenuFlyoutItem.Icon>
+                                                    <SymbolIcon Symbol="View" />
+                                                </MenuFlyoutItem.Icon>
+                                            </MenuFlyoutItem>
+                                            <MenuFlyoutItem
+                                                x:Uid="PlayerInventoryMenuItem"
+                                                Click="OnPlayerInventoryClick"
+                                                Tag="{x:Bind}">
+                                                <MenuFlyoutItem.Icon>
+                                                    <SymbolIcon Symbol="List" />
+                                                </MenuFlyoutItem.Icon>
+                                            </MenuFlyoutItem>
+                                        </MenuFlyout>
+                                    </Button.Flyout>
+                                </Button>
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </server:ServerSectionLayout.Body>
+        </server:ServerSectionLayout>
+    </Grid>
 </UserControl>

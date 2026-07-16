@@ -7,6 +7,33 @@ using Microsoft.UI.Dispatching;
 
 namespace JustHostMC.App.ViewModels;
 
+public enum SettingsWorkflowStatus {
+    None,
+    LoadFailed,
+    Saved,
+    SaveFailed,
+    DockerPreferenceSaved,
+    PurgeFailed,
+    RemovingData,
+    DataRemoved,
+    RemoveDataFailed,
+    RemovingIncompleteInstallations,
+    RemoveIncompleteInstallationsFailed,
+}
+
+public enum ShopKeyConfiguration {
+    Unknown,
+    None,
+    User,
+    Builtin,
+}
+
+public enum BackendMode {
+    Unknown,
+    OnMachine,
+    Docker,
+}
+
 /// <summary>Reads and updates the log retention policy and runs an on-demand
 /// purge.</summary>
 public sealed partial class SettingsViewModel : ObservableObject {
@@ -26,14 +53,49 @@ public sealed partial class SettingsViewModel : ObservableObject {
     }
 
     [ObservableProperty]
-    public partial string StatusMessage {
+    public partial string DynamicStatusMessage {
         get; private set;
     } = "";
 
     [ObservableProperty]
-    public partial bool IsBusy {
+    [NotifyPropertyChangedFor(nameof(IsLoadFailedStatus))]
+    [NotifyPropertyChangedFor(nameof(IsSavedStatus))]
+    [NotifyPropertyChangedFor(nameof(IsSaveFailedStatus))]
+    [NotifyPropertyChangedFor(nameof(IsDockerPreferenceSavedStatus))]
+    [NotifyPropertyChangedFor(nameof(IsPurgeFailedStatus))]
+    [NotifyPropertyChangedFor(nameof(IsRemovingDataStatus))]
+    [NotifyPropertyChangedFor(nameof(IsDataRemovedStatus))]
+    [NotifyPropertyChangedFor(nameof(IsRemoveDataFailedStatus))]
+    [NotifyPropertyChangedFor(nameof(IsRemovingIncompleteStatus))]
+    [NotifyPropertyChangedFor(nameof(IsRemoveIncompleteFailedStatus))]
+    public partial SettingsWorkflowStatus WorkflowStatus {
         get; private set;
     }
+
+    public bool IsLoadFailedStatus =>
+        WorkflowStatus == SettingsWorkflowStatus.LoadFailed;
+    public bool IsSavedStatus => WorkflowStatus == SettingsWorkflowStatus.Saved;
+    public bool IsSaveFailedStatus =>
+        WorkflowStatus == SettingsWorkflowStatus.SaveFailed;
+    public bool IsDockerPreferenceSavedStatus =>
+        WorkflowStatus == SettingsWorkflowStatus.DockerPreferenceSaved;
+    public bool IsPurgeFailedStatus =>
+        WorkflowStatus == SettingsWorkflowStatus.PurgeFailed;
+    public bool IsRemovingDataStatus =>
+        WorkflowStatus == SettingsWorkflowStatus.RemovingData;
+    public bool IsDataRemovedStatus =>
+        WorkflowStatus == SettingsWorkflowStatus.DataRemoved;
+    public bool IsRemoveDataFailedStatus =>
+        WorkflowStatus == SettingsWorkflowStatus.RemoveDataFailed;
+    public bool IsRemovingIncompleteStatus =>
+        WorkflowStatus ==
+        SettingsWorkflowStatus.RemovingIncompleteInstallations;
+    public bool IsRemoveIncompleteFailedStatus =>
+        WorkflowStatus ==
+        SettingsWorkflowStatus.RemoveIncompleteInstallationsFailed;
+
+    [ObservableProperty]
+    public partial bool IsBusy { get; private set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasIncompleteInstallations))]
@@ -47,16 +109,26 @@ public sealed partial class SettingsViewModel : ObservableObject {
         _localizer.Get("Settings_IncompleteInstallationsDescription",
                        ("count", IncompleteInstallationCount.ToString()));
 
-    /// <summary>Localized description of the isolation backend currently in
-    /// use.</summary>
     [ObservableProperty]
-    public partial string ActiveModeText { get; private set; } = "";
+    [NotifyPropertyChangedFor(nameof(IsDockerMode))]
+    [NotifyPropertyChangedFor(nameof(IsOnMachineMode))]
+    [NotifyPropertyChangedFor(nameof(IsDockerUnavailable))]
+    public partial BackendMode ActiveBackendMode { get; private set; }
 
-    /// <summary>Localized Docker availability line.</summary>
+    public bool IsDockerMode    => ActiveBackendMode == BackendMode.Docker;
+    public bool IsOnMachineMode => ActiveBackendMode == BackendMode.OnMachine;
+
     [ObservableProperty]
-    public partial string DockerStatusText {
-        get; private set;
-    } = "";
+    [NotifyPropertyChangedFor(nameof(IsDockerUnavailable))]
+    public partial bool IsDockerAvailable { get; private set; }
+
+    public bool IsDockerUnavailable =>
+        ActiveBackendMode != BackendMode.Unknown && !IsDockerAvailable;
+
+    /// <summary>Translator-controlled version format for the available case.
+    /// The unavailable finite label is owned by XAML.</summary>
+    [ObservableProperty]
+    public partial string DockerAvailableText { get; private set; } = "";
 
     /// <summary>The user's Docker opt-in. Changing it persists immediately
     /// (effective next launch).</summary>
@@ -78,12 +150,20 @@ public sealed partial class SettingsViewModel : ObservableObject {
     [ObservableProperty]
     public partial string CurseForgeKey { get; set; } = "";
 
-    /// <summary>Localized line describing whether a CurseForge key is
-    /// configured.</summary>
     [ObservableProperty]
-    public partial string CurseForgeKeyStatus {
+    [NotifyPropertyChangedFor(nameof(HasNoShopKey))]
+    [NotifyPropertyChangedFor(nameof(HasUserShopKey))]
+    [NotifyPropertyChangedFor(nameof(HasBuiltinShopKey))]
+    public partial ShopKeyConfiguration CurseForgeKeyConfiguration {
         get; private set;
-    } = "";
+    }
+
+    public bool HasNoShopKey =>
+        CurseForgeKeyConfiguration == ShopKeyConfiguration.None;
+    public bool HasUserShopKey =>
+        CurseForgeKeyConfiguration == ShopKeyConfiguration.User;
+    public bool HasBuiltinShopKey =>
+        CurseForgeKeyConfiguration == ShopKeyConfiguration.Builtin;
 
     private bool _loadingBackend;
     private bool _isLoadingLogs;
@@ -114,8 +194,7 @@ public sealed partial class SettingsViewModel : ObservableObject {
                 _isLoadingLogs = false;
             });
         } catch (RpcException) {
-            RunOnUI(() => StatusMessage =
-                        _localizer.Get("Settings_LoadFailed"));
+            RunOnUI(() => SetWorkflowStatus(SettingsWorkflowStatus.LoadFailed));
         }
 
         await LoadBackendAsync();
@@ -141,15 +220,15 @@ public sealed partial class SettingsViewModel : ObservableObject {
             var daemon = await App.Current.DaemonReady;
             var keys   = await daemon.Settings.GetShopKeysAsync(
                 new Empty(), deadline: DateTime.UtcNow.AddSeconds(30));
-            var status = "Settings_ShopKeyNone";
+            var status = ShopKeyConfiguration.None;
             foreach (var key in keys.Keys) {
                 if (key.ShopId != "curseforge")
                     continue;
-                status = key.HasUserKey      ? "Settings_ShopKeyUser"
-                         : key.HasBuiltinKey ? "Settings_ShopKeyBuiltin"
-                                             : "Settings_ShopKeyNone";
+                status = key.HasUserKey      ? ShopKeyConfiguration.User
+                         : key.HasBuiltinKey ? ShopKeyConfiguration.Builtin
+                                             : ShopKeyConfiguration.None;
             }
-            RunOnUI(() => CurseForgeKeyStatus = _localizer.Get(status));
+            RunOnUI(() => CurseForgeKeyConfiguration = status);
         } catch (RpcException) {
             // The shop key line stays empty; the rest of the page still works.
         }
@@ -167,12 +246,11 @@ public sealed partial class SettingsViewModel : ObservableObject {
                 deadline: DateTime.UtcNow.AddSeconds(30));
             RunOnUI(() => {
                 CurseForgeKey = "";
-                StatusMessage = _localizer.Get("Settings_Saved");
+                SetWorkflowStatus(SettingsWorkflowStatus.Saved);
             });
             await LoadShopKeysAsync();
         } catch (RpcException) {
-            RunOnUI(() => StatusMessage =
-                        _localizer.Get("Settings_SaveFailed"));
+            RunOnUI(() => SetWorkflowStatus(SettingsWorkflowStatus.SaveFailed));
         }
     }
 
@@ -182,14 +260,15 @@ public sealed partial class SettingsViewModel : ObservableObject {
             var info   = await daemon.Settings.GetBackendInfoAsync(
                 new Empty(), deadline: DateTime.UtcNow.AddSeconds(30));
             RunOnUI(() => {
-                ActiveModeText = _localizer.Get(info.ActiveMode == "docker"
-                                                    ? "Backend_Mode_Docker"
-                                                    : "Backend_Mode_OnMachine");
-                DockerStatusText =
+                ActiveBackendMode = info.ActiveMode == "docker"
+                                        ? BackendMode.Docker
+                                        : BackendMode.OnMachine;
+                IsDockerAvailable = info.DockerAvailable;
+                DockerAvailableText =
                     info.DockerAvailable
                         ? _localizer.Get("Backend_DockerAvailable",
                                          ("version", info.DockerVersion))
-                        : _localizer.Get("Backend_DockerUnavailable");
+                        : "";
                 _loadingBackend = true;
                 UseDocker       = info.UseDocker;
                 _loadingBackend = false;
@@ -205,11 +284,10 @@ public sealed partial class SettingsViewModel : ObservableObject {
             await daemon.Settings.SetUseDockerAsync(
                 new UseDocker { Enabled = enabled },
                 deadline: DateTime.UtcNow.AddSeconds(30));
-            RunOnUI(() => StatusMessage =
-                        _localizer.Get("Backend_DockerPrefSaved"));
+            RunOnUI(() => SetWorkflowStatus(
+                        SettingsWorkflowStatus.DockerPreferenceSaved));
         } catch (RpcException) {
-            RunOnUI(() => StatusMessage =
-                        _localizer.Get("Settings_SaveFailed"));
+            RunOnUI(() => SetWorkflowStatus(SettingsWorkflowStatus.SaveFailed));
         }
     }
 
@@ -249,13 +327,13 @@ public sealed partial class SettingsViewModel : ObservableObject {
             await Save();
             var result = await daemon.Settings.PurgeLogsAsync(
                 new Empty(), deadline: DateTime.UtcNow.AddMinutes(2));
-            RunOnUI(() => StatusMessage = _localizer.Get(
+            RunOnUI(() => SetDynamicStatus(_localizer.Get(
                         "Settings_PurgeResult",
                         ("count", result.RemovedFiles.ToString()),
-                        ("size", FormatSize(result.FreedBytes))));
+                        ("size", FormatSize(result.FreedBytes)))));
         } catch (RpcException) {
-            RunOnUI(() => StatusMessage =
-                        _localizer.Get("Settings_PurgeFailed"));
+            RunOnUI(() =>
+                        SetWorkflowStatus(SettingsWorkflowStatus.PurgeFailed));
         } finally {
             RunOnUI(() => IsBusy = false);
         }
@@ -264,18 +342,18 @@ public sealed partial class SettingsViewModel : ObservableObject {
     [RelayCommand]
     private async Task RemoveAllData() {
         RunOnUI(() => {
-            IsBusy        = true;
-            StatusMessage = _localizer.Get("Settings_RemovingData");
+            IsBusy = true;
+            SetWorkflowStatus(SettingsWorkflowStatus.RemovingData);
         });
         try {
             var daemon = await App.Current.DaemonReady;
             await daemon.Servers.RemoveAllDataAsync(
                 new Empty(), deadline: DateTime.UtcNow.AddMinutes(2));
-            RunOnUI(() => StatusMessage =
-                        _localizer.Get("Settings_DataRemoved"));
+            RunOnUI(() =>
+                        SetWorkflowStatus(SettingsWorkflowStatus.DataRemoved));
         } catch (RpcException) {
-            RunOnUI(() => StatusMessage =
-                        _localizer.Get("Settings_RemoveDataFailed"));
+            RunOnUI(() => SetWorkflowStatus(
+                        SettingsWorkflowStatus.RemoveDataFailed));
         } finally {
             RunOnUI(() => IsBusy = false);
         }
@@ -285,8 +363,8 @@ public sealed partial class SettingsViewModel : ObservableObject {
     private async Task RemoveIncompleteInstallations() {
         RunOnUI(() => {
             IsBusy = true;
-            StatusMessage =
-                _localizer.Get("Settings_RemovingIncompleteInstallations");
+            SetWorkflowStatus(
+                SettingsWorkflowStatus.RemovingIncompleteInstallations);
         });
         try {
             var daemon = await App.Current.DaemonReady;
@@ -301,12 +379,13 @@ public sealed partial class SettingsViewModel : ObservableObject {
                     new ServerId { Id = server.Id },
                     deadline: DateTime.UtcNow.AddMinutes(2));
             }
-            RunOnUI(() => StatusMessage = _localizer.Get(
+            RunOnUI(() => SetDynamicStatus(_localizer.Get(
                         "Settings_IncompleteInstallationsRemoved",
-                        ("count", incomplete.Length.ToString())));
+                        ("count", incomplete.Length.ToString()))));
         } catch (RpcException) {
-            RunOnUI(() => StatusMessage = _localizer.Get(
-                        "Settings_RemoveIncompleteInstallationsFailed"));
+            RunOnUI(() => SetWorkflowStatus(
+                        SettingsWorkflowStatus
+                            .RemoveIncompleteInstallationsFailed));
         } finally {
             await RefreshIncompleteInstallationsAsync();
             RunOnUI(() => IsBusy = false);
@@ -322,6 +401,16 @@ public sealed partial class SettingsViewModel : ObservableObject {
             unit++;
         }
         return $"{value:0.#} {units[unit]}";
+    }
+
+    private void SetWorkflowStatus(SettingsWorkflowStatus status) {
+        DynamicStatusMessage = "";
+        WorkflowStatus       = status;
+    }
+
+    private void SetDynamicStatus(string message) {
+        WorkflowStatus       = SettingsWorkflowStatus.None;
+        DynamicStatusMessage = message;
     }
 
     private void RunOnUI(Action action) {

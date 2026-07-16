@@ -318,17 +318,14 @@ public sealed partial class ScriptsViewModel : ObservableObject,
         var scriptName =
             Scripts.FirstOrDefault(item => item.Id == scriptId)?.Name;
         if (string.IsNullOrEmpty(scriptName)) {
-            scriptName = string.IsNullOrEmpty(scriptId)
-                             ? _localizer.Get("Scripts_SystemLogName")
-                             : scriptId;
+            // Empty is a semantic system-entry marker rendered by XAML.
+            scriptName = string.IsNullOrEmpty(scriptId) ? "" : scriptId;
         }
         var displayId = string.IsNullOrEmpty(scriptId) ? "—" : scriptId;
         var session   = GetOrCreateLogSession(sessionId, sessionStartedAt,
                                               isCurrentSession);
         session.Entries.Insert(
-            0, new ScriptLogEntry(
-                   displayId, scriptName, line, timestamp,
-                   _localizer.Get("Scripts_LogEntryFallbackTitle")));
+            0, new ScriptLogEntry(displayId, scriptName, line, timestamp, ""));
         while (session.Entries.Count > MaxLogLinesPerSession)
             session.Entries.RemoveAt(session.Entries.Count - 1);
 
@@ -361,10 +358,11 @@ public sealed partial class ScriptsViewModel : ObservableObject,
         if (_logSessionsById.TryGetValue(sessionId, out var existing))
             return existing;
 
-        var session = new ScriptLogSession(
-            sessionId, startedAt,
-            _localizer.Get(isCurrentSession ? "Scripts_CurrentSessionTitle"
-                                            : "Scripts_PreviousSessionTitle"));
+        // Title is intentionally a semantic marker: empty means current,
+        // non-empty means historical. ScriptLogsWindow owns the localized
+        // presentation for both branches.
+        var session = new ScriptLogSession(sessionId, startedAt,
+                                           isCurrentSession ? "" : "previous");
         _logSessionsById[sessionId] = session;
 
         var index = 0;

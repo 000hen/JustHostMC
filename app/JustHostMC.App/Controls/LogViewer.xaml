@@ -54,6 +54,7 @@
 
             <Button
                 x:Name="JumpToLatestButton"
+                x:Uid="LogViewerJumpToLatestButton"
                 Width="36"
                 Height="36"
                 MinWidth="36"

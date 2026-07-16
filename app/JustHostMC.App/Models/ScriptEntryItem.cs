@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using JustHostMC.App.Services;
 using McManager.Grpc;
 
 namespace JustHostMC.App.Models;
@@ -10,18 +9,14 @@ public abstract class ScriptEntryItem {
     protected ScriptEntryItem(string id, string name, string author,
                               string version, string description,
                               IEnumerable<Permission> permissions,
-                              IEnumerable<PermissionKind> granted,
-                              ILocalizer localizer) {
-        Id             = id;
-        Name           = string.IsNullOrEmpty(name) ? id : name;
-        Author         = author;
-        Version        = version;
-        Description    = description;
-        Permissions    = permissions.ToList();
-        Granted        = granted.ToList();
-        GrantedSummary = string.Join(
-            ", ",
-            Granted.Select(kind => PermissionLabels.Label(kind, localizer)));
+                              IEnumerable<PermissionKind> granted) {
+        Id          = id;
+        Name        = string.IsNullOrEmpty(name) ? id : name;
+        Author      = author;
+        Version     = version;
+        Description = description;
+        Permissions = permissions.ToList();
+        Granted     = granted.ToList();
     }
 
     public string Id { get; }
@@ -31,7 +26,6 @@ public abstract class ScriptEntryItem {
     public string Description { get; }
     public IReadOnlyList<Permission> Permissions { get; }
     public IReadOnlyList<PermissionKind> Granted { get; }
-    public string GrantedSummary { get; }
 
     public virtual bool IsBuiltIn      => false;
     public virtual bool CanRemove      => true;

@@ -14,7 +14,6 @@ namespace JustHostMC.App.Views;
 public sealed partial class BackupsDialog : UserControl {
     private readonly string _serverId;
     private readonly string _serverName;
-    private readonly ILocalizer _localizer = new LocalizationService();
 
     public BackupsViewModel ViewModel { get; }
 
@@ -23,7 +22,7 @@ public sealed partial class BackupsDialog : UserControl {
         _serverId   = serverId;
         _serverName = serverName;
         ViewModel   = new BackupsViewModel(serverId, serverRunning, dispatcher,
-                                           _localizer);
+                                           new LocalizationService());
         InitializeComponent();
     }
 
@@ -32,6 +31,10 @@ public sealed partial class BackupsDialog : UserControl {
     /// <summary>Helper for x:Bind to enable controls only when not
     /// busy.</summary>
     public bool Not(bool value) => !value;
+
+    public Visibility ShowWhenEmpty(int count) => count == 0
+                                                      ? Visibility.Visible
+                                                      : Visibility.Collapsed;
 
     private async void OnExportBackupClick(object sender, RoutedEventArgs e) {
         if (ViewModel.IsBusy)
@@ -42,8 +45,7 @@ public sealed partial class BackupsDialog : UserControl {
 
         var source = FindBackupFile(item);
         if (source is null) {
-            ViewModel.StatusMessage =
-                _localizer.Get("Backups_ExportSourceMissing");
+            ViewModel.ReportExportSourceMissing();
             return;
         }
 
@@ -62,11 +64,10 @@ public sealed partial class BackupsDialog : UserControl {
 
         try {
             File.Copy(source, file.Path, overwrite: true);
-            ViewModel.StatusMessage =
-                _localizer.Get("Backups_Exported", ("path", file.Path));
+            ViewModel.ReportExported(file.Path);
         } catch (Exception ex)
             when (ex is IOException or UnauthorizedAccessException) {
-            ViewModel.StatusMessage = _localizer.Get("Backups_ExportFailed");
+            ViewModel.ReportExportFailed();
         }
     }
 
@@ -78,7 +79,7 @@ public sealed partial class BackupsDialog : UserControl {
             return;
 
         if (!ViewModel.CanRestore) {
-            ViewModel.StatusMessage = _localizer.Get("error.server_running");
+            ViewModel.ReportRestoreBlocked();
             return;
         }
 
@@ -102,7 +103,7 @@ public sealed partial class BackupsDialog : UserControl {
     private void OnOpenBackupFolderClick(object sender, RoutedEventArgs e) {
         var folder = BackupRoots().FirstOrDefault(Directory.Exists);
         if (folder is null) {
-            ViewModel.StatusMessage = _localizer.Get("Backups_FolderMissing");
+            ViewModel.ReportFolderMissing();
             return;
         }
 

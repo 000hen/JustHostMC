@@ -15,7 +15,6 @@ namespace JustHostMC.App.Views;
 /// install progress. Shares the shell's <see cref="MainViewModel"/>.</summary>
 public sealed partial class HomePage : Page {
     private readonly FirstRunService _firstRun = new();
-    private readonly ILocalizer _localizer     = new LocalizationService();
     private readonly AddCard _addCard          = new();
     private NavShellViewModel _shell           = null!;
 
@@ -88,20 +87,10 @@ public sealed partial class HomePage : Page {
         if (!TryGetServerItem(sender, out var item))
             return;
 
-        var confirm = new ContentDialog {
-            XamlRoot          = XamlRoot,
-            Title             = _localizer.Get(item.IsIncompleteInstallation
-                                                   ? "ServerInstallRemove_Title"
-                                                   : "ServerDelete_Title"),
-            Content           = _localizer.Get(item.IsIncompleteInstallation
-                                                   ? "ServerInstallRemove_Body"
-                                                   : "ServerDelete_Body"),
-            PrimaryButtonText = _localizer.Get(
-                item.IsIncompleteInstallation ? "ServerInstallRemove_Confirm"
-                                              : "ServerDelete_Confirm"),
-            CloseButtonText = _localizer.Get("Common_Cancel"),
-            DefaultButton   = ContentDialogButton.Close,
-        };
+        ContentDialog confirm = item.IsIncompleteInstallation
+                                    ? new IncompleteServerRemovalDialog()
+                                    : new DeleteServerDialog();
+        confirm.XamlRoot      = XamlRoot;
         if (await confirm.ShowAsync() == ContentDialogResult.Primary)
             Main.DeleteServerCommand.Execute(item);
     }
@@ -116,27 +105,13 @@ public sealed partial class HomePage : Page {
     }
 
     private async void OnAddCardClick(object sender, RoutedEventArgs e) {
-        var content = new ServerDialog(Main, ServerDialogMode.Create);
-        var dialog  = new ContentDialog {
+        var dialog = new CreateServerDialog(Main) {
             XamlRoot = XamlRoot,
-            Style    = Application.Current
-                           .Resources["DefaultContentDialogStyle"] as Style,
-            Title    = _localizer.Get("CreateServerDialog_Title"),
-            Content  = content,
-            PrimaryButtonText =
-                _localizer.Get("CreateServerDialog_PrimaryButtonText"),
-            CloseButtonText =
-                _localizer.Get("CreateServerDialog_CloseButtonText"),
-            DefaultButton          = ContentDialogButton.Primary,
-            IsPrimaryButtonEnabled = content.CanSubmit,
         };
-        content.CanSubmitChanged += (_, _) => dialog.IsPrimaryButtonEnabled =
-            content.CanSubmit;
-        ContentDialogSizing.Apply(dialog);
 
         if (await dialog.ShowAsync() != ContentDialogResult.Primary)
             return;
-        if (content.BuildCreateRequest() is {} request)
+        if (dialog.BuildCreateRequest() is {} request)
             await Main.InstallServerAsync(request);
     }
 
@@ -144,45 +119,21 @@ public sealed partial class HomePage : Page {
         _firstRun.MarkOnMachineNoticeShown();
 
     private async Task ShowEditDialogAsync(ServerItem item) {
-        var content = new ServerDialog(Main, ServerDialogMode.Edit, item);
-        var dialog  = new ContentDialog {
+        var dialog = new EditServerDialog(Main, item) {
             XamlRoot = XamlRoot,
-            Style    = Application.Current
-                           .Resources["DefaultContentDialogStyle"] as Style,
-            Title    = _localizer.Get("EditServerDialog_Title"),
-            Content  = content,
-            PrimaryButtonText =
-                _localizer.Get("EditServerDialog_PrimaryButtonText"),
-            CloseButtonText =
-                _localizer.Get("EditServerDialog_CloseButtonText"),
-            DefaultButton          = ContentDialogButton.Primary,
-            IsPrimaryButtonEnabled = content.CanSubmit,
         };
-        content.CanSubmitChanged += (_, _) => dialog.IsPrimaryButtonEnabled =
-            content.CanSubmit;
-        ContentDialogSizing.Apply(dialog);
 
         if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-            await Main.UpdateServerAsync(content.BuildUpdateRequest());
+            await Main.UpdateServerAsync(dialog.BuildUpdateRequest());
     }
 
     private async Task ShowRenameDialogAsync(ServerItem item) {
-        var nameBox = new TextBox {
-            Text            = item.Name,
-            Header          = _localizer.Get("EditServerName_Header"),
-            SelectionStart  = 0,
-            SelectionLength = item.Name.Length,
+        var dialog = new RenameServerDialog(item.Name) {
+            XamlRoot = XamlRoot,
         };
-        var dialog = new ContentDialog {
-            XamlRoot          = XamlRoot,
-            Title             = _localizer.Get("RenameServerDialog_Title"),
-            Content           = nameBox,
-            PrimaryButtonText = _localizer.Get("Common_Save"),
-            CloseButtonText   = _localizer.Get("Common_Cancel"),
-            DefaultButton     = ContentDialogButton.Primary,
-        };
+
         if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-            await Main.RenameServerAsync(item, nameBox.Text);
+            await Main.RenameServerAsync(item, dialog.ServerName);
     }
 
     private static bool TryGetServerItem(object sender, out ServerItem item) {

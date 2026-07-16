@@ -8,10 +8,7 @@
     xmlns:server="using:JustHostMC.App.Controls.Server"
     mc:Ignorable="d">
 
-    <server:ServerSectionLayout
-        Title="{x:Bind PerformanceTitle()}"
-        Description="{x:Bind PerformanceDescription()}"
-        IconGlyph="&#xE9D9;">
+    <server:ServerSectionLayout x:Uid="ServerPerformanceSection" IconGlyph="&#xE9D9;">
         <server:ServerSectionLayout.Body>
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <Grid ColumnSpacing="4" RowSpacing="4">
@@ -94,7 +91,7 @@
                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Style="{StaticResource CaptionTextBlockStyle}"
                                 TextWrapping="Wrap"
-                                Visibility="{x:Bind Metrics.NetworkAvailable, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
+                                Visibility="{x:Bind Metrics.NetworkAvailable, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=True}" />
                         </StackPanel>
                     </Border>
                 </Grid>

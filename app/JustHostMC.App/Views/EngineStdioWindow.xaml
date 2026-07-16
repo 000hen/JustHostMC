@@ -19,7 +19,7 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <TitleBar x:Name="MonitorTitleBar">
+        <TitleBar x:Name="MonitorTitleBar" x:Uid="EngineMonitorTitleBar">
             <TitleBar.IconSource>
                 <ImageIconSource ImageSource="ms-appx:///Assets/StoreLogo.png" />
             </TitleBar.IconSource>

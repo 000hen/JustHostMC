@@ -38,12 +38,28 @@
                 TextTrimming="CharacterEllipsis" />
         </StackPanel>
 
-        <TextBlock
-            Grid.Column="1"
-            VerticalAlignment="Center"
-            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-            Style="{StaticResource CaptionTextBlockStyle}"
-            Text="{Binding Entry.TypeText, ElementName=Root}" />
+        <Grid Grid.Column="1" VerticalAlignment="Center">
+            <TextBlock
+                x:Uid="ConfigTypeBooleanText"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                Style="{StaticResource CaptionTextBlockStyle}"
+                Visibility="{Binding Entry.IsBoolean, ElementName=Root, Converter={StaticResource BoolToVis}}" />
+            <TextBlock
+                x:Uid="ConfigTypeIntegerText"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                Style="{StaticResource CaptionTextBlockStyle}"
+                Visibility="{Binding Entry.IsInteger, ElementName=Root, Converter={StaticResource BoolToVis}}" />
+            <TextBlock
+                x:Uid="ConfigTypeChoiceText"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                Style="{StaticResource CaptionTextBlockStyle}"
+                Visibility="{Binding Entry.IsChoice, ElementName=Root, Converter={StaticResource BoolToVis}}" />
+            <TextBlock
+                x:Uid="ConfigTypeTextText"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                Style="{StaticResource CaptionTextBlockStyle}"
+                Visibility="{Binding Entry.IsText, ElementName=Root, Converter={StaticResource BoolToVis}}" />
+        </Grid>
 
         <Grid
             Grid.Column="2"
@@ -58,7 +74,7 @@
             <TextBox
                 HorizontalAlignment="Stretch"
                 Text="{Binding Entry.Value, ElementName=Root, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                Visibility="{Binding Entry.HasChoices, ElementName=Root, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
+                Visibility="{Binding Entry.HasChoices, ElementName=Root, Converter={StaticResource BoolToVis}, ConverterParameter=True}" />
         </Grid>
     </Grid>
 </UserControl>

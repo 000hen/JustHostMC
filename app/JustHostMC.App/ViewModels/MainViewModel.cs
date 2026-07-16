@@ -11,6 +11,12 @@ using Microsoft.UI.Dispatching;
 
 namespace JustHostMC.App.ViewModels;
 
+public enum EngineConnectionStatus {
+    Connecting,
+    Connected,
+    Failed,
+}
+
 /// <summary>
 /// Backs the main window: connects to the engine, lists/creates/starts/stops
 /// servers, and surfaces install progress. All user-visible text is localized
@@ -60,12 +66,22 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
         Servers.Count(s => s.Status is ServerStatus.Installing or
                                ServerStatus.Starting or ServerStatus.Stopping);
     [ObservableProperty]
-    public partial string EngineStatus { get; private set; }
+    [NotifyPropertyChangedFor(nameof(IsEngineConnecting))]
+    [NotifyPropertyChangedFor(nameof(IsEngineConnected))]
+    [NotifyPropertyChangedFor(nameof(IsEngineConnectionFailed))]
+    public partial EngineConnectionStatus EngineConnectionState {
+        get; private set;
+    } = EngineConnectionStatus.Connecting;
+
+    public bool IsEngineConnecting =>
+        EngineConnectionState == EngineConnectionStatus.Connecting;
+    public bool IsEngineConnected =>
+        EngineConnectionState == EngineConnectionStatus.Connected;
+    public bool IsEngineConnectionFailed =>
+        EngineConnectionState == EngineConnectionStatus.Failed;
 
     [ObservableProperty]
-    public partial bool IsInstalling {
-        get; private set;
-    }
+    public partial bool IsInstalling { get; private set; }
 
     [ObservableProperty]
     public partial bool InstallFailed {
@@ -94,19 +110,19 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
         _backgroundTasks = backgroundTasks;
         ProgressService  = new ServerProgressService(_dispatcher);
         ProviderCatalog  = new ProviderCatalog(FetchProvidersAsync);
-        EngineStatus     = _localizer.Get("EngineStatus_Connecting");
     }
 
     /// <summary>Waits for the engine, probes Health, and starts the server
     /// change stream.</summary>
     public async Task ConnectAsync() {
-        RunOnUI(() => EngineStatus = _localizer.Get("EngineStatus_Connecting"));
+        RunOnUI(() => EngineConnectionState =
+                    EngineConnectionStatus.Connecting);
         try {
             var daemon = await App.Current.DaemonReady;
             await daemon.Engine.HealthAsync(
                 new Empty(), deadline: DateTime.UtcNow.AddSeconds(10));
-            RunOnUI(() => EngineStatus =
-                        _localizer.Get("EngineStatus_Connected"));
+            RunOnUI(() => EngineConnectionState =
+                        EngineConnectionStatus.Connected);
             // Warm the provider catalog so server-type names + capabilities
             // resolve (non-fatal: ServerItem falls back to its id-based name
             // until loaded).
@@ -116,7 +132,8 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
             _serverChangesSession ??= CreateServerChangeSession(daemon);
             await _serverChangesSession.StartAsync();
         } catch (Exception) {
-            RunOnUI(() => EngineStatus = _localizer.Get("EngineStatus_Failed"));
+            RunOnUI(() => EngineConnectionState =
+                        EngineConnectionStatus.Failed);
         }
     }
 
@@ -179,14 +196,14 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
             tracker.IsReadyToRun     = false;
             tracker.IsIndeterminate  = true;
             tracker.ProgressFraction = 0;
-            tracker.CurrentStep = _localizer.Get("install_progress_preparing");
+            tracker.CurrentStep = _localizer.Get("install.progress.preparing");
 
             InstallLog.Clear();
             InstallFailed          = false;
             IsInstalling           = true;
             InstallIsIndeterminate = true;
             InstallFraction        = 0;
-            InstallStep = _localizer.Get("install_progress_preparing");
+            InstallStep = _localizer.Get("install.progress.preparing");
         });
 
         var progressBuffer = new InstallProgressBuffer(
@@ -206,21 +223,18 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
                 tracker.IsInstalling = false;
                 tracker.IsActive     = false;
                 tracker.IsReadyToRun = true;
-                tracker.CurrentStep  = _localizer.Get("install_progress_done") +
+                tracker.CurrentStep  = _localizer.Get("install.progress.done") +
                                        " " +
-                                       _localizer.Get("install_ready_to_run");
+                                       _localizer.Get("install.ready_to_run");
             });
         } catch (RpcException ex) {
             await progressBuffer.FlushAsync();
-            var key    = MapErrorKey(ex);
-            var detail = ex.Status.Detail;
+            var key = MapErrorKey(ex);
             RunOnUI(() => {
                 IsInstalling           = false;
                 InstallFailed          = true;
                 InstallIsIndeterminate = false;
-                InstallStep = string.IsNullOrEmpty(detail)
-                                  ? _localizer.Get(key)
-                                  : $"{_localizer.Get(key)}: {detail}";
+                InstallStep            = _localizer.Get(key);
 
                 tracker.HasFailed       = true;
                 tracker.IsInstalling    = false;

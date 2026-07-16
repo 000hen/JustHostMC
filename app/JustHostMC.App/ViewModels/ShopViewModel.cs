@@ -68,9 +68,9 @@ public sealed partial class ShopViewModel : ObservableObject {
     }
 
     [ObservableProperty]
-    public partial string StatusMessage {
+    public partial bool HasLoadFailure {
         get; private set;
-    } = "";
+    }
 
     [ObservableProperty]
     public partial string Query {
@@ -97,8 +97,8 @@ public sealed partial class ShopViewModel : ObservableObject {
         // source.
         Interlocked.Increment(ref _homeGeneration);
         HomeSections.Clear();
-        IsHomeLoading = false;
-        StatusMessage = "";
+        IsHomeLoading  = false;
+        HasLoadFailure = false;
 
         OnPropertyChanged(nameof(SelectedShopName));
         var categoryGeneration = Interlocked.Increment(ref _categoryGeneration);
@@ -181,8 +181,7 @@ public sealed partial class ShopViewModel : ObservableObject {
                                list.Shops.FirstOrDefault();
             });
         } catch {
-            await RunOnUIAsync(() => StatusMessage =
-                                   _localizer.Get("Shop_LoadFailed"));
+            await RunOnUIAsync(() => HasLoadFailure = true);
         }
     }
 
@@ -196,8 +195,8 @@ public sealed partial class ShopViewModel : ObservableObject {
         }
         var generation = Interlocked.Increment(ref _homeGeneration);
         await RunOnUIAsync(() => {
-            IsHomeLoading = true;
-            StatusMessage = "";
+            IsHomeLoading  = true;
+            HasLoadFailure = false;
         });
         try {
             var daemon = await App.Current.DaemonReady;
@@ -228,7 +227,7 @@ public sealed partial class ShopViewModel : ObservableObject {
         } catch {
             await RunOnUIAsync(() => {
                 if (generation == _homeGeneration)
-                    StatusMessage = _localizer.Get("Shop_LoadFailed");
+                    HasLoadFailure = true;
             });
         } finally {
             await RunOnUIAsync(() => {
@@ -239,7 +238,7 @@ public sealed partial class ShopViewModel : ObservableObject {
     }
 
     private string GetSectionDescription(string titleKey) {
-        var descriptionKey = $"{titleKey}.description";
+        var descriptionKey = $"{titleKey}_description";
         var description    = _localizer.Get(descriptionKey);
         return description == descriptionKey ? "" : description;
     }
@@ -247,8 +246,8 @@ public sealed partial class ShopViewModel : ObservableObject {
     /// <summary>Starts a fresh search for the current query/filters.</summary>
     public async Task StartSearchAsync() {
         await RunOnUIAsync(() => {
-            StatusMessage = "";
-            TotalResults  = 0;
+            HasLoadFailure = false;
+            TotalResults   = 0;
             SearchResults.Reset();
         });
         // The ListView pulls the first page through ISupportIncrementalLoading,
@@ -283,8 +282,7 @@ public sealed partial class ShopViewModel : ObservableObject {
             await RunOnUIAsync(() => TotalResults = page.Total);
             return page.Projects.Select(p => new ShopProjectItem(p)).ToArray();
         } catch {
-            await RunOnUIAsync(() => StatusMessage =
-                                   _localizer.Get("Shop_LoadFailed"));
+            await RunOnUIAsync(() => HasLoadFailure = true);
             return Array.Empty<ShopProjectItem>();
         } finally {
             await RunOnUIAsync(() => IsSearchLoading = false);

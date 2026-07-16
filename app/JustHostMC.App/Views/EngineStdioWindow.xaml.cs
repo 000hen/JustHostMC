@@ -36,12 +36,10 @@ public sealed partial class EngineStdioWindow : Window {
     public EngineStdioWindow(EngineHost host) {
         _host = host;
         InitializeComponent();
+        Title = MonitorTitleBar.Title;
         InitializeFilterGroups();
         _isInitialized = true;
 
-        var title                  = _localizer.Get("EngineMonitor_Title");
-        Title                      = title;
-        MonitorTitleBar.Title      = title;
         ExtendsContentIntoTitleBar = true;
         AppWindow.Resize(new SizeInt32(1040, 700));
 

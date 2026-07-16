@@ -9,6 +9,13 @@ using Microsoft.UI.Dispatching;
 
 namespace JustHostMC.App.ViewModels;
 
+public enum ConfigStatus {
+    None,
+    Saved,
+    LoadFailed,
+    SaveFailed,
+}
+
 /// <summary>Loads and saves server.properties plus world gamerules.</summary>
 public sealed partial class ServerConfigViewModel : ObservableObject {
     private readonly string _serverId;
@@ -61,13 +68,18 @@ public sealed partial class ServerConfigViewModel : ObservableObject {
     public bool IsInitialLoading => IsBusy && !_loaded;
 
     [ObservableProperty]
-    public partial string StatusMessage { get; private set; } = "";
+    [NotifyPropertyChangedFor(nameof(IsSavedStatus))]
+    [NotifyPropertyChangedFor(nameof(IsLoadFailedStatus))]
+    [NotifyPropertyChangedFor(nameof(IsSaveFailedStatus))]
+    public partial ConfigStatus Status { get; private set; }
+
+    public bool IsSavedStatus      => Status == ConfigStatus.Saved;
+    public bool IsLoadFailedStatus => Status == ConfigStatus.LoadFailed;
+    public bool IsSaveFailedStatus => Status == ConfigStatus.SaveFailed;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasGameRulesMessage))]
-    public partial string GameRulesMessage {
-        get; private set;
-    } = "";
+    public partial string GameRulesMessage { get; private set; } = "";
 
     public bool HasGameRulesMessage =>
         !string.IsNullOrWhiteSpace(GameRulesMessage);
@@ -82,8 +94,8 @@ public sealed partial class ServerConfigViewModel : ObservableObject {
             return;
 
         RunOnUI(() => {
-            IsBusy        = true;
-            StatusMessage = "";
+            IsBusy = true;
+            Status = ConfigStatus.None;
         });
     }
 
@@ -106,8 +118,8 @@ public sealed partial class ServerConfigViewModel : ObservableObject {
 
     private async Task RefreshCoreAsync() {
         RunOnUI(() => {
-            IsBusy        = true;
-            StatusMessage = "";
+            IsBusy = true;
+            Status = ConfigStatus.None;
         });
         await Task.Yield();
 
@@ -130,7 +142,7 @@ public sealed partial class ServerConfigViewModel : ObservableObject {
                 OnPropertyChanged(nameof(IsInitialLoading));
             });
         } catch (RpcException) {
-            RunOnUI(() => StatusMessage = _localizer.Get("Config_LoadFailed"));
+            RunOnUI(() => Status = ConfigStatus.LoadFailed);
         } finally {
             RunOnUI(() => IsBusy = false);
         }
@@ -141,8 +153,8 @@ public sealed partial class ServerConfigViewModel : ObservableObject {
             return;
 
         RunOnUI(() => {
-            IsBusy        = true;
-            StatusMessage = "";
+            IsBusy = true;
+            Status = ConfigStatus.None;
         });
         try {
             var daemon = await App.Current.DaemonReady;
@@ -152,13 +164,10 @@ public sealed partial class ServerConfigViewModel : ObservableObject {
             var saved = await daemon.Config.UpdateServerPropertiesAsync(req);
             RunOnUI(() => {
                 Replace(Properties, saved.Entries, _localizer);
-                StatusMessage = _localizer.Get("Config_Saved");
+                Status = ConfigStatus.Saved;
             });
-        } catch (RpcException ex) {
-            RunOnUI(() => StatusMessage =
-                        ex.Status.Detail.Length > 0
-                            ? ex.Status.Detail
-                            : _localizer.Get("Config_SaveFailed"));
+        } catch (RpcException) {
+            RunOnUI(() => Status = ConfigStatus.SaveFailed);
         } finally {
             RunOnUI(() => IsBusy = false);
         }
@@ -169,8 +178,8 @@ public sealed partial class ServerConfigViewModel : ObservableObject {
             return;
 
         RunOnUI(() => {
-            IsBusy        = true;
-            StatusMessage = "";
+            IsBusy = true;
+            Status = ConfigStatus.None;
         });
         try {
             var daemon = await App.Current.DaemonReady;
@@ -181,13 +190,10 @@ public sealed partial class ServerConfigViewModel : ObservableObject {
                 Replace(GameRules, saved.Entries, _localizer);
                 GameRulesWorldExists = saved.WorldExists;
                 GameRulesMessage     = saved.Message;
-                StatusMessage        = _localizer.Get("Config_Saved");
+                Status               = ConfigStatus.Saved;
             });
-        } catch (RpcException ex) {
-            RunOnUI(() => StatusMessage =
-                        ex.Status.Detail.Length > 0
-                            ? ex.Status.Detail
-                            : _localizer.Get("Config_SaveFailed"));
+        } catch (RpcException) {
+            RunOnUI(() => Status = ConfigStatus.SaveFailed);
         } finally {
             RunOnUI(() => IsBusy = false);
         }
@@ -208,7 +214,7 @@ public sealed partial class ServerConfigViewModel : ObservableObject {
             item.DiscardChanges();
         foreach (var item in GameRules.Where(item => item.IsModified))
             item.DiscardChanges();
-        StatusMessage = "";
+        Status = ConfigStatus.None;
     }
 
     private void Replace(

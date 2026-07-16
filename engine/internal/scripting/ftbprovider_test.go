@@ -21,9 +21,15 @@ func newFTBProvider(t *testing.T, handler http.Handler) *Entry {
 	t.Cleanup(srv.Close)
 	u, _ := url.Parse(srv.URL)
 	client := &http.Client{Transport: rewriteTransport{target: u}}
-	r := NewRegistry(NewHost(client, nil, nil), nil)
+	host := NewHost(client, nil, nil)
+	r := NewRegistry(host, nil)
 	if err := LoadBuiltins(context.Background(), r); err != nil {
 		t.Fatalf("LoadBuiltins: %v", err)
+	}
+	// FTB is now a dual-role source (modpack shop + hidden provider).
+	ss := NewShopSet(host, nil, nil)
+	if _, err := LoadBuiltinSources(context.Background(), r, ss, nil); err != nil {
+		t.Fatalf("LoadBuiltinSources: %v", err)
 	}
 	e, ok := r.Get("ftb")
 	if !ok {

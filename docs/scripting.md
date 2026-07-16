@@ -523,10 +523,12 @@ Contract details:
 ## 9. Shop scripts (mod browsing/downloading)
 
 Shop scripts power the app's **Mod Shop** window: browsing, searching, and
-installing mods/plugins from an online source. Built-ins live in
-`engine/internal/scripting/builtin_shops/` (`modrinth.lua`, `curseforge.lua`);
-user shops are imported via `ShopService.Import` and stored under
-`<data>/shops/`. Grants persist in `shop-grants.json`.
+installing mods/plugins from an online source. The first-party shops now ship as
+**multi-role source scripts** in `engine/internal/scripting/builtin_sources/`
+(`modrinth.lua`, `curseforge.lua`, `ftb.lua`) — one file that declares a `shop`
+role and a hidden `provider` role (see §11); user shops are imported via
+`ShopService.Import` and stored under `<data>/shops/`. Grants persist in
+`shop-grants.json`.
 
 A shop script declares the usual `meta` table (plus `needs_key = true` when
 the source requires an API key), five required globals, and an optional
@@ -582,6 +584,62 @@ ETag cache (`If-None-Match`/304), so repeated detail views cost a cheap
 revalidation; `ttl` seconds within which no request is made at all.
 The built-in CurseForge shop uses a 24-hour (`86400` second) TTL for its
 class-specific category list and keeps Mods and Plugins in separate cache keys.
+
+## 9a. Multi-role source scripts (`shop` + `provider` in one file)
+
+One `.lua` can fill more than one subsystem role. Instead of top-level
+functions, declare optional global **role sub-tables** alongside the shared
+`meta`, and the engine registers each role into its subsystem under the same
+`meta.id`, sharing **one** stored config entry:
+
+```lua
+meta = {
+  id = "curseforge", name = "CurseForge", version = "1.0.0", author = "JustHostMC",
+  aliases = { "curseforge_modpacks" },                 -- NEW: old ids this script answers to
+  config  = { { key = "api_key", type = "secret", name = "CurseForge API key" } },
+  permissions = { { kind = "network", reason = "…" }, { kind = "install", reason = "…" },
+                  { kind = "fs_server", reason = "…" } },
+}
+
+shop = {                                               -- registered into ShopSet
+  kinds = { "mod", "plugin", "modpack" },              -- role-scoped (replaces meta.kinds)
+  needs_key = true,                                    -- role-scoped (replaces meta.needs_key)
+  home = function(ctx) … end, search = …, detail = …, versions = …, resolve_file = …,
+}
+
+provider = {                                           -- registered into Registry
+  hidden = true,                                       -- role-scoped (replaces meta.hidden)
+  mod_layout = "mods",                                 -- role-scoped (replaces meta.mod_layout)
+  versions = function() return {} end,
+  install = function(ctx) … end, update = function(ctx) … end,
+}
+```
+
+Rules:
+
+- **Role-scoped fields.** When a `shop` table exists, `kinds`/`needs_key` are read
+  from it; when a `provider` table exists, `hidden`/`mod_layout` are read from it.
+  A field absent from the role table falls back to the `meta`-level value.
+- **Function resolution.** The shop adapter looks up `home`/`search`/… in the
+  `shop` table first, then top-level globals; the provider adapter looks up
+  `versions`/`install`/`update` in the `provider` table first, then top-level.
+- **Shared config.** Both roles read *and* write the same entry, keyed by
+  `meta.id` in the shop config store (`shop-config.json`). Declare each key once in
+  `meta.config` (e.g. `api_key`); both roles see it as `ctx.config.<key>`.
+- **`meta.aliases`.** A list of prior ids the script also answers to. `Registry.Get`
+  and `ShopSet.Get` redirect an alias to this canonical entry (so servers persisted
+  under an old id keep resolving), and neither `List()` shows an alias as a
+  separate entry. Each alias must be a valid id, distinct from `meta.id` and the
+  other aliases.
+- **Back-compat.** A legacy single-role script — top-level functions with
+  `needs_key`/`kinds`/`hidden`/`mod_layout` on `meta` — keeps working unchanged;
+  role tables are purely additive.
+
+First-party sources live in `builtin_sources/` and are loaded by
+`LoadBuiltinSources(ctx, providers, shops, providerCfg)`, which registers the
+shop role into the `ShopSet` and the provider role into the `Registry`. The
+provider role's `ctx.config` is routed through `providerCfg` to the shared shop
+config store (plus any baked-key fallbacks the caller layers on).
 
 ## 10. Extending: fetching data from online services
 

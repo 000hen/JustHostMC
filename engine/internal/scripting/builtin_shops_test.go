@@ -41,8 +41,11 @@ func newBuiltinShops(t *testing.T, handler http.Handler) *ShopSet {
 		}
 		return ""
 	})
-	if err := LoadBuiltinShops(context.Background(), ss); err != nil {
-		t.Fatalf("LoadBuiltinShops: %v", err)
+	// The shops now live in dual-role source scripts, registered alongside a
+	// (here unused) provider registry.
+	reg := NewRegistry(host, nil)
+	if _, err := LoadBuiltinSources(context.Background(), reg, ss, nil); err != nil {
+		t.Fatalf("LoadBuiltinSources: %v", err)
 	}
 	return ss
 }

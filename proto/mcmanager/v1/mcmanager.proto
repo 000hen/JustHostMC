@@ -239,8 +239,8 @@ message ConfigOption {
 }
 
 // ScriptConfigValue is one stored value. In Get replies, `value` is empty for
-// secrets and `has_value` reports presence (mirrors ShopKeyInfo). In Set
-// requests an empty value clears the stored override.
+// secrets and `has_value` reports presence. In Set requests an empty value
+// clears the stored override.
 message ScriptConfigValue {
   string key = 1;
   string value = 2;
@@ -786,23 +786,6 @@ message ShopInstallRequest {
   repeated ShopDependencyInstall dependencies = 5; // extra downloads confirmed by the user
 }
 
-// -- Settings: per-shop API keys ------------------------------------------------
-
-// ShopKey sets (or clears, with empty api_key) the user override for one shop.
-message ShopKey {
-  string shop_id = 1;
-  string api_key = 2;
-}
-// ShopKeyInfo reports key presence without ever exposing the key itself.
-message ShopKeyInfo {
-  string shop_id = 1;
-  bool has_user_key = 2;
-  bool has_builtin_key = 3; // a baked-in default key exists in this build
-}
-message ShopKeyList {
-  repeated ShopKeyInfo keys = 1;
-}
-
 // -- Services -----------------------------------------------------------------
 
 service EngineService {
@@ -841,8 +824,6 @@ service SettingsService {
   rpc PurgeLogs(Empty) returns (PurgeResult); // apply the policy immediately
   rpc GetBackendInfo(Empty) returns (BackendInfo);
   rpc SetUseDocker(UseDocker) returns (Empty); // opt in/out; takes effect on next launch
-  rpc GetShopKeys(Empty) returns (ShopKeyList); // key presence per shop (never the key itself)
-  rpc SetShopKey(ShopKey) returns (Empty); // set/clear the user override for one shop
 }
 
 service PlayerService {

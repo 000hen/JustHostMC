@@ -155,7 +155,6 @@
   <data name="SettingsDialog.Title" xml:space="preserve"><value>設定</value><comment>Same visible value as SettingsButton.Content; kept separate for this property or translation context.</comment></data>
   <data name="SettingsDialog.CloseButtonText" xml:space="preserve"><value>關閉</value><comment>Same visible value as ConsoleDialog.CloseButtonText; kept separate for this property or translation context.</comment></data>
   <data name="SettingsCategoryEngine.Text" xml:space="preserve"><value>引擎與伺服器</value></data>
-  <data name="SettingsCategoryIntegrations.Text" xml:space="preserve"><value>整合</value></data>
   <data name="SettingsCategoryApp.Text" xml:space="preserve"><value>應用程式</value></data>
   <data name="SettingsRetentionHeader.Text" xml:space="preserve"><value>記錄保留</value></data>
   <data name="SettingsRetentionHint.Text" xml:space="preserve"><value>安裝與控制台記錄會自動清理。使用 0 表示不限制。</value></data>
@@ -541,8 +540,8 @@
   <data name="shop.category.worldgen" xml:space="preserve"><value>世界生成</value><comment>Canonical duplicate value in this locale; semantic identifier: shop.category.worldgen.</comment></data>
   <data name="ShopSearchBox.PlaceholderText" xml:space="preserve"><value>搜尋模組…</value></data>
   <data name="ShopBackButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>返回</value></data>
-  <data name="ShopKeyMissingBar.Message" xml:space="preserve"><value>此來源需要 API 金鑰，請先到「設定」新增金鑰。</value></data>
-<data name="ShopKeyMissingTooltip.Content" xml:space="preserve"><value>需要 API 金鑰（請見「設定」）</value></data>
+  <data name="ShopKeyMissingBar.Message" xml:space="preserve"><value>此來源需要 API 金鑰，請到「腳本」頁面設定此來源以啟用。</value></data>
+  <data name="ShopKeyMissingTooltip.Content" xml:space="preserve"><value>需要 API 金鑰（請到「腳本」頁面設定）</value></data>
   <data name="Shop_ResultSummary" xml:space="preserve"><value>「{1}」共 {0} 筆結果</value></data>
   <data name="ShopSortCombo.Header" xml:space="preserve"><value>排序方式</value></data>
   <data name="ShopSortRelevance.Content" xml:space="preserve"><value>關聯性</value></data>
@@ -777,4 +776,6 @@
   <data name="ShopInstallActionText.Text" xml:space="preserve"><value>安裝</value><comment>Same visible value as ShopInstallButton.Content; kept separate for this property or translation context.</comment></data>
   <data name="ShopStatusInstallDone.Text" xml:space="preserve"><value>安裝完成，伺服器的模組清單已更新。</value></data>
   <data name="ShopStatusInstallFailed.Text" xml:space="preserve"><value>安裝失敗。</value></data>
+  <data name="Mods_ExportDone" xml:space="preserve"><value>已匯出模組壓縮檔。</value></data>
+  <data name="Mods_ExportFailed" xml:space="preserve"><value>無法匯出模組壓縮檔。</value></data>
 </root>

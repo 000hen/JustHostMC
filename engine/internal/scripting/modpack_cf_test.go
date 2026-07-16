@@ -15,9 +15,15 @@ import (
 // builtinProvider loads the embedded providers and returns one by id.
 func builtinProvider(t *testing.T, id string) *Entry {
 	t.Helper()
-	r := NewRegistry(NewHost(http.DefaultClient, nil, nil), nil)
+	host := NewHost(http.DefaultClient, nil, nil)
+	r := NewRegistry(host, nil)
 	if err := LoadBuiltins(context.Background(), r); err != nil {
 		t.Fatalf("LoadBuiltins: %v", err)
+	}
+	// Modpack providers now live in dual-role source scripts.
+	ss := NewShopSet(host, nil, nil)
+	if _, err := LoadBuiltinSources(context.Background(), r, ss, nil); err != nil {
+		t.Fatalf("LoadBuiltinSources: %v", err)
 	}
 	e, ok := r.Get(id)
 	if !ok {
@@ -34,14 +40,16 @@ func TestCurseForgeModpacksProviderHidden(t *testing.T) {
 	if e.Meta.ModLayout != "mods" {
 		t.Errorf("mod_layout = %q, want mods", e.Meta.ModLayout)
 	}
+	// The merged CurseForge source declares its key once as meta.config.api_key,
+	// shared by both roles.
 	var hasKey bool
 	for _, c := range e.Meta.Config {
-		if c.Key == "curseforge_api_key" && c.Type == mcmanagerv1.ConfigOptionType_CONFIG_OPTION_SECRET {
+		if c.Key == "api_key" && c.Type == mcmanagerv1.ConfigOptionType_CONFIG_OPTION_SECRET {
 			hasKey = true
 		}
 	}
 	if !hasKey {
-		t.Errorf("should declare a curseforge_api_key secret, config=%+v", e.Meta.Config)
+		t.Errorf("should declare an api_key secret, config=%+v", e.Meta.Config)
 	}
 }
 

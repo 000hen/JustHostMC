@@ -145,26 +145,6 @@ public sealed partial class SettingsViewModel : ObservableObject {
     public string AppName =>
         JustHostMC.App.Helpers.ProcessInfoHelper.ProductName;
 
-    /// <summary>User-entered CurseForge API key (write-only; never read
-    /// back).</summary>
-    [ObservableProperty]
-    public partial string CurseForgeKey { get; set; } = "";
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasNoShopKey))]
-    [NotifyPropertyChangedFor(nameof(HasUserShopKey))]
-    [NotifyPropertyChangedFor(nameof(HasBuiltinShopKey))]
-    public partial ShopKeyConfiguration CurseForgeKeyConfiguration {
-        get; private set;
-    }
-
-    public bool HasNoShopKey =>
-        CurseForgeKeyConfiguration == ShopKeyConfiguration.None;
-    public bool HasUserShopKey =>
-        CurseForgeKeyConfiguration == ShopKeyConfiguration.User;
-    public bool HasBuiltinShopKey =>
-        CurseForgeKeyConfiguration == ShopKeyConfiguration.Builtin;
-
     private bool _loadingBackend;
     private bool _isLoadingLogs;
 
@@ -198,7 +178,6 @@ public sealed partial class SettingsViewModel : ObservableObject {
         }
 
         await LoadBackendAsync();
-        await LoadShopKeysAsync();
         await RefreshIncompleteInstallationsAsync();
     }
 
@@ -215,43 +194,6 @@ public sealed partial class SettingsViewModel : ObservableObject {
         }
     }
 
-    private async Task LoadShopKeysAsync() {
-        try {
-            var daemon = await App.Current.DaemonReady;
-            var keys   = await daemon.Settings.GetShopKeysAsync(
-                new Empty(), deadline: DateTime.UtcNow.AddSeconds(30));
-            var status = ShopKeyConfiguration.None;
-            foreach (var key in keys.Keys) {
-                if (key.ShopId != "curseforge")
-                    continue;
-                status = key.HasUserKey      ? ShopKeyConfiguration.User
-                         : key.HasBuiltinKey ? ShopKeyConfiguration.Builtin
-                                             : ShopKeyConfiguration.None;
-            }
-            RunOnUI(() => CurseForgeKeyConfiguration = status);
-        } catch (RpcException) {
-            // The shop key line stays empty; the rest of the page still works.
-        }
-    }
-
-    [RelayCommand]
-    private async Task SaveCurseForgeKey() {
-        try {
-            var daemon = await App.Current.DaemonReady;
-            await daemon.Settings.SetShopKeyAsync(
-                new ShopKey {
-                    ShopId = "curseforge",
-                    ApiKey = CurseForgeKey,
-                },
-                deadline: DateTime.UtcNow.AddSeconds(30));
-            RunOnUI(() => {
-                CurseForgeKey = "";
-                SetWorkflowStatus(SettingsWorkflowStatus.Saved);
-            });
-            await LoadShopKeysAsync();
-        } catch (RpcException) {
-            RunOnUI(() => SetWorkflowStatus(SettingsWorkflowStatus.SaveFailed));
-        }
     }
 
     private async Task LoadBackendAsync() {

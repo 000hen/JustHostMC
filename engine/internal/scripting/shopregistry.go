@@ -18,15 +18,16 @@ type ShopSet struct {
 
 	config *ConfigStore
 
-	mu    sync.RWMutex
-	order []string
-	byID  map[string]*LuaShop
+	mu      sync.RWMutex
+	order   []string
+	byID    map[string]*LuaShop
+	aliases map[string]string // old id -> canonical id (Meta.Aliases)
 }
 
 // NewShopSet builds an empty set. grants supplies persisted user permission
 // decisions; keyFn may be nil (no shop keys available).
 func NewShopSet(host *Host, grants Grants, keyFn func(shopID string) string) *ShopSet {
-	return &ShopSet{host: host, grants: grants, keyFn: keyFn, byID: map[string]*LuaShop{}}
+	return &ShopSet{host: host, grants: grants, keyFn: keyFn, byID: map[string]*LuaShop{}, aliases: map[string]string{}}
 }
 
 // SetConfigStore wires the typed-config store the set hands to its shop scripts.
@@ -48,11 +49,31 @@ func (ss *ShopSet) AddSource(ctx context.Context, source string, builtin bool) (
 	}
 	ss.mu.Lock()
 	defer ss.mu.Unlock()
-	if existing, ok := ss.byID[s.meta.ID]; ok && existing.builtin && !builtin {
+	id := s.meta.ID
+	if owner, ok := ss.aliases[id]; ok {
+		return nil, fmt.Errorf("%w: canonical id %q is already an alias for %q", ErrProviderIDConflict, id, owner)
+	}
+	existing, exists := ss.byID[id]
+	if exists && existing.builtin && !builtin {
 		return nil, fmt.Errorf("%w: %s", ErrProviderIDConflict, s.meta.ID)
 	}
-	if _, ok := ss.byID[s.meta.ID]; !ok {
-		ss.order = append(ss.order, s.meta.ID)
+	for _, alias := range s.meta.Aliases {
+		if _, ok := ss.byID[alias]; ok {
+			return nil, fmt.Errorf("%w: alias %q is already a canonical id", ErrProviderIDConflict, alias)
+		}
+		if owner, ok := ss.aliases[alias]; ok && owner != id {
+			return nil, fmt.Errorf("%w: alias %q is already assigned to %q", ErrProviderIDConflict, alias, owner)
+		}
+	}
+
+	if !exists {
+		ss.order = append(ss.order, id)
+	} else {
+		for _, alias := range existing.meta.Aliases {
+			if ss.aliases[alias] == id {
+				delete(ss.aliases, alias)
+			}
+		}
 	}
 	s.grantsFn = func() GrantSet { return ss.EffectiveGrants(s.meta.ID) }
 	s.keyFn = func() string {
@@ -62,24 +83,40 @@ func (ss *ShopSet) AddSource(ctx context.Context, source string, builtin bool) (
 		return ss.keyFn(s.meta.ID)
 	}
 	s.configFn = func() map[string]string { return ss.configValues(s.meta.ID) }
-	ss.byID[s.meta.ID] = s
+	ss.byID[id] = s
+	for _, a := range s.meta.Aliases {
+		ss.aliases[a] = id
+	}
 	return s, nil
 }
 
-// Get returns the shop registered under id.
+// Get returns the shop registered under id, resolving an alias to its canonical
+// shop.
 func (ss *ShopSet) Get(id string) (*LuaShop, bool) {
 	ss.mu.RLock()
 	defer ss.mu.RUnlock()
-	s, ok := ss.byID[id]
-	return s, ok
+	if s, ok := ss.byID[id]; ok {
+		return s, true
+	}
+	if canonical, ok := ss.aliases[id]; ok {
+		s, ok := ss.byID[canonical]
+		return s, ok
+	}
+	return nil, false
 }
 
 // Remove forgets the shop id (built-ins are guarded at the service layer).
 func (ss *ShopSet) Remove(id string) {
 	ss.mu.Lock()
 	defer ss.mu.Unlock()
-	if _, ok := ss.byID[id]; !ok {
+	s, ok := ss.byID[id]
+	if !ok {
 		return
+	}
+	for _, a := range s.meta.Aliases {
+		if ss.aliases[a] == id {
+			delete(ss.aliases, a)
+		}
 	}
 	delete(ss.byID, id)
 	for i, x := range ss.order {

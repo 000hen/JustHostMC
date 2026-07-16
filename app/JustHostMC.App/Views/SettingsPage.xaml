@@ -141,44 +141,6 @@
                     </toolkit:SettingsCard.ActionIcon>
                 </toolkit:SettingsCard>
 
-                <!--  Category: Integrations  -->
-                <TextBlock
-                    x:Uid="SettingsCategoryIntegrations"
-                    Margin="4,24,0,8"
-                    Style="{StaticResource SettingsSectionHeaderTextBlockStyle}" />
-
-                <!--  Mod shop: CurseForge API key  -->
-                <toolkit:SettingsExpander>
-                    <toolkit:SettingsExpander.Header>
-                        <TextBlock x:Uid="SettingsShopHeader" />
-                    </toolkit:SettingsExpander.Header>
-                    <toolkit:SettingsExpander.Description>
-                        <TextBlock x:Uid="SettingsShopHint" TextWrapping="Wrap" />
-                    </toolkit:SettingsExpander.Description>
-                    <toolkit:SettingsExpander.HeaderIcon>
-                        <FontIcon Glyph="&#xE719;" />
-                    </toolkit:SettingsExpander.HeaderIcon>
-                    <toolkit:SettingsExpander.Items>
-                        <toolkit:SettingsCard x:Uid="SettingsCurseForgeKey">
-                            <toolkit:SettingsCard.Description>
-                                <StackPanel>
-                                    <TextBlock x:Uid="SettingsShopKeyNone" Visibility="{x:Bind ViewModel.HasNoShopKey, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
-                                    <TextBlock x:Uid="SettingsShopKeyUser" Visibility="{x:Bind ViewModel.HasUserShopKey, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
-                                    <TextBlock x:Uid="SettingsShopKeyBuiltin" Visibility="{x:Bind ViewModel.HasBuiltinShopKey, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
-                                </StackPanel>
-                            </toolkit:SettingsCard.Description>
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <PasswordBox
-                                    x:Uid="SettingsCurseForgeKeyBox"
-                                    Width="250"
-                                    AutomationProperties.AutomationId="SettingsCurseForgeKey"
-                                    Password="{x:Bind ViewModel.CurseForgeKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                <Button x:Uid="SettingsShopKeySaveButton" Command="{x:Bind ViewModel.SaveCurseForgeKeyCommand}" />
-                            </StackPanel>
-                        </toolkit:SettingsCard>
-                    </toolkit:SettingsExpander.Items>
-                </toolkit:SettingsExpander>
-
                 <!--  Category: Application  -->
                 <TextBlock
                     x:Uid="SettingsCategoryApp"

@@ -39,18 +39,19 @@ type ConfigReader interface {
 // resolves each provider's effective grants (persisted grant, or — for trusted
 // built-ins — all declared permissions by default).
 type Registry struct {
-	mu     sync.RWMutex
-	host   *Host
-	grants Grants
-	config ConfigReader
-	order  []string
-	byID   map[string]*Entry
+	mu      sync.RWMutex
+	host    *Host
+	grants  Grants
+	config  ConfigReader
+	order   []string
+	byID    map[string]*Entry
+	aliases map[string]string // old id -> canonical id (Meta.Aliases)
 }
 
 // NewRegistry builds an empty registry. host runs the scripts; grants (optional)
 // supplies persisted user permission decisions.
 func NewRegistry(host *Host, grants Grants) *Registry {
-	return &Registry{host: host, grants: grants, byID: map[string]*Entry{}}
+	return &Registry{host: host, grants: grants, byID: map[string]*Entry{}, aliases: map[string]string{}}
 }
 
 // SetConfigStore wires the typed-config reader the registry hands to its
@@ -69,7 +70,15 @@ func (r *Registry) configValues(id string) map[string]string {
 // registers it. builtin marks first-party scripts, whose declared permissions
 // are granted by default.
 func (r *Registry) AddSource(ctx context.Context, source string, builtin bool) (*Entry, error) {
-	return r.add(ctx, source, builtin, "")
+	return r.addWithConfig(ctx, source, builtin, "", nil)
+}
+
+// AddSourceWithConfig registers a provider script whose typed config is read
+// from cfg instead of the registry's own store. It is used for a merged source
+// script's hidden provider role, whose config lives in the shared shop store so
+// both roles read and write one entry.
+func (r *Registry) AddSourceWithConfig(ctx context.Context, source string, builtin bool, cfg ConfigReader) (*Entry, error) {
+	return r.addWithConfig(ctx, source, builtin, "", cfg)
 }
 
 // AddProviderDir registers the provider whose script is dir/provider.lua, with
@@ -79,46 +88,78 @@ func (r *Registry) AddProviderDir(ctx context.Context, dir string, builtin bool)
 	if err != nil {
 		return nil, err
 	}
-	return r.add(ctx, string(src), builtin, dir)
+	return r.addWithConfig(ctx, string(src), builtin, dir, nil)
 }
 
-func (r *Registry) add(ctx context.Context, source string, builtin bool, assetDir string) (*Entry, error) {
+func (r *Registry) addWithConfig(ctx context.Context, source string, builtin bool, assetDir string, cfg ConfigReader) (*Entry, error) {
 	lp, err := newLuaProvider(ctx, r.host, source, builtin, assetDir)
 	if err != nil {
 		return nil, err
 	}
 	id := lp.meta.ID
-	// A user (non-builtin) script must never replace a trusted built-in provider.
-	if !builtin {
-		if existing, ok := r.Get(id); ok && existing.Builtin {
-			return nil, fmt.Errorf("%w: %q", ErrProviderIDConflict, id)
-		}
-	}
 	lp.grantsFn = func() GrantSet { return r.effectiveGrants(id, builtin, lp.meta) }
-	lp.configFn = func() map[string]string { return r.configValues(id) }
+	if cfg != nil {
+		lp.configFn = func() map[string]string { return cfg.Values(id) }
+	} else {
+		lp.configFn = func() map[string]string { return r.configValues(id) }
+	}
 	e := &Entry{Meta: lp.meta, Provider: lp, Builtin: builtin}
-	r.put(id, e)
+	if err := r.put(id, e); err != nil {
+		return nil, err
+	}
 	return e, nil
 }
 
 // AddEntry registers a pre-built entry (used by tests and non-Lua providers).
-func (r *Registry) AddEntry(e *Entry) { r.put(e.Meta.ID, e) }
+func (r *Registry) AddEntry(e *Entry) error { return r.put(e.Meta.ID, e) }
 
-func (r *Registry) put(id string, e *Entry) {
+func (r *Registry) put(id string, e *Entry) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	if _, ok := r.byID[id]; !ok {
+	if owner, ok := r.aliases[id]; ok {
+		return fmt.Errorf("%w: canonical id %q is already an alias for %q", ErrProviderIDConflict, id, owner)
+	}
+	existing, exists := r.byID[id]
+	if exists && existing.Builtin && !e.Builtin {
+		return fmt.Errorf("%w: %q", ErrProviderIDConflict, id)
+	}
+	for _, alias := range e.Meta.Aliases {
+		if _, ok := r.byID[alias]; ok {
+			return fmt.Errorf("%w: alias %q is already a canonical id", ErrProviderIDConflict, alias)
+		}
+		if owner, ok := r.aliases[alias]; ok && owner != id {
+			return fmt.Errorf("%w: alias %q is already assigned to %q", ErrProviderIDConflict, alias, owner)
+		}
+	}
+
+	if !exists {
 		r.order = append(r.order, id)
+	} else {
+		for _, alias := range existing.Meta.Aliases {
+			if r.aliases[alias] == id {
+				delete(r.aliases, alias)
+			}
+		}
 	}
 	r.byID[id] = e
+	for _, a := range e.Meta.Aliases {
+		r.aliases[a] = id
+	}
+	return nil
 }
 
 // Remove deletes a provider by id.
 func (r *Registry) Remove(id string) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	if _, ok := r.byID[id]; !ok {
+	e, ok := r.byID[id]
+	if !ok {
 		return
+	}
+	for _, a := range e.Meta.Aliases {
+		if r.aliases[a] == id {
+			delete(r.aliases, a)
+		}
 	}
 	delete(r.byID, id)
 	for i, x := range r.order {
@@ -129,12 +170,18 @@ func (r *Registry) Remove(id string) {
 	}
 }
 
-// Get returns the entry for an id.
+// Get returns the entry for an id, resolving an alias to its canonical entry.
 func (r *Registry) Get(id string) (*Entry, bool) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
-	e, ok := r.byID[id]
-	return e, ok
+	if e, ok := r.byID[id]; ok {
+		return e, true
+	}
+	if canonical, ok := r.aliases[id]; ok {
+		e, ok := r.byID[canonical]
+		return e, ok
+	}
+	return nil, false
 }
 
 // Provider returns just the installer for an id (convenience for the gRPC layer).

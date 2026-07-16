@@ -63,6 +63,11 @@ type Meta struct {
 	Hidden bool
 	// Config lists the author-declared typed config options (all subsystems).
 	Config []ConfigOption
+	// Aliases lists prior ids this script also answers to, so servers persisted
+	// under an old id (e.g. "curseforge_modpacks") resolve to this canonical
+	// entry after a merge. Registry/ShopSet redirect an alias id to this id and
+	// never list an alias as a separate entry.
+	Aliases []string
 }
 
 // DeclaredKinds returns just the permission kinds the script declares.
@@ -109,25 +114,39 @@ func parseMeta(L *lua.LState) (Meta, error) {
 	}
 
 	if kinds, ok := tbl.RawGetString("kinds").(*lua.LTable); ok {
-		var kerr error
-		kinds.ForEach(func(_, kv lua.LValue) {
-			if kerr != nil {
-				return
-			}
-			s, ok := kv.(lua.LString)
-			if !ok {
-				kerr = fmt.Errorf("meta.kinds entries must be strings")
-				return
-			}
-			kind := strings.ToLower(strings.TrimSpace(string(s)))
-			if !validShopKind(kind) {
-				kerr = fmt.Errorf("meta.kinds has unknown kind %q", kind)
-				return
-			}
-			m.Kinds = append(m.Kinds, kind)
-		})
+		ks, kerr := parseKinds(kinds)
 		if kerr != nil {
 			return Meta{}, kerr
+		}
+		m.Kinds = ks
+	}
+
+	if aliases, ok := tbl.RawGetString("aliases").(*lua.LTable); ok {
+		seen := map[string]bool{m.ID: true}
+		var aerr error
+		aliases.ForEach(func(_, av lua.LValue) {
+			if aerr != nil {
+				return
+			}
+			s, ok := av.(lua.LString)
+			if !ok {
+				aerr = fmt.Errorf("meta.aliases entries must be strings")
+				return
+			}
+			alias := strings.TrimSpace(string(s))
+			if !validProviderID(alias) {
+				aerr = fmt.Errorf("meta.aliases has invalid id %q", alias)
+				return
+			}
+			if seen[alias] {
+				aerr = fmt.Errorf("meta.aliases has duplicate id %q", alias)
+				return
+			}
+			seen[alias] = true
+			m.Aliases = append(m.Aliases, alias)
+		})
+		if aerr != nil {
+			return Meta{}, aerr
 		}
 	}
 
@@ -221,6 +240,82 @@ func parseMeta(L *lua.LState) (Meta, error) {
 		}
 	}
 
+	return m, nil
+}
+
+// parseKinds reads a Lua array of shop-kind strings, validating each.
+func parseKinds(kinds *lua.LTable) ([]string, error) {
+	var out []string
+	var kerr error
+	kinds.ForEach(func(_, kv lua.LValue) {
+		if kerr != nil {
+			return
+		}
+		s, ok := kv.(lua.LString)
+		if !ok {
+			kerr = fmt.Errorf("kinds entries must be strings")
+			return
+		}
+		kind := strings.ToLower(strings.TrimSpace(string(s)))
+		if !validShopKind(kind) {
+			kerr = fmt.Errorf("kinds has unknown kind %q", kind)
+			return
+		}
+		out = append(out, kind)
+	})
+	return out, kerr
+}
+
+// roleTable returns the global role sub-table (`shop` or `provider`) a script
+// declares, or nil when it uses the legacy top-level-function layout.
+func roleTable(L *lua.LState, role string) *lua.LTable {
+	if tbl, ok := L.GetGlobal(role).(*lua.LTable); ok {
+		return tbl
+	}
+	return nil
+}
+
+// parseShopMeta parses the shared meta and layers on the shop role's scoped
+// fields (kinds, needs_key) when a global `shop` table is present. A legacy
+// script (no `shop` table) keeps reading those fields from meta.
+func parseShopMeta(L *lua.LState) (Meta, error) {
+	m, err := parseMeta(L)
+	if err != nil {
+		return Meta{}, err
+	}
+	if tbl := roleTable(L, "shop"); tbl != nil {
+		if b, ok := tbl.RawGetString("needs_key").(lua.LBool); ok {
+			m.NeedsKey = bool(b)
+		}
+		if kinds, ok := tbl.RawGetString("kinds").(*lua.LTable); ok {
+			ks, kerr := parseKinds(kinds)
+			if kerr != nil {
+				return Meta{}, fmt.Errorf("shop.%w", kerr)
+			}
+			m.Kinds = ks
+		}
+	}
+	return m, nil
+}
+
+// parseProviderMeta parses the shared meta and layers on the provider role's
+// scoped fields (hidden, mod_layout) when a global `provider` table is present.
+// A legacy script (no `provider` table) keeps reading those fields from meta.
+func parseProviderMeta(L *lua.LState) (Meta, error) {
+	m, err := parseMeta(L)
+	if err != nil {
+		return Meta{}, err
+	}
+	if tbl := roleTable(L, "provider"); tbl != nil {
+		if b, ok := tbl.RawGetString("hidden").(lua.LBool); ok {
+			m.Hidden = bool(b)
+		}
+		if s, ok := tbl.RawGetString("mod_layout").(lua.LString); ok {
+			if v := strings.ToLower(strings.TrimSpace(string(s))); v != "" {
+				m.ModLayout = v
+			}
+		}
+	}
 	return m, nil
 }
 

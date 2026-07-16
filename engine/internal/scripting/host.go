@@ -65,6 +65,25 @@ type invocation struct {
 	kv       KV                // jhmc.store backend (nil where no store is wired, e.g. providers)
 	scriptID string            // id scoping jhmc.store access
 	config   map[string]string // typed config values surfaced as ctx.config / jhmc.config (nil = none)
+
+	// providerRole resolves versions/install/update from a global `provider`
+	// role table first (a multi-role source script) before falling back to the
+	// top-level globals (the legacy single-role layout).
+	providerRole bool
+}
+
+// providerFn resolves a provider entry point, preferring a function in the
+// global `provider` role table (when this invocation runs a source script) and
+// falling back to a top-level global (the legacy layout).
+func (inv *invocation) providerFn(L *lua.LState, name string) lua.LValue {
+	if inv.providerRole {
+		if tbl, ok := L.GetGlobal("provider").(*lua.LTable); ok {
+			if f := tbl.RawGetString(name); f.Type() == lua.LTFunction {
+				return f
+			}
+		}
+	}
+	return L.GetGlobal(name)
 }
 
 func (inv *invocation) emit(p provider.Progress) {
@@ -154,7 +173,7 @@ func (inv *invocation) versions(src string) ([]string, error) {
 	}
 	defer L.Close()
 
-	fn := L.GetGlobal("versions")
+	fn := inv.providerFn(L, "versions")
 	if fn.Type() != lua.LTFunction {
 		return nil, fmt.Errorf("script defines no versions() function")
 	}
@@ -232,7 +251,7 @@ func (inv *invocation) install(src, dir, version string) (provider.LaunchSpec, e
 	}
 	defer L.Close()
 
-	fn := L.GetGlobal("install")
+	fn := inv.providerFn(L, "install")
 	if fn.Type() != lua.LTFunction {
 		return provider.LaunchSpec{}, fmt.Errorf("script defines no install() function")
 	}
@@ -255,7 +274,7 @@ func (inv *invocation) update(src, dir, version, oldVersion string) (provider.La
 	}
 	defer L.Close()
 
-	fn := L.GetGlobal("update")
+	fn := inv.providerFn(L, "update")
 	if fn.Type() != lua.LTFunction {
 		return provider.LaunchSpec{}, provider.ErrUpdateUnsupported
 	}

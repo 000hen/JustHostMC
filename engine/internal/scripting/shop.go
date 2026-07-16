@@ -168,16 +168,27 @@ func newLuaShop(ctx context.Context, host *Host, source string, builtin bool) (*
 		return nil, err
 	}
 	defer L.Close()
-	meta, err := parseMeta(L)
+	meta, err := parseShopMeta(L)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrScriptInvalid, err)
 	}
 	for _, fn := range shopFuncs {
-		if L.GetGlobal(fn).Type() != lua.LTFunction {
+		if shopFn(L, fn).Type() != lua.LTFunction {
 			return nil, fmt.Errorf("%w: script does not define %s(ctx)", ErrScriptInvalid, fn)
 		}
 	}
 	return &LuaShop{meta: meta, source: source, host: host, builtin: builtin}, nil
+}
+
+// shopFn resolves a shop entry point, preferring a function in the global `shop`
+// role table and falling back to a top-level global (the legacy layout).
+func shopFn(L *lua.LState, name string) lua.LValue {
+	if tbl := roleTable(L, "shop"); tbl != nil {
+		if f := tbl.RawGetString(name); f.Type() == lua.LTFunction {
+			return f
+		}
+	}
+	return L.GetGlobal(name)
 }
 
 // Meta returns the shop's declared metadata.
@@ -207,13 +218,13 @@ func (s *LuaShop) storedConfig() map[string]string {
 	return nil
 }
 
-// effectiveKey resolves the shop's API key: the settings/baked chain first, then
-// a stored `api_key` config override.
+// effectiveKey resolves the shop's API key: a stored `api_key` config override
+// wins, and the keyFn (baked build default) only fills in when config is empty.
 func (s *LuaShop) effectiveKey() string {
-	if k := s.Key(); k != "" {
+	if k := s.storedConfig()["api_key"]; k != "" {
 		return k
 	}
-	return s.storedConfig()["api_key"]
+	return s.Key()
 }
 
 func (s *LuaShop) grants() GrantSet {
@@ -245,7 +256,7 @@ func (s *LuaShop) callFunction(ctx context.Context, fn string, optional bool, fi
 	}
 	defer L.Close()
 
-	f := L.GetGlobal(fn)
+	f := shopFn(L, fn)
 	if f.Type() != lua.LTFunction {
 		if optional {
 			return nil, false, nil
@@ -269,10 +280,12 @@ func (s *LuaShop) callFunction(ctx context.Context, fn string, optional bool, fi
 	for k, v := range EffectiveConfig(s.meta.Config, s.storedConfig()) {
 		cfg.RawSetString(k, lua.LString(v))
 	}
-	// The settings/baked key chain stays authoritative for the reserved api_key
-	// when it yields one; a stored api_key config fills in otherwise.
-	if key := s.Key(); key != "" {
-		cfg.RawSetString("api_key", lua.LString(key))
+	// A stored api_key config wins for the reserved api_key; the keyFn (baked
+	// build default) only fills in when no stored value is present.
+	if _, ok := s.storedConfig()["api_key"]; !ok {
+		if key := s.Key(); key != "" {
+			cfg.RawSetString("api_key", lua.LString(key))
+		}
 	}
 	ctxTbl.RawSetString("config", cfg)
 

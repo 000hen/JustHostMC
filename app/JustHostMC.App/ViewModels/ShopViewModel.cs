@@ -188,6 +188,14 @@ public sealed partial class ShopViewModel : ObservableObject {
     private ModKind EffectiveKind =>
         SelectedShopIsModpack ? ModKind.Modpack : Context.Kind;
 
+    /// <summary>The shop-kind string a server-scoped browser filters sources on:
+    /// "plugin" for a Paper/Spigot server, "mod" otherwise. A merged source
+    /// (e.g. curseforge, whose Kinds are mod/plugin/modpack) still qualifies as
+    /// long as it carries this kind — it is no longer excluded merely for also
+    /// serving modpacks.</summary>
+    private string ServerBrowseKind =>
+        Context.Kind == ModKind.Plugin ? "plugin" : "mod";
+
     // Modpacks pin their own MC version + loader, so a modpack shop always
     // browses unfiltered regardless of the (hidden) toggle state.
     private string EffectiveVersion =>
@@ -205,7 +213,7 @@ public sealed partial class ShopViewModel : ObservableObject {
             var list   = await daemon.Shop.ListAsync(new Empty());
             var visible =
                 Context.IsServerScoped
-                    ? list.Shops.Where(s => !s.Kinds.Contains("modpack"))
+                    ? list.Shops.Where(s => s.Kinds.Contains(ServerBrowseKind))
                           .ToArray()
                     : list.Shops.Where(s => s.Kinds.Contains("modpack"))
                           .ToArray();

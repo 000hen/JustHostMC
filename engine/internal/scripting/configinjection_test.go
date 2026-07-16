@@ -74,11 +74,18 @@ func TestShopConfigDefaultsAndOverride(t *testing.T) {
 }
 
 func TestShopApiKeyPrecedence(t *testing.T) {
-	// The settings/baked chain key wins over a stored api_key override.
+	// A stored api_key override wins over the settings/baked chain key; the chain
+	// key (baked build default) only fills in when no config value is stored.
 	s, cs := cfgShop(t, func(string) string { return "chainkey" })
 	_ = cs.Set("cfgshop", "api_key", "storedkey")
-	if key, _ := echoedConfig(t, s); key != "chainkey" {
-		t.Fatalf("api_key = %q, want chainkey (chain wins)", key)
+	if key, _ := echoedConfig(t, s); key != "storedkey" {
+		t.Fatalf("api_key = %q, want storedkey (stored config wins)", key)
+	}
+
+	// With no stored key, the chain key fills in.
+	s3, _ := cfgShop(t, func(string) string { return "chainkey" })
+	if key, _ := echoedConfig(t, s3); key != "chainkey" {
+		t.Fatalf("api_key = %q, want chainkey (baked fallback)", key)
 	}
 
 	// With no chain key, a stored api_key fills in and makes the shop Ready.

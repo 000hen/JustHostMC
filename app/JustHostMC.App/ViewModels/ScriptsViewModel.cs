@@ -96,8 +96,14 @@ public sealed partial class ScriptsViewModel : ObservableObject,
             var list = await daemon.Providers.ListAsync(new Empty());
             RunOnUI(() => {
                 Providers.Clear();
-                foreach (var p in list.Providers)
+                foreach (var p in list.Providers) {
+                    // Hidden provider roles (e.g. a merged modpack source's
+                    // provider) install from elsewhere (the modpack shop), so
+                    // they are not offered here.
+                    if (p.Capabilities?.Hidden == true)
+                        continue;
                     Providers.Add(new ProviderItem(p, _localizer));
+                }
             });
         } catch (RpcException ex) {
             RunOnUI(() => StatusMessage = _localizer.Get(MapErrorKey(ex)));

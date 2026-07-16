@@ -38,11 +38,6 @@ const (
 	readyLine = "MCMANAGER_READY"
 )
 
-// defaultCurseForgeKey is an optional build-time CurseForge API key, injected
-// with: -ldflags "-X main.defaultCurseForgeKey=<key>". The repo ships none;
-// a user key set in Settings always wins over this default.
-var defaultCurseForgeKey string
-
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -135,40 +130,59 @@ func main() {
 	// through a disk-backed ETag cache. Keyed sources resolve their API key
 	// from the user's settings first, then the baked-in build default.
 	host.SetHTTPCache(httpcache.New(paths.HTTPCache(), 0))
-	// All CurseForge sources (the mod shop, the modpack shop, and CF-hosted pack
-	// files) share one API key; the modpack shop reuses the mod shop's user key.
+	// The CurseForge source (mod/plugin/modpack shop + hidden modpack provider)
+	// carries a baked-in build default key. The user's own key now lives in the
+	// shared shop-config entry (keyed "curseforge") and wins over the baked
+	// default via LuaShop.effectiveKey's flipped precedence.
+	bakedCurseForgeKey := decodeDefaultCurseForgeKey()
 	bakedShopKeys := map[string]string{
-		"curseforge":          defaultCurseForgeKey,
-		"curseforge_modpacks": defaultCurseForgeKey,
+		"curseforge":          bakedCurseForgeKey,
+		"curseforge_modpacks": bakedCurseForgeKey,
 	}
-	shopKey := func(shopID string) string {
-		if s, err := settingsStore.Load(); err == nil {
-			if k := s.ShopKeys[shopID]; k != "" {
-				return k
-			}
-			if shopID == "curseforge_modpacks" {
-				if k := s.ShopKeys["curseforge"]; k != "" {
-					return k
-				}
-			}
-		}
-		return bakedShopKeys[shopID]
-	}
-	// Modpack providers that pull CF-hosted files reuse the CurseForge shop key,
-	// so a user who set it once for the shop needn't re-enter it. The raw
-	// providerConfig still backs GetConfig/SetConfig (the UI shows the unset
-	// value); only the ctx.config injected at install time gets the fallback.
-	curseKey := func() string { return shopKey("curseforge") }
-	providerCfg := scripting.NewFallbackConfigReader(providerConfig, "ftb", "curseforge_api_key", curseKey)
-	providerCfg = scripting.NewFallbackConfigReader(providerCfg, "curseforge_modpacks", "curseforge_api_key", curseKey)
-	providerCfg = scripting.NewFallbackConfigReader(providerCfg, "import", "curseforge_api_key", curseKey)
-	providers.SetConfigStore(providerCfg)
+	// shopKey supplies only the baked build default; a stored user key is read
+	// from shop-config and takes precedence in the shop adapter.
+	shopKey := func(shopID string) string { return bakedShopKeys[shopID] }
 	shopGrants := scripting.NewGrantStore(filepath.Join(paths.Base, "shop-grants.json"))
 	shops := scripting.NewShopSet(host, shopGrants, shopKey)
 	shopConfig := scripting.NewConfigStore(filepath.Join(paths.Base, "shop-config.json"))
 	shops.SetConfigStore(shopConfig)
-	if err := scripting.LoadBuiltinShops(ctx, shops); err != nil {
-		log.Fatalf("[FATAL] load builtin shops: %v", err)
+	// One-time migration: fold a CurseForge key previously stored on the global
+	// Settings page (settings.json shop_keys) or under the old modpack provider
+	// config into the shared shop-config entry, so it survives the merge.
+	migrateCurseForgeKey(settingsStore, shopConfig, providerConfig)
+
+	// curseEffectiveKey resolves CurseForge's usable key: the stored shop-config
+	// api_key, else the baked build default. FTB and the local-import provider
+	// reuse it for CurseForge-hosted files.
+	curseEffectiveKey := func() string {
+		if k := shopConfig.Values("curseforge")["api_key"]; k != "" {
+			return k
+		}
+		return bakedCurseForgeKey
+	}
+	// Source provider roles read their typed config from the shared shop-config
+	// store (so both roles see one entry), with the baked key filling api_key for
+	// CurseForge and CurseForge's effective key filling FTB's curseforge_api_key.
+	sourceProviderCfg := scripting.NewFallbackConfigReader(shopConfig, "curseforge", "api_key", func() string { return bakedCurseForgeKey })
+	sourceProviderCfg = scripting.NewFallbackConfigReader(sourceProviderCfg, "ftb", "curseforge_api_key", curseEffectiveKey)
+	// The local-import provider (registered via LoadBuiltins) pulls CF-hosted
+	// files and falls back to CurseForge's effective key when its own key is
+	// unset. The raw providerConfig still backs GetConfig/SetConfig.
+	providerCfg := scripting.NewFallbackConfigReader(providerConfig, "import", "curseforge_api_key", curseEffectiveKey)
+	providers.SetConfigStore(providerCfg)
+
+	sharedSourceIDs, err := scripting.LoadBuiltinSources(ctx, providers, shops, sourceProviderCfg)
+	if err != nil {
+		log.Fatalf("[FATAL] load builtin sources: %v", err)
+	}
+	// Only providers loaded from an actual multi-role source share shop config.
+	// An unrelated provider and shop that happen to use the same id remain
+	// independent.
+	sharedSourceConfig := func(id string) *scripting.ConfigStore {
+		if sharedSourceIDs.Contains(id) {
+			return shopConfig
+		}
+		return nil
 	}
 	shopsDir := filepath.Join(paths.Base, "shops")
 	if err := scripting.LoadUserShops(ctx, shops, shopsDir); err != nil {
@@ -197,11 +211,10 @@ func main() {
 	})
 
 	settingsService := grpcsvc.NewSettingsService(grpcsvc.SettingsServiceConfig{
-		Store:         settingsStore,
-		LogsRoot:      paths.LogsRoot(),
-		ActiveMode:    string(activeMode),
-		CloseLogs:     closeLogs,
-		BakedShopKeys: bakedShopKeys,
+		Store:      settingsStore,
+		LogsRoot:   paths.LogsRoot(),
+		ActiveMode: string(activeMode),
+		CloseLogs:  closeLogs,
 	})
 	// The startup pass ran before history was restored; continue periodically.
 	go runLogJanitor(settingsStore, paths.LogsRoot(), closeLogs)
@@ -247,7 +260,7 @@ func main() {
 		MetricsService:  grpcsvc.NewMetricsService(serverService),
 		ModService:      modService,
 		ConfigService:   grpcsvc.NewConfigService(registry, paths),
-		ProviderService: grpcsvc.NewProviderService(providers, grants, providerConfig, providersDir),
+		ProviderService: grpcsvc.NewProviderService(providers, grants, providerConfig, providersDir, sharedSourceConfig),
 		ScriptService:   grpcsvc.NewScriptService(scripts, scriptGrants, scriptsEnabled, scriptConfig, scriptsDir),
 		ParserService:   grpcsvc.NewParserService(parsers, parserGrants, parserConfig, parsersDir),
 		ShopService:     grpcsvc.NewShopService(shops, shopGrants, shopConfig, shopsDir, registry, modService),
@@ -321,6 +334,43 @@ func applyLogRetention(settingsStore *settings.Store, logsRoot string, closeLogs
 
 // waitForShutdown gracefully stops the server when the OS signals termination or
 // when the parent process goes away (our stdin reaches EOF). The latter guards
+// migrateCurseForgeKey folds a CurseForge API key stored under the pre-merge
+// layouts into the shared shop-config entry (id "curseforge", key "api_key"),
+// once. It is a no-op when the target already has a value. Sources, in order:
+//  1. settings.json shop_keys["curseforge"] (the old global Settings page card);
+//     the migrated entry is then removed so key resolution stops reading it.
+//  2. the old modpack provider config "curseforge_modpacks"/"curseforge_api_key";
+//     the stale provider-config entry is forgotten after copying.
+func migrateCurseForgeKey(settingsStore *settings.Store, shopConfig, providerConfig *scripting.ConfigStore) {
+	if shopConfig.Values("curseforge")["api_key"] != "" {
+		return // already migrated (or set directly) — leave it alone
+	}
+	if s, err := settingsStore.Load(); err == nil {
+		if k := s.ShopKeys["curseforge"]; k != "" {
+			if err := shopConfig.Set("curseforge", "api_key", k); err != nil {
+				log.Printf("[WARN] migrate CurseForge key from settings: %v", err)
+			} else {
+				delete(s.ShopKeys, "curseforge")
+				if err := settingsStore.Save(s); err != nil {
+					log.Printf("[WARN] clear migrated CurseForge shop key: %v", err)
+				}
+				log.Printf("[INFO] migrated CurseForge key from settings to shop config")
+			}
+			return
+		}
+	}
+	if k := providerConfig.Values("curseforge_modpacks")["curseforge_api_key"]; k != "" {
+		if err := shopConfig.Set("curseforge", "api_key", k); err != nil {
+			log.Printf("[WARN] migrate CurseForge key from provider config: %v", err)
+			return
+		}
+		if err := providerConfig.Forget("curseforge_modpacks"); err != nil {
+			log.Printf("[WARN] forget legacy modpack provider config: %v", err)
+		}
+		log.Printf("[INFO] migrated CurseForge key from provider config to shop config")
+	}
+}
+
 // against leaking the engine if the app crashes without an explicit stop.
 func waitForShutdown(srv interface{ GracefulStop() }, cancel context.CancelFunc) {
 	sig := make(chan os.Signal, 1)

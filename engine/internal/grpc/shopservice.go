@@ -335,7 +335,8 @@ func (s *ShopService) GetConfig(_ context.Context, ref *mcmanagerv1.ProviderRef)
 	if !ok {
 		return nil, errorStatus(codes.NotFound, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, "shop not found", nil)
 	}
-	return getConfigView(ref.Id, sh.Meta().Config, s.config), nil
+	// Resolve to the canonical id so an alias reads the shared config entry.
+	return getConfigView(sh.Meta().ID, sh.Meta().Config, s.config), nil
 }
 
 func (s *ShopService) SetConfig(_ context.Context, req *mcmanagerv1.SetConfigRequest) (*mcmanagerv1.ScriptConfig, error) {
@@ -343,7 +344,8 @@ func (s *ShopService) SetConfig(_ context.Context, req *mcmanagerv1.SetConfigReq
 	if !ok {
 		return nil, errorStatus(codes.NotFound, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, "shop not found", nil)
 	}
-	return applyConfig(req.Id, sh.Meta().Config, s.config, req)
+	// Resolve to the canonical id so an alias writes the shared config entry.
+	return applyConfig(sh.Meta().ID, sh.Meta().Config, s.config, req)
 }
 
 func (s *ShopService) SetPermissions(_ context.Context, req *mcmanagerv1.SetPermissionsRequest) (*mcmanagerv1.ShopInfo, error) {

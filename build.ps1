@@ -84,11 +84,15 @@ function Invoke-External {
         [string]$Description,
         [string]$Command,
         [string[]]$Arguments,
+        [string[]]$DisplayArguments,
         [string]$WorkingDirectory = $RepoRoot,
         [hashtable]$Environment = @{}
     )
 
-    Write-Host "  > $Command $($Arguments -join ' ')" -ForegroundColor DarkGray
+    if (-not $PSBoundParameters.ContainsKey('DisplayArguments')) {
+        $DisplayArguments = $Arguments
+    }
+    Write-Host "  > $Command $($DisplayArguments -join ' ')" -ForegroundColor DarkGray
 
     $psi = [System.Diagnostics.ProcessStartInfo]::new()
     $psi.FileName = $Command
@@ -158,10 +162,19 @@ if (-not $SkipEngine) {
             -WorkingDirectory $EngineDir
 
         # Optional baked-in CurseForge API key (never committed): set
-        # JHMC_CURSEFORGE_API_KEY in the environment before building.
+        # JHMC_CURSEFORGE_API_KEY in the environment before building. The XOR/pad
+        # obfuscation and the ldflags fragment are produced by the shared
+        # keycipher.ps1 (the single source of truth used by every build path,
+        # including the dotnet/VS/MSIX build via app/Engine.targets). Dot-sourcing
+        # imports its functions without running its stdout/exit main block; an
+        # invalid JHMC_KEY_CIPHER_PAD throws and is surfaced by Invoke-Step. See
+        # keycipher.ps1 and engine/cmd/engine/keycipher.go for the full contract.
+        . (Join-Path $RepoRoot 'keycipher.ps1')
+
         $ldflags = '-s -w -buildid='
-        if ($env:JHMC_CURSEFORGE_API_KEY) {
-            $ldflags += " -X main.defaultCurseForgeKey=$($env:JHMC_CURSEFORGE_API_KEY)"
+        $keyFragment = Get-CurseForgeKeyLdflagsFragment
+        if ($keyFragment) {
+            $ldflags += " $keyFragment"
         }
 
         Invoke-External `
@@ -170,6 +183,9 @@ if (-not $SkipEngine) {
             -Arguments @('build', '-trimpath', '-buildvcs=false', '-mod=readonly',
                          "-ldflags=`"$ldflags`"",
                          '-o', "`"$EngineExe`"", './cmd/engine') `
+            -DisplayArguments @('build', '-trimpath', '-buildvcs=false', '-mod=readonly',
+                                '-ldflags="<redacted>"',
+                                '-o', "`"$EngineExe`"", './cmd/engine') `
             -WorkingDirectory $EngineDir `
             -Environment @{ CGO_ENABLED = '0' }
     }

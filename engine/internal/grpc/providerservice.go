@@ -20,13 +20,30 @@ type ProviderService struct {
 	registry *scripting.Registry
 	grants   *scripting.GrantStore
 	config   *scripting.ConfigStore
-	dir      string // root dir where user providers are persisted
+	// sharedConfig routes a provider id to an alternate store when its config
+	// entry is shared with another subsystem (a multi-role source script whose
+	// values live in the shop store). nil result (or nil func) = use config.
+	sharedConfig func(id string) *scripting.ConfigStore
+	dir          string // root dir where user providers are persisted
 }
 
 // NewProviderService builds a ProviderService. dir is where imported user
-// scripts (and any bundled jars) are stored.
-func NewProviderService(reg *scripting.Registry, grants *scripting.GrantStore, config *scripting.ConfigStore, dir string) *ProviderService {
-	return &ProviderService{registry: reg, grants: grants, config: config, dir: dir}
+// scripts (and any bundled jars) are stored. sharedConfig may be nil.
+func NewProviderService(reg *scripting.Registry, grants *scripting.GrantStore, config *scripting.ConfigStore, dir string, sharedConfig func(id string) *scripting.ConfigStore) *ProviderService {
+	return &ProviderService{registry: reg, grants: grants, config: config, dir: dir, sharedConfig: sharedConfig}
+}
+
+// configFor picks the store backing id's config RPCs: the shared store when the
+// id belongs to a multi-role source, the provider store otherwise. Remove's
+// Forget intentionally stays on the provider store so removing a provider can
+// never wipe a live shop's shared entry.
+func (s *ProviderService) configFor(id string) *scripting.ConfigStore {
+	if s.sharedConfig != nil {
+		if cs := s.sharedConfig(id); cs != nil {
+			return cs
+		}
+	}
+	return s.config
 }
 
 func (s *ProviderService) List(_ context.Context, _ *mcmanagerv1.Empty) (*mcmanagerv1.ProviderList, error) {
@@ -154,7 +171,8 @@ func (s *ProviderService) GetConfig(_ context.Context, ref *mcmanagerv1.Provider
 	if !ok {
 		return nil, errorStatus(codes.NotFound, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, "provider not found", nil)
 	}
-	return getConfigView(ref.Id, e.Meta.Config, s.config), nil
+	// Resolve to the canonical id so an alias reads the shared config entry.
+	return getConfigView(e.Meta.ID, e.Meta.Config, s.configFor(e.Meta.ID)), nil
 }
 
 func (s *ProviderService) SetConfig(_ context.Context, req *mcmanagerv1.SetConfigRequest) (*mcmanagerv1.ScriptConfig, error) {
@@ -162,5 +180,6 @@ func (s *ProviderService) SetConfig(_ context.Context, req *mcmanagerv1.SetConfi
 	if !ok {
 		return nil, errorStatus(codes.NotFound, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, "provider not found", nil)
 	}
-	return applyConfig(req.Id, e.Meta.Config, s.config, req)
+	// Resolve to the canonical id so an alias writes the shared config entry.
+	return applyConfig(e.Meta.ID, e.Meta.Config, s.configFor(e.Meta.ID), req)
 }

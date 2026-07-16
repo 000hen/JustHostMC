@@ -4,7 +4,8 @@
     x:Uid="RenameServerDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    DefaultButton="Primary">
+    DefaultButton="Primary"
+    Style="{StaticResource DefaultContentDialogStyle}">
 
     <TextBox x:Name="NameBox"
              x:Uid="RenameServerNameBox" />

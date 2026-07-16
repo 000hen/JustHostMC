@@ -220,6 +220,48 @@ public sealed partial class ResourceIntegrityTests {
     }
 
     [Fact]
+    public void RenameServerDialogUsesTheStandardDialogLayout() {
+        var dialogXaml = File.ReadAllText(RepositoryLayout.AppPath(
+            "Views", "RenameServerDialog.xaml"));
+        Assert.Contains(
+            "Style=\"{StaticResource DefaultContentDialogStyle}\"",
+            dialogXaml, StringComparison.Ordinal);
+
+        foreach (var sourceName in new[] { "HomePage.xaml.cs",
+                                           "ServerPage.xaml.cs" }) {
+            var source = File.ReadAllText(RepositoryLayout.AppPath(
+                "Views", sourceName));
+            Assert.Matches(
+                "new\\s+RenameServerDialog\\([\\s\\S]*?" +
+                "ContentDialogSizing\\.Apply\\(dialog\\);",
+                source);
+        }
+    }
+
+    [Fact]
+    public void EditServerDialogUsesOneReadOnlyProviderTypeField() {
+        var xaml = File.ReadAllText(RepositoryLayout.AppPath(
+            "Views", "ServerDialog.xaml"));
+        Assert.Contains("x:Name=\"EditTypeBox\"", xaml,
+                        StringComparison.Ordinal);
+        Assert.Contains("x:Uid=\"EditServerType\"", xaml,
+                        StringComparison.Ordinal);
+        Assert.Contains("IsReadOnly=\"True\"", xaml,
+                        StringComparison.Ordinal);
+        Assert.DoesNotContain("EditVanillaTypeBox", xaml,
+                              StringComparison.Ordinal);
+        Assert.DoesNotContain("EditPaperTypeBox", xaml,
+                              StringComparison.Ordinal);
+
+        var source = File.ReadAllText(RepositoryLayout.AppPath(
+            "Views", "ServerDialog.xaml.cs"));
+        Assert.Contains("? server.ProviderId", source,
+                        StringComparison.Ordinal);
+        Assert.Contains(": server.TypeText;", source,
+                        StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void LocalizedTooltipsAreNotInjectedFromCode() {
         var offenders = SourceFiles("*.cs")
             .Where(path => File.ReadAllText(path).Contains(

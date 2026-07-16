@@ -174,6 +174,8 @@ public sealed partial class ServerPage : Page {
         var dialog = new RenameServerDialog(Server.Name) {
             XamlRoot = XamlRoot,
         };
+        ContentDialogSizing.Apply(dialog);
+
         if (await dialog.ShowAsync() == ContentDialogResult.Primary)
             await _main.RenameServerAsync(Server, dialog.ServerName);
     }

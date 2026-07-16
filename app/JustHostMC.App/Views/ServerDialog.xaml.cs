@@ -62,8 +62,10 @@ public sealed partial class ServerDialog : UserControl {
         VersionHint.Visibility      = Visibility.Collapsed;
         LaunchLockedInfo.Visibility = Visibility.Visible;
 
-        NameBox.Text             = server.Name;
-        EditTypeBox.Text         = server.TypeText;
+        NameBox.Text = server.Name;
+        EditTypeBox.Text = string.IsNullOrWhiteSpace(server.TypeText)
+                               ? server.ProviderId
+                               : server.TypeText;
         VersionBox.IsEditable    = false;
         VersionBox.ItemsSource   = new[] { server.McVersion };
         VersionBox.SelectedIndex = 0;

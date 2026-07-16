@@ -167,7 +167,6 @@ public sealed partial class ScriptsPage : Page {
             new PermissionConsentContentDialog(scriptName, permissions) {
                 XamlRoot = XamlRoot,
             };
-        ContentDialogSizing.Apply(dialog);
 
         if (await dialog.ShowAsync() != ContentDialogResult.Primary)
             return null;

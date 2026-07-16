@@ -1,3 +1,4 @@
+using JustHostMC.App.Controls;
 using JustHostMC.App.ViewModels;
 using McManager.Grpc;
 using Microsoft.UI.Xaml.Controls;
@@ -9,6 +10,7 @@ public sealed partial class CreateServerDialog : ContentDialog {
 
     public CreateServerDialog(MainViewModel viewModel) {
         InitializeComponent();
+        ContentDialogSizing.Apply(this);
         _content = new ServerDialog(viewModel, ServerDialogMode.Create);
         DialogBody.Content = _content;
 

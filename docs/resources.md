@@ -91,10 +91,12 @@ Code may pass runtime data, set `XamlRoot`, update validation state, show the
 dialog, and handle its result. Large existing bodies may remain reusable
 `UserControl` instances inside a dedicated dialog class.
 
-Use `ContentDialogSizing.Apply` where a dialog needs the repository's wide
-sizing behavior, and base any custom style on `DefaultContentDialogStyle`.
-Never return to a factory that accepts already-localized title/body/button
-strings.
+Every `ContentDialog` XAML root uses `DefaultContentDialogStyle`. Each dialog
+class owns its sizing policy by calling `ContentDialogSizing.Apply(this)` in
+its constructor, with `useWideLayout: true` for wide dialog bodies. Parent
+pages, windows, and controls only assign `XamlRoot`, show the dialog, and react
+to its result; they do not configure dialog sizing. Never return to a factory
+that accepts already-localized title/body/button strings.
 
 ## Tooltips and imperative controls
 

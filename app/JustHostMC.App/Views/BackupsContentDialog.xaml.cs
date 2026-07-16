@@ -1,3 +1,4 @@
+using JustHostMC.App.Controls;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml.Controls;
 
@@ -10,6 +11,7 @@ public sealed partial class BackupsContentDialog : ContentDialog {
                                 bool serverRunning,
                                 DispatcherQueue dispatcher) {
         InitializeComponent();
+        ContentDialogSizing.Apply(this, useWideLayout: true);
         Title = serverName;
 
         _content =

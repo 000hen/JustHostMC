@@ -126,10 +126,12 @@ public sealed partial class ResourceIntegrityTests {
             var source          = File.ReadAllText(window.Source);
             var initializeIndex = source.IndexOf("InitializeComponent();",
                                                  StringComparison.Ordinal);
-            var titleCopyIndex  = source.IndexOf(
-                $"Title = {window.TitleBar}.Title;", StringComparison.Ordinal);
+            var titleCopy = Regex.Match(
+                source,
+                $@"Title\s*=\s*{Regex.Escape(window.TitleBar)}\.Title;");
             Assert.True(
-                initializeIndex >= 0 && titleCopyIndex > initializeIndex,
+                initializeIndex >= 0 && titleCopy.Success &&
+                    titleCopy.Index > initializeIndex,
                 $"{Path.GetFileName(window.Source)} must copy the localized " +
                     "TitleBar title after InitializeComponent");
 
@@ -249,20 +251,49 @@ public sealed partial class ResourceIntegrityTests {
     }
 
     [Fact]
-    public void RenameServerDialogUsesTheStandardDialogLayout() {
-        var dialogXaml = File.ReadAllText(
-            RepositoryLayout.AppPath("Views", "RenameServerDialog.xaml"));
-        Assert.Contains("Style=\"{StaticResource DefaultContentDialogStyle}\"",
-                        dialogXaml, StringComparison.Ordinal);
+    public void EveryContentDialogUsesTheStandardXamlStyle() {
+        var offenders = ContentDialogXamlFiles()
+            .Where(path => (string?)XDocument.Load(path).Root?
+                .Attribute("Style") !=
+                "{StaticResource DefaultContentDialogStyle}")
+            .Select(path => Path.GetFileName(path))
+            .Order(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
 
-        foreach (var sourceName in new[] { "HomePage.xaml.cs",
-                                           "ServerPage.xaml.cs" }) {
-            var source =
-                File.ReadAllText(RepositoryLayout.AppPath("Views", sourceName));
-            Assert.Matches("new\\s+RenameServerDialog\\([\\s\\S]*?" +
-                               "ContentDialogSizing\\.Apply\\(dialog\\);",
-                           source);
+        Assert.Empty(offenders);
+    }
+
+    [Fact]
+    public void ContentDialogsOwnTheirSizingPolicy() {
+        var wideDialogs = new HashSet<string>(StringComparer.Ordinal) {
+            "BackupsContentDialog",
+            "BanListContentDialog",
+            "PlayerDataContentDialog",
+            "PlayerInventoryContentDialog",
+        };
+        var dialogSources = ContentDialogXamlFiles()
+            .Select(path => Path.ChangeExtension(path, ".xaml.cs"))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var sourcePath in dialogSources) {
+            var dialogName = Path.GetFileNameWithoutExtension(
+                Path.GetFileNameWithoutExtension(sourcePath));
+            var expected = wideDialogs.Contains(dialogName)
+                               ? "ContentDialogSizing.Apply(this, " +
+                                 "useWideLayout: true);"
+                               : "ContentDialogSizing.Apply(this);";
+            Assert.Contains(expected, File.ReadAllText(sourcePath),
+                            StringComparison.Ordinal);
         }
+
+        var parentOffenders = SourceFiles("*.cs")
+            .Where(path => !dialogSources.Contains(path))
+            .Where(path => File.ReadAllText(path).Contains(
+                "ContentDialogSizing.Apply(", StringComparison.Ordinal))
+            .Select(path => Path.GetRelativePath(RepositoryLayout.Root, path))
+            .Order(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+        Assert.Empty(parentOffenders);
     }
 
     [Fact]
@@ -375,6 +406,13 @@ public sealed partial class ResourceIntegrityTests {
             .EnumerateFiles(RepositoryLayout.AppPath(), pattern,
                             SearchOption.AllDirectories)
             .Where(path => !IsGenerated(path));
+
+    private static IEnumerable<string> ContentDialogXamlFiles() =>
+        Directory.EnumerateFiles(RepositoryLayout.AppPath(), "*.xaml",
+                                 SearchOption.AllDirectories)
+            .Where(path => !IsGenerated(path))
+            .Where(path => XDocument.Load(path).Root?.Name.LocalName ==
+                           "ContentDialog");
 
     private static bool IsGenerated(string path) =>
         path.Contains(

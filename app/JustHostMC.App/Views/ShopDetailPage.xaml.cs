@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using JustHostMC.App.Controls;
 using JustHostMC.App.Models;
 using JustHostMC.App.Services;
 using JustHostMC.App.ViewModels;
@@ -102,7 +101,6 @@ public sealed partial class ShopDetailPage : Page {
             var dialog = new ShopDependencySelectionDialog(dependencies) {
                 XamlRoot = XamlRoot,
             };
-            ContentDialogSizing.Apply(dialog);
             if (await dialog.ShowAsync() != ContentDialogResult.Primary)
                 return;
             chosen = dialog.SelectedDependencies;

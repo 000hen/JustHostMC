@@ -1,3 +1,4 @@
+using JustHostMC.App.Controls;
 using McManager.Grpc;
 using Microsoft.UI.Xaml.Controls;
 
@@ -10,6 +11,7 @@ public sealed partial class PermissionConsentContentDialog : ContentDialog {
                                           IEnumerable<Permission> permissions) {
         Body = new PermissionConsentDialog(permissions);
         InitializeComponent();
+        ContentDialogSizing.Apply(this);
 
         Title = Title?.ToString()?.Replace("{name}", scriptName,
                                            StringComparison.Ordinal);

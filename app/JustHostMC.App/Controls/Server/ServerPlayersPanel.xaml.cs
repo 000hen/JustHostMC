@@ -80,7 +80,6 @@ public sealed partial class ServerPlayersPanel : UserControl {
         var dialog = new PlayerDataContentDialog(Server.Id, player) {
             XamlRoot = XamlRoot,
         };
-        ContentDialogSizing.Apply(dialog, useWideLayout: true);
         await dialog.ShowAsync();
     }
 
@@ -91,7 +90,6 @@ public sealed partial class ServerPlayersPanel : UserControl {
         var dialog = new PlayerInventoryContentDialog(Server.Id, player) {
             XamlRoot = XamlRoot,
         };
-        ContentDialogSizing.Apply(dialog, useWideLayout: true);
         await dialog.ShowAsync();
     }
 
@@ -104,7 +102,6 @@ public sealed partial class ServerPlayersPanel : UserControl {
         var dialog = new BanListContentDialog(Server.Id, isStopped) {
             XamlRoot = XamlRoot,
         };
-        ContentDialogSizing.Apply(dialog, useWideLayout: true);
         await dialog.ShowAsync();
     }
 

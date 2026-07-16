@@ -1,3 +1,4 @@
+using JustHostMC.App.Controls;
 using McManager.Grpc;
 using Microsoft.UI.Xaml.Controls;
 
@@ -9,6 +10,7 @@ public sealed partial class ShopDependencySelectionDialog : ContentDialog {
     public ShopDependencySelectionDialog(
         IReadOnlyList<ShopDependency> dependencies) {
         InitializeComponent();
+        ContentDialogSizing.Apply(this);
 
         _choices = dependencies
                        .Select(dependency => new CheckBox {

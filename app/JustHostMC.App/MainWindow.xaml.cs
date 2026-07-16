@@ -490,7 +490,6 @@ public sealed partial class MainWindow : Window {
         var dialog = new CreateServerDialog(Shell.Main) {
             XamlRoot = Content.XamlRoot,
         };
-        ContentDialogSizing.Apply(dialog);
 
         if (await dialog.ShowAsync() != ContentDialogResult.Primary)
             return;

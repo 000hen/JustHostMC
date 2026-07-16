@@ -1,3 +1,4 @@
+using JustHostMC.App.Controls;
 using JustHostMC.App.Models;
 using JustHostMC.App.ViewModels;
 using McManager.Grpc;
@@ -10,6 +11,7 @@ public sealed partial class EditServerDialog : ContentDialog {
 
     public EditServerDialog(MainViewModel viewModel, ServerItem server) {
         InitializeComponent();
+        ContentDialogSizing.Apply(this);
         _content = new ServerDialog(viewModel, ServerDialogMode.Edit, server);
         DialogBody.Content = _content;
 

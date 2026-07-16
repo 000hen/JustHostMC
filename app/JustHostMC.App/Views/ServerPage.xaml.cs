@@ -1,7 +1,6 @@
 
 using System.ComponentModel;
 using System.Diagnostics;
-using JustHostMC.App.Controls;
 using JustHostMC.App.Models;
 using JustHostMC.App.Services;
 using JustHostMC.App.ViewModels;
@@ -150,7 +149,6 @@ public sealed partial class ServerPage : Page {
             Server.Id, Server.Name, Server.IsRunning, DispatcherQueue) {
             XamlRoot = XamlRoot,
         };
-        ContentDialogSizing.Apply(dialog, useWideLayout: true);
         await dialog.ShowAsync();
     }
 
@@ -164,7 +162,6 @@ public sealed partial class ServerPage : Page {
         var dialog = new EditServerDialog(_main, Server) {
             XamlRoot = XamlRoot,
         };
-        ContentDialogSizing.Apply(dialog);
 
         if (await dialog.ShowAsync() == ContentDialogResult.Primary)
             await _main.UpdateServerAsync(dialog.BuildUpdateRequest());
@@ -174,7 +171,6 @@ public sealed partial class ServerPage : Page {
         var dialog = new RenameServerDialog(Server.Name) {
             XamlRoot = XamlRoot,
         };
-        ContentDialogSizing.Apply(dialog);
 
         if (await dialog.ShowAsync() == ContentDialogResult.Primary)
             await _main.RenameServerAsync(Server, dialog.ServerName);

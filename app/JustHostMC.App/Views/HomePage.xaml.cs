@@ -108,7 +108,6 @@ public sealed partial class HomePage : Page {
         var dialog = new CreateServerDialog(Main) {
             XamlRoot = XamlRoot,
         };
-        ContentDialogSizing.Apply(dialog);
 
         if (await dialog.ShowAsync() != ContentDialogResult.Primary)
             return;
@@ -123,7 +122,6 @@ public sealed partial class HomePage : Page {
         var dialog = new EditServerDialog(Main, item) {
             XamlRoot = XamlRoot,
         };
-        ContentDialogSizing.Apply(dialog);
 
         if (await dialog.ShowAsync() == ContentDialogResult.Primary)
             await Main.UpdateServerAsync(dialog.BuildUpdateRequest());
@@ -133,7 +131,6 @@ public sealed partial class HomePage : Page {
         var dialog = new RenameServerDialog(item.Name) {
             XamlRoot = XamlRoot,
         };
-        ContentDialogSizing.Apply(dialog);
 
         if (await dialog.ShowAsync() == ContentDialogResult.Primary)
             await Main.RenameServerAsync(item, dialog.ServerName);

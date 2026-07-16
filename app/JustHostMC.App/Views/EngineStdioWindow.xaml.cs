@@ -36,6 +36,7 @@ public sealed partial class EngineStdioWindow : Window {
     public EngineStdioWindow(EngineHost host) {
         _host = host;
         InitializeComponent();
+        Title = MonitorTitleBar.Title;
         InitializeFilterGroups();
         _isInitialized = true;
 

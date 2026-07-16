@@ -62,6 +62,12 @@ Never reuse one UID across control types unless every property supplied by that
 UID exists on every target. In particular, a `.Content` entry cannot be shared
 with a `TextBlock`, which requires `.Text` and otherwise can crash at page load.
 
+Do not put `x:Uid` on a `Window` root. Applying a `Window.Title` property
+resource during `InitializeComponent` can fail before the native window is
+ready and crash XAML loading. Localize the in-content `TitleBar.Title` with its
+own UID, then copy that value to `Window.Title` immediately after
+`InitializeComponent` in the window constructor.
+
 ## Dynamic UI
 
 Prefer, in order:
@@ -217,8 +223,9 @@ rtk dotnet test app\JustHostMC.Core.Tests\JustHostMC.Core.Tests.csproj
 ```
 
 The resource tests validate XML, unique/non-empty identifiers, locale parity,
-XAML UID coverage, dotted backend identifiers, converter architecture, dialog
-architecture, tooltip ownership, and raw-diagnostic safety.
+XAML UID coverage, safe window-title localization, dotted backend identifiers,
+converter architecture, dialog architecture, tooltip ownership, and
+raw-diagnostic safety.
 
 A build is necessary but insufficient. In both `en-US` and `zh-TW`, instantiate
 MainWindow; Home, Scripts, Settings, every Server section, Mod Shop

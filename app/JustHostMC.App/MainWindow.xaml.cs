@@ -97,6 +97,7 @@ public sealed partial class MainWindow : Window {
             _localizer, DispatcherQueue, App.Current.BackgroundTasks));
 
         InitializeComponent();
+        Title = SimpleTitleBar.Title;
         _paneFooterVisibilityCallbackToken =
             PaneFooterGrid.RegisterPropertyChangedCallback(
                 UIElement.VisibilityProperty, OnPaneFooterVisibilityChanged);

@@ -70,6 +70,70 @@ public sealed partial class ResourceIntegrityTests {
     }
 
     [Fact]
+    public void WindowRootsDoNotUseXamlUidLocalization() {
+        var offenders = SourceFiles("*.xaml")
+            .Where(path => WindowRootUidRegex().IsMatch(File.ReadAllText(path)))
+            .Select(path => Path.GetRelativePath(RepositoryLayout.Root, path))
+            .Order(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        Assert.True(offenders.Length == 0,
+            "Window roots cannot use x:Uid because applying Window.Title " +
+            "during XAML loading crashes at runtime: " +
+            string.Join(", ", offenders));
+    }
+
+    [Fact]
+    public void WindowTitlesAreCopiedFromLocalizedTitleBars() {
+        var windows = new[] {
+            (Xaml: RepositoryLayout.AppPath("MainWindow.xaml"),
+             Source: RepositoryLayout.AppPath("MainWindow.xaml.cs"),
+             TitleBar: "SimpleTitleBar", TitleBarUid: "MainTitleBar",
+             WindowUid: "MainWindow"),
+            (Xaml: RepositoryLayout.AppPath("Views", "EngineStdioWindow.xaml"),
+             Source: RepositoryLayout.AppPath(
+                 "Views", "EngineStdioWindow.xaml.cs"),
+             TitleBar: "MonitorTitleBar",
+             TitleBarUid: "EngineMonitorTitleBar",
+             WindowUid: "EngineMonitorWindow"),
+            (Xaml: RepositoryLayout.AppPath("Views", "ScriptLogsWindow.xaml"),
+             Source: RepositoryLayout.AppPath(
+                 "Views", "ScriptLogsWindow.xaml.cs"),
+             TitleBar: "LogsTitleBar", TitleBarUid: "ScriptLogsTitleBar",
+             WindowUid: "ScriptLogsWindow"),
+            (Xaml: RepositoryLayout.AppPath("Views", "ShopWindow.xaml"),
+             Source: RepositoryLayout.AppPath("Views", "ShopWindow.xaml.cs"),
+             TitleBar: "ShopTitleBar", TitleBarUid: "ShopTitleBar",
+             WindowUid: "ShopWindow"),
+        };
+
+        XNamespace x = "http://schemas.microsoft.com/winfx/2006/xaml";
+        foreach (var window in windows) {
+            var source = File.ReadAllText(window.Source);
+            var initializeIndex = source.IndexOf(
+                "InitializeComponent();", StringComparison.Ordinal);
+            var titleCopyIndex = source.IndexOf(
+                $"Title = {window.TitleBar}.Title;", StringComparison.Ordinal);
+            Assert.True(initializeIndex >= 0 && titleCopyIndex > initializeIndex,
+                $"{Path.GetFileName(window.Source)} must copy the localized " +
+                "TitleBar title after InitializeComponent");
+
+            var titleBar = XDocument.Load(window.Xaml).Descendants()
+                .Single(element =>
+                    element.Name.LocalName == "TitleBar" &&
+                    (string?)element.Attribute(x + "Name") == window.TitleBar);
+            Assert.Equal(window.TitleBarUid,
+                         (string?)titleBar.Attribute(x + "Uid"));
+
+            foreach (var locale in Locales) {
+                var names = Entries(locale).Select(entry => entry.Name).ToArray();
+                Assert.Contains(window.TitleBarUid + ".Title", names);
+                Assert.DoesNotContain(window.WindowUid + ".Title", names);
+            }
+        }
+    }
+
+    [Fact]
     public void BackendResourceIdentifiersUseDotsNotLegacyUnderscores() {
         foreach (var locale in Locales) {
             var legacy = Entries(locale).Select(entry => entry.Name)
@@ -252,6 +316,9 @@ public sealed partial class ResourceIntegrityTests {
 
     [GeneratedRegex("x:Uid\\s*=\\s*[\"']([^\"']+)[\"']")]
     private static partial Regex XamlUidRegex();
+
+    [GeneratedRegex("<Window\\b[^>]*\\bx:Uid\\s*=", RegexOptions.Singleline)]
+    private static partial Regex WindowRootUidRegex();
 
     [GeneratedRegex("new\\s+ContentDialog\\s*\\{")]
     private static partial Regex NewContentDialogRegex();

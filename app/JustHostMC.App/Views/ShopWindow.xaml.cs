@@ -77,6 +77,7 @@ public sealed partial class ShopWindow : Window {
         ViewModel     = new ShopViewModel(
             context, DispatcherQueue.GetForCurrentThread(), _localizer);
         InitializeComponent();
+        Title = ShopTitleBar.Title;
 
         ExtendsContentIntoTitleBar = true;
         AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;

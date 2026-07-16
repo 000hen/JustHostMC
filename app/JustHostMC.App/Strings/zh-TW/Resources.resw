@@ -416,8 +416,7 @@
   <data name="ScriptsAllLogsButtonLabel.Text" xml:space="preserve"><value>所有日誌</value></data>
   <data name="ScriptsScriptLogsHeader.Text" xml:space="preserve"><value>日誌</value></data>
   <data name="ScriptsScriptLogsEmpty.Text" xml:space="preserve"><value>此腳本尚無輸出。</value></data>
-  <data name="ScriptLogsWindow.Title" xml:space="preserve"><value>所有自動化日誌</value><comment>Canonical duplicate value in this locale; semantic identifier: ScriptLogsWindow.Title.</comment></data>
-  <data name="ScriptLogsTitleBar.Title" xml:space="preserve"><value>所有自動化日誌</value><comment>Same visible value as ScriptLogsWindow.Title; kept separate for this property or translation context.</comment></data>
+  <data name="ScriptLogsTitleBar.Title" xml:space="preserve"><value>所有自動化日誌</value><comment>自動化日誌視窗的標準標題；XAML 初始化後複製到 Window.Title。</comment></data>
   <data name="ScriptLogsWindowEmpty.Text" xml:space="preserve"><value>尚無自動化輸出。</value></data>
   <data name="ScriptLogsWindowNoSelection.Text" xml:space="preserve"><value>選取日誌項目以檢視詳細資料。</value></data>
   <data name="ScriptLogsWindowScriptDetailsHeader.Text" xml:space="preserve"><value>腳本</value><comment>Same visible value as NavScripts.Content; kept separate for this property or translation context.</comment></data>
@@ -476,8 +475,7 @@
   <data name="SettingsAboutHeader.Text" xml:space="preserve"><value>關於</value></data>
   <data name="SettingsAboutRepo.Text" xml:space="preserve"><value>GitHub 儲存庫</value></data>
   <data name="SettingsAboutIssues.Text" xml:space="preserve"><value>回報問題</value></data>
-<data name="ShopWindow.Title" xml:space="preserve"><value>模組商店</value><comment>模組商店視窗標題的標準資源。</comment></data>
-<data name="ShopTitleBar.Title" xml:space="preserve"><value>模組商店</value><comment>因 TitleBar.Title 目標屬性而保留；與 ShopWindow.Title 相同。</comment></data>
+<data name="ShopTitleBar.Title" xml:space="preserve"><value>模組商店</value><comment>模組商店視窗的標準標題；XAML 初始化後複製到 Window.Title。</comment></data>
   <data name="ShopDiscoverTitle.Text" xml:space="preserve"><value>為你的伺服器找到精彩內容</value></data>
   <data name="ShopDiscoverSubtitle.Text" xml:space="preserve"><value>探索社群製作的專案。相容性篩選預設開啟，顯示的內容都更適合目前的伺服器。</value></data>
   <data name="ShopDismissWelcome.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>關閉</value><comment>Same visible value as ConsoleDialog.CloseButtonText; kept separate for this property or translation context.</comment></data>
@@ -635,7 +633,6 @@
   <data name="ServerPlayersEmptyDescriptionText.Text" xml:space="preserve"><value>目前沒有玩家在線上。</value></data>
   <data name="ServerPlayersActiveDescriptionText.Text" xml:space="preserve"><value>管理線上玩家、管理員與封鎖名單</value></data>
   <data name="SettingsCurseForgeKeyBox.PlaceholderText" xml:space="preserve"><value>API 金鑰</value></data>
-  <data name="MainWindow.Title" xml:space="preserve"><value>JustHostMC</value><comment>Same visible value as AppDisplayName; kept separate for this property or translation context.</comment></data>
   <data name="MainTitleBar.Title" xml:space="preserve"><value>JustHostMC</value><comment>Same visible value as AppDisplayName; kept separate for this property or translation context.</comment></data>
   <data name="ServerTeachingTipStartActionText.Text" xml:space="preserve"><value>啟動伺服器</value></data>
   <data name="ServerTeachingTipInstalledMessageText.Text" xml:space="preserve"><value>伺服器已準備好執行。</value></data>
@@ -643,8 +640,7 @@
   <data name="ServerTeachingTipStoppedMessageText.Text" xml:space="preserve"><value>伺服器已順利停止。</value></data>
   <data name="ServerTeachingTipCrashedMessageText.Text" xml:space="preserve"><value>伺服器意外停止。</value></data>
   <data name="UnknownServerStatusText.Text" xml:space="preserve"><value>不明</value><comment>Same visible value as ServerStatus_Unknown; kept separate for this property or translation context.</comment></data>
-  <data name="EngineMonitorWindow.Title" xml:space="preserve"><value>引擎監視器</value><comment>Canonical duplicate value in this locale; semantic identifier: EngineMonitorWindow.Title.</comment></data>
-  <data name="EngineMonitorTitleBar.Title" xml:space="preserve"><value>引擎監視器</value><comment>Same visible value as EngineMonitorWindow.Title; kept separate for this property or translation context.</comment></data>
+  <data name="EngineMonitorTitleBar.Title" xml:space="preserve"><value>引擎監視器</value><comment>引擎監視器視窗的標準標題；XAML 初始化後複製到 Window.Title。</comment></data>
   <data name="BanListLoadFailedText.Text" xml:space="preserve"><value>無法載入封鎖名單。</value></data>
   <data name="BanListTargetRequiredText.Text" xml:space="preserve"><value>請輸入玩家、UUID 或 IP 位址。</value></data>
   <data name="BanListAddFailedText.Text" xml:space="preserve"><value>無法新增封鎖。</value></data>

@@ -444,8 +444,7 @@
   <data name="ScriptsAllLogsButtonLabel.Text" xml:space="preserve"><value>All Logs</value></data>
   <data name="ScriptsScriptLogsHeader.Text" xml:space="preserve"><value>Logs</value></data>
   <data name="ScriptsScriptLogsEmpty.Text" xml:space="preserve"><value>No output from this script yet.</value></data>
-  <data name="ScriptLogsWindow.Title" xml:space="preserve"><value>All Automation Logs</value><comment>Canonical duplicate value in this locale; semantic identifier: ScriptLogsWindow.Title.</comment></data>
-  <data name="ScriptLogsTitleBar.Title" xml:space="preserve"><value>All Automation Logs</value><comment>Same visible value as ScriptLogsWindow.Title; kept separate for this property or translation context.</comment></data>
+  <data name="ScriptLogsTitleBar.Title" xml:space="preserve"><value>All Automation Logs</value><comment>Canonical script-log window title; copied to Window.Title after XAML initialization.</comment></data>
   <data name="ScriptLogsWindowEmpty.Text" xml:space="preserve"><value>No automation output yet.</value></data>
   <data name="ScriptLogsWindowNoSelection.Text" xml:space="preserve"><value>Select a log entry to view its details.</value></data>
   <data name="ScriptLogsWindowScriptDetailsHeader.Text" xml:space="preserve"><value>Script</value></data>
@@ -487,8 +486,7 @@
   <data name="SettingsAboutHeader.Text" xml:space="preserve"><value>About</value></data>
   <data name="SettingsAboutRepo.Text" xml:space="preserve"><value>GitHub Repository</value></data>
   <data name="SettingsAboutIssues.Text" xml:space="preserve"><value>Report an Issue</value></data>
-<data name="ShopWindow.Title" xml:space="preserve"><value>Mod Shop</value><comment>Canonical Mod Shop window title.</comment></data>
-<data name="ShopTitleBar.Title" xml:space="preserve"><value>Mod Shop</value><comment>Duplicate of ShopWindow.Title for the TitleBar.Title target property.</comment></data>
+<data name="ShopTitleBar.Title" xml:space="preserve"><value>Mod Shop</value><comment>Canonical Mod Shop window title; copied to Window.Title after XAML initialization.</comment></data>
   <data name="ShopDiscoverTitle.Text" xml:space="preserve"><value>Find something brilliant for your server</value></data>
   <data name="ShopDiscoverSubtitle.Text" xml:space="preserve"><value>Explore community projects selected for this server. Compatibility filters are on by default, so what you see is ready to fit.</value></data>
   <data name="ShopDismissWelcome.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Dismiss</value><comment>Same visible value as InstallDismissButton.Content; kept separate for this property or translation context.</comment></data>
@@ -646,7 +644,6 @@
   <data name="ServerPlayersEmptyDescriptionText.Text" xml:space="preserve"><value>No players online.</value></data>
   <data name="ServerPlayersActiveDescriptionText.Text" xml:space="preserve"><value>Manage online players, operators, and ban lists</value></data>
   <data name="SettingsCurseForgeKeyBox.PlaceholderText" xml:space="preserve"><value>API Key</value></data>
-  <data name="MainWindow.Title" xml:space="preserve"><value>JustHostMC</value><comment>Same visible value as AppDisplayName; kept separate for this property or translation context.</comment></data>
   <data name="MainTitleBar.Title" xml:space="preserve"><value>JustHostMC</value><comment>Same visible value as AppDisplayName; kept separate for this property or translation context.</comment></data>
   <data name="ServerTeachingTipStartActionText.Text" xml:space="preserve"><value>Start server</value></data>
   <data name="ServerTeachingTipInstalledMessageText.Text" xml:space="preserve"><value>The server is ready to run.</value></data>
@@ -654,8 +651,7 @@
   <data name="ServerTeachingTipStoppedMessageText.Text" xml:space="preserve"><value>The server stopped successfully.</value></data>
   <data name="ServerTeachingTipCrashedMessageText.Text" xml:space="preserve"><value>The server stopped unexpectedly.</value></data>
   <data name="UnknownServerStatusText.Text" xml:space="preserve"><value>Unknown</value><comment>Same visible value as ServerStatus_Unknown; kept separate for this property or translation context.</comment></data>
-  <data name="EngineMonitorWindow.Title" xml:space="preserve"><value>Engine debug monitor</value><comment>Canonical duplicate value in this locale; semantic identifier: EngineMonitorWindow.Title.</comment></data>
-  <data name="EngineMonitorTitleBar.Title" xml:space="preserve"><value>Engine debug monitor</value><comment>Same visible value as EngineMonitorWindow.Title; kept separate for this property or translation context.</comment></data>
+  <data name="EngineMonitorTitleBar.Title" xml:space="preserve"><value>Engine debug monitor</value><comment>Canonical engine-monitor window title; copied to Window.Title after XAML initialization.</comment></data>
   <data name="BanListLoadFailedText.Text" xml:space="preserve"><value>Could not load ban list.</value></data>
   <data name="BanListTargetRequiredText.Text" xml:space="preserve"><value>Enter a player, UUID, or IP address.</value></data>
   <data name="BanListAddFailedText.Text" xml:space="preserve"><value>Could not add ban.</value></data>

@@ -20,6 +20,7 @@ public sealed partial class ScriptLogsWindow : Window {
         ObservableCollection<ScriptLogSession> logSessions) {
         LogSessions = logSessions;
         InitializeComponent();
+        Title = LogsTitleBar.Title;
         Root.DataContext = this;
 
         ExtendsContentIntoTitleBar = true;

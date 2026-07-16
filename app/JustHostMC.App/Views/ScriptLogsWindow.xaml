@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Window
     x:Class="JustHostMC.App.Views.ScriptLogsWindow"
+    x:Uid="ScriptLogsWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:JustHostMC.App.Controls"
@@ -19,7 +20,7 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <TitleBar x:Name="LogsTitleBar">
+        <TitleBar x:Name="LogsTitleBar" x:Uid="ScriptLogsTitleBar">
             <TitleBar.IconSource>
                 <ImageIconSource ImageSource="ms-appx:///Assets/StoreLogo.png" />
             </TitleBar.IconSource>
@@ -48,7 +49,7 @@
                         VerticalAlignment="Center"
                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                         TextAlignment="Center"
-                        Visibility="{Binding LogSessions.Count, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
+                        Visibility="{x:Bind ShowWhenEmpty(LogSessions.Count), Mode=OneWay}" />
 
                     <ListView
                         x:Name="LogList"
@@ -63,11 +64,20 @@
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="models:ScriptLogSession">
                                 <StackPanel Padding="6" Spacing="4">
-                                    <TextBlock
-                                        FontWeight="SemiBold"
-                                        MaxLines="2"
-                                        Text="{x:Bind Title}"
-                                        TextTrimming="CharacterEllipsis" />
+                                    <Grid>
+                                        <TextBlock
+                                            x:Uid="ScriptLogsCurrentSessionTitle"
+                                            FontWeight="SemiBold"
+                                            MaxLines="2"
+                                            TextTrimming="CharacterEllipsis"
+                                            Visibility="{Binding Title, Converter={StaticResource ObjectToVisInverse}}" />
+                                        <TextBlock
+                                            x:Uid="ScriptLogsPreviousSessionTitle"
+                                            FontWeight="SemiBold"
+                                            MaxLines="2"
+                                            TextTrimming="CharacterEllipsis"
+                                            Visibility="{Binding Title, Converter={StaticResource ObjectToVis}}" />
+                                    </Grid>
                                     <TextBlock
                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                         Style="{StaticResource CaptionTextBlockStyle}"
@@ -93,12 +103,12 @@
                         VerticalAlignment="Center"
                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                         TextAlignment="Center"
-                        Visibility="{Binding SelectedItem, ElementName=LogList, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
+                        Visibility="{Binding SelectedItem, ElementName=LogList, Converter={StaticResource ObjectToVisInverse}}" />
 
                     <Grid
                         DataContext="{Binding SelectedItem, ElementName=LogList}"
                         RowSpacing="12"
-                        Visibility="{Binding SelectedItem, ElementName=LogList, Converter={StaticResource BoolToVis}}">
+                        Visibility="{Binding SelectedItem, ElementName=LogList, Converter={StaticResource ObjectToVis}}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
@@ -106,10 +116,18 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                        <TextBlock
-                            Style="{StaticResource TitleTextBlockStyle}"
-                            Text="{Binding Title}"
-                            TextWrapping="Wrap" />
+                        <Grid>
+                            <TextBlock
+                                x:Uid="ScriptLogsCurrentSessionTitle"
+                                Style="{StaticResource TitleTextBlockStyle}"
+                                TextWrapping="Wrap"
+                                Visibility="{Binding Title, Converter={StaticResource ObjectToVisInverse}}" />
+                            <TextBlock
+                                x:Uid="ScriptLogsPreviousSessionTitle"
+                                Style="{StaticResource TitleTextBlockStyle}"
+                                TextWrapping="Wrap"
+                                Visibility="{Binding Title, Converter={StaticResource ObjectToVis}}" />
+                        </Grid>
                         <TextBlock
                             Grid.Row="1"
                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -142,10 +160,18 @@
                                                     <ColumnDefinition Width="*" />
                                                     <ColumnDefinition Width="Auto" />
                                                 </Grid.ColumnDefinitions>
-                                                <TextBlock
-                                                    FontWeight="SemiBold"
-                                                    Text="{x:Bind ScriptName}"
-                                                    TextTrimming="CharacterEllipsis" />
+                                                <Grid>
+                                                    <TextBlock
+                                                        x:Uid="ScriptLogsSystemName"
+                                                        FontWeight="SemiBold"
+                                                        TextTrimming="CharacterEllipsis"
+                                                        Visibility="{Binding ScriptName, Converter={StaticResource ObjectToVisInverse}}" />
+                                                    <TextBlock
+                                                        FontWeight="SemiBold"
+                                                        Text="{x:Bind ScriptName}"
+                                                        TextTrimming="CharacterEllipsis"
+                                                        Visibility="{Binding ScriptName, Converter={StaticResource ObjectToVis}}" />
+                                                </Grid>
                                                 <TextBlock
                                                     Grid.Column="1"
                                                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"

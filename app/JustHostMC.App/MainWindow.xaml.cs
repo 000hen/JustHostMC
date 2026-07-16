@@ -104,7 +104,6 @@ public sealed partial class MainWindow : Window {
         ServerStateTip.ActionButtonClick += (_, _) =>
             OnServerStateTipActionButtonClick();
         PaneFooterGrid.DataContext = Shell.Main.ProgressService;
-        Title                      = _localizer.Get("AppTitle");
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(SimpleTitleBar);
         InstallMinimumWindowSizeHook();
@@ -188,14 +187,8 @@ public sealed partial class MainWindow : Window {
 
         _closePromptOpen = true;
         try {
-            var dialog = new ContentDialog {
-                XamlRoot            = Content.XamlRoot,
-                Title               = _localizer.Get("CloseBusy_Title"),
-                Content             = _localizer.Get("CloseBusy_Body"),
-                PrimaryButtonText   = _localizer.Get("CloseBusy_HideToTray"),
-                SecondaryButtonText = _localizer.Get("CloseBusy_CloseAnyway"),
-                CloseButtonText     = _localizer.Get("Common_Cancel"),
-                DefaultButton       = ContentDialogButton.Primary,
+            var dialog = new CloseBusyDialog {
+                XamlRoot = Content.XamlRoot,
             };
             var result = await dialog.ShowAsync();
             if (result == ContentDialogResult.Primary)
@@ -381,7 +374,7 @@ public sealed partial class MainWindow : Window {
             ServerStateTip.Subtitle = TipSubtitle(notification.Kind);
             ServerStateTip.ActionButtonContent =
                 notification.Kind == ServerTipKind.Installed
-                    ? _localizer.Get("ServerTeachingTip_StartAction")
+                    ? ServerTeachingTipStartActionText.Text
                     : null;
             ServerStateTip.IsOpen = true;
             return;
@@ -399,14 +392,13 @@ public sealed partial class MainWindow : Window {
             },
             ("server", notification.Server.Name));
 
-    private string TipSubtitle(ServerTipKind kind) =>
-        _localizer.Get(kind switch {
-            ServerTipKind.Installed => "ServerTeachingTip_InstalledMessage",
-            ServerTipKind.Started   => "ServerTeachingTip_StartedMessage",
-            ServerTipKind.Stopped   => "ServerTeachingTip_StoppedMessage",
-            ServerTipKind.Crashed   => "ServerTeachingTip_CrashedMessage",
-            _                       => "ServerStatus_Unknown",
-        });
+    private string TipSubtitle(ServerTipKind kind) => kind switch {
+        ServerTipKind.Installed => ServerTeachingTipInstalledMessageText.Text,
+        ServerTipKind.Started   => ServerTeachingTipStartedMessageText.Text,
+        ServerTipKind.Stopped   => ServerTeachingTipStoppedMessageText.Text,
+        ServerTipKind.Crashed   => ServerTeachingTipCrashedMessageText.Text,
+        _                       => UnknownServerStatusText.Text,
+    };
 
     private void OnServerStateTipClosed() {
         var closed        = _currentServerTip;
@@ -494,28 +486,14 @@ public sealed partial class MainWindow : Window {
     }
 
     private async System.Threading.Tasks.Task ShowCreateServerDialogAsync() {
-        var localizer = new LocalizationService();
-        var content   = new ServerDialog(Shell.Main, ServerDialogMode.Create);
-        var dialog    = new ContentDialog {
+        var dialog = new CreateServerDialog(Shell.Main) {
             XamlRoot = Content.XamlRoot,
-            Style    = Application.Current
-                           .Resources["DefaultContentDialogStyle"] as Style,
-            Title    = localizer.Get("CreateServerDialog_Title"),
-            Content  = content,
-            PrimaryButtonText =
-                localizer.Get("CreateServerDialog_PrimaryButtonText"),
-            CloseButtonText =
-                localizer.Get("CreateServerDialog_CloseButtonText"),
-            DefaultButton          = ContentDialogButton.Primary,
-            IsPrimaryButtonEnabled = content.CanSubmit,
         };
-        content.CanSubmitChanged += (_, _) => dialog.IsPrimaryButtonEnabled =
-            content.CanSubmit;
         ContentDialogSizing.Apply(dialog);
 
         if (await dialog.ShowAsync() != ContentDialogResult.Primary)
             return;
-        if (content.BuildCreateRequest() is {} request)
+        if (dialog.BuildCreateRequest() is {} request)
             await Shell.Main.InstallServerAsync(request);
     }
 }

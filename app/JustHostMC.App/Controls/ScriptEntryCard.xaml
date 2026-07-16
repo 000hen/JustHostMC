@@ -46,11 +46,24 @@
                     Style="{StaticResource CaptionTextBlockStyle}"
                     Text="{Binding Item.Description, ElementName=Root}"
                     TextWrapping="WrapWholeWords" />
-                <TextBlock
-                    Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-                    Style="{StaticResource CaptionTextBlockStyle}"
-                    Text="{Binding Item.GrantedSummary, ElementName=Root}"
-                    TextWrapping="WrapWholeWords" />
+                <ItemsControl ItemsSource="{Binding Item.Granted, ElementName=Root}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <ItemsWrapGrid Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border
+                                Margin="0,0,6,4"
+                                Padding="6,1"
+                                Background="{ThemeResource SystemControlBackgroundBaseLowBrush}"
+                                CornerRadius="4">
+                                <controls:PermissionLabel Kind="{Binding}" />
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </StackPanel>
 
             <ToggleSwitch
@@ -76,6 +89,7 @@
                                 TextWrapping="Wrap" />
                             <Button
                                 x:Name="RemoveConfirmButton"
+                                x:Uid="ScriptsRemoveConfirmButton"
                                 HorizontalAlignment="Right"
                                 Click="OnRemoveConfirmClick" />
                         </StackPanel>

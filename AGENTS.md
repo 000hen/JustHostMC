@@ -197,13 +197,19 @@ both sides, then implement the Go `*Service` and call it from a C# ViewModel.
   (`errorStatus` helper); the `ErrorCode` enum is the programmatic discriminator
   and the frontend maps it to a localized string. The status message is diagnostic
   only.
-- **i18n**: dynamic display messages travel as a localization **key**
-  `"namespace.method.type"` (+ args) in a `LocalizedMessage`; the frontend resolves
-  it against `.resw`. Resources live in
-  `app/JustHostMC.App/Strings/{en-US,zh-Hant}/Resources.resw`; **en-US is the base
-  and fallback**. Backend keys use `.` separators; `LocalizationService` rewrites
-  `.` → `_` to match `.resw` keys. Adding a language is a new `.resw` folder, no
-  code change.
+- **i18n/resources**: prefer XAML `x:Uid` property resources for all static UI,
+  including dialog chrome, InfoBars, tooltips, and automation properties.
+  Resources live in
+  `app/JustHostMC.App/Strings/{en-US,zh-TW}/Resources.resw`; **en-US is the base
+  and fallback**. Dynamic backend messages use dotted
+  `"namespace.method.type"` keys (+ args) in `LocalizedMessage`;
+  `LocalizationService` maps `.` → `/` for MRT Core lookup. Localized dialogs
+  are XAML `ContentDialog` classes, imperative controls select XAML-defined
+  tooltip styles/templates, and app-wide Community Toolkit converters stay in
+  `Application.Resources`. Deduplicate by semantic meaning and target property;
+  document unavoidable duplicates with their canonical identifier. See
+  [`docs/resources.md`](docs/resources.md) for the complete rules, approved C#
+  exceptions, assets, language addition, and validation workflow.
 
 ### MVVM Toolkit source generation
 

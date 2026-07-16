@@ -87,9 +87,19 @@
                                     </MenuFlyoutItem>
                                     <MenuFlyoutSeparator />
                                     <MenuFlyoutItem
+                                        x:Uid="HomeCardDeleteMenuItem"
                                         Click="OnCardDeleteClick"
                                         Tag="{Binding}"
-                                        Text="{Binding DeleteActionText}">
+                                        Visibility="{Binding IsIncompleteInstallation, Converter={StaticResource BoolToVis}, ConverterParameter=True}">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xE74D;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem
+                                        x:Uid="HomeCardRemoveIncompleteMenuItem"
+                                        Click="OnCardDeleteClick"
+                                        Tag="{Binding}"
+                                        Visibility="{Binding IsIncompleteInstallation, Converter={StaticResource BoolToVis}}">
                                         <MenuFlyoutItem.Icon>
                                             <FontIcon Glyph="&#xE74D;" />
                                         </MenuFlyoutItem.Icon>
@@ -104,10 +114,36 @@
                         Orientation="Horizontal"
                         Spacing="8">
                         <controls:StatusDot VerticalAlignment="Center" Status="{Binding Status}" />
-                        <TextBlock
-                            VerticalAlignment="Center"
-                            Style="{StaticResource CaptionTextBlockStyle}"
-                            Text="{Binding StatusText}" />
+                        <Grid VerticalAlignment="Center">
+                            <TextBlock
+                                x:Uid="ServerStatusRunningText"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Visibility="{Binding IsRunning, Converter={StaticResource BoolToVis}}" />
+                            <TextBlock
+                                x:Uid="ServerStatusStoppedText"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Visibility="{Binding IsStopped, Converter={StaticResource BoolToVis}}" />
+                            <TextBlock
+                                x:Uid="ServerStatusInstallingText"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Visibility="{Binding IsInstalling, Converter={StaticResource BoolToVis}}" />
+                            <TextBlock
+                                x:Uid="ServerStatusStartingText"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Visibility="{Binding IsStarting, Converter={StaticResource BoolToVis}}" />
+                            <TextBlock
+                                x:Uid="ServerStatusStoppingText"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Visibility="{Binding IsStopping, Converter={StaticResource BoolToVis}}" />
+                            <TextBlock
+                                x:Uid="ServerStatusCrashedText"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Visibility="{Binding IsCrashed, Converter={StaticResource BoolToVis}}" />
+                            <TextBlock
+                                x:Uid="ServerStatusUnknownText"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Visibility="{Binding IsStatusUnknown, Converter={StaticResource BoolToVis}}" />
+                        </Grid>
                         <ProgressRing
                             Width="14"
                             Height="14"
@@ -145,7 +181,40 @@
                                 x:Uid="HomeCardTypeLabel"
                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Style="{StaticResource CaptionTextBlockStyle}" />
-                            <TextBlock Text="{Binding TypeText}" TextTrimming="CharacterEllipsis" />
+                            <Grid>
+                                <TextBlock
+                                    Text="{Binding TypeText}"
+                                    TextTrimming="CharacterEllipsis"
+                                    Visibility="{Binding HasTypeText, Converter={StaticResource BoolToVis}}" />
+                                <TextBlock
+                                    x:Uid="ServerTypeVanillaText"
+                                    TextTrimming="CharacterEllipsis"
+                                    Visibility="{Binding IsVanillaProvider, Converter={StaticResource BoolToVis}}" />
+                                <TextBlock
+                                    x:Uid="ServerTypePaperText"
+                                    TextTrimming="CharacterEllipsis"
+                                    Visibility="{Binding IsPaperProvider, Converter={StaticResource BoolToVis}}" />
+                                <TextBlock
+                                    x:Uid="ServerTypeSpigotText"
+                                    TextTrimming="CharacterEllipsis"
+                                    Visibility="{Binding IsSpigotProvider, Converter={StaticResource BoolToVis}}" />
+                                <TextBlock
+                                    x:Uid="ServerTypeForgeText"
+                                    TextTrimming="CharacterEllipsis"
+                                    Visibility="{Binding IsForgeProvider, Converter={StaticResource BoolToVis}}" />
+                                <TextBlock
+                                    x:Uid="ServerTypeNeoForgeText"
+                                    TextTrimming="CharacterEllipsis"
+                                    Visibility="{Binding IsNeoForgeProvider, Converter={StaticResource BoolToVis}}" />
+                                <TextBlock
+                                    x:Uid="ServerTypeFabricText"
+                                    TextTrimming="CharacterEllipsis"
+                                    Visibility="{Binding IsFabricProvider, Converter={StaticResource BoolToVis}}" />
+                                <TextBlock
+                                    x:Uid="ServerTypeUnknownText"
+                                    TextTrimming="CharacterEllipsis"
+                                    Visibility="{Binding IsTypeUnknown, Converter={StaticResource BoolToVis}}" />
+                            </Grid>
                         </StackPanel>
 
                         <StackPanel
@@ -179,15 +248,24 @@
                                 Grid.ColumnSpan="2"
                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Style="{StaticResource CaptionTextBlockStyle}" />
-                            <TextBlock
+                            <Grid
                                 Grid.Row="1"
                                 Grid.Column="0"
-                                VerticalAlignment="Center"
-                                IsTextSelectionEnabled="True"
-                                MaxLines="1"
-                                Text="{Binding EndpointText}"
-                                TextTrimming="CharacterEllipsis"
-                                TextWrapping="NoWrap" />
+                                VerticalAlignment="Center">
+                                <TextBlock
+                                    IsTextSelectionEnabled="True"
+                                    MaxLines="1"
+                                    Text="{Binding EndpointText}"
+                                    TextTrimming="CharacterEllipsis"
+                                    TextWrapping="NoWrap"
+                                    Visibility="{Binding HasEndpoint, Converter={StaticResource BoolToVis}}" />
+                                <TextBlock
+                                    x:Uid="ServerPortAutoValueText"
+                                    MaxLines="1"
+                                    TextTrimming="CharacterEllipsis"
+                                    TextWrapping="NoWrap"
+                                    Visibility="{Binding HasEndpoint, Converter={StaticResource BoolToVis}, ConverterParameter=True}" />
+                            </Grid>
                             <Button
                                 x:Uid="HomeCardCopyAddressButton"
                                 Grid.Row="1"
@@ -197,6 +275,7 @@
                                 Margin="8,0,0,0"
                                 Padding="0"
                                 Click="OnCardCopyAddressClick"
+                                IsEnabled="{Binding HasEndpoint}"
                                 Tag="{Binding}">
                                 <FontIcon FontSize="13" Glyph="&#xE8C8;" />
                             </Button>
@@ -224,7 +303,23 @@
                                 Orientation="Horizontal"
                                 Spacing="8">
                                 <FontIcon FontSize="14" Glyph="{Binding StateActionGlyph}" />
-                                <TextBlock Text="{Binding StateActionText}" />
+                                <Grid>
+                                    <TextBlock
+                                        x:Uid="ServerStateStartText"
+                                        Visibility="{Binding ShowStartAction, Converter={StaticResource BoolToVis}}" />
+                                    <TextBlock
+                                        x:Uid="ServerStateStopText"
+                                        Visibility="{Binding IsRunning, Converter={StaticResource BoolToVis}}" />
+                                    <TextBlock
+                                        x:Uid="ServerStateStartingText"
+                                        Visibility="{Binding IsStarting, Converter={StaticResource BoolToVis}}" />
+                                    <TextBlock
+                                        x:Uid="ServerStateStoppingText"
+                                        Visibility="{Binding IsStopping, Converter={StaticResource BoolToVis}}" />
+                                    <TextBlock
+                                        x:Uid="ServerStateInstallingText"
+                                        Visibility="{Binding IsInstalling, Converter={StaticResource BoolToVis}}" />
+                                </Grid>
                             </StackPanel>
                         </Button>
 
@@ -313,10 +408,23 @@
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0">
                 <TextBlock x:Uid="HomeTitle" Style="{StaticResource TitleTextBlockStyle}" />
-                <TextBlock
-                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    Style="{StaticResource CaptionTextBlockStyle}"
-                    Text="{x:Bind Main.EngineStatus, Mode=OneWay}" />
+                <Grid>
+                    <TextBlock
+                        x:Uid="EngineStatusConnectingText"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Visibility="{x:Bind Main.IsEngineConnecting, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                    <TextBlock
+                        x:Uid="EngineStatusConnectedText"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Visibility="{x:Bind Main.IsEngineConnected, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                    <TextBlock
+                        x:Uid="EngineStatusFailedText"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Visibility="{x:Bind Main.IsEngineConnectionFailed, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                </Grid>
             </StackPanel>
             <Button
                 x:Uid="RefreshButton"

@@ -8,7 +8,7 @@ namespace JustHostMC.App.Models;
 public sealed class ProviderItem : ScriptEntryItem {
     public ProviderItem(ProviderInfo info, ILocalizer localizer)
         : base(info.Id, info.Name, info.Author, info.Version, info.Description,
-               info.Permissions, info.Granted, localizer) {
+               info.Permissions, info.Granted) {
         Builtin = info.Builtin;
     }
 

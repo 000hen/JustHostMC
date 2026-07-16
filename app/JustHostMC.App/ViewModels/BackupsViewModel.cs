@@ -9,6 +9,22 @@ using Microsoft.UI.Dispatching;
 
 namespace JustHostMC.App.ViewModels;
 
+public enum BackupStatus {
+    None,
+    Creating,
+    Created,
+    Restoring,
+    Restored,
+    Deleting,
+    Deleted,
+    ExportSourceMissing,
+    Exported,
+    ExportFailed,
+    RestoreBlocked,
+    FolderMissing,
+    Error,
+}
+
 /// <summary>Manages the backups of a single server: list, create, restore,
 /// delete.</summary>
 public sealed partial class BackupsViewModel : ObservableObject {
@@ -27,9 +43,25 @@ public sealed partial class BackupsViewModel : ObservableObject {
     }
 
     [ObservableProperty]
-    public partial string StatusMessage {
-        get; set;
-    } = "";
+    [NotifyPropertyChangedFor(nameof(IsCreatingStatus))]
+    [NotifyPropertyChangedFor(nameof(IsCreatedStatus))]
+    [NotifyPropertyChangedFor(nameof(IsRestoringStatus))]
+    [NotifyPropertyChangedFor(nameof(IsRestoredStatus))]
+    [NotifyPropertyChangedFor(nameof(IsDeletingStatus))]
+    [NotifyPropertyChangedFor(nameof(IsDeletedStatus))]
+    [NotifyPropertyChangedFor(nameof(IsExportSourceMissingStatus))]
+    [NotifyPropertyChangedFor(nameof(IsExportedStatus))]
+    [NotifyPropertyChangedFor(nameof(IsExportFailedStatus))]
+    [NotifyPropertyChangedFor(nameof(IsRestoreBlockedStatus))]
+    [NotifyPropertyChangedFor(nameof(IsFolderMissingStatus))]
+    [NotifyPropertyChangedFor(nameof(IsErrorStatus))]
+    public partial BackupStatus Status { get; private set; }
+
+    [ObservableProperty]
+    public partial string ErrorMessage { get; private set; } = "";
+
+    [ObservableProperty]
+    public partial string ExportPath { get; private set; } = "";
 
     public BackupsViewModel(string serverId, bool serverRunning,
                             DispatcherQueue dispatcher, ILocalizer localizer) {
@@ -51,6 +83,37 @@ public sealed partial class BackupsViewModel : ObservableObject {
 
     public bool CanRestore => !ServerRunning && !IsBusy;
 
+    public bool IsCreatingStatus => Status == BackupStatus.Creating;
+    public bool IsCreatedStatus  => Status == BackupStatus.Created;
+    public bool IsRestoringStatus => Status == BackupStatus.Restoring;
+    public bool IsRestoredStatus => Status == BackupStatus.Restored;
+    public bool IsDeletingStatus => Status == BackupStatus.Deleting;
+    public bool IsDeletedStatus  => Status == BackupStatus.Deleted;
+    public bool IsExportSourceMissingStatus =>
+        Status == BackupStatus.ExportSourceMissing;
+    public bool IsExportedStatus => Status == BackupStatus.Exported;
+    public bool IsExportFailedStatus => Status == BackupStatus.ExportFailed;
+    public bool IsRestoreBlockedStatus =>
+        Status == BackupStatus.RestoreBlocked;
+    public bool IsFolderMissingStatus => Status == BackupStatus.FolderMissing;
+    public bool IsErrorStatus    => Status == BackupStatus.Error;
+
+    public void ReportExportSourceMissing() =>
+        SetStatus(BackupStatus.ExportSourceMissing);
+
+    public void ReportExported(string path) {
+        ExportPath = path;
+        SetStatus(BackupStatus.Exported);
+    }
+
+    public void ReportExportFailed() => SetStatus(BackupStatus.ExportFailed);
+
+    public void ReportRestoreBlocked() =>
+        SetStatus(BackupStatus.RestoreBlocked);
+
+    public void ReportFolderMissing() =>
+        SetStatus(BackupStatus.FolderMissing);
+
     /// <summary>Loads (or reloads) the server's backups, newest
     /// first.</summary>
     public async Task LoadAsync() {
@@ -64,15 +127,15 @@ public sealed partial class BackupsViewModel : ObservableObject {
                 foreach (var b in list.Backups) Backups.Add(new BackupItem(b));
             });
         } catch (RpcException ex) {
-            RunOnUI(() => StatusMessage = _localizer.Get(MapBackupError(ex)));
+            RunOnUI(() => SetError(ex));
         }
     }
 
     [RelayCommand]
     private async Task CreateBackup() {
         RunOnUI(() => {
-            IsBusy        = true;
-            StatusMessage = _localizer.Get("Backups_Creating");
+            IsBusy = true;
+            SetStatus(BackupStatus.Creating);
         });
         try {
             var daemon = await App.Current.DaemonReady;
@@ -81,9 +144,9 @@ public sealed partial class BackupsViewModel : ObservableObject {
                                           SafeOnline = SafeOnline },
                 deadline: DateTime.UtcNow.AddMinutes(10));
             await LoadAsync();
-            RunOnUI(() => StatusMessage = _localizer.Get("Backups_Created"));
+            RunOnUI(() => SetStatus(BackupStatus.Created));
         } catch (RpcException ex) {
-            RunOnUI(() => StatusMessage = _localizer.Get(MapBackupError(ex)));
+            RunOnUI(() => SetError(ex));
         } finally {
             RunOnUI(() => IsBusy = false);
         }
@@ -94,8 +157,8 @@ public sealed partial class BackupsViewModel : ObservableObject {
         if (item is null)
             return;
         RunOnUI(() => {
-            IsBusy        = true;
-            StatusMessage = _localizer.Get("Backups_Restoring");
+            IsBusy = true;
+            SetStatus(BackupStatus.Restoring);
         });
         try {
             var daemon = await App.Current.DaemonReady;
@@ -103,9 +166,9 @@ public sealed partial class BackupsViewModel : ObservableObject {
                 new RestoreBackupRequest { ServerId = _serverId,
                                            BackupId = item.Id },
                 deadline: DateTime.UtcNow.AddMinutes(10));
-            RunOnUI(() => StatusMessage = _localizer.Get("Backups_Restored"));
+            RunOnUI(() => SetStatus(BackupStatus.Restored));
         } catch (RpcException ex) {
-            RunOnUI(() => StatusMessage = _localizer.Get(MapBackupError(ex)));
+            RunOnUI(() => SetError(ex));
         } finally {
             RunOnUI(() => IsBusy = false);
         }
@@ -116,17 +179,17 @@ public sealed partial class BackupsViewModel : ObservableObject {
         if (item is null)
             return;
         RunOnUI(() => {
-            IsBusy        = true;
-            StatusMessage = _localizer.Get("Backups_Deleting");
+            IsBusy = true;
+            SetStatus(BackupStatus.Deleting);
         });
         try {
             var daemon = await App.Current.DaemonReady;
             await daemon.Backups.DeleteAsync(
                 item.ToProto(), deadline: DateTime.UtcNow.AddSeconds(30));
             await LoadAsync();
-            RunOnUI(() => StatusMessage = _localizer.Get("Backups_Deleted"));
+            RunOnUI(() => SetStatus(BackupStatus.Deleted));
         } catch (RpcException ex) {
-            RunOnUI(() => StatusMessage = _localizer.Get(MapBackupError(ex)));
+            RunOnUI(() => SetError(ex));
         } finally {
             RunOnUI(() => IsBusy = false);
         }
@@ -138,6 +201,18 @@ public sealed partial class BackupsViewModel : ObservableObject {
             StatusCode.NotFound           => "error.backup_not_found",
             _                             => "error.backup_failed",
         };
+
+    private void SetStatus(BackupStatus status) {
+        ErrorMessage = "";
+        if (status != BackupStatus.Exported)
+            ExportPath = "";
+        Status       = status;
+    }
+
+    private void SetError(RpcException ex) {
+        ErrorMessage = _localizer.Get(MapBackupError(ex));
+        Status       = BackupStatus.Error;
+    }
 
     private void RunOnUI(Action action) {
         if (_dispatcher.HasThreadAccess)

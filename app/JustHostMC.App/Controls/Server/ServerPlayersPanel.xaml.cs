@@ -56,12 +56,8 @@ public sealed partial class ServerPlayersPanel : UserControl {
         _localizer.Get("Players_Header", ("count", count.ToString()));
 
     private string PlayersDescription(int count) =>
-        count == 0 ? _localizer.Get("PlayersEmptyHint/Text")
-                   : _localizer.Get("ServerSectionPlayersHint/Text");
-
-    private Visibility HasNoPlayers(int count) => count == 0
-                                                      ? Visibility.Visible
-                                                      : Visibility.Collapsed;
+        count == 0 ? PlayersEmptyDescriptionText.Text
+                   : PlayersActiveDescriptionText.Text;
 
     private void OnPlayerOpClick(object sender, RoutedEventArgs e) =>
         SendPlayerCommand(sender, "op {0}");
@@ -81,11 +77,10 @@ public sealed partial class ServerPlayersPanel : UserControl {
         if (GetPlayer(sender) is not {} player || Server == null)
             return;
 
-        var view    = new PlayerDataDialog(Server.Id, player);
-        var content = new PlayerDialogBase(player, view);
-        var dialog  = CreatePlayerDialog(
-            _localizer.Get("PlayerDataDialog_ActionName"), player, content);
-        view.OnHeaderUpdated = content.UpdateHeader;
+        var dialog = new PlayerDataContentDialog(Server.Id, player) {
+            XamlRoot = XamlRoot,
+        };
+        ContentDialogSizing.Apply(dialog, useWideLayout: true);
         await dialog.ShowAsync();
     }
 
@@ -93,32 +88,11 @@ public sealed partial class ServerPlayersPanel : UserControl {
         if (GetPlayer(sender) is not {} player || Server == null)
             return;
 
-        var view    = new PlayerInventoryDialog(Server.Id, player);
-        var content = new PlayerDialogBase(player, view);
-        var dialog  = CreatePlayerDialog(
-            _localizer.Get("PlayerInventoryDialog_ActionName"), player,
-            content);
-        view.OnHeaderUpdated = content.UpdateHeader;
-        await dialog.ShowAsync();
-    }
-
-    private ContentDialog CreatePlayerDialog(string actionName,
-                                             PlayerItem player,
-                                             PlayerDialogBase content) {
-        var dialog = new ContentDialog {
+        var dialog = new PlayerInventoryContentDialog(Server.Id, player) {
             XamlRoot = XamlRoot,
-            Style    = Application.Current
-                           .Resources["DefaultContentDialogStyle"] as Style,
-            Title =
-                string.Format(_localizer.Get("PlayerDialogBase_TitleFormat"),
-                              actionName, player.Name),
-            Content = content,
-            CloseButtonText =
-                _localizer.Get("PlayerDialogBase_CloseButtonText"),
-            DefaultButton = ContentDialogButton.Close,
         };
         ContentDialogSizing.Apply(dialog, useWideLayout: true);
-        return dialog;
+        await dialog.ShowAsync();
     }
 
     private async void OnManageBansClick(object sender, RoutedEventArgs e) {
@@ -127,17 +101,9 @@ public sealed partial class ServerPlayersPanel : UserControl {
 
         var isStopped =
             Server.Status is ServerStatus.Stopped or ServerStatus.Crashed;
-        var content = new BanListDialog(Server.Id, isStopped);
-        var dialog  = new ContentDialog {
+        var dialog = new BanListContentDialog(Server.Id, isStopped) {
             XamlRoot = XamlRoot,
-            Style    = Application.Current
-                           .Resources["DefaultContentDialogStyle"] as Style,
-            Title    = _localizer.Get("BanListDialog_Title"),
-            Content  = content,
-            CloseButtonText = _localizer.Get("BanListDialog_CloseButtonText"),
-            DefaultButton   = ContentDialogButton.Close,
         };
-        dialog.Opened += async (_, _) => await content.LoadAsync();
         ContentDialogSizing.Apply(dialog, useWideLayout: true);
         await dialog.ShowAsync();
     }

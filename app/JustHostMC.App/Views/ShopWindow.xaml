@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Window
     x:Class="JustHostMC.App.Views.ShopWindow"
+    x:Uid="ShopWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -13,6 +14,18 @@
     </Window.SystemBackdrop>
 
     <Grid x:Name="Root" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.Resources>
+            <!-- SelectorBar items must remain imperative because the WinUI
+                 ItemsSource/DataTemplate path crashes for these managed items.
+                 Code selects this XAML-defined style; localization stays here. -->
+            <Style x:Key="ShopUnavailableSelectorItemStyle" TargetType="SelectorBarItem">
+                <Setter Property="ToolTipService.ToolTip">
+                    <Setter.Value>
+                        <ToolTip x:Uid="ShopKeyMissingTooltip" />
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -21,6 +34,7 @@
 
         <TitleBar
             x:Name="ShopTitleBar"
+            x:Uid="ShopTitleBar"
             BackRequested="OnTitleBarBackRequested"
             IsBackButtonEnabled="False"
             IsBackButtonVisible="False">
@@ -95,16 +109,24 @@
             </StackPanel>
         </Grid>
 
-        <InfoBar
-            x:Name="KeyMissingBar"
-            x:Uid="ShopKeyMissingBar"
+        <StackPanel
             Grid.Row="2"
             Margin="16,0"
             VerticalAlignment="Top"
             Canvas.ZIndex="1"
-            IsClosable="False"
-            IsOpen="False"
-            Severity="Warning" />
+            Spacing="8">
+            <InfoBar
+                x:Name="KeyMissingBar"
+                x:Uid="ShopKeyMissingBar"
+                IsClosable="False"
+                IsOpen="False"
+                Severity="Warning" />
+            <InfoBar
+                x:Uid="ShopLoadFailedBar"
+                IsClosable="False"
+                IsOpen="{x:Bind ViewModel.HasLoadFailure, Mode=OneWay}"
+                Severity="Error" />
+        </StackPanel>
 
         <Frame
             x:Name="ContentFrame"

@@ -16,8 +16,7 @@ public sealed class ModFileItem : ObservableObject {
         SizeBytes = sizeBytes;
         _icon     = icon;
         if (metadata is not null && metadata.ParseError.Length > 0) {
-            ParseError = localizer.Get("Mods_ParseFailed",
-                                       ("error", metadata.ParseError));
+            ParseError = localizer.Get("Mods_ParseFailed");
         }
         if (metadata is { Parsed : true }) {
             HasMetadata = true;

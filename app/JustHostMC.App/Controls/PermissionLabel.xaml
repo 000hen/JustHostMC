@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="JustHostMC.App.Controls.PermissionLabel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    x:Name="Root"
+    mc:Ignorable="d">
+
+    <Grid>
+        <TextBlock x:Name="NetworkLabel" x:Uid="PermissionLabelNetwork" />
+        <TextBlock x:Name="InstallLabel" x:Uid="PermissionLabelInstall" />
+        <TextBlock x:Name="FsServerLabel" x:Uid="PermissionLabelFsServer" />
+        <TextBlock x:Name="ConsoleReadLabel" x:Uid="PermissionLabelConsoleRead" />
+        <TextBlock x:Name="ConsoleWriteLabel" x:Uid="PermissionLabelConsoleWrite" />
+        <TextBlock x:Name="ServerControlLabel" x:Uid="PermissionLabelServerControl" />
+        <TextBlock x:Name="ScheduleLabel" x:Uid="PermissionLabelSchedule" />
+        <TextBlock x:Name="ServerQueryLabel" x:Uid="PermissionLabelServerQuery" />
+        <TextBlock x:Name="PlayerManageLabel" x:Uid="PermissionLabelPlayerManage" />
+        <TextBlock x:Name="UnknownLabel" x:Uid="PermissionLabelUnknown" />
+    </Grid>
+</UserControl>

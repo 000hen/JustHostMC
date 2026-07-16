@@ -22,7 +22,7 @@ public sealed partial class PlayerDataDialog : UserControl {
 
     private async Task LoadAsync() {
         BusyBar.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
-        StatusText.Text    = "";
+        LoadFailedText.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
         try {
             var daemon = await App.Current.DaemonReady;
             var data   = await daemon.Players.GetDataAsync(new PlayerLookup {
@@ -36,11 +36,8 @@ public sealed partial class PlayerDataDialog : UserControl {
 
             RawBox.Text = MinecraftItemNbtParser.FormatAsJson(
                 data.RawNbt.ToByteArray(), data.RawSnbt);
-        } catch (RpcException ex) {
-            StatusText.Text =
-                ex.Status.Detail.Length > 0
-                    ? ex.Status.Detail
-                    : "Player data could not be loaded. The player may need to join once and the server may need to save.";
+        } catch (RpcException) {
+            LoadFailedText.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
         } finally {
             BusyBar.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
         }

@@ -100,11 +100,24 @@
                         <toolkit:SettingsCard x:Uid="SettingsUseDocker">
                             <toolkit:SettingsCard.Description>
                                 <StackPanel Spacing="4">
-                                    <TextBlock Text="{x:Bind ViewModel.ActiveModeText, Mode=OneWay}" TextWrapping="Wrap" />
+                                    <TextBlock
+                                        x:Uid="SettingsBackendModeDocker"
+                                        TextWrapping="Wrap"
+                                        Visibility="{x:Bind ViewModel.IsDockerMode, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                                    <TextBlock
+                                        x:Uid="SettingsBackendModeOnMachine"
+                                        TextWrapping="Wrap"
+                                        Visibility="{x:Bind ViewModel.IsOnMachineMode, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
                                     <TextBlock
                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                        Text="{x:Bind ViewModel.DockerStatusText, Mode=OneWay}"
-                                        TextWrapping="Wrap" />
+                                        Text="{x:Bind ViewModel.DockerAvailableText, Mode=OneWay}"
+                                        TextWrapping="Wrap"
+                                        Visibility="{x:Bind ViewModel.IsDockerAvailable, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                                    <TextBlock
+                                        x:Uid="SettingsDockerUnavailable"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        TextWrapping="Wrap"
+                                        Visibility="{x:Bind ViewModel.IsDockerUnavailable, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
                                 </StackPanel>
                             </toolkit:SettingsCard.Description>
                             <ToggleSwitch IsOn="{x:Bind ViewModel.UseDocker, Mode=TwoWay}" />
@@ -146,13 +159,26 @@
                         <FontIcon Glyph="&#xE719;" />
                     </toolkit:SettingsExpander.HeaderIcon>
                     <toolkit:SettingsExpander.Items>
-                        <toolkit:SettingsCard x:Uid="SettingsCurseForgeKey" Description="{x:Bind ViewModel.CurseForgeKeyStatus, Mode=OneWay}">
+                        <toolkit:SettingsCard x:Uid="SettingsCurseForgeKey">
+                            <toolkit:SettingsCard.Description>
+                                <StackPanel>
+                                    <TextBlock
+                                        x:Uid="SettingsShopKeyNone"
+                                        Visibility="{x:Bind ViewModel.HasNoShopKey, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                                    <TextBlock
+                                        x:Uid="SettingsShopKeyUser"
+                                        Visibility="{x:Bind ViewModel.HasUserShopKey, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                                    <TextBlock
+                                        x:Uid="SettingsShopKeyBuiltin"
+                                        Visibility="{x:Bind ViewModel.HasBuiltinShopKey, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                                </StackPanel>
+                            </toolkit:SettingsCard.Description>
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <PasswordBox
+                                    x:Uid="SettingsCurseForgeKeyBox"
                                     Width="250"
                                     AutomationProperties.AutomationId="SettingsCurseForgeKey"
-                                    Password="{x:Bind ViewModel.CurseForgeKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                    PlaceholderText="API Key" />
+                                    Password="{x:Bind ViewModel.CurseForgeKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                 <Button x:Uid="SettingsShopKeySaveButton" Command="{x:Bind ViewModel.SaveCurseForgeKeyCommand}" />
                             </StackPanel>
                         </toolkit:SettingsCard>
@@ -236,11 +262,22 @@
                     </toolkit:SettingsExpander.Items>
                 </toolkit:SettingsExpander>
 
-                <TextBlock
-                    Margin="0,32,0,0"
-                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    Style="{StaticResource CaptionTextBlockStyle}"
-                    Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" />
+                <StackPanel Margin="0,32,0,0">
+                    <TextBlock
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Text="{x:Bind ViewModel.DynamicStatusMessage, Mode=OneWay}" />
+                    <TextBlock x:Uid="SettingsStatusLoadFailed" Visibility="{x:Bind ViewModel.IsLoadFailedStatus, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                    <TextBlock x:Uid="SettingsStatusSaved" Visibility="{x:Bind ViewModel.IsSavedStatus, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                    <TextBlock x:Uid="SettingsStatusSaveFailed" Visibility="{x:Bind ViewModel.IsSaveFailedStatus, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                    <TextBlock x:Uid="SettingsStatusDockerPreferenceSaved" Visibility="{x:Bind ViewModel.IsDockerPreferenceSavedStatus, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                    <TextBlock x:Uid="SettingsStatusPurgeFailed" Visibility="{x:Bind ViewModel.IsPurgeFailedStatus, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                    <TextBlock x:Uid="SettingsStatusRemovingData" Visibility="{x:Bind ViewModel.IsRemovingDataStatus, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                    <TextBlock x:Uid="SettingsStatusDataRemoved" Visibility="{x:Bind ViewModel.IsDataRemovedStatus, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                    <TextBlock x:Uid="SettingsStatusRemoveDataFailed" Visibility="{x:Bind ViewModel.IsRemoveDataFailedStatus, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                    <TextBlock x:Uid="SettingsStatusRemovingIncomplete" Visibility="{x:Bind ViewModel.IsRemovingIncompleteStatus, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                    <TextBlock x:Uid="SettingsStatusRemoveIncompleteFailed" Visibility="{x:Bind ViewModel.IsRemoveIncompleteFailedStatus, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                </StackPanel>
 
             </StackPanel>
         </controls:SafeAreaContainer>

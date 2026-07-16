@@ -40,7 +40,7 @@ public sealed partial class ScriptsPage : Page {
             source = await FileIO.ReadTextAsync(lua);
         } catch (Exception ex)
             when (ex is IOException or UnauthorizedAccessException) {
-            ViewModel.SetStatus(_localizer.Get("Scripts_ReadFailed"));
+            ViewModel.SetStatus(ReadFailedText.Text);
             return;
         }
 
@@ -55,7 +55,7 @@ public sealed partial class ScriptsPage : Page {
                 jarName    = jarFile.Name;
             } catch (Exception ex)
                 when (ex is IOException or UnauthorizedAccessException) {
-                ViewModel.SetStatus(_localizer.Get("Scripts_ReadFailed"));
+                ViewModel.SetStatus(ReadFailedText.Text);
                 return;
             }
         }
@@ -77,7 +77,7 @@ public sealed partial class ScriptsPage : Page {
             source = await FileIO.ReadTextAsync(lua);
         } catch (Exception ex)
             when (ex is IOException or UnauthorizedAccessException) {
-            ViewModel.SetStatus(_localizer.Get("Scripts_ReadFailed"));
+            ViewModel.SetStatus(ReadFailedText.Text);
             return;
         }
 
@@ -98,7 +98,7 @@ public sealed partial class ScriptsPage : Page {
             source = await FileIO.ReadTextAsync(lua);
         } catch (Exception ex)
             when (ex is IOException or UnauthorizedAccessException) {
-            ViewModel.SetStatus(_localizer.Get("Scripts_ReadFailed"));
+            ViewModel.SetStatus(ReadFailedText.Text);
             return;
         }
 
@@ -142,7 +142,7 @@ public sealed partial class ScriptsPage : Page {
         } catch (Exception ex)
             when (ex is IOException or UnauthorizedAccessException or
                       Win32Exception) {
-            ViewModel.SetStatus(_localizer.Get("Scripts_OpenFolderFailed"));
+            ViewModel.SetStatus(OpenFolderFailedText.Text);
         }
     }
 
@@ -163,25 +163,15 @@ public sealed partial class ScriptsPage : Page {
     private async Task<IReadOnlyList<PermissionKind>?> RequestConsentAsync(
         string scriptName, string luaSource) {
         var permissions = LuaPermissions.Parse(luaSource);
-        var content     = new PermissionConsentDialog(permissions, _localizer);
-        var dialog      = new ContentDialog {
+        var dialog = new PermissionConsentContentDialog(
+            scriptName, permissions) {
             XamlRoot = XamlRoot,
-            Style    = Application.Current
-                           .Resources["DefaultContentDialogStyle"] as Style,
-            Title    = _localizer.Get("PermissionConsentTitleNamed",
-                                      ("name", scriptName)),
-            Content  = content,
-            PrimaryButtonText =
-                _localizer.Get("PermissionConsentDialog_PrimaryButtonText"),
-            CloseButtonText =
-                _localizer.Get("PermissionConsentDialog_CloseButtonText"),
-            DefaultButton = ContentDialogButton.Primary,
         };
         ContentDialogSizing.Apply(dialog);
 
         if (await dialog.ShowAsync() != ContentDialogResult.Primary)
             return null;
-        return content.Granted;
+        return dialog.Granted;
     }
 
     private async void OnRemoveScript(object sender, RoutedEventArgs e) {

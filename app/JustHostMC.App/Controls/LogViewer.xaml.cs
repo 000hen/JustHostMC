@@ -1,9 +1,7 @@
 using System.Collections;
 using System.Collections.Specialized;
-using JustHostMC.App.Services;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
@@ -51,9 +49,6 @@ public sealed partial class LogViewer : UserControl {
     public LogViewer() {
         InitializeComponent();
         LogList.ItemTemplate = DefaultItemTemplate;
-        AutomationProperties.SetName(
-            JumpToLatestButton,
-            new LocalizationService().Get("LogViewer_JumpToLatest"));
         LogList.AddHandler(PointerWheelChangedEvent,
                            new PointerEventHandler(OnUserScrollInput), true);
         _tailScrollTimer             = DispatcherQueue.CreateTimer();

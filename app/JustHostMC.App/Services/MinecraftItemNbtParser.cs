@@ -6,7 +6,7 @@ using SharpNBT.SNBT;
 
 namespace JustHostMC.App.Services;
 
-internal enum NbtDetailKind {
+public enum NbtDetailKind {
     Default,
     Lore,
     Enchantment,
@@ -15,9 +15,9 @@ internal enum NbtDetailKind {
     Code,
 }
 
-internal sealed record NbtDetailEntry(
+public sealed record NbtDetailEntry(
     string Label, string Value, NbtDetailKind Kind = NbtDetailKind.Default);
-internal sealed record NbtDetailSection(string Title,
+public sealed record NbtDetailSection(string Title,
                                         IReadOnlyList<NbtDetailEntry> Entries);
 
 internal sealed record MinecraftItemNbtPresentation(

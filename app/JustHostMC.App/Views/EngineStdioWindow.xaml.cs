@@ -39,9 +39,6 @@ public sealed partial class EngineStdioWindow : Window {
         InitializeFilterGroups();
         _isInitialized = true;
 
-        var title                  = _localizer.Get("EngineMonitor_Title");
-        Title                      = title;
-        MonitorTitleBar.Title      = title;
         ExtendsContentIntoTitleBar = true;
         AppWindow.Resize(new SizeInt32(1040, 700));
 

@@ -9,6 +9,13 @@ using Microsoft.UI.Dispatching;
 
 namespace JustHostMC.App.ViewModels;
 
+public enum ShopDetailStatus {
+    None,
+    LoadFailed,
+    InstallDone,
+    InstallFailed,
+}
+
 /// <summary>One project's detail page: header card, gallery, rendered body,
 /// compatible versions, and the install flow (dependency prompt + streamed
 /// progress).</summary>
@@ -55,10 +62,10 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
     public bool IsWebsiteAction =>
         PrimaryAction.Kind == ShopPrimaryActionKind.Website;
 
-    public string PrimaryActionLabel =>
+    public string WebsiteActionLabel =>
         IsWebsiteAction
             ? _localizer.Get("Shop_GetOnSource", ("source", SourceName))
-            : _localizer.Get("Shop_InstallAction");
+            : "";
 
     public bool CanInstallLatest =>
         LatestRelease is not null && PrimaryAction.IsEnabled && !IsInstalling;
@@ -87,9 +94,28 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
     }
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasStatus))]
     public partial string StatusMessage {
         get; private set;
     } = "";
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasStatus))]
+    [NotifyPropertyChangedFor(nameof(IsLoadFailedStatus))]
+    [NotifyPropertyChangedFor(nameof(IsInstallDoneStatus))]
+    [NotifyPropertyChangedFor(nameof(IsInstallFailedStatus))]
+    public partial ShopDetailStatus DetailStatus {
+        get; private set;
+    }
+
+    public bool HasStatus => DetailStatus != ShopDetailStatus.None ||
+                             !string.IsNullOrWhiteSpace(StatusMessage);
+    public bool IsLoadFailedStatus =>
+        DetailStatus == ShopDetailStatus.LoadFailed;
+    public bool IsInstallDoneStatus =>
+        DetailStatus == ShopDetailStatus.InstallDone;
+    public bool IsInstallFailedStatus =>
+        DetailStatus == ShopDetailStatus.InstallFailed;
 
     [ObservableProperty]
     public partial bool InstallSucceeded {
@@ -134,8 +160,7 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
                 RefreshPrimaryAction();
             });
         } catch {
-            await RunOnUIAsync(() => StatusMessage =
-                                   _localizer.Get("Shop_LoadFailed"));
+            await RunOnUIAsync(() => DetailStatus = ShopDetailStatus.LoadFailed);
         } finally {
             await RunOnUIAsync(() => IsLoading = false);
         }
@@ -167,8 +192,7 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
                 RefreshPrimaryAction();
             });
         } catch {
-            await RunOnUIAsync(() => StatusMessage =
-                                   _localizer.Get("Shop_LoadFailed"));
+            await RunOnUIAsync(() => DetailStatus = ShopDetailStatus.LoadFailed);
         } finally {
             await RunOnUIAsync(() => IsVersionsLoading = false);
         }
@@ -206,6 +230,7 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
             InstallSucceeded = false;
             InstallProgress  = 0;
             StatusMessage    = "";
+            DetailStatus     = ShopDetailStatus.None;
         });
         try {
             var daemon  = await App.Current.DaemonReady;
@@ -228,15 +253,17 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
             }
             await RunOnUIAsync(() => {
                 InstallSucceeded = true;
-                StatusMessage    = _localizer.Get("Shop_InstallDone");
+                DetailStatus     = ShopDetailStatus.InstallDone;
             });
             _shop.Context.OnInstalled();
         } catch (RpcException ex) {
             var key = ErrorKey(ex);
-            await RunOnUIAsync(() => StatusMessage = _localizer.Get(key));
+            await RunOnUIAsync(() => {
+                DetailStatus  = ShopDetailStatus.None;
+                StatusMessage = _localizer.Get(key);
+            });
         } catch {
-            await RunOnUIAsync(() => StatusMessage =
-                                   _localizer.Get("Shop_InstallFailed"));
+            await RunOnUIAsync(() => DetailStatus = ShopDetailStatus.InstallFailed);
         } finally {
             await RunOnUIAsync(() => { IsInstalling = false; });
         }
@@ -247,9 +274,9 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
     private void RefreshPrimaryAction() {
         OnPropertyChanged(nameof(PrimaryAction));
         OnPropertyChanged(nameof(IsWebsiteAction));
-        OnPropertyChanged(nameof(PrimaryActionLabel));
+        OnPropertyChanged(nameof(WebsiteActionLabel));
         OnPropertyChanged(nameof(CanInstallLatest));
-        var label   = PrimaryActionLabel;
+        var label   = WebsiteActionLabel;
         var enabled = PrimaryAction.IsEnabled && !IsInstalling;
         foreach (var version in Versions) {
             version.ActionLabel   = label;

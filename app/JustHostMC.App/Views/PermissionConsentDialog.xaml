@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:JustHostMC.App.Controls"
     xmlns:views="using:JustHostMC.App.Views"
     mc:Ignorable="d">
 
@@ -22,7 +23,7 @@
                 x:Uid="PermissionConsentNone"
                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                 TextWrapping="WrapWholeWords"
-                Visibility="{x:Bind Rows.Count, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
+                Visibility="{x:Bind Rows, Converter={StaticResource CollectionToVis}, ConverterParameter=True}" />
 
             <ItemsControl ItemsSource="{x:Bind Rows}">
                 <ItemsControl.ItemTemplate>
@@ -43,10 +44,7 @@
                                     Grid.Column="0"
                                     VerticalAlignment="Center"
                                     Spacing="4">
-                                    <TextBlock
-                                        Style="{StaticResource BodyStrongTextBlockStyle}"
-                                        Text="{x:Bind Label}"
-                                        TextWrapping="WrapWholeWords" />
+                                    <controls:PermissionLabel Kind="{x:Bind Kind}" />
                                     <TextBlock
                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                         Style="{StaticResource CaptionTextBlockStyle}"

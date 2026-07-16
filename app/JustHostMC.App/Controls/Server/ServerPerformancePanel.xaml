@@ -9,8 +9,7 @@
     mc:Ignorable="d">
 
     <server:ServerSectionLayout
-        Title="{x:Bind PerformanceTitle()}"
-        Description="{x:Bind PerformanceDescription()}"
+        x:Uid="ServerPerformanceSection"
         IconGlyph="&#xE9D9;">
         <server:ServerSectionLayout.Body>
             <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -94,7 +93,7 @@
                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Style="{StaticResource CaptionTextBlockStyle}"
                                 TextWrapping="Wrap"
-                                Visibility="{x:Bind Metrics.NetworkAvailable, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=invert}" />
+                                Visibility="{x:Bind Metrics.NetworkAvailable, Mode=OneWay, Converter={StaticResource BoolToVis}, ConverterParameter=True}" />
                         </StackPanel>
                     </Border>
                 </Grid>

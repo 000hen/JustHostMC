@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.Windows.ApplicationModel.Resources;
 
 namespace JustHostMC.App.Services;
@@ -12,8 +13,13 @@ public sealed class LocalizationService : ILocalizer {
 
     public string Get(string key) {
         try {
-            return _loader.GetString(NormalizeKey(key));
-        } catch {
+            var value = _loader.GetString(NormalizeKey(key));
+            if (!string.IsNullOrEmpty(value))
+                return value;
+            Debug.WriteLine($"Missing localization resource: {key}");
+            return key;
+        } catch (Exception ex) {
+            Debug.WriteLine($"Failed to load localization resource '{key}': {ex}");
             return key;
         }
     }
@@ -22,7 +28,8 @@ public sealed class LocalizationService : ILocalizer {
         string format;
         try {
             format = _loader.GetString(NormalizeKey(key));
-        } catch {
+        } catch (Exception ex) {
+            Debug.WriteLine($"Failed to load localization resource '{key}': {ex}");
             format = key;
         }
         foreach (var (name, value) in args)
@@ -30,8 +37,8 @@ public sealed class LocalizationService : ILocalizer {
         return format;
     }
 
-    // Backend keys use '.' separators ("install.progress.downloading_server").
-    // Resource names are flat (underscored) to avoid the resw/PRI treating dots
-    // as the x:Uid "Uid.Property" convention, so map '.' -> '_'.
-    private static string NormalizeKey(string key) => key.Replace('.', '_');
+    // MRT Core exposes segmented resource identifiers as slash-separated paths.
+    // x:Uid property identifiers are resolved by XAML and never pass through
+    // this programmatic lookup path.
+    internal static string NormalizeKey(string key) => key.Replace('.', '/');
 }

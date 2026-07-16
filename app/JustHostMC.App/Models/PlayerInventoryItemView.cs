@@ -48,6 +48,10 @@ public sealed class PlayerInventoryItemView {
     public string CountText      => ShowCount ? Count.ToString() : "";
     public string Tooltip =>
         HasItem ? $"{StyledName}\n{ItemId}\n{SlotName}" : SlotName;
+    public IReadOnlyList<NbtDetailSection> NbtSections => Nbt.Sections;
+    public string FormattedNbt => Nbt.FormattedJson;
+    public bool HasNbtParseFailure => Nbt.ParseError is not null;
+    public bool HasNoNbtDetails => Nbt.Sections.Count == 0 && !HasNbtParseFailure;
 
     public static PlayerInventoryItemView Empty(int slot, string slotName) =>
         new(slot, slotName);

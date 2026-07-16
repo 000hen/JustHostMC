@@ -275,7 +275,7 @@
                         Content="{x:Bind ViewModel.LoaderFilterLabel, Mode=OneWay}"
                         IsChecked="{x:Bind ViewModel.UseLoaderFilter, Mode=TwoWay}"
                         Visibility="{x:Bind ViewModel.HasLoaderFilter}" />
-                    <StackPanel Spacing="8" Visibility="{x:Bind BoolToVisibility(ViewModel.HasCategoryFilters), Mode=OneWay}">
+                    <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.HasCategoryFilters, Mode=OneWay, Converter={StaticResource BoolToVis}}">
                         <Rectangle Height="1" Fill="{ThemeResource DividerStrokeColorDefaultBrush}" />
                         <TextBlock x:Uid="ShopCategoriesHeading" Style="{StaticResource BodyStrongTextBlockStyle}" />
                         <ItemsControl ItemsSource="{x:Bind ViewModel.CategoryFilters, Mode=OneWay}">
@@ -370,7 +370,7 @@
                         IsChecked="{x:Bind ViewModel.UseLoaderFilter, Mode=TwoWay}"
                         Visibility="{x:Bind ViewModel.HasLoaderFilter}" />
 
-                    <StackPanel Spacing="8" Visibility="{x:Bind BoolToVisibility(ViewModel.HasCategoryFilters), Mode=OneWay}">
+                    <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.HasCategoryFilters, Mode=OneWay, Converter={StaticResource BoolToVis}}">
                         <Rectangle Height="1" Fill="{ThemeResource DividerStrokeColorDefaultBrush}" />
                         <StackPanel Spacing="4">
                             <TextBlock x:Uid="ShopCategoriesHeading" Style="{StaticResource BodyStrongTextBlockStyle}" />

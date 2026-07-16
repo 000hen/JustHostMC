@@ -13,6 +13,12 @@ using Windows.Storage.Streams;
 
 namespace JustHostMC.App.ViewModels;
 
+public enum ModsWorkflowStatus {
+    None,
+    Exported,
+    ExportFailed,
+}
+
 /// <summary>Lists, uploads, and removes plugin/mod jars for a server via
 /// ModService. Uploads and removals are only allowed while the server is
 /// stopped.</summary>
@@ -79,12 +85,9 @@ public sealed partial class ModsViewModel : ObservableObject {
         get; private set;
     }
 
-    [ObservableProperty]
-    public partial string KindLabel {
-        get; private set;
-    } = "";
-
     public bool AcceptsLiteMod { get; private set; }
+
+    public bool IsModKind => Kind == ModKind.Mod;
 
     /// <summary>The folder kind reported by the engine (plugins vs mods),
     /// used as the shop's project-type pre-filter.</summary>
@@ -100,6 +103,17 @@ public sealed partial class ModsViewModel : ObservableObject {
 
     [ObservableProperty]
     public partial string StatusMessage { get; private set; } = "";
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsExportedStatus))]
+    [NotifyPropertyChangedFor(nameof(IsExportFailedStatus))]
+    public partial ModsWorkflowStatus WorkflowStatus {
+        get; private set;
+    }
+
+    public bool IsExportedStatus => WorkflowStatus == ModsWorkflowStatus.Exported;
+    public bool IsExportFailedStatus =>
+        WorkflowStatus == ModsWorkflowStatus.ExportFailed;
 
     partial void OnSupportedChanged(bool value) => RecomputeCanModify();
 
@@ -156,6 +170,7 @@ public sealed partial class ModsViewModel : ObservableObject {
             IsInitialLoading = isInitialLoad;
             IsRefreshing     = !isInitialLoad;
             StatusMessage    = "";
+            WorkflowStatus   = ModsWorkflowStatus.None;
         });
 
         try {
@@ -175,9 +190,7 @@ public sealed partial class ModsViewModel : ObservableObject {
                 Supported      = list.Supported;
                 Kind           = list.Kind;
                 AcceptsLiteMod = list.Kind == ModKind.Mod;
-                KindLabel      = _localizer.Get(list.Kind == ModKind.Mod
-                                                    ? "Mods_KindMods"
-                                                    : "Mods_KindPlugins");
+                OnPropertyChanged(nameof(IsModKind));
                 ApplyFileDiff(files);
                 _nextOffset  = list.NextOffset;
                 HasMoreFiles = list.HasMore;
@@ -298,6 +311,7 @@ public sealed partial class ModsViewModel : ObservableObject {
         RunOnUI(() => {
             IsBusy        = true;
             StatusMessage = "";
+            WorkflowStatus = ModsWorkflowStatus.None;
         });
         try {
             var daemon     = await App.Current.DaemonReady;
@@ -385,6 +399,7 @@ public sealed partial class ModsViewModel : ObservableObject {
         RunOnUI(() => {
             IsBusy        = true;
             StatusMessage = "";
+            WorkflowStatus = ModsWorkflowStatus.None;
         });
         try {
             var daemon = await App.Current.DaemonReady;
@@ -394,9 +409,9 @@ public sealed partial class ModsViewModel : ObservableObject {
                     DestPath = destPath,
                 },
                 deadline: DateTime.UtcNow.AddMinutes(2));
-            RunOnUI(() => StatusMessage = _localizer.Get("Mods_ExportDone"));
+            RunOnUI(() => WorkflowStatus = ModsWorkflowStatus.Exported);
         } catch (RpcException) {
-            RunOnUI(() => StatusMessage = _localizer.Get("Mods_ExportFailed"));
+            RunOnUI(() => WorkflowStatus = ModsWorkflowStatus.ExportFailed);
         } finally {
             RunOnUI(() => IsBusy = false);
         }
@@ -407,17 +422,11 @@ public sealed partial class ModsViewModel : ObservableObject {
         _                             => "Mods_OperationFailed",
     };
 
-    private string FormatRpcError(RpcException ex) => _localizer.Get(
-        "Mods_OperationFailedDetail",
-        ("summary", _localizer.Get(MapErrorKey(ex))),
-        ("code", ex.StatusCode.ToString()),
-        ("detail", string.IsNullOrWhiteSpace(
-                             ex.Status.Detail)? ex.Message: ex.Status.Detail));
+    private string FormatRpcError(RpcException ex) =>
+        _localizer.Get(MapErrorKey(ex));
 
     private string FormatUnexpectedError(Exception ex) =>
-        _localizer.Get("Mods_OperationFailedDetail",
-                       ("summary", _localizer.Get("Mods_OperationFailed")),
-                       ("code", ex.GetType().Name), ("detail", ex.Message));
+        _localizer.Get("Mods_OperationFailed");
 
     private void RunOnUI(Action action) {
         if (_dispatcher.HasThreadAccess)

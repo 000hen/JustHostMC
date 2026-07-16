@@ -8,10 +8,20 @@
     xmlns:server="using:JustHostMC.App.Controls.Server"
     mc:Ignorable="d">
 
-    <server:ServerSectionLayout
-        Title="{x:Bind PlayersHeader(Players.Count), Mode=OneWay}"
-        Description="{x:Bind PlayersDescription(Players.Count), Mode=OneWay}"
-        IconGlyph="&#xE716;">
+    <Grid>
+        <TextBlock
+            x:Name="PlayersEmptyDescriptionText"
+            x:Uid="ServerPlayersEmptyDescriptionText"
+            Visibility="Collapsed" />
+        <TextBlock
+            x:Name="PlayersActiveDescriptionText"
+            x:Uid="ServerPlayersActiveDescriptionText"
+            Visibility="Collapsed" />
+
+        <server:ServerSectionLayout
+            Title="{x:Bind PlayersHeader(Players.Count), Mode=OneWay}"
+            Description="{x:Bind PlayersDescription(Players.Count), Mode=OneWay}"
+            IconGlyph="&#xE716;">
         <server:ServerSectionLayout.HeaderContent>
             <Button
                 x:Uid="ManageBansButton"
@@ -120,5 +130,6 @@
                 </ListView.ItemTemplate>
             </ListView>
         </server:ServerSectionLayout.Body>
-    </server:ServerSectionLayout>
+        </server:ServerSectionLayout>
+    </Grid>
 </UserControl>

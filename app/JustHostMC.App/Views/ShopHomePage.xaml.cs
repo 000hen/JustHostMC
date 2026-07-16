@@ -39,9 +39,6 @@ public sealed partial class ShopHomePage : Page {
     private void OnDismissWelcome(object sender, RoutedEventArgs e) =>
         WelcomeBanner.Visibility = Visibility.Collapsed;
 
-    public Visibility HasStatus(string status) =>
-        status.Length > 0? Visibility.Visible : Visibility.Collapsed;
-
     public static Visibility InvertVisibility(bool value) =>
         value ? Visibility.Collapsed : Visibility.Visible;
 

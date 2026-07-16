@@ -31,8 +31,6 @@ public sealed partial class ScriptEntryCard : UserControl {
         if (Item is not null) {
             RemoveConfirmText.Text = _localizer.Get("Scripts_RemoveConfirmBody",
                                                     ("name", Item.Name));
-            RemoveConfirmButton.Content =
-                _localizer.Get("Scripts_RemoveConfirmPrimary");
         }
     }
 

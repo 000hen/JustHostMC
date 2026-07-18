@@ -30,6 +30,8 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
     private readonly ILocalizer _localizer;
     private readonly DispatcherQueue _dispatcher;
     private readonly BackgroundTaskService _backgroundTasks;
+    private readonly TaskCompletionSource _initialServerSync =
+        new(TaskCreationOptions.RunContinuationsAsynchronously);
     private readonly PendingServerUpdates _pendingUpdates    = new();
     private readonly ServerChangeSynchronizer _serverChanges = new();
     private readonly ServerListState _serverState            = new();
@@ -115,6 +117,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
     /// <summary>Waits for the engine, probes Health, and starts the server
     /// change stream.</summary>
     public async Task ConnectAsync() {
+        using var backgroundTask = _backgroundTasks.Begin("server-sync");
         RunOnUI(() => EngineConnectionState =
                     EngineConnectionStatus.Connecting);
         try {
@@ -131,6 +134,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
                 TaskContinuationOptions.OnlyOnFaulted);
             _serverChangesSession ??= CreateServerChangeSession(daemon);
             await _serverChangesSession.StartAsync();
+            await _initialServerSync.Task;
         } catch (Exception) {
             RunOnUI(() => EngineConnectionState =
                         EngineConnectionStatus.Failed);
@@ -366,6 +370,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
     }
 
     public async Task<bool> UpdateServerAsync(UpdateServerRequest request) {
+        using var backgroundTask = _backgroundTasks.Begin("server-update");
         var item       = Servers.FirstOrDefault(s => s.Id == request.Id);
         var rollback   = item is null ? null : BuildUpdateRequest(item);
         var optimistic = request.Clone();
@@ -478,6 +483,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
     private async Task DeleteServer(ServerItem? item) {
         if (item is null)
             return;
+        using var backgroundTask = _backgroundTasks.Begin("server-delete");
         try {
             var daemon = await App.Current.DaemonReady;
             await daemon.Servers.DeleteAsync(
@@ -519,7 +525,8 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
         System.Collections.Generic.IEnumerable<Server> incoming) {
         var list = incoming.ToList();
         _serverState.Reconcile(list);
-        _backgroundTasks.SynchronizeServers(list);
+        SynchronizeBackgroundTasks();
+        _initialServerSync.TrySetResult();
 
         foreach (var proto in list) UpsertServer(proto);
 
@@ -535,6 +542,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
 
     private void ApplyServerChange(ServerChangeEvent change) {
         _serverState.Apply(change);
+        SynchronizeBackgroundTasks();
         switch (change.ChangeCase) {
             case ServerChangeEvent.ChangeOneofCase.Upsert:
                 UpsertServer(change.Upsert);
@@ -547,6 +555,9 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
         }
         OnServerStatsChanged();
     }
+
+    private void SynchronizeBackgroundTasks() =>
+        _backgroundTasks.SynchronizeServers(_serverState.Servers);
 
     private void UpsertServer(Server proto) {
         var tracker = ProgressService.GetOrCreateTracker(proto.Id, proto.Name);
@@ -639,6 +650,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
             change  => RunOnUI(() => ApplyServerChange(change)));
 
     public async ValueTask DisposeAsync() {
+        _initialServerSync.TrySetCanceled();
         if (_serverChangesSession is not null)
             await _serverChangesSession.DisposeAsync();
     }

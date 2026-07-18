@@ -274,6 +274,8 @@ public sealed partial class SettingsViewModel : ObservableObject {
 
     [RelayCommand]
     private async Task RemoveAllData() {
+        using var backgroundTask =
+            App.Current.BackgroundTasks.Begin("data-remove");
         RunOnUI(() => {
             IsBusy = true;
             SetWorkflowStatus(SettingsWorkflowStatus.RemovingData);
@@ -294,6 +296,8 @@ public sealed partial class SettingsViewModel : ObservableObject {
 
     [RelayCommand]
     private async Task RemoveIncompleteInstallations() {
+        using var backgroundTask =
+            App.Current.BackgroundTasks.Begin("incomplete-install-remove");
         RunOnUI(() => {
             IsBusy = true;
             SetWorkflowStatus(

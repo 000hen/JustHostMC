@@ -30,12 +30,8 @@ func Archive(srcDir, destZip string) error {
 	if err != nil {
 		return err
 	}
-	defer out.Close()
-
 	zw := zip.NewWriter(out)
-	defer zw.Close()
-
-	return filepath.WalkDir(srcDir, func(path string, d os.DirEntry, walkErr error) error {
+	walkErr := filepath.WalkDir(srcDir, func(path string, d os.DirEntry, walkErr error) error {
 		if walkErr != nil {
 			return walkErr
 		}
@@ -51,6 +47,22 @@ func Archive(srcDir, destZip string) error {
 		}
 		return addFile(zw, path, filepath.ToSlash(rel))
 	})
+	if walkErr != nil {
+		_ = zw.Close()
+		_ = out.Close()
+		_ = os.Remove(destZip)
+		return walkErr
+	}
+	if err := zw.Close(); err != nil {
+		_ = out.Close()
+		_ = os.Remove(destZip)
+		return fmt.Errorf("finalize archive: %w", err)
+	}
+	if err := out.Close(); err != nil {
+		_ = os.Remove(destZip)
+		return fmt.Errorf("close archive: %w", err)
+	}
+	return nil
 }
 
 func addFile(zw *zip.Writer, path, name string) error {

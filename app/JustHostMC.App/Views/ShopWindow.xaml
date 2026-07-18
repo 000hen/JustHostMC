@@ -33,6 +33,12 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
+        <!--  XAML-localized title source for the server-less modpack shop.  -->
+        <TitleBar
+            x:Name="ModpackShopTitleBar"
+            x:Uid="ModpackShopTitleBar"
+            Visibility="Collapsed" />
+
         <TitleBar
             x:Name="ShopTitleBar"
             x:Uid="ShopTitleBar"

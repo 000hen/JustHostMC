@@ -173,6 +173,7 @@ if (-not $SkipEngine) {
 
         $ldflags = '-s -w -buildid='
         $keyFragment = Get-CurseForgeKeyLdflagsFragment
+        Remove-Item Env:JHMC_CURSEFORGE_API_KEY -ErrorAction SilentlyContinue
         if ($keyFragment) {
             $ldflags += " $keyFragment"
         }

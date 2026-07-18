@@ -19,7 +19,6 @@ public sealed record ShopContext(
     // install-progress flow; null for a server-scoped shop, which never lists
     // modpack sources.
     Func<CreateServerRequest, Task>? CreateServer = null) {
-
     /// <summary>True when the shop was opened for an existing server (mods and
     /// plugins); false for the home-page modpack shop.</summary>
     public bool IsServerScoped => ServerId.Length > 0;
@@ -29,7 +28,7 @@ public sealed record ShopContext(
     /// <paramref name="createServer"/>.</summary>
     public static ShopContext ForModpackBrowsing(
         Func<CreateServerRequest, Task> createServer) =>
-        new("", "", "", ModKind.Modpack, () => Array.Empty<string>(), () => { },
+        new("", "", "", ModKind.Modpack, () => Array.Empty<string>(), () => {},
             createServer);
 }
 
@@ -119,13 +118,10 @@ public sealed partial class ShopVersionItem : ObservableObject {
     public ShopVersionItem(ShopVersion version, ShopContext context,
                            bool showBadge, bool isModpack, ILocalizer localizer)
         : this(version) {
-        ActionLabel = localizer.Get(isModpack ? "Shop_CreateServerButton"
-                                              : "Shop_InstallButtonText");
+        IsModpack = isModpack;
         if (showBadge) {
             Compat = ShopCompat.Evaluate(context.Loader, context.McVersion,
                                          version.Loaders, version.GameVersions);
-            CompatToolTip =
-                BuildCompatToolTip(Compat, version, context, localizer);
         }
     }
 
@@ -133,6 +129,9 @@ public sealed partial class ShopVersionItem : ObservableObject {
     public IReadOnlyList<ShopDependency> RequiredDependencies { get; }
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(InstallActionVisibility))]
+    [NotifyPropertyChangedFor(nameof(CreateServerActionVisibility))]
+    [NotifyPropertyChangedFor(nameof(WebsiteActionVisibility))]
     public partial string ActionLabel {
         get; set;
     } = "";
@@ -173,29 +172,33 @@ public sealed partial class ShopVersionItem : ObservableObject {
     /// server the shop was opened for; Unknown when not evaluated.</summary>
     public ShopCompatVerdict Compat { get; } = ShopCompatVerdict.Unknown;
 
-    /// <summary>Localized explanation shown on the warning badge; empty unless
-    /// a mismatch was detected.</summary>
-    public string CompatToolTip { get; } = "";
-
     public Visibility CompatBadgeVisibility =>
         Compat is ShopCompatVerdict.LoaderMismatch or
                 ShopCompatVerdict.VersionMismatch
             ? Visibility.Visible
             : Visibility.Collapsed;
 
-    private static string BuildCompatToolTip(
-        ShopCompatVerdict compat, ShopVersion version, ShopContext context,
-        ILocalizer localizer) => compat switch {
-        ShopCompatVerdict.LoaderMismatch =>
-            localizer.Get("Shop_CompatLoaderMismatch",
-                          ("modLoaders", string.Join(", ", version.Loaders)),
-                          ("serverLoader", context.Loader)),
-        ShopCompatVerdict.VersionMismatch => localizer.Get(
-            "Shop_CompatVersionMismatch",
-            ("modVersions", string.Join(", ", version.GameVersions.Take(6))),
-            ("serverVersion", context.McVersion)),
-        _ => "",
-    };
+    /// <summary>True when selecting this version creates a new server rather
+    /// than installing into an existing one. XAML uses this semantic state to
+    /// choose its localized finite-state label.</summary>
+    public bool IsModpack { get; }
+
+    public Visibility InstallActionVisibility =>
+        ActionLabel.Length == 0 && !IsModpack ? Visibility.Visible
+                                              : Visibility.Collapsed;
+    public Visibility CreateServerActionVisibility =>
+        ActionLabel.Length == 0 && IsModpack ? Visibility.Visible
+                                             : Visibility.Collapsed;
+    public Visibility WebsiteActionVisibility =>
+        ActionLabel.Length > 0? Visibility.Visible : Visibility.Collapsed;
+
+    public Visibility LoaderMismatchVisibility =>
+        Compat == ShopCompatVerdict.LoaderMismatch ? Visibility.Visible
+                                                   : Visibility.Collapsed;
+
+    public Visibility VersionMismatchVisibility =>
+        Compat == ShopCompatVerdict.VersionMismatch ? Visibility.Visible
+                                                    : Visibility.Collapsed;
 }
 
 /// <summary>Display formatting shared by the shop UI.</summary>

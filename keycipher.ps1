@@ -9,9 +9,11 @@
     app/Engine.targets) bakes the same kind of key:
 
       - build.ps1 dot-sources this file and calls Get-CurseForgeKeyLdflagsFragment.
-      - app/Engine.targets executes this file directly and captures stdout.
+      - app/Engine.targets executes this file with -BuildEngine so reversible
+        key material never enters an MSBuild property or binlog.
 
-    When executed directly this script prints EXACTLY one line to stdout:
+    When executed directly without -BuildEngine this script prints EXACTLY one
+    line to stdout:
       * the fragment  -X main.defaultCurseForgeKeyCipher=<hex> -X main.defaultCurseForgeKeyPad=<hex>
         when $env:JHMC_CURSEFORGE_API_KEY is set, or
       * an empty line when it is not.
@@ -30,6 +32,13 @@
     may only have 5.1). Uses RandomNumberGenerator::Create().GetBytes() (not the
     PS7 static ::Fill) and avoids PS7-only syntax (no '&&', no ternary).
 #>
+
+[CmdletBinding()]
+param(
+    [switch]$BuildEngine,
+    [string]$EngineSourceDir,
+    [string]$EngineOutput
+)
 
 function Get-KeyCipherPadBytes {
     # Returns the XOR pad as a byte[]. Uses JHMC_KEY_CIPHER_PAD when set
@@ -88,13 +97,48 @@ function Get-CurseForgeKeyLdflagsFragment {
     return "-X main.defaultCurseForgeKeyCipher=$cipher -X main.defaultCurseForgeKeyPad=$padHex"
 }
 
+function Invoke-DefaultEngineBuild {
+    param(
+        [Parameter(Mandatory = $true)][string]$SourceDir,
+        [Parameter(Mandatory = $true)][string]$OutputPath
+    )
+
+    $ldflags = '-s -w -buildid='
+    $keyFragment = Get-CurseForgeKeyLdflagsFragment
+    # The linker needs only the derived cipher/pad. Do not pass the plaintext
+    # source secret through to the child go process environment.
+    Remove-Item Env:JHMC_CURSEFORGE_API_KEY -ErrorAction SilentlyContinue
+    if ($keyFragment) {
+        $ldflags += " $keyFragment"
+    }
+
+    Push-Location $SourceDir
+    try {
+        & go build -trimpath -buildvcs=false -mod=readonly `
+            "-ldflags=$ldflags" -o $OutputPath ./cmd/engine
+        if ($LASTEXITCODE -ne 0) {
+            throw "go build failed with exit code $LASTEXITCODE."
+        }
+    } finally {
+        Pop-Location
+    }
+}
+
 # When executed directly (not dot-sourced), emit the fragment on one stdout line
 # and translate a validation failure into stderr + exit 1. Dot-sourcing (build.ps1)
 # sets InvocationName to '.' and skips this block, importing only the functions.
 if ($MyInvocation.InvocationName -ne '.') {
     try {
-        $fragment = Get-CurseForgeKeyLdflagsFragment
-        [Console]::Out.WriteLine($fragment)
+        if ($BuildEngine) {
+            if (-not $EngineSourceDir -or -not $EngineOutput) {
+                throw '-BuildEngine requires -EngineSourceDir and -EngineOutput.'
+            }
+            Invoke-DefaultEngineBuild -SourceDir $EngineSourceDir `
+                                      -OutputPath $EngineOutput
+        } else {
+            $fragment = Get-CurseForgeKeyLdflagsFragment
+            [Console]::Out.WriteLine($fragment)
+        }
     } catch {
         [Console]::Error.WriteLine($_.Exception.Message)
         exit 1

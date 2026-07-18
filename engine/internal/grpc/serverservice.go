@@ -13,6 +13,7 @@ import (
 
 	mcmanagerv1 "github.com/000hen/justhostmc/engine/gen/mcmanager/v1"
 	"github.com/000hen/justhostmc/engine/internal/appdata"
+	"github.com/000hen/justhostmc/engine/internal/backup"
 	"github.com/000hen/justhostmc/engine/internal/console"
 	"github.com/000hen/justhostmc/engine/internal/isolation"
 	"github.com/000hen/justhostmc/engine/internal/jre"
@@ -404,7 +405,6 @@ func (s *ServerService) Update(ctx context.Context, req *mcmanagerv1.UpdateServe
 // streaming progress like Create. Unlike Create, a failure leaves the existing
 // install untouched (no cleanup wipe) — the old version keeps working.
 func (s *ServerService) UpdateModpack(req *mcmanagerv1.UpdateModpackRequest, stream grpc.ServerStreamingServer[mcmanagerv1.InstallProgress]) error {
-	ctx := stream.Context()
 	rec, ok := s.cfg.Store.Get(req.Id)
 	if !ok {
 		return status.Error(codes.NotFound, "server not found")
@@ -430,12 +430,82 @@ func (s *ServerService) UpdateModpack(req *mcmanagerv1.UpdateModpackRequest, str
 		return status.Error(codes.Unimplemented, "provider does not support update")
 	}
 
-	oldVersion := rec.ProviderVersion
+	updateCtx, cancelUpdate := context.WithCancel(stream.Context())
+	installation := &activeInstallation{
+		cancel: cancelUpdate,
+		done:   make(chan struct{}),
+	}
+
+	// Claim the server and persist INSTALLING while holding the lifecycle lock.
+	// Start makes its reciprocal STOPPED -> STARTING transition under this same
+	// lock, so exactly one of the two operations can win.
+	s.mu.Lock()
+	rec, ok = s.cfg.Store.Get(req.Id)
+	if !ok {
+		s.mu.Unlock()
+		cancelUpdate()
+		return status.Error(codes.NotFound, "server not found")
+	}
+	if s.installations[req.Id] != nil {
+		s.mu.Unlock()
+		cancelUpdate()
+		return status.Error(codes.FailedPrecondition, "server installation is already in progress")
+	}
+	if s.instances[req.Id] != nil || rec.Status != mcmanagerv1.ServerStatus_STOPPED {
+		s.mu.Unlock()
+		cancelUpdate()
+		return errorStatus(codes.FailedPrecondition, mcmanagerv1.ErrorCode_SERVER_RUNNING,
+			"server must be stopped before updating the modpack", nil)
+	}
+	original := *rec
+	original.LaunchArgs = append([]string(nil), rec.LaunchArgs...)
+	s.installations[req.Id] = installation
 	rec.Status = mcmanagerv1.ServerStatus_INSTALLING
-	_ = s.cfg.Store.Put(rec)
-	restore := func() {
-		rec.Status = mcmanagerv1.ServerStatus_STOPPED
-		_ = s.cfg.Store.Put(rec)
+	if err := s.cfg.Store.Put(rec); err != nil {
+		delete(s.installations, req.Id)
+		s.mu.Unlock()
+		cancelUpdate()
+		return status.Errorf(codes.Internal, "save update state: %v", err)
+	}
+	s.mu.Unlock()
+	defer func() {
+		cancelUpdate()
+		s.mu.Lock()
+		if s.installations[req.Id] == installation {
+			delete(s.installations, req.Id)
+		}
+		close(installation.done)
+		s.mu.Unlock()
+	}()
+
+	oldVersion := rec.ProviderVersion
+	dir := s.cfg.Paths.ServerDir(rec.ID)
+	snapshotDir := filepath.Join(s.cfg.Paths.Base, ".update-snapshots")
+	snapshotPath := filepath.Join(snapshotDir, rec.ID+"-"+genID()+".zip")
+	if err := backup.Archive(dir, snapshotPath); err != nil {
+		original.Status = mcmanagerv1.ServerStatus_STOPPED
+		if restoreErr := s.cfg.Store.Put(&original); restoreErr != nil {
+			return status.Errorf(codes.Internal, "snapshot server before update: %v; restore state: %v", err, restoreErr)
+		}
+		return status.Errorf(codes.Internal, "snapshot server before update: %v", err)
+	}
+	defer func() {
+		_ = os.Remove(snapshotPath)
+		_ = os.Remove(snapshotDir)
+	}()
+
+	rollback := func(updateErr error) error {
+		if err := backup.Restore(snapshotPath, dir); err != nil {
+			return status.Errorf(codes.Internal, "update failed (%v) and restore failed: %v", updateErr, err)
+		}
+		original.Status = mcmanagerv1.ServerStatus_STOPPED
+		if err := s.cfg.Store.Put(&original); err != nil {
+			return status.Errorf(codes.Internal, "update failed (%v) and restoring server state failed: %v", updateErr, err)
+		}
+		return mapInstallError(updateErr)
+	}
+	if err := updateCtx.Err(); err != nil {
+		return rollback(err)
 	}
 
 	il := s.openInstallLog(rec.ID)
@@ -447,23 +517,24 @@ func (s *ServerService) UpdateModpack(req *mcmanagerv1.UpdateModpackRequest, str
 		base(p)
 	}
 
-	spec, err := up.Update(ctx, s.cfg.Paths.ServerDir(rec.ID), newVersion, oldVersion, send)
+	spec, err := up.Update(updateCtx, dir, newVersion, oldVersion, send)
 	if err != nil {
 		send(provider.Progress{LogLine: "[error] " + err.Error()})
 		il.recordLine("[error] update: " + err.Error())
-		restore()
-		return mapInstallError(err)
+		return rollback(err)
 	}
 	resolved := rec.McVersion
 	if spec.McVersion != "" {
 		resolved = spec.McVersion
 	}
 	spec.JavaMajor = maxJavaMajor(spec.JavaMajor, resolved)
-	if _, err := s.cfg.JRE.EnsureJRE(ctx, spec.JavaMajor, send); err != nil {
+	if _, err := s.cfg.JRE.EnsureJRE(updateCtx, spec.JavaMajor, send); err != nil {
 		send(provider.Progress{LogLine: "[error] " + err.Error()})
 		il.recordLine("[error] jre: " + err.Error())
-		restore()
-		return mapInstallError(err)
+		return rollback(err)
+	}
+	if err := updateCtx.Err(); err != nil {
+		return rollback(err)
 	}
 
 	rec.JavaMajor = spec.JavaMajor
@@ -480,7 +551,9 @@ func (s *ServerService) UpdateModpack(req *mcmanagerv1.UpdateModpackRequest, str
 		rec.ProviderVersion = spec.PackVersion
 	}
 	rec.Status = mcmanagerv1.ServerStatus_STOPPED
-	_ = s.cfg.Store.Put(rec)
+	if err := s.cfg.Store.Put(rec); err != nil {
+		return rollback(fmt.Errorf("save updated server: %w", err))
+	}
 
 	send(provider.Progress{Step: "install.progress.done", Fraction: 1})
 	return nil
@@ -589,11 +662,64 @@ func (s *ServerService) Start(ctx context.Context, req *mcmanagerv1.ServerId) (*
 		return nil, status.Error(codes.NotFound, "server not found")
 	}
 
+	startCtx, cancelStart := context.WithCancel(ctx)
+	operation := &activeInstallation{
+		cancel: cancelStart,
+		done:   make(chan struct{}),
+	}
 	s.mu.Lock()
-	_, running := s.instances[req.Id]
-	s.mu.Unlock()
-	if running {
+	if s.instances[req.Id] != nil {
+		s.mu.Unlock()
+		cancelStart()
 		return &mcmanagerv1.Empty{}, nil // idempotent
+	}
+	if s.installations[req.Id] != nil {
+		s.mu.Unlock()
+		cancelStart()
+		return nil, status.Error(codes.FailedPrecondition, "server installation is in progress")
+	}
+	rec, ok = s.cfg.Store.Get(req.Id)
+	if !ok {
+		s.mu.Unlock()
+		cancelStart()
+		return nil, status.Error(codes.NotFound, "server not found")
+	}
+	if rec.Status == mcmanagerv1.ServerStatus_STARTING {
+		s.mu.Unlock()
+		cancelStart()
+		return &mcmanagerv1.Empty{}, nil
+	}
+	if rec.Status == mcmanagerv1.ServerStatus_INSTALLING {
+		s.mu.Unlock()
+		cancelStart()
+		return nil, status.Error(codes.FailedPrecondition, "server installation is in progress")
+	}
+	previousStatus := rec.Status
+	s.installations[req.Id] = operation
+	rec.Status = mcmanagerv1.ServerStatus_STARTING
+	if err := s.cfg.Store.Put(rec); err != nil {
+		delete(s.installations, req.Id)
+		close(operation.done)
+		s.mu.Unlock()
+		cancelStart()
+		return nil, status.Errorf(codes.Internal, "save start state: %v", err)
+	}
+	s.mu.Unlock()
+	defer func() {
+		cancelStart()
+		s.mu.Lock()
+		if s.installations[req.Id] == operation {
+			delete(s.installations, req.Id)
+		}
+		close(operation.done)
+		s.mu.Unlock()
+	}()
+	restoreStatus := func() {
+		latest, exists := s.cfg.Store.Get(req.Id)
+		if exists && latest.Status == mcmanagerv1.ServerStatus_STARTING {
+			latest.Status = previousStatus
+			_ = s.cfg.Store.Put(latest)
+		}
 	}
 
 	javaMajor := maxJavaMajor(rec.JavaMajor, rec.McVersion)
@@ -602,12 +728,13 @@ func (s *ServerService) Start(ctx context.Context, req *mcmanagerv1.ServerId) (*
 		_ = s.cfg.Store.Put(rec)
 	}
 
-	javaPath, err := s.cfg.JRE.EnsureJRE(ctx, javaMajor, nil)
+	javaPath, err := s.cfg.JRE.EnsureJRE(startCtx, javaMajor, nil)
 	if err != nil {
+		restoreStatus()
 		return nil, mapInstallError(err)
 	}
 
-	inst, err := s.cfg.Backend.Start(ctx, isolation.InstanceSpec{
+	inst, err := s.cfg.Backend.Start(startCtx, isolation.InstanceSpec{
 		ID:        rec.ID,
 		Dir:       s.cfg.Paths.ServerDir(rec.ID),
 		JavaPath:  javaPath,
@@ -617,20 +744,43 @@ func (s *ServerService) Start(ctx context.Context, req *mcmanagerv1.ServerId) (*
 		Port:      rec.Port,
 	})
 	if err != nil {
+		restoreStatus()
+		if startCtx.Err() != nil {
+			return nil, status.FromContextError(startCtx.Err()).Err()
+		}
 		return nil, status.Errorf(codes.Internal, "start server: %v", err)
 	}
 
 	s.mu.Lock()
+	if startCtx.Err() != nil {
+		s.mu.Unlock()
+		cleanupCtx, cancelCleanup := context.WithTimeout(context.Background(), 30*time.Second)
+		_ = s.cfg.Backend.Stop(cleanupCtx, req.Id, false)
+		select {
+		case <-inst.Done():
+		case <-cleanupCtx.Done():
+		}
+		cancelCleanup()
+		restoreStatus()
+		return nil, status.FromContextError(startCtx.Err()).Err()
+	}
 	s.instances[rec.ID] = inst
 	delete(s.stopping, rec.ID)
+	rec.Status = mcmanagerv1.ServerStatus_RUNNING
+	if err := s.cfg.Store.Put(rec); err != nil {
+		delete(s.instances, rec.ID)
+		s.mu.Unlock()
+		cleanupCtx, cancelCleanup := context.WithTimeout(context.Background(), 30*time.Second)
+		_ = s.cfg.Backend.Stop(cleanupCtx, req.Id, false)
+		cancelCleanup()
+		restoreStatus()
+		return nil, status.Errorf(codes.Internal, "save running state: %v", err)
+	}
 	s.mu.Unlock()
 
 	if s.cfg.Console != nil {
 		s.cfg.Console.Register(rec.ID, inst)
 	}
-
-	rec.Status = mcmanagerv1.ServerStatus_RUNNING
-	_ = s.cfg.Store.Put(rec)
 
 	go s.watchExit(rec.ID, inst)
 	return &mcmanagerv1.Empty{}, nil
@@ -645,10 +795,35 @@ func (s *ServerService) Stop(ctx context.Context, req *mcmanagerv1.ServerId) (*m
 
 	s.mu.Lock()
 	inst := s.instances[req.Id]
+	operation := s.installations[req.Id]
 	if inst != nil {
 		s.stopping[req.Id] = true
 	}
+	if operation != nil {
+		operation.cancel()
+	}
 	s.mu.Unlock()
+
+	if operation != nil {
+		select {
+		case <-operation.done:
+		case <-ctx.Done():
+			return nil, status.FromContextError(ctx.Err()).Err()
+		}
+		// The operation may have published an instance immediately before Stop
+		// acquired the lifecycle lock, so refresh both persisted and live state.
+		latest, exists := s.cfg.Store.Get(req.Id)
+		if !exists {
+			return &mcmanagerv1.Empty{}, nil
+		}
+		rec = latest
+		s.mu.Lock()
+		inst = s.instances[req.Id]
+		if inst != nil {
+			s.stopping[req.Id] = true
+		}
+		s.mu.Unlock()
+	}
 
 	if inst == nil {
 		rec.Status = mcmanagerv1.ServerStatus_STOPPED
@@ -721,14 +896,26 @@ func (s *ServerService) Delete(ctx context.Context, req *mcmanagerv1.ServerId) (
 // lives at the data-dir root (not under a wiped subtree), so its open handle stays
 // valid and the engine keeps running afterwards.
 func (s *ServerService) RemoveAllData(ctx context.Context, _ *mcmanagerv1.Empty) (*mcmanagerv1.Empty, error) {
-	// Snapshot and force-stop every running instance.
+	// Snapshot and cancel every active operation before wiping its data.
 	s.mu.Lock()
 	insts := make(map[string]isolation.Instance, len(s.instances))
 	for id, inst := range s.instances {
 		insts[id] = inst
 		s.stopping[id] = true
 	}
+	installations := make([]*activeInstallation, 0, len(s.installations))
+	for _, installation := range s.installations {
+		installation.cancel()
+		installations = append(installations, installation)
+	}
 	s.mu.Unlock()
+	for _, installation := range installations {
+		select {
+		case <-installation.done:
+		case <-ctx.Done():
+			return nil, status.FromContextError(ctx.Err()).Err()
+		}
+	}
 
 	for id, inst := range insts {
 		_ = s.cfg.Backend.Stop(ctx, id, false)
@@ -769,6 +956,7 @@ func (s *ServerService) RemoveAllData(ctx context.Context, _ *mcmanagerv1.Empty)
 	s.mu.Lock()
 	s.instances = make(map[string]isolation.Instance)
 	s.stopping = make(map[string]bool)
+	s.installations = make(map[string]*activeInstallation)
 	s.mu.Unlock()
 
 	return &mcmanagerv1.Empty{}, nil

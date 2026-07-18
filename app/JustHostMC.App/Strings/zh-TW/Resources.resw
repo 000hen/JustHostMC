@@ -111,7 +111,7 @@
   <data name="CreateServerVersionError.Title" xml:space="preserve"><value>無法載入版本</value></data>
   <data name="CreateServerVersionError.Message" xml:space="preserve"><value>請檢查網路連線，然後重新選取伺服器類型。</value></data>
   <data name="CreateServerAdvancedHeader.Text" xml:space="preserve"><value>進階設定</value></data>
-  <data name="CreateServerMemory.Header" xml:space="preserve"><value>記憶體 (MB)</value></data>
+  <data name="CreateServerMemory.Header" xml:space="preserve"><value>記憶體 (MB)</value><comment>Canonical duplicate value in this locale; semantic identifier: CreateServerMemory.Header.</comment></data>
   <data name="CreateServerMemoryHint.Text" xml:space="preserve"><value>Java 行程的最大堆積記憶體。多數伺服器建議使用 2048 MB。</value></data>
   <data name="CreateServerPort.Header" xml:space="preserve"><value>連接埠</value><comment>Canonical duplicate value in this locale; semantic identifier: CreateServerPort.Header.</comment></data>
   <data name="CreateServerPortHint.Text" xml:space="preserve"><value>保留為 0 可自動指派可用連接埠。Minecraft 預設值為 25565。</value></data>
@@ -327,24 +327,14 @@
   </data>
   <data name="ServerUpdateModpackMenuItem.Text" xml:space="preserve"><value>更新模組包…</value></data>
   <data name="ServerExportModpackMenuItem.Text" xml:space="preserve"><value>匯出模組包…</value></data>
-  <data name="Server_UpdateModpackTitle" xml:space="preserve"><value>更新模組包</value></data>
   <data name="Server_UpdateModpackBody" xml:space="preserve"><value>為「{0}」選擇版本（目前為 {1}）。世界與你自己的檔案會保留，模組包檔案將被更換。</value></data>
-  <data name="Server_UpdateModpackConfirm" xml:space="preserve"><value>更新</value></data>
-  <data name="Server_UpdateModpackNoVersions" xml:space="preserve"><value>沒有其他可用版本。</value></data>
   <data name="Server_ExportModpackPickerName" xml:space="preserve"><value>CurseForge 模組包</value></data>
-  <data name="ImportModpack_DialogTitle" xml:space="preserve"><value>匯入模組包</value></data>
-  <data name="ImportModpack_NameHeader" xml:space="preserve"><value>伺服器名稱</value></data>
-  <data name="ImportModpack_MemoryHeader" xml:space="preserve"><value>記憶體</value></data>
-  <data name="ImportModpack_Confirm" xml:space="preserve"><value>匯入</value></data>
+  <data name="ImportModpack_DialogTitle" xml:space="preserve"><value>匯入模組包</value><comment>Same visible value as HomeImportButtonLabel.Text; kept separate for dialog-title translation context.</comment></data>
+  <data name="ImportModpack_NameHeader" xml:space="preserve"><value>伺服器名稱</value><comment>Canonical duplicate value in this locale; semantic identifier: ImportModpack_NameHeader.</comment></data>
+  <data name="ImportModpack_MemoryHeader" xml:space="preserve"><value>記憶體</value><comment>Canonical duplicate value in this locale; semantic identifier: ImportModpack_MemoryHeader.</comment></data>
   <data name="shop.export.preparing" xml:space="preserve"><value>正在準備匯出模組包…</value></data>
   <data name="shop.export.zipping" xml:space="preserve"><value>正在打包模組包…</value></data>
   <data name="shop.export.done" xml:space="preserve"><value>模組包已匯出。</value></data>
-  <data name="ServerFolder_NotFoundTitle" xml:space="preserve">
-    <value>找不到執行個體資料夾</value>
-  </data>
-  <data name="ServerFolder_NotFoundBody" xml:space="preserve">
-    <value>執行個體資料夾尚未建立，或背景服務正在使用此應用程式版本尚未公開的資料位置。</value>
-  </data>
   <data name="PlayerOpButton.Label" xml:space="preserve">
     <value>OP</value>
   </data>
@@ -419,13 +409,12 @@
   <data name="ScriptsProvidersHeader.Text" xml:space="preserve"><value>提供者</value></data>
   <data name="ScriptsParsersHeader.Text" xml:space="preserve"><value>模組資訊解析器</value></data>
   <data name="ScriptsParsersEmpty.Text" xml:space="preserve"><value>尚未安裝任何解析器。解析器會讀取模組或外掛 jar 內嵌的資訊（名稱、版本、作者、圖示），顯示在伺服器的模組面板。</value></data>
-  <data name="ScriptsShopsHeader.Text" xml:space="preserve"><value>模組商店</value></data>
+  <data name="ScriptsShopsHeader.Text" xml:space="preserve"><value>模組商店</value><comment>Shop-source section heading; kept separate from other shop labels for this translation context.</comment></data>
   <data name="ScriptsShopsEmpty.Text" xml:space="preserve"><value>尚未安裝任何商店來源。商店來源讓您從 Modrinth 或 CurseForge 等遠端目錄瀏覽並下載模組或外掛。</value></data>
   <data name="Scripts_ShopNeedsKey" xml:space="preserve"><value>需要 API 金鑰 — 請在設定中設定。</value></data>
-  <data name="ScriptsConfigureButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>設定</value></data>
-  <data name="ScriptConfig_TitleNamed" xml:space="preserve"><value>設定 {name}</value></data>
-  <data name="ScriptConfig_Save" xml:space="preserve"><value>儲存</value></data>
-  <data name="ScriptConfig_Cancel" xml:space="preserve"><value>取消</value></data>
+  <data name="ScriptsConfigureButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>設定</value><comment>Accessible action name for per-source configuration; kept separate from navigation and section labels.</comment></data>
+  <data name="ScriptConfig_Save" xml:space="preserve"><value>儲存</value><comment>Same visible value as SettingsSaveButton.Content; kept separate for script-configuration dialog context.</comment></data>
+  <data name="ScriptConfig_Cancel" xml:space="preserve"><value>取消</value><comment>Same visible value as Scripts_RemoveConfirmCancel; kept separate for script-configuration dialog context.</comment></data>
   <data name="ScriptConfig_SecretSetPlaceholder" xml:space="preserve"><value>留空以保留目前的值</value></data>
   <data name="ScriptConfig_SecretUnsetPlaceholder" xml:space="preserve"><value>未設定</value></data>
   <data name="Parsers_Formats" xml:space="preserve"><value>讀取：{formats}</value></data>
@@ -505,9 +494,9 @@
   <data name="SettingsAboutRepo.Text" xml:space="preserve"><value>GitHub 儲存庫</value></data>
   <data name="SettingsAboutIssues.Text" xml:space="preserve"><value>回報問題</value></data>
 <data name="ShopTitleBar.Title" xml:space="preserve"><value>模組商店</value><comment>模組商店視窗的標準標題；XAML 初始化後複製到 Window.Title。</comment></data>
-  <data name="ShopWindow_TitleModpacks" xml:space="preserve"><value>模組包商店</value></data>
-  <data name="HomeShopButtonLabel.Text" xml:space="preserve"><value>模組包商店</value></data>
-  <data name="HomeImportButtonLabel.Text" xml:space="preserve"><value>匯入模組包</value></data>
+  <data name="ShopWindow_TitleModpacks" xml:space="preserve"><value>模組包商店</value><comment>Canonical duplicate value in this locale; semantic identifier: ShopWindow_TitleModpacks.</comment></data>
+  <data name="HomeShopButtonLabel.Text" xml:space="preserve"><value>模組包商店</value><comment>Same visible value as ShopWindow_TitleModpacks; kept separate for home-button translation context.</comment></data>
+  <data name="HomeImportButtonLabel.Text" xml:space="preserve"><value>匯入模組包</value><comment>Canonical duplicate value in this locale; semantic identifier: HomeImportButtonLabel.Text.</comment></data>
   <data name="Shop_DiscoverTitleGlobal" xml:space="preserve"><value>用模組包建立新的伺服器</value></data>
   <data name="Shop_DiscoverSubtitleGlobal" xml:space="preserve"><value>瀏覽社群製作的模組包，安裝後會自動建立並設定好一台全新伺服器。</value></data>
   <data name="ShopDiscoverTitle.Text" xml:space="preserve"><value>為你的伺服器找到精彩內容</value></data>
@@ -588,21 +577,20 @@
   <data name="shop.category.curseforge.world-editing-and-management" xml:space="preserve"><value>世界編輯與管理</value></data>
   <data name="shop.category.curseforge.world-generators" xml:space="preserve"><value>世界生成器</value></data>
   <data name="ShopInstallButton.Content" xml:space="preserve"><value>安裝</value><comment>Canonical duplicate value in this locale; semantic identifier: ShopInstallButton.Content.</comment></data>
-  <data name="ShopInstallLatestButton.Content" xml:space="preserve"><value>安裝最新正式版</value></data>
+  <data name="ShopInstallLatestButton.Content" xml:space="preserve"><value>安裝最新正式版</value><comment>Semantic identifier: ShopInstallLatestButton.Content; this locale distinguishes the XAML action from the programmatic release label.</comment></data>
   <data name="ShopNoVersions.Text" xml:space="preserve"><value>沒有與此伺服器相容的版本，放寬篩選即可看到更多。</value></data>
   <data name="Shop_ErrorNotFound" xml:space="preserve"><value>來源已不再提供此專案或版本。</value></data>
   <data name="Shop_ErrorNotDistributable" xml:space="preserve"><value>作者不允許第三方下載此檔案，請改用「開啟網站」。</value></data>
   <data name="Shop_CompatLoaderMismatch" xml:space="preserve"><value>此版本適用於 {modLoaders}；你的伺服器執行的是 {serverLoader}。</value></data>
   <data name="Shop_CompatVersionMismatch" xml:space="preserve"><value>此版本適用於 Minecraft {modVersions}；你的伺服器執行的是 {serverVersion}。</value></data>
   <data name="Shop_CompatProjectWarning" xml:space="preserve"><value>此專案可能不支援你的伺服器（{serverLoader}，Minecraft {serverVersion}）。請查看「版本」分頁。</value></data>
-  <data name="Shop_InstallButtonText" xml:space="preserve"><value>安裝</value></data>
-  <data name="Shop_InstallLatestButtonText" xml:space="preserve"><value>安裝最新發行版</value></data>
-  <data name="Shop_CreateServerButton" xml:space="preserve"><value>建立伺服器</value></data>
-  <data name="Shop_CreateServerTitle" xml:space="preserve"><value>建立伺服器</value></data>
+  <data name="Shop_InstallButtonText" xml:space="preserve"><value>安裝</value><comment>Same visible value as ShopInstallButton.Content; kept separate for programmatic action-label context.</comment></data>
+  <data name="Shop_InstallLatestButtonText" xml:space="preserve"><value>安裝最新發行版</value><comment>Programmatic release action label; kept separate from ShopInstallLatestButton.Content for locale-specific wording.</comment></data>
+  <data name="Shop_CreateServerButton" xml:space="preserve"><value>建立伺服器</value><comment>Same visible value as CreateServerButtonLabel.Text; kept separate for modpack action-label context.</comment></data>
   <data name="Shop_CreateServerPromptBody" xml:space="preserve"><value>從 {0} 建立新的伺服器。</value></data>
-  <data name="Shop_CreateServerNameLabel" xml:space="preserve"><value>伺服器名稱</value></data>
-  <data name="Shop_CreateServerMemoryLabel" xml:space="preserve"><value>記憶體 (MB)</value></data>
-  <data name="Shop_CreateServerConfirm" xml:space="preserve"><value>建立</value></data>
+  <data name="Shop_CreateServerNameLabel" xml:space="preserve"><value>伺服器名稱</value><comment>Same visible value as ImportModpack_NameHeader; kept separate for modpack creation context.</comment></data>
+  <data name="Shop_CreateServerMemoryLabel" xml:space="preserve"><value>記憶體 (MB)</value><comment>Same visible value as CreateServerMemory.Header; kept separate for modpack creation context.</comment></data>
+  <data name="Shop_CreateServerConfirm" xml:space="preserve"><value>建立</value><comment>Same visible value as CreateServerDialog.PrimaryButtonText; kept separate for modpack creation context.</comment></data>
   <data name="Shop_ServerCreateStarted" xml:space="preserve"><value>已開始建立伺服器，請在主視窗查看安裝進度。</value></data>
   <data name="Shop_CreateServerFailed" xml:space="preserve"><value>無法建立伺服器。</value></data>
   <data name="Shop_NoSources" xml:space="preserve"><value>目前沒有可用的商店來源。</value></data>
@@ -621,10 +609,6 @@
   <data name="ModsExportAllLabel.Text" xml:space="preserve"><value>全部下載</value></data>
   <data name="ModsBrowseLabel.Text" xml:space="preserve"><value>瀏覽</value></data>
   <data name="ModsUploadLabel.Text" xml:space="preserve"><value>加入自訂 Jar</value></data>
-  <data name="SettingsShopHeader.Text" xml:space="preserve"><value>模組商店</value><comment>Same visible value as ShopWindow.Title; kept separate for this property or translation context.</comment></data>
-  <data name="SettingsShopHint.Text" xml:space="preserve"><value>CurseForge 需要個人 API 金鑰（console.curseforge.com）；Modrinth 不需要金鑰。</value></data>
-  <data name="SettingsCurseForgeKey.Header" xml:space="preserve"><value>CurseForge API 金鑰</value></data>
-  <data name="SettingsShopKeySaveButton.Content" xml:space="preserve"><value>儲存金鑰</value></data>
   <!-- ContentDialog property resources. Runtime placeholders are formatted by each dialog wrapper after InitializeComponent. -->
   <data name="CloseBusyDialog.Title" xml:space="preserve"><value>目前工作仍在執行</value></data>
   <data name="CloseBusyDialog.PrimaryButtonText" xml:space="preserve"><value>隱藏到系統匣</value></data>
@@ -632,7 +616,7 @@
   <data name="CloseBusyDialog.CloseButtonText" xml:space="preserve"><value>取消</value><comment>Same visible value as Scripts_RemoveConfirmCancel; kept separate for this property or translation context.</comment></data>
   <data name="CloseBusyDialogBody.Text" xml:space="preserve"><value>現在關閉會中斷目前的工作。您可以讓 JustHostMC 繼續在系統匣執行，或仍然關閉。</value></data>
   <data name="CreateServerDialog.Title" xml:space="preserve"><value>建立伺服器</value><comment>Same visible value as CreateServerButtonLabel.Text; kept separate for this property or translation context.</comment></data>
-  <data name="CreateServerDialog.PrimaryButtonText" xml:space="preserve"><value>建立</value></data>
+  <data name="CreateServerDialog.PrimaryButtonText" xml:space="preserve"><value>建立</value><comment>Canonical duplicate value in this locale; semantic identifier: CreateServerDialog.PrimaryButtonText.</comment></data>
   <data name="CreateServerDialog.CloseButtonText" xml:space="preserve"><value>取消</value><comment>Same visible value as Scripts_RemoveConfirmCancel; kept separate for this property or translation context.</comment></data>
   <data name="EditServerDialog.Title" xml:space="preserve"><value>編輯伺服器</value><comment>Same visible value as ServerEditMenuItem.Text; kept separate for this property or translation context.</comment></data>
   <data name="EditServerDialog.PrimaryButtonText" xml:space="preserve"><value>儲存</value><comment>Same visible value as SettingsSaveButton.Content; kept separate for this property or translation context.</comment></data>
@@ -680,7 +664,6 @@
   <data name="ServerPerformanceSection.Description" xml:space="preserve"><value>監控伺服器資源使用與網路指標</value></data>
   <data name="ServerPlayersEmptyDescriptionText.Text" xml:space="preserve"><value>目前沒有玩家在線上。</value></data>
   <data name="ServerPlayersActiveDescriptionText.Text" xml:space="preserve"><value>管理線上玩家、管理員與封鎖名單</value></data>
-  <data name="SettingsCurseForgeKeyBox.PlaceholderText" xml:space="preserve"><value>API 金鑰</value></data>
   <data name="MainTitleBar.Title" xml:space="preserve"><value>JustHostMC</value><comment>Same visible value as AppDisplayName; kept separate for this property or translation context.</comment></data>
   <data name="ServerTeachingTipStartActionText.Text" xml:space="preserve"><value>啟動伺服器</value></data>
   <data name="ServerTeachingTipInstalledMessageText.Text" xml:space="preserve"><value>伺服器已準備好執行。</value></data>
@@ -758,9 +741,6 @@
   <data name="SettingsBackendModeDocker.Text" xml:space="preserve"><value>伺服器會在這台電腦上的 Docker 容器中執行。</value></data>
   <data name="SettingsBackendModeOnMachine.Text" xml:space="preserve"><value>伺服器會直接在這台電腦上執行（使用 Windows Job Objects 隔離）。</value></data>
   <data name="SettingsDockerUnavailable.Text" xml:space="preserve"><value>未偵測到 Docker。啟動 Docker Desktop 以啟用此選項。</value></data>
-  <data name="SettingsShopKeyNone.Text" xml:space="preserve"><value>尚未設定 CurseForge 金鑰，CurseForge 分頁將維持停用。</value></data>
-  <data name="SettingsShopKeyUser.Text" xml:space="preserve"><value>已設定個人 CurseForge 金鑰。儲存空白金鑰即可移除。</value></data>
-  <data name="SettingsShopKeyBuiltin.Text" xml:space="preserve"><value>正在使用此版本內建的 CurseForge 金鑰，個人金鑰可覆蓋它。</value></data>
   <data name="SettingsStatusLoadFailed.Text" xml:space="preserve"><value>無法載入設定。</value></data>
   <data name="SettingsStatusSaved.Text" xml:space="preserve"><value>設定已儲存。</value><comment>Same visible value as ConfigStatusSaved.Text; kept separate for this property or translation context.</comment></data>
   <data name="SettingsStatusSaveFailed.Text" xml:space="preserve"><value>無法儲存設定。</value></data>
@@ -774,8 +754,44 @@
   <data name="ShopLoadFailedBar.Message" xml:space="preserve"><value>無法從此來源載入結果。</value><comment>Canonical duplicate value in this locale; semantic identifier: ShopLoadFailedBar.Message.</comment></data>
   <data name="ShopStatusLoadFailed.Text" xml:space="preserve"><value>無法從此來源載入結果。</value><comment>Same visible value as ShopLoadFailedBar.Message; kept separate for this property or translation context.</comment></data>
   <data name="ShopInstallActionText.Text" xml:space="preserve"><value>安裝</value><comment>Same visible value as ShopInstallButton.Content; kept separate for this property or translation context.</comment></data>
+  <data name="ShopCreateServerActionText.Text" xml:space="preserve"><value>建立伺服器</value><comment>模組包版本列顯示的本地化動作。</comment></data>
   <data name="ShopStatusInstallDone.Text" xml:space="preserve"><value>安裝完成，伺服器的模組清單已更新。</value></data>
   <data name="ShopStatusInstallFailed.Text" xml:space="preserve"><value>安裝失敗。</value></data>
-  <data name="Mods_ExportDone" xml:space="preserve"><value>已匯出模組壓縮檔。</value></data>
-  <data name="Mods_ExportFailed" xml:space="preserve"><value>無法匯出模組壓縮檔。</value></data>
+  <!-- 本機模組包匯入與每個來源的設定對話方塊。 -->
+  <data name="ImportModpackContentDialog.Title" xml:space="preserve"><value>匯入模組包</value><comment>本機模組包匯入對話方塊標題。</comment></data>
+  <data name="ImportModpackContentDialog.PrimaryButtonText" xml:space="preserve"><value>匯入</value><comment>本機模組包匯入對話方塊的主要動作。</comment></data>
+  <data name="ImportModpackContentDialog.CloseButtonText" xml:space="preserve"><value>取消</value><comment>本機模組包匯入對話方塊的取消動作。</comment></data>
+  <data name="ImportModpackNameBox.Header" xml:space="preserve"><value>伺服器名稱</value><comment>本機模組包匯入對話方塊的名稱欄位。</comment></data>
+  <data name="ImportModpackMemoryBox.Header" xml:space="preserve"><value>記憶體 (MB)</value><comment>本機模組包匯入對話方塊的記憶體選擇器。</comment></data>
+  <data name="ImportModpackMemory2048Option.Content" xml:space="preserve"><value>2048 MB</value><comment>本機模組包匯入對話方塊的記憶體選項。</comment></data>
+  <data name="ImportModpackMemory4096Option.Content" xml:space="preserve"><value>4096 MB</value><comment>本機模組包匯入對話方塊的記憶體選項。</comment></data>
+  <data name="ImportModpackMemory6144Option.Content" xml:space="preserve"><value>6144 MB</value><comment>本機模組包匯入對話方塊的記憶體選項。</comment></data>
+  <data name="ImportModpackMemory8192Option.Content" xml:space="preserve"><value>8192 MB</value><comment>本機模組包匯入對話方塊的記憶體選項。</comment></data>
+  <data name="ImportModpackMemory12288Option.Content" xml:space="preserve"><value>12288 MB</value><comment>本機模組包匯入對話方塊的記憶體選項。</comment></data>
+  <data name="ImportModpackMemory16384Option.Content" xml:space="preserve"><value>16384 MB</value><comment>本機模組包匯入對話方塊的記憶體選項。</comment></data>
+  <data name="ScriptConfigContentDialog.Title" xml:space="preserve"><value>設定 {name}</value><comment>每個來源的設定對話方塊標題；{name} 會在執行階段取代。</comment></data>
+  <data name="ScriptConfigContentDialog.PrimaryButtonText" xml:space="preserve"><value>儲存</value><comment>每個來源設定對話方塊的主要動作。</comment></data>
+  <data name="ScriptConfigContentDialog.CloseButtonText" xml:space="preserve"><value>取消</value><comment>每個來源設定對話方塊的取消動作。</comment></data>
+  <!-- 統一來源介面的模組包對話方塊與全域商店資源。 -->
+  <data name="CreateShopServerDialog.Title" xml:space="preserve"><value>建立伺服器</value><comment>模組包商店的建立伺服器對話方塊標題。</comment></data>
+  <data name="CreateShopServerDialog.PrimaryButtonText" xml:space="preserve"><value>建立</value><comment>模組包商店建立伺服器對話方塊的主要動作。</comment></data>
+  <data name="CreateShopServerDialog.CloseButtonText" xml:space="preserve"><value>取消</value><comment>模組包商店建立伺服器對話方塊的取消動作。</comment></data>
+  <data name="CreateShopServerDialogIntro.Text" xml:space="preserve"><value>從此模組包建立新的伺服器。</value><comment>所選模組包名稱上方的說明文字。</comment></data>
+  <data name="CreateShopServerNameBox.Header" xml:space="preserve"><value>伺服器名稱</value><comment>模組包商店建立伺服器對話方塊的名稱欄位。</comment></data>
+  <data name="CreateShopServerMemoryBox.Header" xml:space="preserve"><value>記憶體 (MB)</value><comment>模組包商店建立伺服器對話方塊的記憶體欄位。</comment></data>
+  <data name="ServerUpdateModpackDialog.Title" xml:space="preserve"><value>更新模組包</value><comment>模組包更新對話方塊標題。</comment></data>
+  <data name="ServerUpdateModpackDialog.PrimaryButtonText" xml:space="preserve"><value>更新</value><comment>模組包更新對話方塊的主要動作。</comment></data>
+  <data name="ServerUpdateModpackDialog.CloseButtonText" xml:space="preserve"><value>取消</value><comment>模組包更新對話方塊的取消動作。</comment></data>
+  <data name="ServerUpdateModpackIntro.Text" xml:space="preserve"><value>選擇要安裝的版本。</value><comment>模組包更新對話方塊的說明文字。</comment></data>
+  <data name="ServerUpdateModpackServerLabel.Text" xml:space="preserve"><value>伺服器</value><comment>模組包更新對話方塊中的伺服器名稱標籤。</comment></data>
+  <data name="ServerUpdateModpackCurrentLabel.Text" xml:space="preserve"><value>目前版本</value><comment>模組包更新對話方塊中的已安裝版本標籤。</comment></data>
+  <data name="ServerUpdateModpackVersionBox.Header" xml:space="preserve"><value>新版本</value><comment>模組包更新對話方塊中的版本選擇器。</comment></data>
+  <data name="ServerUpdateModpackNoVersionsText.Text" xml:space="preserve"><value>沒有其他可用版本。</value><comment>模組包更新對話方塊的空白狀態。</comment></data>
+  <data name="ModpackShopTitleBar.Title" xml:space="preserve"><value>模組包商店</value><comment>瀏覽模組包時無伺服器範圍商店視窗的標題。</comment></data>
+  <data name="ShopCompatLoaderMismatchIcon.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>載入器相容性警告</value><comment>載入器不相符警告圖示的無障礙名稱。</comment></data>
+  <data name="ShopCompatLoaderMismatchIcon.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>此專案可能適用於不同的模組載入器。</value><comment>載入器不相符警告圖示的工具提示。</comment></data>
+  <data name="ShopCompatVersionMismatchIcon.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Minecraft 版本相容性警告</value><comment>版本不相符警告圖示的無障礙名稱。</comment></data>
+  <data name="ShopCompatVersionMismatchIcon.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>此專案可能適用於不同的 Minecraft 版本。</value><comment>版本不相符警告圖示的工具提示。</comment></data>
+  <data name="ShopDiscoverGlobalTitle.Text" xml:space="preserve"><value>探索模組包</value><comment>無伺服器範圍模組包商店首頁的標題。</comment></data>
+  <data name="ShopDiscoverGlobalSubtitle.Text" xml:space="preserve"><value>選擇模組包以建立新的伺服器。</value><comment>無伺服器範圍模組包商店首頁的副標題。</comment></data>
 </root>

@@ -126,8 +126,9 @@ public sealed partial class HomePage : Page {
     }
 
     /// <summary>Imports a local modpack file (CurseForge client pack zip or
-    /// Modrinth .mrpack) as a brand-new server, prompting for a name and memory,
-    /// then streaming install progress through the global flow.</summary>
+    /// Modrinth .mrpack) as a brand-new server, prompting for a name and
+    /// memory, then streaming install progress through the global
+    /// flow.</summary>
     private async void OnImportModpackClick(object sender, RoutedEventArgs e) {
         var picker = new FileOpenPicker {
             SuggestedStartLocation = PickerLocationId.Downloads,
@@ -143,41 +144,14 @@ public sealed partial class HomePage : Page {
             return;
 
         var defaultName = Path.GetFileNameWithoutExtension(file.Name);
-        var nameBox     = new TextBox {
-            Header = _localizer.Get("ImportModpack_NameHeader"),
-            Text   = defaultName,
-        };
-        var memoryOptions = new[] { 2048, 4096, 6144, 8192, 12288, 16384 };
-        var memoryBox     = new ComboBox {
-            Header              = _localizer.Get("ImportModpack_MemoryHeader"),
-            HorizontalAlignment = HorizontalAlignment.Stretch,
-        };
-        foreach (var mb in memoryOptions)
-            memoryBox.Items.Add(
-                _localizer.Get("Server_MemoryValue", ("memory", mb.ToString())));
-        memoryBox.SelectedIndex = 1; // 4096 MB
-
-        var panel = new StackPanel { Spacing = 12 };
-        panel.Children.Add(nameBox);
-        panel.Children.Add(memoryBox);
-
-        var dialog = new ContentDialog {
-            XamlRoot          = XamlRoot,
-            Title             = _localizer.Get("ImportModpack_DialogTitle"),
-            Content           = panel,
-            PrimaryButtonText = _localizer.Get("ImportModpack_Confirm"),
-            CloseButtonText   = _localizer.Get("Common_Cancel"),
-            DefaultButton     = ContentDialogButton.Primary,
+        var dialog      = new ImportModpackContentDialog(defaultName) {
+            XamlRoot = XamlRoot,
         };
         if (await dialog.ShowAsync() != ContentDialogResult.Primary)
             return;
 
-        var name = nameBox.Text.Trim();
-        if (name.Length == 0)
-            name = defaultName;
-        var index    = memoryBox.SelectedIndex >= 0 ? memoryBox.SelectedIndex : 1;
-        var memoryMb = memoryOptions[index];
-        await Main.ImportModpackAsync(name, file.Path, memoryMb);
+        await Main.ImportModpackAsync(dialog.ServerName, file.Path,
+                                      dialog.MemoryMb);
     }
 
     private void OnMachineNoticeClosed(InfoBar sender, object args) =>

@@ -7,9 +7,8 @@ namespace JustHostMC.App.Models;
 /// as Modrinth or CurseForge) in the Scripts page list.</summary>
 public sealed class ShopSourceItem : ScriptEntryItem {
     public ShopSourceItem(ShopInfo info, ILocalizer localizer)
-        : base(info.Id, info.Name, info.Author, info.Version,
-               ComposeDescription(info, localizer), info.Permissions,
-               info.Granted, info.ConfigOptions, localizer) {
+        : base(info.Id, info.Name, info.Author, info.Version, info.Description,
+               info.Permissions, info.Granted, info.ConfigOptions) {
         Builtin  = info.Builtin;
         NeedsKey = info.NeedsKey;
         Ready    = info.Ready;
@@ -28,16 +27,4 @@ public sealed class ShopSourceItem : ScriptEntryItem {
 
     /// <summary>Built-in shop sources cannot be removed.</summary>
     public override bool CanRemove => !Builtin;
-
-    /// <summary>Appends a "needs API key" note to the description when the shop
-    /// requires a key but none is configured, so the shared entry card surfaces
-    /// it.</summary>
-    private static string ComposeDescription(ShopInfo info,
-                                             ILocalizer localizer) {
-        if (!info.NeedsKey || info.Ready)
-            return info.Description;
-        var note = localizer.Get("Scripts_ShopNeedsKey");
-        return info.Description.Length == 0 ? note
-                                            : $"{info.Description}\n{note}";
-    }
 }

@@ -188,6 +188,12 @@ func TestBuildConfigurationDoesNotPersistCurseForgeKey(t *testing.T) {
 
 func TestMSBuildDoesNotEchoReversibleKeyMaterial(t *testing.T) {
 	targets := repositoryFile(t, "app", "Engine.targets")
+	if strings.Contains(targets, "_CurseForgeKeyLdflags") {
+		t.Fatal("MSBuild must not store reversible key material in a property or binlog")
+	}
+	if !strings.Contains(targets, "-BuildEngine") {
+		t.Fatal("MSBuild default builds must delegate key injection to the non-echoing helper")
+	}
 	decoder := xml.NewDecoder(strings.NewReader(targets))
 	for {
 		tok, err := decoder.Token()
@@ -218,5 +224,21 @@ func TestBuildScriptRedactsEngineLdflags(t *testing.T) {
 	buildScript := repositoryFile(t, "build.ps1")
 	if !strings.Contains(buildScript, "-DisplayArguments") || !strings.Contains(buildScript, "<redacted>") {
 		t.Fatal("build.ps1 must supply redacted display arguments for the key-bearing engine build")
+	}
+	if !strings.Contains(buildScript, "Remove-Item Env:JHMC_CURSEFORGE_API_KEY") {
+		t.Fatal("build.ps1 must not pass the plaintext key to the child go process")
+	}
+}
+
+func TestReleaseWorkflowUsesObfuscatedKeyFragment(t *testing.T) {
+	workflow := repositoryFile(t, ".github", "workflows", "release.yml")
+	if strings.Contains(workflow, "main.defaultCurseForgeKey=") {
+		t.Fatal("release workflow must not inject the CurseForge key as plaintext")
+	}
+	if !strings.Contains(workflow, "Get-CurseForgeKeyLdflagsFragment") {
+		t.Fatal("release workflow must use the shared XOR key helper")
+	}
+	if !strings.Contains(workflow, "Remove-Item Env:JHMC_CURSEFORGE_API_KEY") {
+		t.Fatal("release workflow must not pass the plaintext key to the child go process")
 	}
 }

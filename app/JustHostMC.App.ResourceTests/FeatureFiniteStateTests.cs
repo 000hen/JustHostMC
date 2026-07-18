@@ -28,24 +28,34 @@ public sealed class FeatureFiniteStateTests {
         var viewModel =
             RepositoryLayout.ReadAppFile("ViewModels", "SettingsViewModel.cs");
         var xaml = RepositoryLayout.ReadAppFile("Views", "SettingsPage.xaml");
+        var scriptsViewModel =
+            RepositoryLayout.ReadAppFile("ViewModels", "ScriptsViewModel.cs");
+        var scriptsXaml =
+            RepositoryLayout.ReadAppFile("Views", "ScriptsPage.xaml");
 
         Assert.Contains("SettingsWorkflowStatus", viewModel,
-                        StringComparison.Ordinal);
-        Assert.Contains("ShopKeyConfiguration", viewModel,
                         StringComparison.Ordinal);
         Assert.Contains("BackendMode", viewModel, StringComparison.Ordinal);
         Assert.DoesNotContain("ActiveModeText", viewModel,
                               StringComparison.Ordinal);
         Assert.DoesNotContain("CurseForgeKeyStatus", viewModel,
                               StringComparison.Ordinal);
+        Assert.DoesNotContain("ShopKeyConfiguration", viewModel,
+                              StringComparison.Ordinal);
+        Assert.DoesNotContain("SettingsShopKey", xaml,
+                              StringComparison.Ordinal);
+        Assert.DoesNotContain("SettingsCurseForgeKey", xaml,
+                              StringComparison.Ordinal);
+
+        Assert.Contains("GetConfigAsync", scriptsViewModel,
+                        StringComparison.Ordinal);
+        Assert.Contains("ScriptConfigured=\"OnConfigureClick\"", scriptsXaml,
+                        StringComparison.Ordinal);
 
         foreach (var uid in new[] {
                      "SettingsBackendModeDocker",
                      "SettingsBackendModeOnMachine",
                      "SettingsDockerUnavailable",
-                     "SettingsShopKeyNone",
-                     "SettingsShopKeyUser",
-                     "SettingsShopKeyBuiltin",
                      "SettingsStatusSaved",
                      "SettingsStatusSaveFailed",
                  }) {
@@ -62,6 +72,7 @@ public sealed class FeatureFiniteStateTests {
         var window = RepositoryLayout.ReadAppFile("Views", "ShopWindow.xaml");
         var detailXaml =
             RepositoryLayout.ReadAppFile("Views", "ShopDetailPage.xaml");
+        var models = RepositoryLayout.ReadAppFile("Models", "ShopModels.cs");
 
         Assert.Contains("HasLoadFailure", shop, StringComparison.Ordinal);
         Assert.DoesNotContain("_localizer.Get(\"Shop_LoadFailed\")", shop,
@@ -74,6 +85,10 @@ public sealed class FeatureFiniteStateTests {
         Assert.Contains("x:Uid=\"ShopLoadFailedBar\"", window,
                         StringComparison.Ordinal);
         Assert.Contains("x:Uid=\"ShopInstallActionText\"", detailXaml,
+                        StringComparison.Ordinal);
+        Assert.Contains("x:Uid=\"ShopCreateServerActionText\"", detailXaml,
+                        StringComparison.Ordinal);
+        Assert.Contains("CreateServerActionVisibility", models,
                         StringComparison.Ordinal);
         Assert.Contains("x:Uid=\"ShopStatusInstallDone\"", detailXaml,
                         StringComparison.Ordinal);

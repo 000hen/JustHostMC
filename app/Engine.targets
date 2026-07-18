@@ -20,9 +20,9 @@
       control of the go build flags. When you override it, injecting a baked
       CurseForge key is YOUR responsibility — this file leaves a custom value
       untouched (it never clobbers an override). When it is left at the default
-      below, the BuildEngine target folds the keycipher.ps1 ldflags fragment into
-      the single -ldflags value when JHMC_CURSEFORGE_API_KEY is set, so the
-      dotnet/VS/MSIX build path bakes the key exactly like build.ps1 does.
+      below, the BuildEngine target delegates the default build to keycipher.ps1
+      so reversible key material never enters an MSBuild property or binlog. The
+      dotnet/VS/MSIX build path still bakes the key exactly like build.ps1 does.
     -->
     <_EngineGoBuildArgsIsDefault Condition="'$(EngineGoBuildArgs)' == ''">true</_EngineGoBuildArgsIsDefault>
     <EngineGoBuildArgs Condition="'$(EngineGoBuildArgs)' == ''">-trimpath -buildvcs=false -mod=readonly -ldflags=&quot;-s -w -buildid=&quot;</EngineGoBuildArgs>
@@ -81,34 +81,22 @@
       <Output TaskParameter="ExitCode" PropertyName="_GoExitCode" />
     </Exec>
 
-    <!-- Baked CurseForge key (every build path): run the shared keycipher.ps1 to
-         obtain the -ldflags fragment. It prints an empty line unless
-         JHMC_CURSEFORGE_API_KEY is set; an invalid JHMC_KEY_CIPHER_PAD makes it
-         exit 1 with the reason on stderr, which fails this build (Exec has no
-         ContinueOnError). Run it only for the DEFAULT args (a custom override owns
-         its own ldflags) and only when Go is present (no Go means we won't build
-         the engine here, so the fragment is unused). powershell.exe is Windows
-         PowerShell 5.1, always available on Windows; keycipher.ps1 is 5.1-safe. -->
-    <Exec Condition="'$(_GoExitCode)' == '0' And '$(_EngineGoBuildArgsIsDefault)' == 'true'"
-          Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(RepoRoot)keycipher.ps1&quot;"
-          ConsoleToMSBuild="true"
-          StandardOutputImportance="low">
-      <Output TaskParameter="ConsoleOutput" PropertyName="_CurseForgeKeyLdflags" />
-    </Exec>
+    <MakeDir Condition="'$(_GoExitCode)' == '0' And !Exists('$(RepoRoot)build')"
+             Directories="$(RepoRoot)build" />
 
-    <!-- Fold the fragment into the DEFAULT ldflags as ONE -ldflags value (never a
-         second -ldflags). Skipped when the fragment is empty (unkeyed build), so
-         the args stay byte-for-byte the default. -->
-    <PropertyGroup Condition="'$(_EngineGoBuildArgsIsDefault)' == 'true' And '$(_CurseForgeKeyLdflags.Trim())' != ''">
-      <EngineGoBuildArgs>-trimpath -buildvcs=false -mod=readonly -ldflags=&quot;-s -w -buildid= $(_CurseForgeKeyLdflags.Trim())&quot;</EngineGoBuildArgs>
-    </PropertyGroup>
-
-    <!-- Do not print EngineGoBuildArgs: keyed builds place the reversible cipher
-         and pad in that property. EchoOff likewise keeps Exec from echoing the
-         expanded command line into normal MSBuild/Visual Studio logs. -->
+    <!-- For default builds, keycipher.ps1 owns the complete go invocation. This
+         keeps the reversible cipher/pad inside the child PowerShell process;
+         neither half becomes an MSBuild property, task output, or binlog entry.
+         powershell.exe is Windows PowerShell 5.1 and the helper is 5.1-safe. -->
     <Message Condition="'$(_GoExitCode)' == '0'" Importance="high"
              Text="BuildEngine: $(_EngineBuildEnv) go build -&gt; $(EngineExe)" />
-    <Exec Condition="'$(_GoExitCode)' == '0'"
+    <Exec Condition="'$(_GoExitCode)' == '0' And '$(_EngineGoBuildArgsIsDefault)' == 'true'"
+          EnvironmentVariables="$(_EngineBuildEnv)"
+          EchoOff="true"
+          Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(RepoRoot)keycipher.ps1&quot; -BuildEngine -EngineSourceDir &quot;$(EngineSourceDir)&quot; -EngineOutput &quot;$(EngineExe)&quot;" />
+
+    <!-- A custom EngineGoBuildArgs override remains the caller's responsibility. -->
+    <Exec Condition="'$(_GoExitCode)' == '0' And '$(_EngineGoBuildArgsIsDefault)' != 'true'"
           WorkingDirectory="$(EngineSourceDir)"
           EnvironmentVariables="$(_EngineBuildEnv)"
           EchoOff="true"

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Globalization;
-using JustHostMC.App.Services;
 using McManager.Grpc;
 using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
@@ -52,7 +51,7 @@ public sealed class ScriptConfigDialog : UserControl {
     private readonly List<Field> _fields = new();
 
     public ScriptConfigDialog(string id, IReadOnlyList<ConfigOption> options,
-                              ScriptConfig current, ILocalizer localizer) {
+                              ScriptConfig current) {
         _id = id;
 
         var stored = new Dictionary<string, ScriptConfigValue>();
@@ -61,7 +60,7 @@ public sealed class ScriptConfigDialog : UserControl {
         var panel = new StackPanel { Spacing = 16 };
         foreach (var opt in options) {
             stored.TryGetValue(opt.Key, out var value);
-            var (input, original) = BuildInput(opt, value, localizer);
+            var (input, original) = BuildInput(opt, value);
             _fields.Add(new Field(opt.Key, opt.Type, input, original));
 
             var row = new StackPanel { Spacing = 4 };
@@ -88,18 +87,13 @@ public sealed class ScriptConfigDialog : UserControl {
     }
 
     private static (FrameworkElement input, string original)
-        BuildInput(ConfigOption opt, ScriptConfigValue? value,
-                   ILocalizer localizer) {
+        BuildInput(ConfigOption opt, ScriptConfigValue? value) {
         var hasValue    = value?.HasValue ?? false;
         var storedValue = value?.Value ?? "";
 
         switch (opt.Type) {
             case ConfigOptionType.ConfigOptionSecret:
-                var pb = new PasswordBox {
-                    PlaceholderText = localizer.Get(
-                        hasValue ? "ScriptConfig_SecretSetPlaceholder"
-                                 : "ScriptConfig_SecretUnsetPlaceholder"),
-                };
+                var pb = new PasswordBox();
                 return (pb, "");
 
             case ConfigOptionType.ConfigOptionBoolean:

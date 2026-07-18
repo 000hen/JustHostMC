@@ -188,8 +188,8 @@ public sealed partial class ShopViewModel : ObservableObject {
     private ModKind EffectiveKind =>
         SelectedShopIsModpack ? ModKind.Modpack : Context.Kind;
 
-    /// <summary>The shop-kind string a server-scoped browser filters sources on:
-    /// "plugin" for a Paper/Spigot server, "mod" otherwise. A merged source
+    /// <summary>The shop-kind string a server-scoped browser filters sources
+    /// on: "plugin" for a Paper/Spigot server, "mod" otherwise. A merged source
     /// (e.g. curseforge, whose Kinds are mod/plugin/modpack) still qualifies as
     /// long as it carries this kind — it is no longer excluded merely for also
     /// serving modpacks.</summary>
@@ -222,8 +222,6 @@ public sealed partial class ShopViewModel : ObservableObject {
                 foreach (var shop in visible) Shops.Add(shop);
                 SelectedShop = visible.FirstOrDefault(s => s.Ready) ??
                                visible.FirstOrDefault();
-                if (visible.Length == 0)
-                    StatusMessage = _localizer.Get("Shop_NoSources");
             });
         } catch {
             await RunOnUIAsync(() => HasLoadFailure = true);

@@ -29,11 +29,11 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
     public ShopDetailViewModel(ShopViewModel shop, ShopProjectItem card,
                                DispatcherQueue dispatcher,
                                ILocalizer localizer) {
-        _shop       = shop;
-        _dispatcher = dispatcher;
-        _localizer  = localizer;
-        _shopId     = card.Project.ShopId;
-        _projectId  = card.Project.ProjectId;
+        _shop        = shop;
+        _dispatcher  = dispatcher;
+        _localizer   = localizer;
+        _shopId      = card.Project.ShopId;
+        _projectId   = card.Project.ProjectId;
         Card         = card;
         var shopInfo = shop.Shops.FirstOrDefault(s => s.Id == _shopId);
         SourceName   = shopInfo?.Name ?? _shopId;
@@ -197,7 +197,7 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
                 foreach (var image in detail.Gallery)
                     Gallery.Add(new ShopGalleryItem(image));
                 OnPropertyChanged(nameof(HasGallery));
-                BodyHtml = html;
+                BodyHtml             = html;
                 ProjectCompatMessage = compatMessage;
                 RefreshPrimaryAction();
             });

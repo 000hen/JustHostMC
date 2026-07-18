@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	mcmanagerv1 "github.com/000hen/justhostmc/engine/gen/mcmanager/v1"
 	"github.com/000hen/justhostmc/engine/internal/appdata"
@@ -23,12 +24,27 @@ type updateStubProvider struct {
 	gotVersion, gotOld string
 	updateSpec         provider.LaunchSpec
 	updateErr          error
+	mutate             func(dir string) error
+	started            chan struct{}
+	blockUntilCanceled bool
 }
 
-func (p *updateStubProvider) Update(_ context.Context, _, version, oldVersion string, report func(provider.Progress)) (provider.LaunchSpec, error) {
+func (p *updateStubProvider) Update(ctx context.Context, dir, version, oldVersion string, report func(provider.Progress)) (provider.LaunchSpec, error) {
 	p.gotVersion, p.gotOld = version, oldVersion
 	if report != nil {
 		report(provider.Progress{Step: "shop.install.downloading", Fraction: 0.5})
+	}
+	if p.mutate != nil {
+		if err := p.mutate(dir); err != nil {
+			return provider.LaunchSpec{}, err
+		}
+	}
+	if p.started != nil {
+		close(p.started)
+	}
+	if p.blockUntilCanceled {
+		<-ctx.Done()
+		return provider.LaunchSpec{}, ctx.Err()
 	}
 	return p.updateSpec, p.updateErr
 }
@@ -141,7 +157,15 @@ func TestUpdateModpackUnsupportedIsUnimplemented(t *testing.T) {
 // TestUpdateModpackFailureLeavesInstallIntact proves an update error restores
 // STOPPED, keeps the record and the server dir — unlike Create's wipe.
 func TestUpdateModpackFailureLeavesInstallIntact(t *testing.T) {
-	prov := &updateStubProvider{updateErr: errors.New("cdn exploded")}
+	prov := &updateStubProvider{
+		updateErr: errors.New("cdn exploded"),
+		mutate: func(dir string) error {
+			if err := os.WriteFile(filepath.Join(dir, "world-data.txt"), []byte("mutated"), 0o644); err != nil {
+				return err
+			}
+			return os.WriteFile(filepath.Join(dir, "new-mod.jar"), []byte("partial"), 0o644)
+		},
+	}
 	svc, st, paths := modpackTestService(t, prov, mcmanagerv1.ServerStatus_STOPPED, "95/100")
 	marker := filepath.Join(paths.ServerDir("s1"), "world-data.txt")
 	if err := os.WriteFile(marker, []byte("keep me"), 0o644); err != nil {
@@ -165,5 +189,111 @@ func TestUpdateModpackFailureLeavesInstallIntact(t *testing.T) {
 	}
 	if _, err := os.Stat(marker); err != nil {
 		t.Errorf("server dir wiped on failure: %v", err)
+	}
+	got, err := os.ReadFile(marker)
+	if err != nil || string(got) != "keep me" {
+		t.Errorf("marker after rollback = %q, %v; want original content", got, err)
+	}
+	if _, err := os.Stat(filepath.Join(paths.ServerDir("s1"), "new-mod.jar")); !errors.Is(err, os.ErrNotExist) {
+		t.Errorf("partial new file survived rollback: %v", err)
+	}
+}
+
+func TestDeleteCancelsAndWaitsForModpackUpdate(t *testing.T) {
+	started := make(chan struct{})
+	prov := &updateStubProvider{started: started, blockUntilCanceled: true}
+	svc, st, paths := modpackTestService(t, prov, mcmanagerv1.ServerStatus_STOPPED, "95/100")
+
+	updateDone := make(chan error, 1)
+	go func() {
+		updateDone <- svc.UpdateModpack(
+			&mcmanagerv1.UpdateModpackRequest{Id: "s1", Version: "95/300"},
+			&fakeInstallStream{})
+	}()
+	select {
+	case <-started:
+	case <-time.After(5 * time.Second):
+		t.Fatal("update did not start")
+	}
+
+	if _, err := svc.Delete(context.Background(), &mcmanagerv1.ServerId{Id: "s1"}); err != nil {
+		t.Fatalf("Delete: %v", err)
+	}
+	select {
+	case err := <-updateDone:
+		if err == nil {
+			t.Fatal("canceled update succeeded")
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("Delete returned before update stopped")
+	}
+	if _, ok := st.Get("s1"); ok {
+		t.Fatal("canceled update resurrected deleted server")
+	}
+	if _, err := os.Stat(paths.ServerDir("s1")); !errors.Is(err, os.ErrNotExist) {
+		t.Errorf("server directory still exists after delete: %v", err)
+	}
+}
+
+func TestStartRejectsActiveModpackUpdate(t *testing.T) {
+	started := make(chan struct{})
+	prov := &updateStubProvider{started: started, blockUntilCanceled: true}
+	svc, _, _ := modpackTestService(t, prov, mcmanagerv1.ServerStatus_STOPPED, "95/100")
+
+	updateDone := make(chan error, 1)
+	go func() {
+		updateDone <- svc.UpdateModpack(
+			&mcmanagerv1.UpdateModpackRequest{Id: "s1", Version: "95/300"},
+			&fakeInstallStream{})
+	}()
+	select {
+	case <-started:
+	case <-time.After(5 * time.Second):
+		t.Fatal("update did not start")
+	}
+
+	_, err := svc.Start(context.Background(), &mcmanagerv1.ServerId{Id: "s1"})
+	if status.Code(err) != codes.FailedPrecondition {
+		t.Fatalf("Start code = %v, want FailedPrecondition", status.Code(err))
+	}
+
+	svc.mu.Lock()
+	svc.installations["s1"].cancel()
+	svc.mu.Unlock()
+	<-updateDone
+}
+
+func TestStopCancelsAndWaitsForModpackUpdate(t *testing.T) {
+	started := make(chan struct{})
+	prov := &updateStubProvider{started: started, blockUntilCanceled: true}
+	svc, st, _ := modpackTestService(t, prov, mcmanagerv1.ServerStatus_STOPPED, "95/100")
+
+	updateDone := make(chan error, 1)
+	go func() {
+		updateDone <- svc.UpdateModpack(
+			&mcmanagerv1.UpdateModpackRequest{Id: "s1", Version: "95/300"},
+			&fakeInstallStream{})
+	}()
+	select {
+	case <-started:
+	case <-time.After(5 * time.Second):
+		t.Fatal("update did not start")
+	}
+
+	if _, err := svc.Stop(context.Background(), &mcmanagerv1.ServerId{Id: "s1"}); err != nil {
+		t.Fatalf("Stop: %v", err)
+	}
+	if err := <-updateDone; status.Code(err) != codes.Canceled {
+		t.Fatalf("UpdateModpack error = %v, want Canceled", err)
+	}
+	rec, ok := st.Get("s1")
+	if !ok {
+		t.Fatal("Stop deleted the server record")
+	}
+	if rec.Status != mcmanagerv1.ServerStatus_STOPPED {
+		t.Fatalf("status = %v, want STOPPED", rec.Status)
+	}
+	if rec.ProviderVersion != "95/100" {
+		t.Fatalf("ProviderVersion = %q, want original version", rec.ProviderVersion)
 	}
 }

@@ -119,7 +119,7 @@ public sealed partial class ScriptsPage : Page {
             source = await FileIO.ReadTextAsync(lua);
         } catch (Exception ex)
             when (ex is IOException or UnauthorizedAccessException) {
-            ViewModel.SetStatus(_localizer.Get("Scripts_ReadFailed"));
+            ViewModel.SetStatus(ReadFailedText.Text);
             return;
         }
 
@@ -216,24 +216,14 @@ public sealed partial class ScriptsPage : Page {
         if (current is null)
             return;
 
-        var content = new ScriptConfigDialog(item.Id, item.ConfigOptions,
-                                             current, _localizer);
-        var dialog  = new ContentDialog {
+        var dialog = new ScriptConfigContentDialog(
+            item.Id, item.Name, item.ConfigOptions, current) {
             XamlRoot = XamlRoot,
-            Style    = Application.Current
-                           .Resources["DefaultContentDialogStyle"] as Style,
-            Title =
-                _localizer.Get("ScriptConfig_TitleNamed", ("name", item.Name)),
-            Content           = content,
-            PrimaryButtonText = _localizer.Get("ScriptConfig_Save"),
-            CloseButtonText   = _localizer.Get("ScriptConfig_Cancel"),
-            DefaultButton     = ContentDialogButton.Primary,
         };
-        ContentDialogSizing.Apply(dialog);
 
         if (await dialog.ShowAsync() != ContentDialogResult.Primary)
             return;
-        await ViewModel.SetConfigAsync(item, content.BuildRequest());
+        await ViewModel.SetConfigAsync(item, dialog.BuildRequest());
     }
 
     private async void OnScriptToggled(object sender, RoutedEventArgs e) {

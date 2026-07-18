@@ -370,13 +370,19 @@
                                                 Style="{StaticResource CaptionTextBlockStyle}"
                                                 Text="{x:Bind VersionNumber}" />
                                             <FontIcon
+                                                x:Uid="ShopCompatLoaderMismatchIcon"
                                                 VerticalAlignment="Center"
-                                                AutomationProperties.Name="{x:Bind CompatToolTip}"
                                                 FontSize="14"
                                                 Foreground="{ThemeResource SystemFillColorCautionBrush}"
                                                 Glyph="&#xE7BA;"
-                                                ToolTipService.ToolTip="{x:Bind CompatToolTip}"
-                                                Visibility="{x:Bind CompatBadgeVisibility}" />
+                                                Visibility="{x:Bind LoaderMismatchVisibility}" />
+                                            <FontIcon
+                                                x:Uid="ShopCompatVersionMismatchIcon"
+                                                VerticalAlignment="Center"
+                                                FontSize="14"
+                                                Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                                                Glyph="&#xE7BA;"
+                                                Visibility="{x:Bind VersionMismatchVisibility}" />
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal" Spacing="10">
                                             <TextBlock
@@ -397,8 +403,9 @@
                                         Style="{StaticResource AccentButtonStyle}"
                                         Tag="{x:Bind}">
                                         <Grid>
-                                            <TextBlock x:Uid="ShopInstallActionText" Visibility="{x:Bind ActionLabel, Converter={StaticResource ObjectToVisInverse}}" />
-                                            <TextBlock Text="{x:Bind ActionLabel, Mode=OneWay}" Visibility="{x:Bind ActionLabel, Converter={StaticResource ObjectToVis}}" />
+                                            <TextBlock x:Uid="ShopInstallActionText" Visibility="{x:Bind InstallActionVisibility, Mode=OneWay}" />
+                                            <TextBlock x:Uid="ShopCreateServerActionText" Visibility="{x:Bind CreateServerActionVisibility, Mode=OneWay}" />
+                                            <TextBlock Text="{x:Bind ActionLabel, Mode=OneWay}" Visibility="{x:Bind WebsiteActionVisibility, Mode=OneWay}" />
                                         </Grid>
                                     </Button>
                                 </Grid>

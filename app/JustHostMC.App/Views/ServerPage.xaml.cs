@@ -171,8 +171,8 @@ public sealed partial class ServerPage : Page {
     }
 
     private async void OnUpdateModpackClick(object sender, RoutedEventArgs e) {
-        // Imported packs have no upstream source to update from (the menu item is
-        // hidden for them; this guards a programmatic call).
+        // Imported packs have no upstream source to update from (the menu item
+        // is hidden for them; this guards a programmatic call).
         if (Server.ProviderId == "import")
             return;
         if (!TryGetPackIdentity(out var packId, out var currentVersionId))
@@ -190,56 +190,22 @@ public sealed partial class ServerPage : Page {
         } catch (Exception) {
             list = new ShopVersionList();
         }
-        var current = list.Versions.FirstOrDefault(
-            v => v.Id == currentVersionId);
-        var choices = list.Versions.Where(v => v.Id != currentVersionId)
-                          .ToArray();
-        if (choices.Length == 0) {
-            await new ContentDialog {
-                XamlRoot        = XamlRoot,
-                Title           = _localizer.Get("Server_UpdateModpackTitle"),
-                Content = _localizer.Get("Server_UpdateModpackNoVersions"),
-                CloseButtonText = _localizer.Get("Common_Cancel"),
-                DefaultButton   = ContentDialogButton.Close,
-            }.ShowAsync();
-            return;
-        }
-
-        var versionBox = new ComboBox {
-            ItemsSource       = choices.Select(v => v.Name.Length > 0
-                                                        ? v.Name
-                                                        : v.VersionNumber)
-                                    .ToArray(),
-            SelectedIndex     = 0,
-            HorizontalAlignment = HorizontalAlignment.Stretch,
-        };
-        var panel = new StackPanel { Spacing = 12 };
+        var current =
+            list.Versions.FirstOrDefault(v => v.Id == currentVersionId);
+        var choices =
+            list.Versions.Where(v => v.Id != currentVersionId).ToArray();
         var currentName =
-            current is null
-                ? currentVersionId
-                : (current.Name.Length > 0 ? current.Name
-                                           : current.VersionNumber);
-        panel.Children.Add(new TextBlock {
-            Text = string.Format(
-                _localizer.Get("Server_UpdateModpackBody"), Server.Name,
-                currentName),
-            TextWrapping = TextWrapping.Wrap,
-        });
-        panel.Children.Add(versionBox);
-
-        var dialog = new ContentDialog {
-            XamlRoot          = XamlRoot,
-            Title             = _localizer.Get("Server_UpdateModpackTitle"),
-            Content           = panel,
-            PrimaryButtonText = _localizer.Get("Server_UpdateModpackConfirm"),
-            CloseButtonText   = _localizer.Get("Common_Cancel"),
-            DefaultButton     = ContentDialogButton.Primary,
-        };
+            current is null ? currentVersionId
+                            : (current.Name.Length > 0 ? current.Name
+                                                       : current.VersionNumber);
+        var dialog =
+            new ServerUpdateModpackDialog(Server.Name, currentName, choices) {
+                XamlRoot = XamlRoot,
+            };
         if (await dialog.ShowAsync() != ContentDialogResult.Primary)
             return;
-        if (versionBox.SelectedIndex < 0)
+        if (dialog.SelectedVersion is not {} picked)
             return;
-        var picked = choices[versionBox.SelectedIndex];
         _ = _main.UpdateModpackAsync(Server, $"{packId}/{picked.Id}");
     }
 
@@ -250,9 +216,7 @@ public sealed partial class ServerPage : Page {
             SuggestedFileName      = Server.Name,
             SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
         };
-        picker.FileTypeChoices.Add(
-            _localizer.Get("Server_ExportModpackPickerName"),
-            new List<string> { ".zip" });
+        picker.FileTypeChoices.Add(".zip", new List<string> { ".zip" });
         var hwnd =
             WinRT.Interop.WindowNative.GetWindowHandle(App.Current.MainWindow);
         WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);

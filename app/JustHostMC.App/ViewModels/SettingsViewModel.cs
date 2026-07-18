@@ -21,13 +21,6 @@ public enum SettingsWorkflowStatus {
     RemoveIncompleteInstallationsFailed,
 }
 
-public enum ShopKeyConfiguration {
-    Unknown,
-    None,
-    User,
-    Builtin,
-}
-
 public enum BackendMode {
     Unknown,
     OnMachine,
@@ -192,8 +185,6 @@ public sealed partial class SettingsViewModel : ObservableObject {
         } catch (RpcException) {
             // Leave the cleanup action disabled until the next page load.
         }
-    }
-
     }
 
     private async Task LoadBackendAsync() {

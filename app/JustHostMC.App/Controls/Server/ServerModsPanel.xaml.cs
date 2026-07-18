@@ -32,11 +32,6 @@ public sealed partial class ServerModsPanel : UserControl {
         InitializeComponent();
     }
 
-    /// <summary>Raised when a shop opened from this panel created a brand-new
-    /// server (modpack install), so the page can refresh the server
-    /// list.</summary>
-    public event RoutedEventHandler? ServerCreated;
-
     private static void OnViewModelChanged(
         DependencyObject d, DependencyPropertyChangedEventArgs e) {
         var panel = (ServerModsPanel)d;

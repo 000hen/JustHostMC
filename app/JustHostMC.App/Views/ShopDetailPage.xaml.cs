@@ -115,48 +115,16 @@ public sealed partial class ShopDetailPage : Page {
     }
 
     // Prompts for a name + memory, then creates a new server from a modpack
-    // version. Built imperatively to avoid ItemsControl/x:Bind template
-    // pitfalls.
+    // version. The dialog owns its localized chrome and sizing in XAML.
     private async Task CreateServerFlow(ShopVersionItem version) {
-        var nameBox = new TextBox {
-            Header = _localizer.Get("Shop_CreateServerNameLabel"),
-            Text   = ViewModel.Card?.Title ?? "",
-        };
-        var memoryBox = new NumberBox {
-            Header      = _localizer.Get("Shop_CreateServerMemoryLabel"),
-            Value       = 4096,
-            Minimum     = 512,
-            Maximum     = 65536,
-            SmallChange = 512,
-            LargeChange = 1024,
-            SpinButtonPlacementMode = NumberBoxSpinButtonPlacementMode.Inline,
-        };
-        var panel = new StackPanel { Spacing = 12 };
-        panel.Children.Add(new TextBlock {
-            Text = string.Format(_localizer.Get("Shop_CreateServerPromptBody"),
-                                 version.Name),
-            TextWrapping = TextWrapping.Wrap,
-        });
-        panel.Children.Add(nameBox);
-        panel.Children.Add(memoryBox);
-
-        var dialog = new ContentDialog {
-            XamlRoot          = XamlRoot,
-            Title             = _localizer.Get("Shop_CreateServerTitle"),
-            Content           = panel,
-            PrimaryButtonText = _localizer.Get("Shop_CreateServerConfirm"),
-            CloseButtonText   = _localizer.Get("Common_Cancel"),
-            DefaultButton     = ContentDialogButton.Primary,
+        var fallbackName = ViewModel.Card?.Title ?? "Modpack";
+        var dialog       = new CreateShopServerDialog(fallbackName) {
+            XamlRoot = XamlRoot,
         };
         if (await dialog.ShowAsync() != ContentDialogResult.Primary)
             return;
-
-        var name = nameBox.Text.Trim();
-        if (name.Length == 0)
-            name = ViewModel.Card?.Title ?? "Modpack";
-        var memory =
-            double.IsNaN(memoryBox.Value) ? 4096 : (int)memoryBox.Value;
-        await ViewModel.CreateServerAsync(version, name, memory);
+        await ViewModel.CreateServerAsync(version, dialog.ServerName,
+                                          dialog.MemoryMb);
     }
 
     private async void OnOpenWebsite(object sender, RoutedEventArgs e) {

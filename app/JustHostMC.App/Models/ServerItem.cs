@@ -59,9 +59,7 @@ public sealed partial class ServerItem : ObservableObject {
     /// normal servers.</summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsModpackServer))]
-    public partial string ProviderVersion {
-        get; private set;
-    } = "";
+    public partial string ProviderVersion { get; private set; } = "";
 
     /// <summary>True for servers installed from a modpack — enables the
     /// update/export modpack actions.</summary>
@@ -85,9 +83,7 @@ public sealed partial class ServerItem : ObservableObject {
     [NotifyPropertyChangedFor(nameof(NavigationAutomationName))]
     [NotifyPropertyChangedFor(nameof(NavigationStatusBrush))]
     [NotifyPropertyChangedFor(nameof(IsIncompleteInstallation))]
-    public partial ServerStatus Status {
-        get; private set;
-    }
+    public partial ServerStatus Status { get; private set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(EndpointText))]
@@ -253,11 +249,11 @@ public sealed partial class ServerItem : ObservableObject {
         ProviderId      = proto.ProviderId;
         Loader          = proto.Loader;
         ProviderVersion = proto.ProviderVersion;
-        Status         = proto.Status;
-        Port           = proto.Port;
-        MemoryMb       = proto.MemoryMb;
-        SortOrder      = proto.SortOrder;
-        CustomJavaArgs = proto.CustomJavaArgs;
+        Status          = proto.Status;
+        Port            = proto.Port;
+        MemoryMb        = proto.MemoryMb;
+        SortOrder       = proto.SortOrder;
+        CustomJavaArgs  = proto.CustomJavaArgs;
     }
 
     public void ApplyLocal(UpdateServerRequest request) {

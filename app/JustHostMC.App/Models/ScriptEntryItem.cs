@@ -11,13 +11,13 @@ public abstract class ScriptEntryItem {
                               IEnumerable<Permission> permissions,
                               IEnumerable<PermissionKind> granted,
                               IEnumerable<ConfigOption> configOptions) {
-        Id          = id;
-        Name        = string.IsNullOrEmpty(name) ? id : name;
-        Author      = author;
-        Version     = version;
-        Description = description;
-        Permissions = permissions.ToList();
-        Granted     = granted.ToList();
+        Id            = id;
+        Name          = string.IsNullOrEmpty(name) ? id : name;
+        Author        = author;
+        Version       = version;
+        Description   = description;
+        Permissions   = permissions.ToList();
+        Granted       = granted.ToList();
         ConfigOptions = configOptions.ToList();
     }
 

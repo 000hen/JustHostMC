@@ -271,6 +271,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
     /// progress into the server's global tracker so the operation survives
     /// window/page changes.</summary>
     public async Task UpdateModpackAsync(ServerItem server, string version) {
+        using var backgroundTask = _backgroundTasks.Begin("modpack-update");
         var tracker =
             ProgressService.GetOrCreateTracker(server.Id, server.Name);
         RunOnUI(() => {
@@ -306,6 +307,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
     /// <summary>Exports a modpack server as a CurseForge client pack zip,
     /// streaming progress into the server's global tracker.</summary>
     public async Task ExportModpackAsync(ServerItem server, string destPath) {
+        using var backgroundTask = _backgroundTasks.Begin("modpack-export");
         var tracker =
             ProgressService.GetOrCreateTracker(server.Id, server.Name);
         RunOnUI(() => {

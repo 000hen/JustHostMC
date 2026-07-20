@@ -19,8 +19,8 @@ public class MainWindowLifecycleTests {
         var method = source[methodStart..methodEnd];
         var lastWindowCleanup =
             method.IndexOf("UntrackServer(server);", StringComparison.Ordinal);
-        var asynchronousDisposal = method.IndexOf(
-            "await Shell.DisposeAsync();", StringComparison.Ordinal);
+        var asynchronousDisposal = method.IndexOf("await Shell.DisposeAsync();",
+                                                  StringComparison.Ordinal);
 
         Assert.True(lastWindowCleanup >= 0,
                     "The final window cleanup operation was not found.");
@@ -34,36 +34,42 @@ public class MainWindowLifecycleTests {
         var source = File.ReadAllText(NavShellSourcePath());
         Assert.Contains("IAsyncDisposable", source, StringComparison.Ordinal);
 
-        var methodStart = source.IndexOf("public async ValueTask DisposeAsync()",
-                                         StringComparison.Ordinal);
-        var methodEnd   = source.IndexOf("\n    }\n}", methodStart,
-                                         StringComparison.Ordinal);
+        var methodStart = source.IndexOf(
+            "public async ValueTask DisposeAsync()", StringComparison.Ordinal);
+        var methodEnd =
+            source.IndexOf("\n    }\n}", methodStart, StringComparison.Ordinal);
 
-        Assert.True(methodStart >= 0, "NavShell DisposeAsync method was not found.");
+        Assert.True(methodStart >= 0,
+                    "NavShell DisposeAsync method was not found.");
         Assert.True(methodEnd > methodStart,
                     "NavShell DisposeAsync method end was not found.");
 
-        var method = source[methodStart..methodEnd];
+        var method   = source[methodStart..methodEnd];
         var snapshot = method.IndexOf("_serverVmCache.Values.ToArray()",
                                       StringComparison.Ordinal);
-        var clear = method.IndexOf("_serverVmCache.Clear();",
-                                   StringComparison.Ordinal);
+        var clear =
+            method.IndexOf("_serverVmCache.Clear();", StringComparison.Ordinal);
         var cacheDisposal = method.IndexOf("cache.DisposeAsync().AsTask()",
                                            StringComparison.Ordinal);
-        var mainDisposal = method.IndexOf("Main.DisposeAsync().AsTask()",
-                                          StringComparison.Ordinal);
-        var awaitAll = method.IndexOf("await Task.WhenAll",
-                                      StringComparison.Ordinal);
+        var mainDisposal  = method.IndexOf("Main.DisposeAsync().AsTask()",
+                                           StringComparison.Ordinal);
+        var awaitAll =
+            method.IndexOf("await Task.WhenAll", StringComparison.Ordinal);
 
-        Assert.True(snapshot >= 0, "Cache values must be snapshotted for disposal.");
-        Assert.True(clear > snapshot,
-                    "The cache must be cleared immediately after snapshotting.");
-        Assert.True(cacheDisposal > clear,
-                    "Cached view models must be disposed after the cache is cleared.");
-        Assert.True(mainDisposal > cacheDisposal,
-                    "MainViewModel disposal must start after cached disposal starts.");
-        Assert.True(awaitAll > mainDisposal,
-                    "Every disposal must start before the method awaits completion.");
+        Assert.True(snapshot >= 0,
+                    "Cache values must be snapshotted for disposal.");
+        Assert.True(
+            clear > snapshot,
+            "The cache must be cleared immediately after snapshotting.");
+        Assert.True(
+            cacheDisposal > clear,
+            "Cached view models must be disposed after the cache is cleared.");
+        Assert.True(
+            mainDisposal > cacheDisposal,
+            "MainViewModel disposal must start after cached disposal starts.");
+        Assert.True(
+            awaitAll > mainDisposal,
+            "Every disposal must start before the method awaits completion.");
     }
 
     private static string MainWindowSourcePath(

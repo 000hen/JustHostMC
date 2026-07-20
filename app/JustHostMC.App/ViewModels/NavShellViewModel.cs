@@ -66,8 +66,8 @@ public sealed class NavShellViewModel : ObservableObject, IAsyncDisposable {
         var caches = _serverVmCache.Values.ToArray();
         _serverVmCache.Clear();
 
-        var cacheDisposals = caches.Select(cache => cache.DisposeAsync().AsTask())
-                                  .ToArray();
+        var cacheDisposals =
+            caches.Select(cache => cache.DisposeAsync().AsTask()).ToArray();
         var mainDisposal = Main.DisposeAsync().AsTask();
         await Task.WhenAll(cacheDisposals.Append(mainDisposal));
     }

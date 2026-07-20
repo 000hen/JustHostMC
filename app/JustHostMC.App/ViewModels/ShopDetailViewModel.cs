@@ -37,7 +37,7 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
         Card         = card;
         var shopInfo = shop.Shops.FirstOrDefault(s => s.Id == _shopId);
         SourceName   = shopInfo?.Name ?? _shopId;
-        IsModpack    = shopInfo?.Kinds.Contains("modpack") ?? false;
+        IsModpack    = shop.SelectedShopIsModpack;
     }
 
     /// <summary>True when this project is a modpack: its versions create whole

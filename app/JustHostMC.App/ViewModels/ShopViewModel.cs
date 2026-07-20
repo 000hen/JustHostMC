@@ -174,11 +174,10 @@ public sealed partial class ShopViewModel : ObservableObject {
         foreach (var category in CategoryFilters) category.IsSelected = false;
     }
 
-    /// <summary>True when the selected shop serves modpacks (installed as
-    /// whole servers), which switches the browse kind and hides the compat
-    /// filters.</summary>
-    public bool SelectedShopIsModpack =>
-        SelectedShop?.Kinds.Contains("modpack") ?? false;
+    /// <summary>True when this window is browsing modpacks (installed as whole
+    /// servers). The context is authoritative because a merged source can also
+    /// advertise mod and plugin capabilities.</summary>
+    public bool SelectedShopIsModpack => Context.Kind == ModKind.Modpack;
 
     /// <summary>Version/loader filter toggles only make sense for mod/plugin
     /// shops.</summary>

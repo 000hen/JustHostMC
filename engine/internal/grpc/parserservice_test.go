@@ -32,11 +32,13 @@ func newTestParserService(t *testing.T) (*ParserService, *scripting.ParserSet, s
 	dir := t.TempDir()
 	grants := scripting.NewGrantStore(filepath.Join(dir, "parser-grants.json"))
 	ps := scripting.NewParserSet(scripting.NewHost(nil, nil, nil), grants)
+	config := scripting.NewConfigStore(filepath.Join(dir, "parser-config.json"))
+	ps.SetConfigStore(config)
 	if err := scripting.LoadBuiltinParsers(context.Background(), ps); err != nil {
 		t.Fatalf("LoadBuiltinParsers: %v", err)
 	}
 	parsersDir := filepath.Join(dir, "parsers")
-	return NewParserService(ps, grants, parsersDir), ps, parsersDir
+	return NewParserService(ps, grants, config, parsersDir), ps, parsersDir
 }
 
 func TestParserServiceListIncludesBuiltins(t *testing.T) {

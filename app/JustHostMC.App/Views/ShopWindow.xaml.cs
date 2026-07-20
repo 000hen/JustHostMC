@@ -79,6 +79,10 @@ public sealed partial class ShopWindow : Window {
         InitializeComponent();
         Title = ShopTitleBar.Title;
 
+        if (!context.IsServerScoped) {
+            ShopTitleBar.Title = ModpackShopTitleBar.Title;
+            Title              = ShopTitleBar.Title;
+        }
         ExtendsContentIntoTitleBar               = true;
         AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
         SetTitleBar(ShopTitleBar);

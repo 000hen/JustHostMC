@@ -24,6 +24,7 @@ type ManagerConfig struct {
 	Players PlayerManager
 	Events  PlayerEvents
 	KV      scripting.KV
+	Config  *scripting.ConfigStore
 }
 
 // Manager owns the set of automation scripts and the goroutines backing the
@@ -53,6 +54,21 @@ func NewManager(cfg ManagerConfig) *Manager {
 
 // Logs returns the engine-wide automation log ring buffer (for StreamLog).
 func (m *Manager) Logs() *scriptlog.LogBuffer { return m.logs }
+
+// configFor resolves the typed config values a script sees as jhmc.config,
+// merging declared defaults with stored overrides. Returns nil (no jhmc.config)
+// when the script declares no config and none is stored.
+func (m *Manager) configFor(meta scripting.Meta) map[string]string {
+	var stored map[string]string
+	if m.cfg.Config != nil {
+		stored = m.cfg.Config.Values(meta.ID)
+	}
+	eff := scripting.EffectiveConfig(meta.Config, stored)
+	if len(eff) == 0 {
+		return nil
+	}
+	return eff
+}
 
 // AddSource compiles an automation script and registers it (disabled). builtin
 // marks first-party scripts, whose declared permissions are granted by default.
@@ -212,6 +228,7 @@ func (m *Manager) start(a *Automation, granted scripting.GrantSet) (*runner, err
 		Granted:  granted,
 		KV:       m.cfg.KV,
 		ScriptID: a.meta.ID,
+		Config:   m.configFor(a.meta),
 	})
 	L := scripting.NewSandbox(ctx)
 	L.SetGlobal("jhmc", inv.NewJHMC(L))

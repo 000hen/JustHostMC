@@ -20,13 +20,14 @@ type ParserService struct {
 	mcmanagerv1.UnimplementedParserServiceServer
 	parsers *scripting.ParserSet
 	grants  *scripting.GrantStore
+	config  *scripting.ConfigStore
 	dir     string // root dir where user parsers are persisted
 }
 
 // NewParserService builds a ParserService. dir is where imported user parser
 // scripts are stored; grants persists permission decisions.
-func NewParserService(parsers *scripting.ParserSet, grants *scripting.GrantStore, dir string) *ParserService {
-	return &ParserService{parsers: parsers, grants: grants, dir: dir}
+func NewParserService(parsers *scripting.ParserSet, grants *scripting.GrantStore, config *scripting.ConfigStore, dir string) *ParserService {
+	return &ParserService{parsers: parsers, grants: grants, config: config, dir: dir}
 }
 
 func (s *ParserService) List(_ context.Context, _ *mcmanagerv1.Empty) (*mcmanagerv1.ParserList, error) {
@@ -67,6 +68,9 @@ func (s *ParserService) Remove(_ context.Context, ref *mcmanagerv1.ProviderRef) 
 	s.parsers.Remove(ref.Id)
 	if s.grants != nil {
 		_ = s.grants.Forget(ref.Id)
+	}
+	if s.config != nil {
+		_ = s.config.Forget(ref.Id)
 	}
 	_ = os.Remove(s.parserPath(ref.Id))
 	return &mcmanagerv1.Empty{}, nil
@@ -116,15 +120,32 @@ func (s *ParserService) info(p *scripting.LuaParser) *mcmanagerv1.ParserInfo {
 	}
 	slices.Sort(granted)
 	return &mcmanagerv1.ParserInfo{
-		Id:          meta.ID,
-		Name:        meta.Name,
-		Website:     meta.Website,
-		Description: meta.Description,
-		Version:     meta.Version,
-		Author:      meta.Author,
-		Builtin:     p.Builtin(),
-		Permissions: perms,
-		Granted:     granted,
-		Formats:     meta.Formats,
+		Id:            meta.ID,
+		Name:          meta.Name,
+		Website:       meta.Website,
+		Description:   meta.Description,
+		Version:       meta.Version,
+		Author:        meta.Author,
+		Builtin:       p.Builtin(),
+		Permissions:   perms,
+		Granted:       granted,
+		Formats:       meta.Formats,
+		ConfigOptions: configOptions(meta.Config),
 	}
+}
+
+func (s *ParserService) GetConfig(_ context.Context, ref *mcmanagerv1.ProviderRef) (*mcmanagerv1.ScriptConfig, error) {
+	p, ok := s.parsers.Get(ref.Id)
+	if !ok {
+		return nil, errorStatus(codes.NotFound, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, "parser not found", nil)
+	}
+	return getConfigView(ref.Id, p.Meta().Config, s.config), nil
+}
+
+func (s *ParserService) SetConfig(_ context.Context, req *mcmanagerv1.SetConfigRequest) (*mcmanagerv1.ScriptConfig, error) {
+	p, ok := s.parsers.Get(req.Id)
+	if !ok {
+		return nil, errorStatus(codes.NotFound, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, "parser not found", nil)
+	}
+	return applyConfig(req.Id, p.Meta().Config, s.config, req)
 }

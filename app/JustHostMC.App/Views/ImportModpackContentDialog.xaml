@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentDialog
+    x:Class="JustHostMC.App.Views.ImportModpackContentDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Uid="ImportModpackContentDialog"
+    DefaultButton="Primary"
+    Style="{StaticResource DefaultContentDialogStyle}">
+
+    <StackPanel Spacing="12">
+        <TextBox x:Name="NameBox" x:Uid="ImportModpackNameBox" />
+        <ComboBox
+            x:Name="MemoryBox"
+            x:Uid="ImportModpackMemoryBox"
+            HorizontalAlignment="Stretch"
+            SelectedIndex="1">
+            <ComboBoxItem x:Uid="ImportModpackMemory2048Option" />
+            <ComboBoxItem x:Uid="ImportModpackMemory4096Option" />
+            <ComboBoxItem x:Uid="ImportModpackMemory6144Option" />
+            <ComboBoxItem x:Uid="ImportModpackMemory8192Option" />
+            <ComboBoxItem x:Uid="ImportModpackMemory12288Option" />
+            <ComboBoxItem x:Uid="ImportModpackMemory16384Option" />
+        </ComboBox>
+    </StackPanel>
+</ContentDialog>

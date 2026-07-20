@@ -26,6 +26,8 @@ public sealed partial class ServerHeaderPanel : UserControl {
     public event RoutedEventHandler? BackupsClick;
     public event RoutedEventHandler? OpenInstanceFolderClick;
     public event RoutedEventHandler? DeleteClick;
+    public event RoutedEventHandler? UpdateModpackClick;
+    public event RoutedEventHandler? ExportModpackClick;
 
     public ServerHeaderPanel() {
         InitializeComponent();
@@ -52,6 +54,30 @@ public sealed partial class ServerHeaderPanel : UserControl {
     private void OnDeleteClick(object sender,
                                RoutedEventArgs e) => DeleteClick?.Invoke(this,
                                                                          e);
+    private void OnUpdateModpackClick(object sender, RoutedEventArgs e) =>
+        UpdateModpackClick?.Invoke(this, e);
+    private void OnExportModpackClick(object sender, RoutedEventArgs e) =>
+        ExportModpackClick?.Invoke(this, e);
+
+    /// <summary>Modpack actions only exist for servers installed from a
+    /// modpack (non-empty pack version).</summary>
+    public Visibility ModpackItemVisibility(string providerVersion) =>
+        string.IsNullOrEmpty(providerVersion) ? Visibility.Collapsed
+                                              : Visibility.Visible;
+
+    /// <summary>The Update action additionally hides for imported servers: a
+    /// local modpack file has no upstream version to update to (Export still
+    /// works).</summary>
+    public Visibility UpdateModpackVisibility(string providerVersion,
+                                              string providerId) =>
+        string.IsNullOrEmpty(providerVersion) || providerId == "import"
+            ? Visibility.Collapsed
+            : Visibility.Visible;
+
+    /// <summary>Updating replaces pack files, so the server must not be
+    /// running.</summary>
+    public bool UpdateModpackEnabled(ServerStatus s) =>
+        s is ServerStatus.Stopped or ServerStatus.Crashed;
 
     private void OnPanelSizeChanged(object sender, SizeChangedEventArgs e) =>
         UpdateResponsiveLayout(e.NewSize.Width);

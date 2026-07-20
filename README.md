@@ -132,6 +132,18 @@ automatically runs `buf generate` when Go gRPC stubs are missing, then compiles
 the Go engine before the C# build begins — no manual steps needed on a fresh
 clone.
 
+To bake the optional default CurseForge API key into `engine.exe`, set
+`JHMC_CURSEFORGE_API_KEY` in the environment that starts the build. For
+`build.ps1`, set it in the same PowerShell session. For Visual Studio, set the
+environment variable before starting Visual Studio, then restart Visual Studio
+after changing it. Do not put the key in `launchSettings.json`: launch profiles
+apply only when the app starts, after MSBuild has already compiled the engine,
+and the file is committed. Set `JHMC_KEY_CIPHER_PAD` to at least 32 bytes of hex
+only when a reproducible keyed binary is required; otherwise each build creates
+a fresh random pad. The XOR encoding keeps plaintext out of the binary and
+normal build logs, but it is obfuscation rather than encryption because the
+binary contains everything needed to decode the key.
+
 The app uses the packaged MSIX model by default. Double-click
 `Package.appxmanifest` in Solution Explorer to open Visual Studio's manifest
 designer. See [MSIX packaging](docs/packaging.md) for command-line packaging,

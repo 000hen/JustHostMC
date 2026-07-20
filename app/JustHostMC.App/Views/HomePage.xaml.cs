@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.IO;
 using JustHostMC.App.Controls;
 using JustHostMC.App.Models;
 using JustHostMC.App.Services;
@@ -8,6 +9,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Storage.Pickers;
 
 namespace JustHostMC.App.Views;
 
@@ -113,6 +115,43 @@ public sealed partial class HomePage : Page {
             return;
         if (dialog.BuildCreateRequest() is {} request)
             await Main.InstallServerAsync(request);
+    }
+
+    /// <summary>Opens the server-less modpack shop; installs create brand-new
+    /// servers through the global install-progress flow.</summary>
+    private void OnBrowseModpacksClick(object sender, RoutedEventArgs e) {
+        var context = ShopContext.ForModpackBrowsing(
+            request => Main.InstallServerAsync(request));
+        new ShopWindow(context).Activate();
+    }
+
+    /// <summary>Imports a local modpack file (CurseForge client pack zip or
+    /// Modrinth .mrpack) as a brand-new server, prompting for a name and
+    /// memory, then streaming install progress through the global
+    /// flow.</summary>
+    private async void OnImportModpackClick(object sender, RoutedEventArgs e) {
+        var picker = new FileOpenPicker {
+            SuggestedStartLocation = PickerLocationId.Downloads,
+        };
+        picker.FileTypeFilter.Add(".zip");
+        picker.FileTypeFilter.Add(".mrpack");
+        var hwnd =
+            WinRT.Interop.WindowNative.GetWindowHandle(App.Current.MainWindow);
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+        var file = await picker.PickSingleFileAsync();
+        if (file is null)
+            return;
+
+        var defaultName = Path.GetFileNameWithoutExtension(file.Name);
+        var dialog      = new ImportModpackContentDialog(defaultName) {
+            XamlRoot = XamlRoot,
+        };
+        if (await dialog.ShowAsync() != ContentDialogResult.Primary)
+            return;
+
+        await Main.ImportModpackAsync(dialog.ServerName, file.Path,
+                                      dialog.MemoryMb);
     }
 
     private void OnMachineNoticeClosed(InfoBar sender, object args) =>

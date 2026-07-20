@@ -144,13 +144,33 @@ both sides, then implement the Go `*Service` and call it from a C# ViewModel.
   `export.go`), and **mod-metadata parsers** (`ParserSet`, `LuaParser`,
   `builtin_parsers/*.lua` — fabric/quilt/forge/neoforge/forge-legacy/bukkit; they
   enrich `ModService.List` with icon/name/authors/version, cached per jar), and
-  **mod shops** (`ShopSet`, `LuaShop`, `builtin_shops/*.lua` — modrinth,
-  curseforge; the home/search/detail/versions/resolve_file contract behind
-  `ShopService` and the app's Mod Shop window. Shop HTTP goes through
-  `internal/httpcache` via `jhmc.http_cache` (disk ETag cache); keyed sources
-  declare `needs_key` and read `ctx.config.api_key`, resolved from settings
-  `shop_keys` then the `-X main.defaultCurseForgeKey` build default —
-  `build.ps1` injects env `JHMC_CURSEFORGE_API_KEY`).
+  **mod shops** (`ShopSet`, `LuaShop`; the home/search/detail/versions/resolve_file
+  contract behind `ShopService` and the app's Mod Shop window). The first-party
+  shops now ship as **multi-role source scripts** in `builtin_sources/*.lua`
+  (modrinth, curseforge, ftb): one file declaring a `shop` role table and a hidden
+  `provider` role table under one `meta.id`, loaded by `LoadBuiltinSources` into
+  both `ShopSet` and `Registry` and sharing one `shop-config.json` entry. Role
+  tables are optional/back-compat — legacy top-level-function scripts still work;
+  role-scoped `kinds`/`needs_key` (shop) and `hidden`/`mod_layout` (provider)
+  override the `meta`-level fields. `meta.aliases` redirects an old id (e.g.
+  `curseforge_modpacks`) to the canonical entry in both registries so existing
+  modpack servers keep resolving. Shop HTTP goes through `internal/httpcache` via
+  `jhmc.http_cache` (disk ETag cache); keyed sources declare `needs_key` and read
+  `ctx.config.api_key` — a stored config key wins, with the
+  `-X main.defaultCurseForgeKeyCipher` + `-X main.defaultCurseForgeKeyPad` build
+  default as fallback. The key + pad injection now applies to **every build path**
+  — `build.ps1` AND the dotnet/VS/MSIX build (via `app/Engine.targets`'
+  `BuildEngine` target, which is what Store/MSIX packaging uses, not `build.ps1`).
+  Both paths get the ldflags fragment from the single source of truth
+  `keycipher.ps1` at the repo root, which XOR-obfuscates + hex-encodes env
+  `JHMC_CURSEFORGE_API_KEY` and emits BOTH the cipher and the pad as `-X` flags
+  (`build.ps1` dot-sources it; `Engine.targets` executes it and folds the fragment
+  into the default `-ldflags`). The pad is generated fresh per keyed build — set
+  `JHMC_KEY_CIPHER_PAD` (hex, ≥32 bytes) for a reproducible build, otherwise each
+  keyed binary is unique. Neither pad nor cipher is committed.
+  `engine/cmd/engine/keycipher.go` decodes it at startup; a one-time startup
+  migration folds any legacy `settings.json` `shop_keys["curseforge"]` into the
+  shared shop config.
   `GrantStore` (`grants.go`) persists per-script permission decisions
   (`grants.json`, `script-grants.json`, `parser-grants.json`, `shop-grants.json`).
   `ProviderService`/`ScriptService`/`ParserService`/`ShopService` are wired in

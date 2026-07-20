@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 	"sync/atomic"
 	"testing"
 
@@ -40,8 +41,11 @@ func newBuiltinShops(t *testing.T, handler http.Handler) *ShopSet {
 		}
 		return ""
 	})
-	if err := LoadBuiltinShops(context.Background(), ss); err != nil {
-		t.Fatalf("LoadBuiltinShops: %v", err)
+	// The shops now live in dual-role source scripts, registered alongside a
+	// (here unused) provider registry.
+	reg := NewRegistry(host, nil)
+	if _, err := LoadBuiltinSources(context.Background(), reg, ss, nil); err != nil {
+		t.Fatalf("LoadBuiltinSources: %v", err)
 	}
 	return ss
 }
@@ -351,5 +355,143 @@ func TestCurseForgeVersionsMapsFiles(t *testing.T) {
 	}
 	if len(v.Dependencies) != 1 || v.Dependencies[0].Title != "Dep Mod" || !v.Dependencies[0].Required {
 		t.Fatalf("deps: %+v", v.Dependencies)
+	}
+}
+
+// ftbHandler fakes the FTB v1 API: browse endpoints return pack-id lists that
+// the shop hydrates from /modpack/{id}.
+func ftbHandler() http.Handler {
+	pack := func(id int, name string) map[string]any {
+		return map[string]any{
+			"id": id, "name": name, "synopsis": "a pack",
+			"description": "# " + name, "installs": 1000 + id,
+			"art": []map[string]any{
+				{"type": "splash", "url": "http://ftb/splash.png"},
+				{"type": "square", "url": "http://ftb/square.png"},
+			},
+			"authors": []map[string]any{{"name": "FTB Team"}},
+			"versions": []map[string]any{
+				{"id": 10, "name": "1.0.0", "type": "Release"},
+				{"id": 11, "name": "1.1.0", "type": "Beta"},
+			},
+		}
+	}
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		p := r.URL.Path
+		switch {
+		case strings.HasSuffix(p, "/modpack/featured/20"):
+			_ = json.NewEncoder(w).Encode(map[string]any{"packs": []int{101}, "total": 1})
+		case strings.HasSuffix(p, "/modpack/popular/installs/20"):
+			_ = json.NewEncoder(w).Encode(map[string]any{"packs": []int{202}, "total": 1})
+		case strings.Contains(p, "/modpack/search/"):
+			_ = json.NewEncoder(w).Encode(map[string]any{"packs": []int{303}, "total": 1})
+		case strings.HasSuffix(p, "/modpack/101"):
+			_ = json.NewEncoder(w).Encode(pack(101, "Featured Pack"))
+		case strings.HasSuffix(p, "/modpack/202"):
+			_ = json.NewEncoder(w).Encode(pack(202, "Popular Pack"))
+		case strings.HasSuffix(p, "/modpack/303"):
+			_ = json.NewEncoder(w).Encode(pack(303, "Search Pack"))
+		default:
+			http.NotFound(w, r)
+		}
+	})
+}
+
+func TestFTBShopMeta(t *testing.T) {
+	ss := newBuiltinShops(t, http.NotFoundHandler())
+	sh, ok := ss.Get("ftb")
+	if !ok {
+		t.Fatal("ftb shop not registered")
+	}
+	m := sh.Meta()
+	if m.NeedsKey || len(m.Kinds) != 1 || m.Kinds[0] != "modpack" {
+		t.Fatalf("ftb meta: needsKey=%v kinds=%v", m.NeedsKey, m.Kinds)
+	}
+	if !sh.Ready() {
+		t.Fatal("ftb should be ready (no key needed)")
+	}
+}
+
+func TestFTBHomeHydratesSections(t *testing.T) {
+	ss := newBuiltinShops(t, ftbHandler())
+	sh, _ := ss.Get("ftb")
+	sections, err := sh.Home(context.Background(), ShopQuery{Kind: "modpack"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(sections) != 2 {
+		t.Fatalf("sections = %d, want 2", len(sections))
+	}
+	f := sections[0]
+	if f.TitleKey != "shop.home.featured" || len(f.Projects) != 1 {
+		t.Fatalf("featured section: %+v", f)
+	}
+	c := f.Projects[0]
+	if c.ID != "101" || c.Title != "Featured Pack" || c.ProjectType != "modpack" ||
+		c.IconURL != "http://ftb/square.png" || c.Author != "FTB Team" {
+		t.Fatalf("featured card: %+v", c)
+	}
+	if sections[1].TitleKey != "shop.home.popular" || sections[1].Projects[0].ID != "202" {
+		t.Fatalf("popular section: %+v", sections[1])
+	}
+}
+
+func TestFTBSearchHydrates(t *testing.T) {
+	ss := newBuiltinShops(t, ftbHandler())
+	sh, _ := ss.Get("ftb")
+	page, err := sh.Search(context.Background(), ShopQuery{Query: "pack", Kind: "modpack", Limit: 20})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if page.Total != 1 || len(page.Projects) != 1 || page.Projects[0].ID != "303" {
+		t.Fatalf("page: total=%d projects=%+v", page.Total, page.Projects)
+	}
+}
+
+func TestFTBSearchOffsetStopsPagination(t *testing.T) {
+	ss := newBuiltinShops(t, ftbHandler())
+	sh, _ := ss.Get("ftb")
+	page, err := sh.Search(context.Background(), ShopQuery{Query: "pack", Offset: 20, Limit: 20})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(page.Projects) != 0 {
+		t.Fatalf("offset page should be empty, got %+v", page.Projects)
+	}
+}
+
+func TestFTBDetailAndVersions(t *testing.T) {
+	ss := newBuiltinShops(t, ftbHandler())
+	sh, _ := ss.Get("ftb")
+
+	d, err := sh.Detail(context.Background(), "101")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if d.Project.Title != "Featured Pack" || d.BodyFormat != "markdown" || d.Body != "# Featured Pack" {
+		t.Fatalf("detail: %+v", d)
+	}
+
+	vs, err := sh.Versions(context.Background(), "101", "", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(vs) != 2 {
+		t.Fatalf("versions = %d, want 2", len(vs))
+	}
+	// Newest-first: Beta 1.1.0 (id 11) before Release 1.0.0 (id 10).
+	if vs[0].ID != "11" || vs[0].VersionNumber != "1.1.0" || vs[0].Channel != "beta" {
+		t.Fatalf("v0: %+v", vs[0])
+	}
+	if vs[1].ID != "10" || vs[1].Channel != "release" {
+		t.Fatalf("v1: %+v", vs[1])
+	}
+}
+
+func TestFTBNotDistributable(t *testing.T) {
+	ss := newBuiltinShops(t, ftbHandler())
+	sh, _ := ss.Get("ftb")
+	if _, err := sh.ResolveFile(context.Background(), "101", "11", "", ""); !errors.Is(err, ErrShopNotDistributable) {
+		t.Fatalf("want ErrShopNotDistributable, got %v", err)
 	}
 }

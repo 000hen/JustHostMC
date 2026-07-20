@@ -137,6 +137,8 @@ public sealed partial class BackupsViewModel : ObservableObject {
 
     [RelayCommand]
     private async Task CreateBackup() {
+        using var backgroundTask =
+            App.Current.BackgroundTasks.Begin("backup-create");
         RunOnUI(() => {
             IsBusy = true;
             SetStatus(BackupStatus.Creating);
@@ -160,6 +162,8 @@ public sealed partial class BackupsViewModel : ObservableObject {
     private async Task Restore(BackupItem? item) {
         if (item is null)
             return;
+        using var backgroundTask =
+            App.Current.BackgroundTasks.Begin("backup-restore");
         RunOnUI(() => {
             IsBusy = true;
             SetStatus(BackupStatus.Restoring);
@@ -182,6 +186,8 @@ public sealed partial class BackupsViewModel : ObservableObject {
     private async Task Delete(BackupItem? item) {
         if (item is null)
             return;
+        using var backgroundTask =
+            App.Current.BackgroundTasks.Begin("backup-delete");
         RunOnUI(() => {
             IsBusy = true;
             SetStatus(BackupStatus.Deleting);

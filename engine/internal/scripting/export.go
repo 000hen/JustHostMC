@@ -29,6 +29,9 @@ type InvocationConfig struct {
 	ScriptID string
 	// BaseDir confines jhmc.fs; empty disables filesystem access.
 	BaseDir string
+	// Config supplies the script's typed config values (surfaced as jhmc.config);
+	// nil when the script declares no config or none is stored.
+	Config map[string]string
 }
 
 // NewInvocation builds an invocation from cfg.
@@ -44,6 +47,7 @@ func NewInvocation(cfg InvocationConfig) *Invocation {
 		kv:       cfg.KV,
 		scriptID: cfg.ScriptID,
 		baseDir:  cfg.BaseDir,
+		config:   cfg.Config,
 	}}
 }
 

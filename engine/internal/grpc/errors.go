@@ -33,6 +33,10 @@ func mapInstallError(err error) error {
 		return status.FromContextError(context.Canceled).Err()
 	case errors.Is(err, provider.ErrVersionNotFound):
 		return errorStatus(codes.NotFound, mcmanagerv1.ErrorCode_VERSION_NOT_FOUND, err.Error(), nil)
+	case errors.Is(err, provider.ErrUpdateUnsupported):
+		// A provider whose script has no update() (e.g. imported packs) — surface
+		// it as Unimplemented, matching the non-Updater path in UpdateModpack.
+		return errorStatus(codes.Unimplemented, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, err.Error(), nil)
 	case errors.Is(err, jre.ErrJREUnavailable):
 		return errorStatus(codes.Unavailable, mcmanagerv1.ErrorCode_JRE_DOWNLOAD_FAILED, err.Error(), nil)
 	case errors.Is(err, provider.ErrChecksumMismatch):

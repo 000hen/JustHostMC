@@ -51,7 +51,8 @@ func TestSQLitePersistsAcrossReopen(t *testing.T) {
 		t.Fatal(err)
 	}
 	_ = s1.Put(&Server{ID: "x", Name: "Persisted", ProviderID: "forge", ModLayout: "mods",
-		McVersion: "1.20.1", MemoryMB: 4096, Port: 25570, Status: mcmanagerv1.ServerStatus_RUNNING,
+		McVersion: "1.20.1", ProviderVersion: "95/12695", MemoryMB: 4096, Port: 25570,
+		Status:    mcmanagerv1.ServerStatus_RUNNING,
 		JavaMajor: 17, LaunchArgs: []string{"-jar", "forge.jar"}})
 	s1.Close()
 
@@ -66,7 +67,8 @@ func TestSQLitePersistsAcrossReopen(t *testing.T) {
 		t.Fatal("server not found after reopen")
 	}
 	if got.Name != "Persisted" || got.JavaMajor != 17 || got.MemoryMB != 4096 ||
-		got.ProviderID != "forge" || len(got.LaunchArgs) != 2 {
+		got.ProviderID != "forge" || len(got.LaunchArgs) != 2 ||
+		got.ProviderVersion != "95/12695" {
 		t.Errorf("reopened server = %+v", got)
 	}
 }

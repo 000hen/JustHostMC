@@ -71,6 +71,7 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="models:ScriptEntryItem">
                         <controls:ScriptEntryCard
+                            ConfigureClick="OnScriptConfigured"
                             EnabledToggled="OnScriptToggled"
                             Item="{x:Bind}"
                             RemoveClick="OnScriptRemoved" />

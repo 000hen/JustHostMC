@@ -24,13 +24,15 @@ func newTestScriptService(t *testing.T) (*ScriptService, *automation.Manager, st
 	t.Helper()
 	dir := t.TempDir()
 	grants := scripting.NewGrantStore(filepath.Join(dir, "grants.json"))
+	config := scripting.NewConfigStore(filepath.Join(dir, "script-config.json"))
 	mgr := automation.NewManager(automation.ManagerConfig{
 		Host:   scripting.NewHost(nil, nil, nil),
 		Grants: grants,
 		Logs:   scriptlog.NewLogBuffer(0),
+		Config: config,
 	})
 	enabled := scripting.NewEnabledStore(filepath.Join(dir, "enabled.json"))
-	return NewScriptService(mgr, grants, enabled, dir), mgr, dir
+	return NewScriptService(mgr, grants, enabled, config, dir), mgr, dir
 }
 
 const validScript = `

@@ -30,6 +30,8 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
     private readonly ILocalizer _localizer;
     private readonly DispatcherQueue _dispatcher;
     private readonly BackgroundTaskService _backgroundTasks;
+    private readonly TaskCompletionSource _initialServerSync =
+        new(TaskCreationOptions.RunContinuationsAsynchronously);
     private readonly PendingServerUpdates _pendingUpdates    = new();
     private readonly ServerChangeSynchronizer _serverChanges = new();
     private readonly ServerListState _serverState            = new();
@@ -115,6 +117,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
     /// <summary>Waits for the engine, probes Health, and starts the server
     /// change stream.</summary>
     public async Task ConnectAsync() {
+        using var backgroundTask = _backgroundTasks.Begin("server-sync");
         RunOnUI(() => EngineConnectionState =
                     EngineConnectionStatus.Connecting);
         try {
@@ -131,6 +134,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
                 TaskContinuationOptions.OnlyOnFaulted);
             _serverChangesSession ??= CreateServerChangeSession(daemon);
             await _serverChangesSession.StartAsync();
+            await _initialServerSync.Task;
         } catch (Exception) {
             RunOnUI(() => EngineConnectionState =
                         EngineConnectionStatus.Failed);
@@ -185,9 +189,31 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
 
     /// <summary>Creates a server, streaming localized install progress + raw
     /// log.</summary>
-    public async Task InstallServerAsync(CreateServerRequest request) {
+    public Task InstallServerAsync(CreateServerRequest request) =>
+        RunNewServerInstallAsync(request.Name,
+                                 daemon => daemon.Servers.Create(request));
+
+    /// <summary>Imports a local modpack file (CurseForge zip or Modrinth
+    /// .mrpack) as a brand-new server, streaming the same install progress as a
+    /// shop install.</summary>
+    public Task ImportModpackAsync(string name, string srcPath, int memoryMb) =>
+        RunNewServerInstallAsync(name, daemon => daemon.Servers.ImportModpack(
+                                           new ImportModpackRequest {
+                                               Name     = name,
+                                               SrcPath  = srcPath,
+                                               MemoryMb = memoryMb,
+                                           }));
+
+    /// <summary>Shared flow behind creating and importing a brand-new server:
+    /// drives both the global install UI and the server's progress tracker off
+    /// one InstallProgress stream, so the operation survives window/page
+    /// changes.</summary>
+    private async Task RunNewServerInstallAsync(
+        string name,
+        Func<DaemonClient, AsyncServerStreamingCall<InstallProgress>>
+            startCall) {
         using var backgroundTask = _backgroundTasks.Begin("server-install");
-        var tracker = ProgressService.GetOrCreateTracker(null, request.Name);
+        var tracker = ProgressService.GetOrCreateTracker(null, name);
         RunOnUI(() => {
             tracker.InstallLog.Clear();
             tracker.HasFailed        = false;
@@ -212,7 +238,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
 
         try {
             var daemon     = await App.Current.DaemonReady;
-            using var call = daemon.Servers.Create(request);
+            using var call = startCall(daemon);
             await foreach (var progress in call.ResponseStream.ReadAllAsync()
                                .ConfigureAwait(false)) {
                 progressBuffer.Post(progress);
@@ -245,7 +271,106 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
         }
     }
 
+    /// <summary>Moves a modpack server to another pack version, streaming
+    /// progress into the server's global tracker so the operation survives
+    /// window/page changes.</summary>
+    public async Task UpdateModpackAsync(ServerItem server, string version) {
+        using var backgroundTask = _backgroundTasks.Begin("modpack-update");
+        var tracker =
+            ProgressService.GetOrCreateTracker(server.Id, server.Name);
+        RunOnUI(() => {
+            tracker.InstallLog.Clear();
+            tracker.HasFailed        = false;
+            tracker.IsInstalling     = true;
+            tracker.IsActive         = true;
+            tracker.IsReadyToRun     = false;
+            tracker.IsIndeterminate  = true;
+            tracker.ProgressFraction = 0;
+            tracker.CurrentStep = _localizer.Get("install.progress.preparing");
+        });
+        try {
+            var daemon     = await App.Current.DaemonReady;
+            using var call = daemon.Servers.UpdateModpack(
+                new UpdateModpackRequest { Id = server.Id, Version = version });
+            await foreach (var progress in call.ResponseStream.ReadAllAsync()
+                               .ConfigureAwait(false)) {
+                var snapshot = progress;
+                RunOnUI(() => ApplyTrackerProgress(tracker, snapshot));
+            }
+            await Refresh();
+            RunOnUI(() => {
+                tracker.IsInstalling = false;
+                tracker.IsActive     = false;
+                tracker.CurrentStep  = _localizer.Get("install.progress.done");
+            });
+        } catch (RpcException ex) {
+            FailTracker(tracker, ex);
+        }
+    }
+
+    /// <summary>Exports a modpack server as a CurseForge client pack zip,
+    /// streaming progress into the server's global tracker.</summary>
+    public async Task ExportModpackAsync(ServerItem server, string destPath) {
+        using var backgroundTask = _backgroundTasks.Begin("modpack-export");
+        var tracker =
+            ProgressService.GetOrCreateTracker(server.Id, server.Name);
+        RunOnUI(() => {
+            tracker.InstallLog.Clear();
+            tracker.HasFailed        = false;
+            tracker.IsInstalling     = true;
+            tracker.IsActive         = true;
+            tracker.IsReadyToRun     = false;
+            tracker.IsIndeterminate  = true;
+            tracker.ProgressFraction = 0;
+            tracker.CurrentStep      = _localizer.Get("shop.export.preparing");
+        });
+        try {
+            var daemon     = await App.Current.DaemonReady;
+            using var call = daemon.Servers.ExportModpack(
+                new ExportModpackRequest { Id       = server.Id,
+                                           DestPath = destPath });
+            await foreach (var progress in call.ResponseStream.ReadAllAsync()
+                               .ConfigureAwait(false)) {
+                var snapshot = progress;
+                RunOnUI(() => ApplyTrackerProgress(tracker, snapshot));
+            }
+            RunOnUI(() => {
+                tracker.IsInstalling = false;
+                tracker.IsActive     = false;
+                tracker.CurrentStep  = _localizer.Get("shop.export.done");
+            });
+        } catch (RpcException ex) {
+            FailTracker(tracker, ex);
+        }
+    }
+
+    private void ApplyTrackerProgress(ServerProgressTracker tracker,
+                                      InstallProgress snapshot) {
+        if (snapshot.Step is { Key.Length : > 0 } step)
+            tracker.CurrentStep = _localizer.Get(step.Key);
+        if (snapshot.Fraction >= 0) {
+            tracker.IsIndeterminate  = false;
+            tracker.ProgressFraction = snapshot.Fraction;
+        } else {
+            tracker.IsIndeterminate = true;
+        }
+        if (!string.IsNullOrEmpty(snapshot.LogLine))
+            tracker.AppendLogs([snapshot.LogLine]);
+    }
+
+    private void FailTracker(ServerProgressTracker tracker, RpcException ex) {
+        var key = MapErrorKey(ex);
+        RunOnUI(() => {
+            tracker.HasFailed       = true;
+            tracker.IsInstalling    = false;
+            tracker.IsIndeterminate = false;
+            tracker.IsActive        = false;
+            tracker.CurrentStep     = _localizer.Get(key);
+        });
+    }
+
     public async Task<bool> UpdateServerAsync(UpdateServerRequest request) {
+        using var backgroundTask = _backgroundTasks.Begin("server-update");
         var item       = Servers.FirstOrDefault(s => s.Id == request.Id);
         var rollback   = item is null ? null : BuildUpdateRequest(item);
         var optimistic = request.Clone();
@@ -358,6 +483,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
     private async Task DeleteServer(ServerItem? item) {
         if (item is null)
             return;
+        using var backgroundTask = _backgroundTasks.Begin("server-delete");
         try {
             var daemon = await App.Current.DaemonReady;
             await daemon.Servers.DeleteAsync(
@@ -399,7 +525,8 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
         System.Collections.Generic.IEnumerable<Server> incoming) {
         var list = incoming.ToList();
         _serverState.Reconcile(list);
-        _backgroundTasks.SynchronizeServers(list);
+        SynchronizeBackgroundTasks();
+        _initialServerSync.TrySetResult();
 
         foreach (var proto in list) UpsertServer(proto);
 
@@ -415,6 +542,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
 
     private void ApplyServerChange(ServerChangeEvent change) {
         _serverState.Apply(change);
+        SynchronizeBackgroundTasks();
         switch (change.ChangeCase) {
             case ServerChangeEvent.ChangeOneofCase.Upsert:
                 UpsertServer(change.Upsert);
@@ -427,6 +555,9 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
         }
         OnServerStatsChanged();
     }
+
+    private void SynchronizeBackgroundTasks() =>
+        _backgroundTasks.SynchronizeServers(_serverState.Servers);
 
     private void UpsertServer(Server proto) {
         var tracker = ProgressService.GetOrCreateTracker(proto.Id, proto.Name);
@@ -519,6 +650,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable {
             change  => RunOnUI(() => ApplyServerChange(change)));
 
     public async ValueTask DisposeAsync() {
+        _initialServerSync.TrySetCanceled();
         if (_serverChangesSession is not null)
             await _serverChangesSession.DisposeAsync();
     }

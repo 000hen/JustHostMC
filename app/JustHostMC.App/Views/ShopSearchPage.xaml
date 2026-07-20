@@ -269,12 +269,12 @@
                         Click="OnVersionFilterChanged"
                         Content="{x:Bind ViewModel.VersionFilterLabel, Mode=OneWay}"
                         IsChecked="{x:Bind ViewModel.UseVersionFilter, Mode=TwoWay}"
-                        Visibility="{x:Bind ViewModel.HasVersionFilter}" />
+                        Visibility="{x:Bind ViewModel.ShowVersionFilter, Mode=OneWay}" />
                     <CheckBox
                         Click="OnLoaderFilterChanged"
                         Content="{x:Bind ViewModel.LoaderFilterLabel, Mode=OneWay}"
                         IsChecked="{x:Bind ViewModel.UseLoaderFilter, Mode=TwoWay}"
-                        Visibility="{x:Bind ViewModel.HasLoaderFilter}" />
+                        Visibility="{x:Bind ViewModel.ShowLoaderFilter, Mode=OneWay}" />
                     <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.HasCategoryFilters, Mode=OneWay, Converter={StaticResource BoolToVis}}">
                         <Rectangle Height="1" Fill="{ThemeResource DividerStrokeColorDefaultBrush}" />
                         <TextBlock x:Uid="ShopCategoriesHeading" Style="{StaticResource BodyStrongTextBlockStyle}" />
@@ -363,12 +363,12 @@
                         Click="OnVersionFilterChanged"
                         Content="{x:Bind ViewModel.VersionFilterLabel, Mode=OneWay}"
                         IsChecked="{x:Bind ViewModel.UseVersionFilter, Mode=TwoWay}"
-                        Visibility="{x:Bind ViewModel.HasVersionFilter}" />
+                        Visibility="{x:Bind ViewModel.ShowVersionFilter, Mode=OneWay}" />
                     <CheckBox
                         Click="OnLoaderFilterChanged"
                         Content="{x:Bind ViewModel.LoaderFilterLabel, Mode=OneWay}"
                         IsChecked="{x:Bind ViewModel.UseLoaderFilter, Mode=TwoWay}"
-                        Visibility="{x:Bind ViewModel.HasLoaderFilter}" />
+                        Visibility="{x:Bind ViewModel.ShowLoaderFilter, Mode=OneWay}" />
 
                     <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.HasCategoryFilters, Mode=OneWay, Converter={StaticResource BoolToVis}}">
                         <Rectangle Height="1" Fill="{ThemeResource DividerStrokeColorDefaultBrush}" />

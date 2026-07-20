@@ -2,6 +2,7 @@ package scripting
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	mcmanagerv1 "github.com/000hen/justhostmc/engine/gen/mcmanager/v1"
@@ -13,6 +14,26 @@ import (
 type Permission struct {
 	Kind   mcmanagerv1.PermissionKind
 	Reason string
+}
+
+// ConfigOption is one author-declared typed config field (a meta.config entry).
+// The same shape backs every scriptable subsystem (providers, automation
+// scripts, parsers and shops).
+type ConfigOption struct {
+	Key         string
+	Type        mcmanagerv1.ConfigOptionType
+	Name        string
+	Description string
+	Default     string // string-encoded; validated to parse for number/boolean
+	Required    bool
+}
+
+// configTypeByName maps a lowercase meta.config `type` string to its enum.
+var configTypeByName = map[string]mcmanagerv1.ConfigOptionType{
+	"string":  mcmanagerv1.ConfigOptionType_CONFIG_OPTION_STRING,
+	"number":  mcmanagerv1.ConfigOptionType_CONFIG_OPTION_NUMBER,
+	"boolean": mcmanagerv1.ConfigOptionType_CONFIG_OPTION_BOOLEAN,
+	"secret":  mcmanagerv1.ConfigOptionType_CONFIG_OPTION_SECRET,
 }
 
 // Meta is the author-declared header every provider/automation script carries.
@@ -33,6 +54,20 @@ type Meta struct {
 	// NeedsKey marks a shop script whose source requires an API key
 	// (shops only); the shop is not Ready until one is configured.
 	NeedsKey bool
+	// Kinds lists the item kinds a shop serves ("mod"/"plugin"/"modpack");
+	// shops only. Empty means the default {"mod","plugin"} (applied by the
+	// shop service, not here, so parseMeta stays subsystem-agnostic).
+	Kinds []string
+	// Hidden marks a provider not offered in the create-server UI — its install
+	// is driven elsewhere (e.g. a modpack shop); providers only.
+	Hidden bool
+	// Config lists the author-declared typed config options (all subsystems).
+	Config []ConfigOption
+	// Aliases lists prior ids this script also answers to, so servers persisted
+	// under an old id (e.g. "curseforge_modpacks") resolve to this canonical
+	// entry after a merge. Registry/ShopSet redirect an alias id to this id and
+	// never list an alias as a separate entry.
+	Aliases []string
 }
 
 // DeclaredKinds returns just the permission kinds the script declares.
@@ -74,6 +109,47 @@ func parseMeta(L *lua.LState) (Meta, error) {
 		m.NeedsKey = bool(b)
 	}
 
+	if b, ok := tbl.RawGetString("hidden").(lua.LBool); ok {
+		m.Hidden = bool(b)
+	}
+
+	if kinds, ok := tbl.RawGetString("kinds").(*lua.LTable); ok {
+		ks, kerr := parseKinds(kinds)
+		if kerr != nil {
+			return Meta{}, kerr
+		}
+		m.Kinds = ks
+	}
+
+	if aliases, ok := tbl.RawGetString("aliases").(*lua.LTable); ok {
+		seen := map[string]bool{m.ID: true}
+		var aerr error
+		aliases.ForEach(func(_, av lua.LValue) {
+			if aerr != nil {
+				return
+			}
+			s, ok := av.(lua.LString)
+			if !ok {
+				aerr = fmt.Errorf("meta.aliases entries must be strings")
+				return
+			}
+			alias := strings.TrimSpace(string(s))
+			if !validProviderID(alias) {
+				aerr = fmt.Errorf("meta.aliases has invalid id %q", alias)
+				return
+			}
+			if seen[alias] {
+				aerr = fmt.Errorf("meta.aliases has duplicate id %q", alias)
+				return
+			}
+			seen[alias] = true
+			m.Aliases = append(m.Aliases, alias)
+		})
+		if aerr != nil {
+			return Meta{}, aerr
+		}
+	}
+
 	if formats, ok := tbl.RawGetString("formats").(*lua.LTable); ok {
 		formats.ForEach(func(_, fv lua.LValue) {
 			if s, ok := fv.(lua.LString); ok && strings.TrimSpace(string(s)) != "" {
@@ -106,7 +182,160 @@ func parseMeta(L *lua.LState) (Meta, error) {
 		}
 	}
 
+	if cfg, ok := tbl.RawGetString("config").(*lua.LTable); ok {
+		var cerr error
+		seen := map[string]bool{}
+		cfg.ForEach(func(_, cv lua.LValue) {
+			if cerr != nil {
+				return
+			}
+			ctbl, ok := cv.(*lua.LTable)
+			if !ok {
+				cerr = fmt.Errorf("meta.config entries must be tables")
+				return
+			}
+			key := strField(ctbl, "key")
+			if key == "" {
+				cerr = fmt.Errorf("meta.config entry is missing a key")
+				return
+			}
+			if !validProviderID(key) {
+				cerr = fmt.Errorf("meta.config key %q must contain only letters, digits, '-' or '_'", key)
+				return
+			}
+			if seen[key] {
+				cerr = fmt.Errorf("meta.config key %q is declared more than once", key)
+				return
+			}
+			seen[key] = true
+			typeName := strings.ToLower(strField(ctbl, "type"))
+			if typeName == "" {
+				typeName = "string"
+			}
+			ct, ok := configTypeByName[typeName]
+			if !ok {
+				cerr = fmt.Errorf("meta.config key %q has unknown type %q", key, typeName)
+				return
+			}
+			def := strField(ctbl, "default")
+			if err := validateConfigDefault(ct, def); err != nil {
+				cerr = fmt.Errorf("meta.config key %q: %w", key, err)
+				return
+			}
+			var required bool
+			if b, ok := ctbl.RawGetString("required").(lua.LBool); ok {
+				required = bool(b)
+			}
+			m.Config = append(m.Config, ConfigOption{
+				Key:         key,
+				Type:        ct,
+				Name:        strField(ctbl, "name"),
+				Description: strField(ctbl, "description"),
+				Default:     def,
+				Required:    required,
+			})
+		})
+		if cerr != nil {
+			return Meta{}, cerr
+		}
+	}
+
 	return m, nil
+}
+
+// parseKinds reads a Lua array of shop-kind strings, validating each.
+func parseKinds(kinds *lua.LTable) ([]string, error) {
+	var out []string
+	var kerr error
+	kinds.ForEach(func(_, kv lua.LValue) {
+		if kerr != nil {
+			return
+		}
+		s, ok := kv.(lua.LString)
+		if !ok {
+			kerr = fmt.Errorf("kinds entries must be strings")
+			return
+		}
+		kind := strings.ToLower(strings.TrimSpace(string(s)))
+		if !validShopKind(kind) {
+			kerr = fmt.Errorf("kinds has unknown kind %q", kind)
+			return
+		}
+		out = append(out, kind)
+	})
+	return out, kerr
+}
+
+// roleTable returns the global role sub-table (`shop` or `provider`) a script
+// declares, or nil when it uses the legacy top-level-function layout.
+func roleTable(L *lua.LState, role string) *lua.LTable {
+	if tbl, ok := L.GetGlobal(role).(*lua.LTable); ok {
+		return tbl
+	}
+	return nil
+}
+
+// parseShopMeta parses the shared meta and layers on the shop role's scoped
+// fields (kinds, needs_key) when a global `shop` table is present. A legacy
+// script (no `shop` table) keeps reading those fields from meta.
+func parseShopMeta(L *lua.LState) (Meta, error) {
+	m, err := parseMeta(L)
+	if err != nil {
+		return Meta{}, err
+	}
+	if tbl := roleTable(L, "shop"); tbl != nil {
+		if b, ok := tbl.RawGetString("needs_key").(lua.LBool); ok {
+			m.NeedsKey = bool(b)
+		}
+		if kinds, ok := tbl.RawGetString("kinds").(*lua.LTable); ok {
+			ks, kerr := parseKinds(kinds)
+			if kerr != nil {
+				return Meta{}, fmt.Errorf("shop.%w", kerr)
+			}
+			m.Kinds = ks
+		}
+	}
+	return m, nil
+}
+
+// parseProviderMeta parses the shared meta and layers on the provider role's
+// scoped fields (hidden, mod_layout) when a global `provider` table is present.
+// A legacy script (no `provider` table) keeps reading those fields from meta.
+func parseProviderMeta(L *lua.LState) (Meta, error) {
+	m, err := parseMeta(L)
+	if err != nil {
+		return Meta{}, err
+	}
+	if tbl := roleTable(L, "provider"); tbl != nil {
+		if b, ok := tbl.RawGetString("hidden").(lua.LBool); ok {
+			m.Hidden = bool(b)
+		}
+		if s, ok := tbl.RawGetString("mod_layout").(lua.LString); ok {
+			if v := strings.ToLower(strings.TrimSpace(string(s))); v != "" {
+				m.ModLayout = v
+			}
+		}
+	}
+	return m, nil
+}
+
+// validateConfigDefault checks that a declared default parses for the typed
+// options (number/boolean); string/secret accept any default.
+func validateConfigDefault(t mcmanagerv1.ConfigOptionType, def string) error {
+	if def == "" {
+		return nil
+	}
+	switch t {
+	case mcmanagerv1.ConfigOptionType_CONFIG_OPTION_NUMBER:
+		if _, err := strconv.ParseFloat(def, 64); err != nil {
+			return fmt.Errorf("default %q is not a number", def)
+		}
+	case mcmanagerv1.ConfigOptionType_CONFIG_OPTION_BOOLEAN:
+		if _, err := strconv.ParseBool(def); err != nil {
+			return fmt.Errorf("default %q is not a boolean", def)
+		}
+	}
+	return nil
 }
 
 // validProviderID reports whether id is a safe path component (letters, digits,
@@ -120,6 +349,15 @@ func validProviderID(id string) bool {
 		}
 	}
 	return id != ""
+}
+
+// validShopKind reports whether k is a recognized shop item kind.
+func validShopKind(k string) bool {
+	switch k {
+	case "mod", "plugin", "modpack":
+		return true
+	}
+	return false
 }
 
 // strField reads a string field from a Lua table, returning "" if absent.

@@ -109,6 +109,27 @@ public sealed partial class ScriptsPage : Page {
         await ViewModel.ImportParserAsync(source, granted);
     }
 
+    private async void OnImportShopClick(object sender, RoutedEventArgs e) {
+        var lua = await PickLuaFileAsync();
+        if (lua is null)
+            return;
+
+        string source;
+        try {
+            source = await FileIO.ReadTextAsync(lua);
+        } catch (Exception ex)
+            when (ex is IOException or UnauthorizedAccessException) {
+            ViewModel.SetStatus(ReadFailedText.Text);
+            return;
+        }
+
+        var granted = await RequestConsentAsync(lua.Name, source);
+        if (granted is null)
+            return;
+
+        await ViewModel.ImportShopAsync(source, granted);
+    }
+
     private void OnShowProvidersFolderClick(object sender, RoutedEventArgs e) =>
         ShowInFolder("providers");
 
@@ -117,6 +138,9 @@ public sealed partial class ScriptsPage : Page {
 
     private void OnShowAutomationFolderClick(
         object sender, RoutedEventArgs e) => ShowInFolder("scripts");
+
+    private void OnShowShopsFolderClick(object sender, RoutedEventArgs e) =>
+        ShowInFolder("shops");
 
     private void OnShowAllLogsClick(object sender, RoutedEventArgs e) {
         if (_logsWindow is null) {
@@ -180,6 +204,26 @@ public sealed partial class ScriptsPage : Page {
             await ViewModel.RemoveProviderAsync(provider);
         else if (sender is ScriptEntryCard { Item : ParserItem parser })
             await ViewModel.RemoveParserAsync(parser);
+        else if (sender is ScriptEntryCard { Item : ShopSourceItem shop })
+            await ViewModel.RemoveShopAsync(shop);
+    }
+
+    private async void OnConfigureClick(object sender, RoutedEventArgs e) {
+        if (sender is not ScriptEntryCard { Item : {} item } || !item.HasConfig)
+            return;
+
+        var current = await ViewModel.GetConfigAsync(item);
+        if (current is null)
+            return;
+
+        var dialog = new ScriptConfigContentDialog(
+            item.Id, item.Name, item.ConfigOptions, current) {
+            XamlRoot = XamlRoot,
+        };
+
+        if (await dialog.ShowAsync() != ContentDialogResult.Primary)
+            return;
+        await ViewModel.SetConfigAsync(item, dialog.BuildRequest());
     }
 
     private async void OnScriptToggled(object sender, RoutedEventArgs e) {

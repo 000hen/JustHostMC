@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentDialog
+    x:Class="JustHostMC.App.Views.ServerUpdateModpackDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Uid="ServerUpdateModpackDialog"
+    DefaultButton="Primary"
+    Style="{StaticResource DefaultContentDialogStyle}">
+
+    <StackPanel Spacing="12">
+        <StackPanel x:Name="ChoicesPanel" Spacing="8">
+            <TextBlock x:Uid="ServerUpdateModpackIntro" TextWrapping="Wrap" />
+            <Grid ColumnSpacing="12" RowSpacing="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock x:Uid="ServerUpdateModpackServerLabel" />
+                <TextBlock
+                    Grid.Column="1"
+                    Text="{x:Bind ServerName}"
+                    TextWrapping="Wrap" />
+                <TextBlock x:Uid="ServerUpdateModpackCurrentLabel" Grid.Row="1" />
+                <TextBlock
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    Text="{x:Bind CurrentVersionName}"
+                    TextWrapping="Wrap" />
+            </Grid>
+            <ComboBox
+                x:Name="VersionBox"
+                x:Uid="ServerUpdateModpackVersionBox"
+                HorizontalAlignment="Stretch"
+                ItemsSource="{x:Bind VersionNames}"
+                SelectedIndex="0" />
+        </StackPanel>
+        <TextBlock
+            x:Name="NoVersionsText"
+            x:Uid="ServerUpdateModpackNoVersionsText"
+            TextWrapping="Wrap" />
+    </StackPanel>
+</ContentDialog>

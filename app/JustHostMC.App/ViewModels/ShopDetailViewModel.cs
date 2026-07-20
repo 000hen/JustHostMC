@@ -29,15 +29,26 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
     public ShopDetailViewModel(ShopViewModel shop, ShopProjectItem card,
                                DispatcherQueue dispatcher,
                                ILocalizer localizer) {
-        _shop       = shop;
-        _dispatcher = dispatcher;
-        _localizer  = localizer;
-        _shopId     = card.Project.ShopId;
-        _projectId  = card.Project.ProjectId;
-        SourceName =
-            shop.Shops.FirstOrDefault(s => s.Id == _shopId)?.Name ?? _shopId;
-        Card = card;
+        _shop        = shop;
+        _dispatcher  = dispatcher;
+        _localizer   = localizer;
+        _shopId      = card.Project.ShopId;
+        _projectId   = card.Project.ProjectId;
+        Card         = card;
+        var shopInfo = shop.Shops.FirstOrDefault(s => s.Id == _shopId);
+        SourceName   = shopInfo?.Name ?? _shopId;
+        IsModpack    = shop.SelectedShopIsModpack;
     }
+
+    /// <summary>True when this project is a modpack: its versions create whole
+    /// new servers (via the ftb provider) instead of installing a file into
+    /// one.</summary>
+    public bool IsModpack { get; }
+
+    /// <summary>Label for the header action button, matching the project
+    /// kind.</summary>
+    public string InstallActionLabel => _localizer.Get(
+        IsModpack ? "Shop_CreateServerButton" : "Shop_InstallLatestButtonText");
 
     /// <summary>The card the user clicked; the header shows it immediately
     /// while the full detail loads.</summary>
@@ -125,7 +136,28 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
         get; private set;
     } = "";
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasProjectCompatWarning))]
+    public partial string ProjectCompatMessage {
+        get; private set;
+    } = "";
+
+    /// <summary>Whether to show the project-level "may not fit your server"
+    /// banner.</summary>
+    public bool HasProjectCompatWarning => ProjectCompatMessage.Length > 0;
+
     public bool HasGallery => Gallery.Count > 0;
+
+    // A project-level mismatch means none of the project's loaders/versions
+    // fit the server, so both mismatch kinds collapse to one summary banner.
+    private string ProjectCompatText(
+        ShopCompatVerdict compat) => compat switch {
+        ShopCompatVerdict.LoaderMismatch or ShopCompatVerdict.VersionMismatch =>
+            _localizer.Get("Shop_CompatProjectWarning",
+                           ("serverLoader", _shop.Context.Loader),
+                           ("serverVersion", _shop.Context.McVersion)),
+        _ => "",
+    };
 
     /// <summary>Loads detail + versions concurrently.</summary>
     public Task LoadAsync(bool darkTheme) =>
@@ -145,16 +177,31 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
                            ? ShopBodyRenderer.ToHtml(
                                  detail.Body, detail.BodyFormat, darkTheme)
                            : "";
+            // The detail lists every loader/version the project supports; a
+            // mismatch here means none of them fits this server. Suppressed
+            // while filtering.
+            var filtersActive = _shop.UseVersionFilter || _shop.UseLoaderFilter;
+            var projectCompat =
+                filtersActive
+                    ? ShopCompatVerdict.Unknown
+                    : ShopCompat.Evaluate(_shop.Context.Loader,
+                                          _shop.Context.McVersion,
+                                          detail.Loaders, detail.GameVersions);
+            var compatMessage = ProjectCompatText(projectCompat);
             await RunOnUIAsync(() => {
                 if (detail.Project is not null &&
-                    detail.Project.Title.Length > 0)
+                    detail.Project.Title.Length > 0) {
+                    if (string.IsNullOrWhiteSpace(detail.Project.Author))
+                        detail.Project.Author = Card.Author;
                     Card = new ShopProjectItem(detail.Project);
+                }
                 WebsiteUrl = detail.Links?.Website ?? "";
                 Gallery.Clear();
                 foreach (var image in detail.Gallery)
                     Gallery.Add(new ShopGalleryItem(image));
                 OnPropertyChanged(nameof(HasGallery));
-                BodyHtml = html;
+                BodyHtml             = html;
+                ProjectCompatMessage = compatMessage;
                 RefreshPrimaryAction();
             });
         } catch {
@@ -177,10 +224,15 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
                     Loader = _shop.UseLoaderFilter ? _shop.Context.Loader : "",
                 },
                 deadline: DateTime.UtcNow.AddSeconds(30));
+            // With a filter on, the engine already narrowed the list to
+            // matches, so a per-row badge would be redundant noise.
+            var showBadge = !_shop.UseVersionFilter && !_shop.UseLoaderFilter;
             await RunOnUIAsync(() => {
                 Versions.Clear();
                 foreach (var version in list.Versions)
-                    Versions.Add(new ShopVersionItem(version));
+                    Versions.Add(new ShopVersionItem(version, _shop.Context,
+                                                     showBadge, IsModpack,
+                                                     _localizer));
                 LatestRelease =
                     Versions
                         .Where(version => version.Version.Channel ==
@@ -283,6 +335,33 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
             version.ActionLabel   = label;
             version.ActionEnabled = enabled;
         }
+    }
+
+    /// <summary>Creates a brand-new server from a modpack version by handing
+    /// the request to the main window's global install flow, which owns the
+    /// stream: the install survives this window closing, and the global
+    /// progress UI shows steps, logs, and errors.</summary>
+    public async Task CreateServerAsync(ShopVersionItem version, string name,
+                                        int memoryMb) {
+        if (_shop.Context.CreateServer is null) {
+            await RunOnUIAsync(() => StatusMessage =
+                                   _localizer.Get("Shop_CreateServerFailed"));
+            return;
+        }
+        var request = new CreateServerRequest {
+            Name = name,
+            // A modpack shop's id doubles as its whole-server provider id
+            // (e.g. "ftb"); the provider parses "{projectId}/{versionId}".
+            ProviderId = _shopId,
+            McVersion  = $"{_projectId}/{version.Version.Id}",
+            MemoryMb   = memoryMb,
+            Port       = 0,
+        };
+        _ = _shop.Context.CreateServer(request);
+        await RunOnUIAsync(() => {
+            InstallSucceeded = true;
+            StatusMessage    = _localizer.Get("Shop_ServerCreateStarted");
+        });
     }
 
     // Follows the app's StatusCode-level mapping convention (see

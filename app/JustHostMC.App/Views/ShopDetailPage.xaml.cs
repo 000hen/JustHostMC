@@ -95,6 +95,11 @@ public sealed partial class ShopDetailPage : Page {
             return;
         }
 
+        if (ViewModel.IsModpack) {
+            await CreateServerFlow(version);
+            return;
+        }
+
         var dependencies = ViewModel.MissingDependencies(version);
         IReadOnlyList<ShopDependency> chosen = [];
         if (dependencies.Count > 0) {
@@ -107,6 +112,19 @@ public sealed partial class ShopDetailPage : Page {
         }
 
         await ViewModel.InstallAsync(version, chosen);
+    }
+
+    // Prompts for a name + memory, then creates a new server from a modpack
+    // version. The dialog owns its localized chrome and sizing in XAML.
+    private async Task CreateServerFlow(ShopVersionItem version) {
+        var fallbackName = ViewModel.Card?.Title ?? "Modpack";
+        var dialog       = new CreateShopServerDialog(fallbackName) {
+            XamlRoot = XamlRoot,
+        };
+        if (await dialog.ShowAsync() != ContentDialogResult.Primary)
+            return;
+        await ViewModel.CreateServerAsync(version, dialog.ServerName,
+                                          dialog.MemoryMb);
     }
 
     private async void OnOpenWebsite(object sender, RoutedEventArgs e) {

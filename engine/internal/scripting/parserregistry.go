@@ -13,6 +13,7 @@ import (
 type ParserSet struct {
 	host   *Host
 	grants Grants
+	config *ConfigStore
 
 	mu    sync.RWMutex
 	order []string
@@ -23,6 +24,16 @@ type ParserSet struct {
 // decisions (nil means built-ins get their declared permissions).
 func NewParserSet(host *Host, grants Grants) *ParserSet {
 	return &ParserSet{host: host, grants: grants, byID: map[string]*LuaParser{}}
+}
+
+// SetConfigStore wires the typed-config store the set hands to its parser scripts.
+func (ps *ParserSet) SetConfigStore(cs *ConfigStore) { ps.config = cs }
+
+func (ps *ParserSet) configValues(id string) map[string]string {
+	if ps.config == nil {
+		return nil
+	}
+	return ps.config.Values(id)
 }
 
 // AddSource compiles a parser script and registers it. A user parser (builtin
@@ -41,6 +52,7 @@ func (ps *ParserSet) AddSource(ctx context.Context, source string, builtin bool)
 		ps.order = append(ps.order, p.meta.ID)
 	}
 	p.grantsFn = func() GrantSet { return ps.EffectiveGrants(p.meta.ID) }
+	p.configFn = func() map[string]string { return ps.configValues(p.meta.ID) }
 	ps.byID[p.meta.ID] = p
 	return p, nil
 }

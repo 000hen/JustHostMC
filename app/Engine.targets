@@ -15,6 +15,16 @@
     <RepoRoot>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)..'))</RepoRoot>
     <EngineSourceDir>$(RepoRoot)engine</EngineSourceDir>
     <EngineExe>$(RepoRoot)build\engine.exe</EngineExe>
+    <!--
+      EngineGoBuildArgs is overridable: pass /p:EngineGoBuildArgs=... to take full
+      control of the go build flags. When you override it, injecting a baked
+      CurseForge key is YOUR responsibility — this file leaves a custom value
+      untouched (it never clobbers an override). When it is left at the default
+      below, the BuildEngine target delegates the default build to keycipher.ps1
+      so reversible key material never enters an MSBuild property or binlog. The
+      dotnet/VS/MSIX build path still bakes the key exactly like build.ps1 does.
+    -->
+    <_EngineGoBuildArgsIsDefault Condition="'$(EngineGoBuildArgs)' == ''">true</_EngineGoBuildArgsIsDefault>
     <EngineGoBuildArgs Condition="'$(EngineGoBuildArgs)' == ''">-trimpath -buildvcs=false -mod=readonly -ldflags=&quot;-s -w -buildid=&quot;</EngineGoBuildArgs>
     <EngineGoBuildEnvironment Condition="'$(EngineGoBuildEnvironment)' == ''">CGO_ENABLED=0</EngineGoBuildEnvironment>
     <!-- Protobuf codegen: the sentinel file that proves stubs have been generated. -->
@@ -71,11 +81,25 @@
       <Output TaskParameter="ExitCode" PropertyName="_GoExitCode" />
     </Exec>
 
+    <MakeDir Condition="'$(_GoExitCode)' == '0' And !Exists('$(RepoRoot)build')"
+             Directories="$(RepoRoot)build" />
+
+    <!-- For default builds, keycipher.ps1 owns the complete go invocation. This
+         keeps the reversible cipher/pad inside the child PowerShell process;
+         neither half becomes an MSBuild property, task output, or binlog entry.
+         powershell.exe is Windows PowerShell 5.1 and the helper is 5.1-safe. -->
     <Message Condition="'$(_GoExitCode)' == '0'" Importance="high"
-             Text="BuildEngine: $(_EngineBuildEnv) go build $(EngineGoBuildArgs) -&gt; $(EngineExe)" />
-    <Exec Condition="'$(_GoExitCode)' == '0'"
+             Text="BuildEngine: $(_EngineBuildEnv) go build -&gt; $(EngineExe)" />
+    <Exec Condition="'$(_GoExitCode)' == '0' And '$(_EngineGoBuildArgsIsDefault)' == 'true'"
+          EnvironmentVariables="$(_EngineBuildEnv)"
+          EchoOff="true"
+          Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(RepoRoot)keycipher.ps1&quot; -BuildEngine -EngineSourceDir &quot;$(EngineSourceDir)&quot; -EngineOutput &quot;$(EngineExe)&quot;" />
+
+    <!-- A custom EngineGoBuildArgs override remains the caller's responsibility. -->
+    <Exec Condition="'$(_GoExitCode)' == '0' And '$(_EngineGoBuildArgsIsDefault)' != 'true'"
           WorkingDirectory="$(EngineSourceDir)"
           EnvironmentVariables="$(_EngineBuildEnv)"
+          EchoOff="true"
           Command="go build $(EngineGoBuildArgs) -o &quot;$(EngineExe)&quot; ./cmd/engine" />
 
     <!-- Go missing: tolerate a prebuilt engine, but fail clearly if there is

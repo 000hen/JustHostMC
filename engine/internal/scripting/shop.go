@@ -156,6 +156,7 @@ type LuaShop struct {
 	builtin  bool
 	grantsFn func() GrantSet
 	keyFn    func() string // resolves the shop's API key ("" = none)
+	configFn func() map[string]string
 }
 
 // newLuaShop compiles source in a throwaway sandbox and validates its meta
@@ -167,16 +168,27 @@ func newLuaShop(ctx context.Context, host *Host, source string, builtin bool) (*
 		return nil, err
 	}
 	defer L.Close()
-	meta, err := parseMeta(L)
+	meta, err := parseShopMeta(L)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrScriptInvalid, err)
 	}
 	for _, fn := range shopFuncs {
-		if L.GetGlobal(fn).Type() != lua.LTFunction {
+		if shopFn(L, fn).Type() != lua.LTFunction {
 			return nil, fmt.Errorf("%w: script does not define %s(ctx)", ErrScriptInvalid, fn)
 		}
 	}
 	return &LuaShop{meta: meta, source: source, host: host, builtin: builtin}, nil
+}
+
+// shopFn resolves a shop entry point, preferring a function in the global `shop`
+// role table and falling back to a top-level global (the legacy layout).
+func shopFn(L *lua.LState, name string) lua.LValue {
+	if tbl := roleTable(L, "shop"); tbl != nil {
+		if f := tbl.RawGetString(name); f.Type() == lua.LTFunction {
+			return f
+		}
+	}
+	return L.GetGlobal(name)
 }
 
 // Meta returns the shop's declared metadata.
@@ -194,8 +206,26 @@ func (s *LuaShop) Key() string {
 }
 
 // Ready reports whether the shop can serve requests (a key exists when the
-// script declares needs_key).
-func (s *LuaShop) Ready() bool { return !s.meta.NeedsKey || s.Key() != "" }
+// script declares needs_key). The key may come from the settings/baked chain or
+// a stored api_key config override.
+func (s *LuaShop) Ready() bool { return !s.meta.NeedsKey || s.effectiveKey() != "" }
+
+// storedConfig returns the shop's stored typed-config overrides (nil when none).
+func (s *LuaShop) storedConfig() map[string]string {
+	if s.configFn != nil {
+		return s.configFn()
+	}
+	return nil
+}
+
+// effectiveKey resolves the shop's API key: a stored `api_key` config override
+// wins, and the keyFn (baked build default) only fills in when config is empty.
+func (s *LuaShop) effectiveKey() string {
+	if k := s.storedConfig()["api_key"]; k != "" {
+		return k
+	}
+	return s.Key()
+}
 
 func (s *LuaShop) grants() GrantSet {
 	if s.grantsFn != nil {
@@ -226,7 +256,7 @@ func (s *LuaShop) callFunction(ctx context.Context, fn string, optional bool, fi
 	}
 	defer L.Close()
 
-	f := L.GetGlobal(fn)
+	f := shopFn(L, fn)
 	if f.Type() != lua.LTFunction {
 		if optional {
 			return nil, false, nil
@@ -247,7 +277,16 @@ func (s *LuaShop) callFunction(ctx context.Context, fn string, optional bool, fi
 		}
 	}
 	cfg := L.NewTable()
-	cfg.RawSetString("api_key", lua.LString(s.Key()))
+	for k, v := range EffectiveConfig(s.meta.Config, s.storedConfig()) {
+		cfg.RawSetString(k, lua.LString(v))
+	}
+	// A stored api_key config wins for the reserved api_key; the keyFn (baked
+	// build default) only fills in when no stored value is present.
+	if _, ok := s.storedConfig()["api_key"]; !ok {
+		if key := s.Key(); key != "" {
+			cfg.RawSetString("api_key", lua.LString(key))
+		}
+	}
 	ctxTbl.RawSetString("config", cfg)
 
 	if err := L.CallByParam(lua.P{Fn: f, NRet: 1, Protect: true}, ctxTbl); err != nil {

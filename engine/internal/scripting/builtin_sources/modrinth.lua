@@ -1,27 +1,34 @@
--- Modrinth mod shop. Talks to the Modrinth v2 API (https://docs.modrinth.com/api/):
---   GET /search                      query, facets (JSON array-of-arrays), index, offset, limit<=100
---   GET /project/{id}                detail: body (Markdown), gallery, links, stats
---   GET /project/{id}/version        loaders=[...] game_versions=[...] filters
---   GET /version/{id}                one version
---   GET /projects?ids=[...]          batch cards (dependency titles)
--- Read access is keyless; the host sets the identifying User-Agent Modrinth
--- requires. Rate limit is 300 requests/minute.
+-- Modrinth source: one script, two roles. The `shop` role browses/searches the
+-- keyless Modrinth v2 API (https://docs.modrinth.com/api/) for mods, plugins and
+-- modpacks; the hidden `provider` role installs a Modrinth modpack (.mrpack) as a
+-- self-contained server. Both roles share one meta.id ("modrinth"). The old split
+-- id "modrinth_modpacks" resolves here via meta.aliases so existing modpack
+-- servers keep updating. Read access is keyless; the host sets the identifying
+-- User-Agent Modrinth requires.
+--   GET /search                 query, facets (JSON array-of-arrays), index, offset, limit<=100
+--   GET /project/{id}           detail: body (Markdown), gallery, links, stats
+--   GET /project/{id}/version   loaders=[...] game_versions=[...] filters
+--   GET /version/{id}           one version
+--   GET /projects?ids=[...]     batch cards (dependency titles)
 
 meta = {
   id = "modrinth",
   name = "Modrinth",
   website = "https://modrinth.com",
-  description = "Browse and install mods and plugins from Modrinth.",
+  description = "Browse and install mods, plugins and modpacks from Modrinth.",
   version = "1.0.0",
   author = "JustHostMC",
+  aliases = { "modrinth_modpacks" },
   permissions = {
-    { kind = "network", reason = "Query the Modrinth API to browse, search and download mods" },
+    { kind = "network", reason = "Query the Modrinth API to browse, search and download mods and modpacks" },
+    { kind = "install", reason = "Resolve a JRE and run the Forge/NeoForge installer's --installServer for a modpack." },
+    { kind = "fs_server", reason = "Write an installed modpack's mods/configs and detect the launch command." },
   },
 }
 
 local API = "https://api.modrinth.com/v2"
 
--- Cache TTLs (seconds): browse pages refresh often, detail pages can lean on
+-- Cache TTLs (seconds): browse pages refresh often; detail pages can lean on
 -- ETag revalidation for longer.
 local TTL_BROWSE = 120
 local TTL_DETAIL = 600
@@ -45,7 +52,7 @@ local function get(url, ttl)
   return jhmc.json_decode(res.body)
 end
 
--- loader_facets returns the Modrinth loader names for one of our loader ids.
+-- loader_names returns the Modrinth loader names for one of our loader ids.
 -- Paper servers also run Spigot/Bukkit plugins, Spigot runs Bukkit plugins.
 local function loader_names(loader, kind)
   if loader == "" then return {} end
@@ -57,17 +64,24 @@ local function loader_names(loader, kind)
   return { loader }
 end
 
--- facets builds the JSON facet expression: inner array = OR, outer = AND.
+-- facets builds the JSON facet expression: inner array = OR, outer = AND. A
+-- modpack browse pins only project_type and any chosen categories (packs carry
+-- their own MC version and loader), while mods/plugins add loader + version.
 local function facets(ctx)
-  local groups = { '["project_type:mod"]' }
-  local loaders = loader_names(ctx.loader or "", ctx.kind or "mod")
-  if #loaders > 0 then
-    local parts = {}
-    for _, l in ipairs(loaders) do parts[#parts + 1] = '"categories:' .. l .. '"' end
-    groups[#groups + 1] = "[" .. table.concat(parts, ",") .. "]"
-  end
-  if (ctx.mc_version or "") ~= "" then
-    groups[#groups + 1] = '["versions:' .. ctx.mc_version .. '"]'
+  local groups
+  if ctx.kind == "modpack" then
+    groups = { '["project_type:modpack"]' }
+  else
+    groups = { '["project_type:mod"]' }
+    local loaders = loader_names(ctx.loader or "", ctx.kind or "mod")
+    if #loaders > 0 then
+      local parts = {}
+      for _, l in ipairs(loaders) do parts[#parts + 1] = '"categories:' .. l .. '"' end
+      groups[#groups + 1] = "[" .. table.concat(parts, ",") .. "]"
+    end
+    if (ctx.mc_version or "") ~= "" then
+      groups[#groups + 1] = '["versions:' .. ctx.mc_version .. '"]'
+    end
   end
   if #(ctx.categories or {}) > 0 then
     local parts = {}
@@ -79,7 +93,7 @@ local function facets(ctx)
   return "[" .. table.concat(groups, ",") .. "]"
 end
 
-local function project_card(hit)
+local function project_card(hit, kind)
   return {
     project_id = hit.project_id or hit.id,
     slug = hit.slug,
@@ -90,7 +104,7 @@ local function project_card(hit)
     downloads = hit.downloads,
     follows = hit.follows or hit.followers,
     categories = hit.display_categories or hit.categories,
-    project_type = hit.project_type,
+    project_type = kind == "modpack" and "modpack" or hit.project_type,
   }
 end
 
@@ -103,12 +117,12 @@ local function run_search(ctx, index, offset, limit)
   local body = get(url, TTL_BROWSE)
   local projects = {}
   for _, hit in ipairs(body.hits or {}) do
-    projects[#projects + 1] = project_card(hit)
+    projects[#projects + 1] = project_card(hit, ctx.kind)
   end
   return projects, body.total_hits or 0
 end
 
-function home(ctx)
+local function do_home(ctx)
   local popular = run_search(ctx, "downloads", 0, 12)
   local recommended = run_search(ctx, "follows", 0, 12)
   local updated = run_search(ctx, "updated", 0, 12)
@@ -123,18 +137,19 @@ end
 local SORTS = { relevance = "relevance", downloads = "downloads", follows = "follows",
   newest = "newest", updated = "updated" }
 
-function search(ctx)
+local function do_search(ctx)
   local projects, total = run_search(ctx, SORTS[ctx.sort] or "relevance",
     ctx.offset or 0, ctx.limit or 20)
   return { projects = projects, total = total }
 end
 
-function detail(ctx)
+local function do_detail(ctx)
   local p = get(API .. "/project/" .. urlencode(ctx.project_id), TTL_DETAIL)
   local gallery = {}
   for _, g in ipairs(p.gallery or {}) do
     gallery[#gallery + 1] = { url = g.url, title = g.title, description = g.description }
   end
+  local kindpath = ctx.kind == "modpack" and "modpack" or "mod"
   return {
     project = {
       project_id = p.id,
@@ -145,13 +160,13 @@ function detail(ctx)
       downloads = p.downloads,
       follows = p.followers,
       categories = p.categories,
-      project_type = p.project_type,
+      project_type = ctx.kind == "modpack" and "modpack" or p.project_type,
     },
     body = p.body,
     body_format = "markdown",
     gallery = gallery,
     links = {
-      website = "https://modrinth.com/mod/" .. (p.slug or p.id),
+      website = "https://modrinth.com/" .. kindpath .. "/" .. (p.slug or p.id),
       source = p.source_url,
       issues = p.issues_url,
       wiki = p.wiki_url,
@@ -164,7 +179,8 @@ function detail(ctx)
   }
 end
 
--- versions_url builds /project/{id}/version with loader/game_version filters.
+-- versions_url builds /project/{id}/version with loader/game_version filters. A
+-- modpack ctx carries no loader/mc_version, so it degrades to all pack versions.
 local function versions_url(ctx)
   local url = API .. "/project/" .. urlencode(ctx.project_id) .. "/version"
   local sep = "?"
@@ -205,7 +221,7 @@ local function dep_titles(ids)
   return titles
 end
 
-function versions(ctx)
+local function do_versions(ctx)
   local list = get(versions_url(ctx), TTL_BROWSE)
 
   -- Collect unique required dependency ids for one batch title lookup.
@@ -256,7 +272,7 @@ function versions(ctx)
   return { versions = out }
 end
 
-function resolve_file(ctx)
+local function do_resolve_file(ctx)
   local v
   if (ctx.version_id or "") ~= "" then
     v = get(API .. "/version/" .. urlencode(ctx.version_id), TTL_DETAIL)
@@ -276,3 +292,109 @@ function resolve_file(ctx)
     sha512 = f.hashes and f.hashes.sha512,
   }
 end
+
+shop = {
+  kinds = { "mod", "plugin", "modpack" },
+  needs_key = false,
+  home = do_home,
+  search = do_search,
+  detail = do_detail,
+  versions = do_versions,
+  resolve_file = do_resolve_file,
+}
+
+-- Provider role: installs a Modrinth modpack (.mrpack) as a self-contained
+-- server. Driven by the shop with an opaque "<projectId>/<versionId>" version.
+-- Modrinth read access is keyless.
+local function provider_parse_version(v)
+  local project, version_id = tostring(v):match("^([^/]+)/([^/]+)$")
+  if not project or not version_id then
+    error("invalid modpack version id: " .. tostring(v))
+  end
+  return project, version_id
+end
+
+-- fetch_pack downloads the .mrpack for version_id to .jhmc/pack.mrpack.
+local function fetch_pack(ctx, version_id)
+  local res = jhmc.http({ url = API .. "/version/" .. version_id })
+  if res.status < 200 or res.status >= 300 then
+    error("modrinth: HTTP " .. res.status .. " resolving version " .. version_id)
+  end
+  local f = primary_file(jhmc.json_decode(res.body))
+  if not f or not f.url or f.url == "" then
+    error("modrinth: version has no downloadable file")
+  end
+  ctx.step("install.progress.downloading_server", 0)
+  ctx.log(f.filename or "modpack.mrpack")
+  jhmc.fs.mkdir(".jhmc")
+  jhmc.download(f.url, { dest = ".jhmc/pack.mrpack", sha1 = f.hashes and f.hashes.sha1 })
+end
+
+local function provider_install(ctx)
+  local _, version_id = provider_parse_version(ctx.version)
+
+  ctx.step("install.progress.resolving_version", -1)
+  fetch_pack(ctx, version_id)
+
+  local spec = mplib.install_mrpack(ctx, ".jhmc/pack.mrpack")
+  jhmc.fs.remove(".jhmc/pack.mrpack")
+
+  ctx.step("install.progress.done", 1)
+  spec.pack_version = tostring(ctx.version)
+  return spec
+end
+
+local function provider_update(ctx)
+  local project, version_id = provider_parse_version(ctx.version)
+  local oproject = provider_parse_version(ctx.old_version)
+  if project ~= oproject then
+    error("update must stay within the same modpack (" .. oproject .. " -> " .. project .. ")")
+  end
+  local old = mplib.read_manifest()
+  if not old then
+    error("cannot update: this server has no saved modpack manifest")
+  end
+
+  ctx.step("install.progress.resolving_version", -1)
+  fetch_pack(ctx, version_id)
+  local m = mplib.mrpack_meta(".jhmc/pack.mrpack")
+
+  mplib.diff_apply(ctx, mplib.server_index(old.files or {}), mplib.server_index(m.files), {
+    to_item = function(x) return mplib.to_download_item(x, nil) end,
+  })
+  mplib.unzip_overrides(".jhmc/pack.mrpack")
+
+  local java_major = jhmc.java_major_for(m.mc)
+  local args
+  if m.loader_name ~= old.loader or m.loader_version ~= old.loader_version or m.mc ~= old.mc_version then
+    args = mplib.install_loader(ctx, m.loader_name, m.loader_version, m.mc, java_major)
+  end
+
+  mplib.write_manifest({
+    format = 1,
+    name = m.name,
+    version_name = m.version,
+    mc_version = m.mc,
+    loader = m.loader_name,
+    loader_version = m.loader_version,
+    files = m.files,
+  })
+  jhmc.fs.remove(".jhmc/pack.mrpack")
+
+  ctx.step("install.progress.done", 1)
+  return {
+    java_major = java_major,
+    args = args,
+    mc_version = m.mc,
+    loader = m.loader_name,
+    pack_version = tostring(ctx.version),
+  }
+end
+
+provider = {
+  hidden = true,
+  mod_layout = "mods",
+  versions = function() return {} end,
+  install = provider_install,
+  update = provider_update,
+}

@@ -1,27 +1,36 @@
--- CurseForge mod shop. Talks to the CurseForge for Studios REST API
--- (https://docs.curseforge.com/rest-api/), which requires an x-api-key header
--- (meta.needs_key): the engine injects the key via ctx.config.api_key.
---   GET  /v1/mods/search                        gameId=432, classId 6=mods 5=bukkit plugins
+-- CurseForge source: one script, two roles. The `shop` role browses/searches
+-- the CurseForge for Studios REST API (https://docs.curseforge.com/rest-api/)
+-- for mods, bukkit plugins and modpacks; the hidden `provider` role installs a
+-- CurseForge modpack as a self-contained server. Both roles share one meta.id
+-- ("curseforge") and one stored config entry: the x-api-key, declared once as
+-- meta.config.api_key (secret). The old split ids "curseforge_modpacks" resolve
+-- here via meta.aliases so existing modpack servers keep updating.
+--   GET  /v1/mods/search   gameId=432, classId 6=mods 5=bukkit plugins 4471=modpacks
 --   GET  /v1/categories                         class-specific search filters
---   GET  /v1/mods/{id}                          detail card
---   GET  /v1/mods/{id}/description              full description (HTML)
---   GET  /v1/mods/{id}/files                    gameVersion + modLoaderType filters
---   GET  /v1/mods/{id}/files/{fileId}           one file
+--   GET  /v1/mods/{id}                            detail card
+--   GET  /v1/mods/{id}/description                full description (HTML)
+--   GET  /v1/mods/{id}/files                      gameVersion + modLoaderType filters
+--   GET  /v1/mods/{id}/files/{fileId}             one file
 --   GET  /v1/mods/{id}/files/{fileId}/download-url  fallback when downloadUrl is null
---   POST /v1/mods                               batch cards (dependency titles)
---   POST /v1/mods/featured                      featured/popular/recentlyUpdated
--- Page size caps at 50 and index+pageSize <= 10000.
+--   POST /v1/mods                                 batch cards (dependency titles)
+--   POST /v1/mods/featured                        featured/popular/recentlyUpdated
 
 meta = {
   id = "curseforge",
   name = "CurseForge",
   website = "https://www.curseforge.com",
-  description = "Browse and install mods and plugins from CurseForge.",
+  description = "Browse and install mods, plugins and modpacks from CurseForge.",
   version = "1.0.0",
   author = "JustHostMC",
-  needs_key = true,
+  aliases = { "curseforge_modpacks" },
+  config = {
+    { key = "api_key", type = "secret", name = "CurseForge API key",
+      description = "Required to browse, resolve and download CurseForge files", required = false },
+  },
   permissions = {
-    { kind = "network", reason = "Query the CurseForge API to browse, search and download mods" },
+    { kind = "network", reason = "Query the CurseForge API to browse, search and download mods and modpacks" },
+    { kind = "install", reason = "Resolve a JRE and run the Forge/NeoForge installer's --installServer for a modpack." },
+    { kind = "fs_server", reason = "Write an installed modpack's mods/configs and detect the launch command." },
   },
 }
 
@@ -29,6 +38,7 @@ local API = "https://api.curseforge.com"
 local GAME_MINECRAFT = 432
 local CLASS_MODS = 6
 local CLASS_BUKKIT_PLUGINS = 5
+local CLASS_MODPACKS = 4471
 
 local TTL_BROWSE = 120
 local TTL_DETAIL = 600
@@ -45,7 +55,7 @@ local function urlencode(s)
   end))
 end
 
-local api_key -- set per call from ctx.config
+local api_key -- set per shop call from ctx.config
 
 local function check(res, url)
   if res.status == 404 then error("curseforge: not found: " .. url) end
@@ -74,6 +84,7 @@ local function post(url, body_tbl)
 end
 
 local function class_id(kind)
+  if kind == "modpack" then return CLASS_MODPACKS end
   if kind == "plugin" then return CLASS_BUKKIT_PLUGINS end
   return CLASS_MODS
 end
@@ -103,7 +114,8 @@ local function project_card(m, kind)
 end
 
 -- search_url builds /v1/mods/search. modLoaderType must be paired with a
--- gameVersion, and bukkit plugins have no loader dimension at all.
+-- gameVersion, and bukkit plugins have no loader dimension. Modpacks pin their
+-- own MC version and loader, so no version/loader dimension is applied.
 local function search_url(ctx, sort_field, offset, limit)
   local url = API .. "/v1/mods/search?gameId=" .. GAME_MINECRAFT
     .. "&classId=" .. class_id(ctx.kind)
@@ -112,7 +124,7 @@ local function search_url(ctx, sort_field, offset, limit)
   if (ctx.query or "") ~= "" then
     url = url .. "&searchFilter=" .. urlencode(ctx.query)
   end
-  if (ctx.mc_version or "") ~= "" then
+  if ctx.kind ~= "modpack" and (ctx.mc_version or "") ~= "" then
     url = url .. "&gameVersion=" .. urlencode(ctx.mc_version)
     local lt = ctx.kind ~= "plugin" and LOADERS[ctx.loader or ""] or nil
     if lt then url = url .. "&modLoaderType=" .. lt end
@@ -123,7 +135,7 @@ local function search_url(ctx, sort_field, offset, limit)
   return url
 end
 
-function categories(ctx)
+local function do_categories(ctx)
   api_key = ctx.config.api_key
   local class = class_id(ctx.kind or "mod")
   local body = get(API .. "/v1/categories?gameId=" .. GAME_MINECRAFT
@@ -143,7 +155,7 @@ function categories(ctx)
   return { categories = out }
 end
 
-function search(ctx)
+local function do_search(ctx)
   api_key = ctx.config.api_key
   local sort_field = SORTS[ctx.sort] or SORTS.relevance
   local body = get(search_url(ctx, sort_field, ctx.offset or 0, ctx.limit or 20), TTL_BROWSE)
@@ -155,8 +167,22 @@ function search(ctx)
   return { projects = projects, total = total }
 end
 
-function home(ctx)
+local function do_home(ctx)
   api_key = ctx.config.api_key
+  -- Modpacks: the featured POST is a mod/plugin endpoint, so browse popular +
+  -- recently-updated through search instead.
+  if ctx.kind == "modpack" then
+    local function section(title_key, sort)
+      local body = get(search_url(ctx, sort, 0, 12), TTL_BROWSE)
+      local projects = {}
+      for _, m in ipairs(body.data or {}) do
+        projects[#projects + 1] = project_card(m, "modpack")
+      end
+      return { title_key = title_key, projects = projects }
+    end
+    return { sections = { section("shop.home.popular", SORTS.downloads),
+      section("shop.home.updated", SORTS.updated) } }
+  end
   -- Featured is a POST (uncached); fall back to plain popular search if the
   -- endpoint misbehaves for this game/class combination.
   local ok, body = pcall(post, API .. "/v1/mods/featured",
@@ -190,7 +216,7 @@ function home(ctx)
   return { sections = sections }
 end
 
-function detail(ctx)
+local function do_detail(ctx)
   api_key = ctx.config.api_key
   local m = get(API .. "/v1/mods/" .. urlencode(ctx.project_id), TTL_DETAIL).data
   local desc = get(API .. "/v1/mods/" .. urlencode(ctx.project_id) .. "/description", TTL_DETAIL).data
@@ -206,7 +232,7 @@ function detail(ctx)
     end
   end
   return {
-    project = project_card(m),
+    project = project_card(m, ctx.kind),
     body = desc,
     body_format = "html",
     gallery = gallery,
@@ -224,7 +250,8 @@ end
 
 local CHANNELS = { [1] = "release", [2] = "beta", [3] = "alpha" }
 
--- files_url builds /v1/mods/{id}/files with the compatibility filters.
+-- files_url builds /v1/mods/{id}/files with the compatibility filters. For a
+-- modpack ctx (no mc_version/loader) it degrades to the unfiltered pack files.
 local function files_url(ctx)
   local url = API .. "/v1/mods/" .. urlencode(ctx.project_id) .. "/files?pageSize=50"
   if (ctx.mc_version or "") ~= "" then
@@ -253,7 +280,7 @@ local function dep_titles(ids)
   return titles
 end
 
-function versions(ctx)
+local function do_versions(ctx)
   api_key = ctx.config.api_key
   local body = get(files_url(ctx), TTL_BROWSE)
 
@@ -310,7 +337,7 @@ function versions(ctx)
   return { versions = out }
 end
 
-function resolve_file(ctx)
+local function do_resolve_file(ctx)
   api_key = ctx.config.api_key
   local f
   if (ctx.version_id or "") ~= "" then
@@ -339,3 +366,145 @@ function resolve_file(ctx)
     sha1 = sha1_of(f),
   }
 end
+
+shop = {
+  kinds = { "mod", "plugin", "modpack" },
+  needs_key = true,
+  home = do_home,
+  categories = do_categories,
+  search = do_search,
+  detail = do_detail,
+  versions = do_versions,
+  resolve_file = do_resolve_file,
+}
+
+-- Provider role: installs a CurseForge modpack from its client pack
+-- (manifest.json + overrides/). Driven by the shop with an opaque
+-- "<projectId>/<fileId>" version. The API key comes from the shared
+-- ctx.config.api_key.
+local function provider_key(ctx)
+  local cfg = ctx.config or {}
+  return cfg.api_key or ""
+end
+
+-- pack_zip_url resolves the direct download URL for a CurseForge pack file,
+-- falling back to the dedicated download-url endpoint when downloadUrl is null.
+local function pack_zip_url(project, file, k)
+  local res = jhmc.http({
+    url = API .. "/v1/mods/" .. project .. "/files/" .. file,
+    headers = { ["x-api-key"] = k },
+  })
+  if res.status < 200 or res.status >= 300 then
+    error("curseforge: HTTP " .. res.status .. " resolving pack file " .. project .. "/" .. file)
+  end
+  local f = jhmc.json_decode(res.body).data or {}
+  local url = f.downloadUrl
+  if not url or url == "" then
+    local r2 = jhmc.http({
+      url = API .. "/v1/mods/" .. project .. "/files/" .. file .. "/download-url",
+      headers = { ["x-api-key"] = k },
+    })
+    if r2.status >= 200 and r2.status < 300 then
+      url = jhmc.json_decode(r2.body).data
+    end
+  end
+  if not url or url == "" then
+    error("curseforge: modpack file not distributable (author disabled third-party downloads)")
+  end
+  return url
+end
+
+-- fetch_pack downloads the pack zip for "<project>/<file>" to .jhmc/pack.zip.
+local function fetch_pack(ctx, project, file, k)
+  local url = pack_zip_url(project, file, k)
+  ctx.step("install.progress.downloading_server", 0)
+  ctx.log("modpack.zip")
+  jhmc.fs.mkdir(".jhmc")
+  jhmc.download(url, { dest = ".jhmc/pack.zip" })
+end
+
+local function provider_parse_version(v)
+  local project, file = tostring(v):match("^([^/]+)/([^/]+)$")
+  if not project or not file then
+    error("invalid modpack version id: " .. tostring(v))
+  end
+  return project, file
+end
+
+local function provider_install(ctx)
+  local project, file = provider_parse_version(ctx.version)
+  local k = provider_key(ctx)
+  if k == "" then
+    error("this modpack is hosted on CurseForge and needs a CurseForge API key (set it in the shop settings)")
+  end
+
+  ctx.step("install.progress.resolving_version", -1)
+  fetch_pack(ctx, project, file, k)
+
+  local spec = mplib.install_cf_pack(ctx, ".jhmc/pack.zip", k)
+  jhmc.fs.remove(".jhmc/pack.zip")
+
+  ctx.step("install.progress.done", 1)
+  spec.pack_version = tostring(ctx.version)
+  return spec
+end
+
+local function provider_update(ctx)
+  local project, file = provider_parse_version(ctx.version)
+  local oproject = provider_parse_version(ctx.old_version)
+  if project ~= oproject then
+    error("update must stay within the same modpack (" .. oproject .. " -> " .. project .. ")")
+  end
+  local k = provider_key(ctx)
+  if k == "" then
+    error("this modpack is hosted on CurseForge and needs a CurseForge API key (set it in the shop settings)")
+  end
+  local old = mplib.read_manifest()
+  if not old then
+    error("cannot update: this server has no saved modpack manifest")
+  end
+
+  ctx.step("install.progress.resolving_version", -1)
+  fetch_pack(ctx, project, file, k)
+  local m = mplib.cf_pack_meta(".jhmc/pack.zip", k)
+
+  mplib.diff_apply(ctx, mplib.server_index(old.files or {}), mplib.server_index(m.files), {
+    changed = function(a, b) return tostring(a.file_id or "") ~= tostring(b.file_id or "") end,
+    to_item = function(x) return mplib.to_download_item(x, k) end,
+  })
+  jhmc.unzip(".jhmc/pack.zip", ".", { prefix = "overrides/" })
+
+  local java_major = jhmc.java_major_for(m.mc)
+  local args
+  if m.loader_name ~= old.loader or m.loader_version ~= old.loader_version or m.mc ~= old.mc_version then
+    args = mplib.install_loader(ctx, m.loader_name, m.loader_version, m.mc, java_major)
+  end
+
+  mplib.write_manifest({
+    format = 1,
+    name = m.name,
+    version_name = m.version,
+    mc_version = m.mc,
+    loader = m.loader_name,
+    loader_version = m.loader_version,
+    files = m.files,
+  })
+  jhmc.fs.remove(".jhmc/pack.zip")
+
+  ctx.step("install.progress.done", 1)
+  return {
+    java_major = java_major,
+    args = args,
+    mc_version = m.mc,
+    loader = m.loader_name,
+    pack_version = tostring(ctx.version),
+  }
+end
+
+provider = {
+  hidden = true,
+  mod_layout = "mods",
+  versions = function() return {} end,
+  install = provider_install,
+  update = provider_update,
+}

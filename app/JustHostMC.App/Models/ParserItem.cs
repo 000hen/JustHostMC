@@ -9,7 +9,7 @@ public sealed class ParserItem : ScriptEntryItem {
     public ParserItem(ParserInfo info, ILocalizer localizer)
         : base(info.Id, info.Name, info.Author, info.Version,
                ComposeDescription(info, localizer), info.Permissions,
-               info.Granted) {
+               info.Granted, info.ConfigOptions) {
         Builtin = info.Builtin;
     }
 

@@ -197,20 +197,37 @@
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Center"
                                 Spacing="10">
-                                <TextBlock
-                                    x:Uid="ShopDiscoverTitle"
-                                    Style="{StaticResource TitleTextBlockStyle}"
-                                    TextWrapping="Wrap" />
-                                <TextBlock
-                                    x:Uid="ShopDiscoverSubtitle"
-                                    FontSize="15"
-                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                    TextWrapping="Wrap" />
+                                <Grid>
+                                    <TextBlock
+                                        x:Uid="ShopDiscoverTitle"
+                                        Style="{StaticResource TitleTextBlockStyle}"
+                                        TextWrapping="Wrap"
+                                        Visibility="{x:Bind ViewModel.Context.IsServerScoped, Converter={StaticResource BoolToVis}}" />
+                                    <TextBlock
+                                        x:Uid="ShopDiscoverGlobalTitle"
+                                        Style="{StaticResource TitleTextBlockStyle}"
+                                        TextWrapping="Wrap"
+                                        Visibility="{x:Bind ViewModel.Context.IsServerScoped, Converter={StaticResource BoolToVis}, ConverterParameter=True}" />
+                                </Grid>
+                                <Grid>
+                                    <TextBlock
+                                        x:Uid="ShopDiscoverSubtitle"
+                                        FontSize="15"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        TextWrapping="Wrap"
+                                        Visibility="{x:Bind ViewModel.Context.IsServerScoped, Converter={StaticResource BoolToVis}}" />
+                                    <TextBlock
+                                        x:Uid="ShopDiscoverGlobalSubtitle"
+                                        FontSize="15"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        TextWrapping="Wrap"
+                                        Visibility="{x:Bind ViewModel.Context.IsServerScoped, Converter={StaticResource BoolToVis}, ConverterParameter=True}" />
+                                </Grid>
                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                     <ToggleButton
                                         Click="OnFilterChanged"
                                         IsChecked="{x:Bind ViewModel.UseVersionFilter, Mode=TwoWay}"
-                                        Visibility="{x:Bind ViewModel.HasVersionFilter}">
+                                        Visibility="{x:Bind ViewModel.ShowVersionFilter, Mode=OneWay}">
                                         <StackPanel Orientation="Horizontal" Spacing="6">
                                             <FontIcon FontSize="12" Glyph="&#xE787;" />
                                             <TextBlock Text="{x:Bind ViewModel.VersionFilterLabel}" />
@@ -219,7 +236,7 @@
                                     <ToggleButton
                                         Click="OnFilterChanged"
                                         IsChecked="{x:Bind ViewModel.UseLoaderFilter, Mode=TwoWay}"
-                                        Visibility="{x:Bind ViewModel.HasLoaderFilter}">
+                                        Visibility="{x:Bind ViewModel.ShowLoaderFilter, Mode=OneWay}">
                                         <StackPanel Orientation="Horizontal" Spacing="6">
                                             <FontIcon FontSize="12" Glyph="&#xE713;" />
                                             <TextBlock Text="{x:Bind ViewModel.LoaderFilterLabel}" />

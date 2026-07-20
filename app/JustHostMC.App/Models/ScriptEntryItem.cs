@@ -9,14 +9,16 @@ public abstract class ScriptEntryItem {
     protected ScriptEntryItem(string id, string name, string author,
                               string version, string description,
                               IEnumerable<Permission> permissions,
-                              IEnumerable<PermissionKind> granted) {
-        Id          = id;
-        Name        = string.IsNullOrEmpty(name) ? id : name;
-        Author      = author;
-        Version     = version;
-        Description = description;
-        Permissions = permissions.ToList();
-        Granted     = granted.ToList();
+                              IEnumerable<PermissionKind> granted,
+                              IEnumerable<ConfigOption> configOptions) {
+        Id            = id;
+        Name          = string.IsNullOrEmpty(name) ? id : name;
+        Author        = author;
+        Version       = version;
+        Description   = description;
+        Permissions   = permissions.ToList();
+        Granted       = granted.ToList();
+        ConfigOptions = configOptions.ToList();
     }
 
     public string Id { get; }
@@ -26,6 +28,11 @@ public abstract class ScriptEntryItem {
     public string Description { get; }
     public IReadOnlyList<Permission> Permissions { get; }
     public IReadOnlyList<PermissionKind> Granted { get; }
+
+    /// <summary>Author-declared typed config options for this script (may be
+    /// empty).</summary>
+    public IReadOnlyList<ConfigOption> ConfigOptions { get; }
+    public bool HasConfig => ConfigOptions.Count > 0;
 
     public virtual bool IsBuiltIn      => false;
     public virtual bool CanRemove      => true;

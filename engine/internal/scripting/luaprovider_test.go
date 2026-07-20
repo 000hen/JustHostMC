@@ -125,6 +125,111 @@ func TestHostVersionsAndInstall(t *testing.T) {
 	}
 }
 
+// TestInstallLaunchSpecReadsMcVersionAndLoader verifies a provider that resolves
+// a concrete version/loader inside install() surfaces them on the LaunchSpec —
+// the hook a modpack provider uses to override an opaque "packId/versionId".
+func TestInstallLaunchSpecReadsMcVersionAndLoader(t *testing.T) {
+	script := `
+meta = { id = "resolv", name = "Resolv", mod_layout = "mods" }
+function versions() return {} end
+function install(ctx)
+  return { java_major = 21, args = { "-jar", "server.jar", "nogui" },
+           mc_version = "1.20.1", loader = "forge" }
+end
+`
+	r := NewRegistry(NewHost(nil, nil, nil), nil)
+	e, err := r.AddSource(context.Background(), script, true)
+	if err != nil {
+		t.Fatalf("AddSource: %v", err)
+	}
+	spec, err := e.Provider.Install(context.Background(), t.TempDir(), "pack/42", nil)
+	if err != nil {
+		t.Fatalf("Install: %v", err)
+	}
+	if spec.McVersion != "1.20.1" {
+		t.Errorf("McVersion = %q, want 1.20.1", spec.McVersion)
+	}
+	if spec.Loader != "forge" {
+		t.Errorf("Loader = %q, want forge", spec.Loader)
+	}
+}
+
+// TestInstallLaunchSpecReadsPackVersion verifies a modpack provider can persist
+// its opaque "packId/versionId" through the launch spec.
+func TestInstallLaunchSpecReadsPackVersion(t *testing.T) {
+	script := `
+meta = { id = "packy", name = "Packy", mod_layout = "mods" }
+function versions() return {} end
+function install(ctx)
+  return { java_major = 21, args = { "-jar", "server.jar", "nogui" },
+           mc_version = "1.20.1", loader = "neoforge",
+           pack_version = tostring(ctx.version) }
+end
+`
+	r := NewRegistry(NewHost(nil, nil, nil), nil)
+	e, err := r.AddSource(context.Background(), script, true)
+	if err != nil {
+		t.Fatalf("AddSource: %v", err)
+	}
+	spec, err := e.Provider.Install(context.Background(), t.TempDir(), "95/12695", nil)
+	if err != nil {
+		t.Fatalf("Install: %v", err)
+	}
+	if spec.PackVersion != "95/12695" {
+		t.Errorf("PackVersion = %q, want 95/12695", spec.PackVersion)
+	}
+}
+
+// TestUpdatePassesVersionsAndParsesSpec verifies update(ctx) receives both the
+// new and old opaque versions and its return parses like install's.
+func TestUpdatePassesVersionsAndParsesSpec(t *testing.T) {
+	script := `
+meta = { id = "updy", name = "Updy", mod_layout = "mods" }
+function versions() return {} end
+function install(ctx) return { java_major = 21, args = { "a" } } end
+function update(ctx)
+  return { java_major = 21, args = { "-jar", "s.jar" },
+           mc_version = "1.21.1", loader = "neoforge",
+           pack_version = tostring(ctx.version) .. "|was|" .. tostring(ctx.old_version) }
+end
+`
+	r := NewRegistry(NewHost(nil, nil, nil), nil)
+	e, err := r.AddSource(context.Background(), script, true)
+	if err != nil {
+		t.Fatalf("AddSource: %v", err)
+	}
+	up, ok := e.Provider.(provider.Updater)
+	if !ok {
+		t.Fatal("LuaProvider does not implement provider.Updater")
+	}
+	spec, err := up.Update(context.Background(), t.TempDir(), "95/200", "95/100", nil)
+	if err != nil {
+		t.Fatalf("Update: %v", err)
+	}
+	if spec.PackVersion != "95/200|was|95/100" {
+		t.Errorf("PackVersion = %q, want versions threaded through", spec.PackVersion)
+	}
+}
+
+// TestUpdateUnsupportedWithoutFunction proves a script lacking update() maps to
+// the sentinel instead of a generic Lua error.
+func TestUpdateUnsupportedWithoutFunction(t *testing.T) {
+	script := `
+meta = { id = "noup", name = "NoUp", mod_layout = "mods" }
+function versions() return {} end
+function install(ctx) return { java_major = 21, args = { "a" } } end
+`
+	r := NewRegistry(NewHost(nil, nil, nil), nil)
+	e, err := r.AddSource(context.Background(), script, true)
+	if err != nil {
+		t.Fatalf("AddSource: %v", err)
+	}
+	up := e.Provider.(provider.Updater)
+	if _, err := up.Update(context.Background(), t.TempDir(), "95/200", "95/100", nil); !errors.Is(err, provider.ErrUpdateUnsupported) {
+		t.Fatalf("Update err = %v, want ErrUpdateUnsupported", err)
+	}
+}
+
 // TestUngrantedNetworkDenied proves a non-builtin script with no grants cannot
 // reach the network.
 func TestUngrantedNetworkDenied(t *testing.T) {

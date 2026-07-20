@@ -1,17 +1,36 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using JustHostMC.App.Services;
 using McManager.Grpc;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace JustHostMC.App.Models;
 
-/// <summary>Everything the shop window needs to know about the server it was
-/// opened for: the compatibility pre-filter, the installed-jar lookup used to
-/// mark dependencies as already present, and the refresh hook fired after an
-/// install so the server's mod list updates.</summary>
+/// <summary>Everything the shop window needs to know about where it was opened
+/// from. Server-scoped (from a server's mods panel): the compatibility
+/// pre-filter, the installed-jar lookup used to mark dependencies as already
+/// present, and the refresh hook fired after an install so the server's mod
+/// list updates. Server-less (from the home page, see
+/// <see cref="ForModpackBrowsing"/>): modpack sources only.</summary>
 public sealed record ShopContext(
     string ServerId, string McVersion, string Loader, ModKind Kind,
-    Func<IReadOnlyCollection<string>> InstalledFileNames, Action OnInstalled);
+    Func<IReadOnlyCollection<string>> InstalledFileNames, Action OnInstalled,
+    // Starts a whole-server modpack install in the main window's global
+    // install-progress flow; null for a server-scoped shop, which never lists
+    // modpack sources.
+    Func<CreateServerRequest, Task>? CreateServer = null) {
+    /// <summary>True when the shop was opened for an existing server (mods and
+    /// plugins); false for the home-page modpack shop.</summary>
+    public bool IsServerScoped => ServerId.Length > 0;
+
+    /// <summary>Context for the server-less, home-page shop: modpack sources
+    /// only, installs create a brand-new server via
+    /// <paramref name="createServer"/>.</summary>
+    public static ShopContext ForModpackBrowsing(
+        Func<CreateServerRequest, Task> createServer) =>
+        new("", "", "", ModKind.Modpack, () => Array.Empty<string>(), () => {},
+            createServer);
+}
 
 /// <summary>One project card (home/search results).</summary>
 public sealed class ShopProjectItem {
@@ -92,10 +111,27 @@ public sealed partial class ShopVersionItem : ObservableObject {
             version.Dependencies.Where(d => d.Required).ToArray();
     }
 
+    /// <summary>Overload that computes a compatibility badge against the
+    /// server the shop was opened for. <paramref name="showBadge"/> is false
+    /// when the user's version/loader filters are active — the engine already
+    /// narrowed the list, so a badge would be noise.</summary>
+    public ShopVersionItem(ShopVersion version, ShopContext context,
+                           bool showBadge, bool isModpack, ILocalizer localizer)
+        : this(version) {
+        IsModpack = isModpack;
+        if (showBadge) {
+            Compat = ShopCompat.Evaluate(context.Loader, context.McVersion,
+                                         version.Loaders, version.GameVersions);
+        }
+    }
+
     public ShopVersion Version { get; }
     public IReadOnlyList<ShopDependency> RequiredDependencies { get; }
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(InstallActionVisibility))]
+    [NotifyPropertyChangedFor(nameof(CreateServerActionVisibility))]
+    [NotifyPropertyChangedFor(nameof(WebsiteActionVisibility))]
     public partial string ActionLabel {
         get; set;
     } = "";
@@ -131,6 +167,38 @@ public sealed partial class ShopVersionItem : ObservableObject {
             return string.Join("  ·  ", parts);
         }
     }
+
+    /// <summary>Client-side compatibility verdict for this listing against the
+    /// server the shop was opened for; Unknown when not evaluated.</summary>
+    public ShopCompatVerdict Compat { get; } = ShopCompatVerdict.Unknown;
+
+    public Visibility CompatBadgeVisibility =>
+        Compat is ShopCompatVerdict.LoaderMismatch or
+                ShopCompatVerdict.VersionMismatch
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+
+    /// <summary>True when selecting this version creates a new server rather
+    /// than installing into an existing one. XAML uses this semantic state to
+    /// choose its localized finite-state label.</summary>
+    public bool IsModpack { get; }
+
+    public Visibility InstallActionVisibility =>
+        ActionLabel.Length == 0 && !IsModpack ? Visibility.Visible
+                                              : Visibility.Collapsed;
+    public Visibility CreateServerActionVisibility =>
+        ActionLabel.Length == 0 && IsModpack ? Visibility.Visible
+                                             : Visibility.Collapsed;
+    public Visibility WebsiteActionVisibility =>
+        ActionLabel.Length > 0? Visibility.Visible : Visibility.Collapsed;
+
+    public Visibility LoaderMismatchVisibility =>
+        Compat == ShopCompatVerdict.LoaderMismatch ? Visibility.Visible
+                                                   : Visibility.Collapsed;
+
+    public Visibility VersionMismatchVisibility =>
+        Compat == ShopCompatVerdict.VersionMismatch ? Visibility.Visible
+                                                    : Visibility.Collapsed;
 }
 
 /// <summary>Display formatting shared by the shop UI.</summary>

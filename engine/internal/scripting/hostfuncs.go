@@ -14,10 +14,14 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
+
+	"golang.org/x/sync/errgroup"
 
 	mcmanagerv1 "github.com/000hen/justhostmc/engine/gen/mcmanager/v1"
 	"github.com/000hen/justhostmc/engine/internal/dl"
@@ -39,6 +43,7 @@ func (inv *invocation) newJHMC(L *lua.LState) *lua.LTable {
 	reg("http_json", inv.httpJSON)
 	reg("http_cache", inv.httpCached)
 	reg("download", inv.download)
+	reg("download_all", inv.downloadAll)
 	reg("sha256", inv.sha256File)
 	reg("unzip", inv.unzip)
 	reg("run_jar", inv.runJar)
@@ -75,6 +80,17 @@ func (inv *invocation) newJHMC(L *lua.LState) *lua.LTable {
 	fs.RawSetString("mkdir", L.NewFunction(inv.fsMkdir))
 	fs.RawSetString("remove", L.NewFunction(inv.fsRemove))
 	t.RawSetString("fs", fs)
+
+	// jhmc.config exposes the script's typed config values. It is the config
+	// surface for automation scripts (which have no per-call ctx table); present
+	// only when a config map was supplied for this invocation.
+	if inv.config != nil {
+		cfg := L.NewTable()
+		for k, v := range inv.config {
+			cfg.RawSetString(k, lua.LString(v))
+		}
+		t.RawSetString("config", cfg)
+	}
 
 	return t
 }
@@ -305,6 +321,156 @@ func (inv *invocation) download(L *lua.LState) int {
 	}
 	L.Push(lua.LString(full))
 	return 1
+}
+
+// batchItem is one download_all entry, fully resolved on the Lua thread so the
+// worker goroutines never touch the Lua state.
+type batchItem struct {
+	dest, full, url string
+	resolveURL      string
+	resolveHeaders  map[string]string
+	newHash         func() hash.Hash // nil = no checksum
+	want            string
+}
+
+// downloadAll backs jhmc.download_all(items, opts): a parallel batch download
+// with per-file completion progress. Items carry either a direct url or a
+// resolve endpoint (GET returning {"data": "<real url>"}, the CurseForge
+// download-url convention). The first error cancels the batch.
+func (inv *invocation) downloadAll(L *lua.LState) int {
+	inv.require(L, mcmanagerv1.PermissionKind_PERMISSION_NETWORK)
+	itemsTbl := L.CheckTable(1)
+	concurrency := 6
+	if opts, ok := L.Get(2).(*lua.LTable); ok {
+		if n, ok := opts.RawGetString("concurrency").(lua.LNumber); ok && int(n) > 0 {
+			concurrency = min(int(n), 16)
+		}
+	}
+
+	var items []batchItem
+	var parseErr error
+	itemsTbl.ForEach(func(_, v lua.LValue) {
+		if parseErr != nil {
+			return
+		}
+		entry, ok := v.(*lua.LTable)
+		if !ok {
+			parseErr = fmt.Errorf("download_all: item is not a table")
+			return
+		}
+		it := batchItem{dest: strField(entry, "dest"), url: strField(entry, "url")}
+		if it.dest == "" {
+			parseErr = fmt.Errorf("download_all: item.dest is required")
+			return
+		}
+		it.full = inv.resolvePath(L, it.dest) // raises via fail on escape
+		if s := strField(entry, "sha256"); s != "" {
+			it.newHash, it.want = sha256.New, strings.ToLower(s)
+		} else if s := strField(entry, "sha1"); s != "" {
+			it.newHash, it.want = sha1.New, strings.ToLower(s)
+		}
+		if res, ok := entry.RawGetString("resolve").(*lua.LTable); ok {
+			it.resolveURL = strField(res, "url")
+			if hdrs, ok := res.RawGetString("headers").(*lua.LTable); ok {
+				it.resolveHeaders = map[string]string{}
+				hdrs.ForEach(func(k, hv lua.LValue) {
+					it.resolveHeaders[k.String()] = hv.String()
+				})
+			}
+		}
+		if it.url == "" && it.resolveURL == "" {
+			parseErr = fmt.Errorf("download_all: %s has neither url nor resolve.url", it.dest)
+			return
+		}
+		items = append(items, it)
+	})
+	if parseErr != nil {
+		inv.fail(L, parseErr)
+		return 0
+	}
+	if len(items) == 0 {
+		return 0
+	}
+
+	total := len(items)
+	var done atomic.Int64
+	// gRPC stream sends are not safe for concurrent use; serialize emission.
+	var emitMu sync.Mutex
+	emit := func(p provider.Progress) {
+		emitMu.Lock()
+		inv.emit(p)
+		emitMu.Unlock()
+	}
+
+	g, ctx := errgroup.WithContext(inv.ctx)
+	g.SetLimit(concurrency)
+	for _, it := range items {
+		g.Go(func() error {
+			url := it.url
+			if url == "" {
+				u, err := resolveDownloadURL(ctx, &inv.host.client, it.resolveURL, it.resolveHeaders)
+				if err != nil {
+					return fmt.Errorf("%s: %w", it.dest, err)
+				}
+				url = u
+			}
+			var h hash.Hash
+			if it.newHash != nil {
+				h = it.newHash()
+			}
+			// Per-byte progress is intentionally dropped: fractions from
+			// parallel workers would interleave; completion counts are stable.
+			sum, _, err := dl.Download(ctx, &inv.host.client, url, it.full, h, nil)
+			if err != nil {
+				return fmt.Errorf("%s: %w", it.dest, err)
+			}
+			if it.want != "" && !strings.EqualFold(sum, it.want) {
+				return fmt.Errorf("%s: %w (got %s want %s)", it.dest, provider.ErrChecksumMismatch, sum, it.want)
+			}
+			emit(provider.Progress{Step: "shop.install.downloading",
+				Fraction: float64(done.Add(1)) / float64(total), LogLine: path.Base(it.dest)})
+			return nil
+		})
+	}
+	if err := g.Wait(); err != nil {
+		inv.fail(L, err)
+		return 0
+	}
+	return 0
+}
+
+// resolveDownloadURL fetches a JSON endpoint whose "data" field is the real
+// download URL (the CurseForge /download-url convention).
+func resolveDownloadURL(ctx context.Context, client *http.Client, url string, headers map[string]string) (string, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("User-Agent", scriptUserAgent)
+	for k, v := range headers {
+		req.Header.Set(k, v)
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode == http.StatusForbidden {
+		return "", fmt.Errorf("CurseForge denied downloading (the author disallows third-party downloads)")
+	}
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("GET %s: unexpected status %s", url, resp.Status)
+	}
+	var out struct {
+		Data string `json:"data"`
+	}
+	if err := json.NewDecoder(io.LimitReader(resp.Body, 1<<20)).Decode(&out); err != nil {
+		return "", fmt.Errorf("resolve %s: %v", url, err)
+	}
+	if out.Data == "" {
+		return "", fmt.Errorf("resolve %s: empty download url", url)
+	}
+	return out.Data, nil
 }
 
 // -- filesystem (confined to the server dir) ----------------------------------
@@ -590,11 +756,19 @@ func (inv *invocation) jsonEncode(L *lua.LState) int {
 }
 
 // unzip extracts a zip (relative path within the server dir) into destDir
-// (also within the server dir), guarding against zip-slip.
+// (also within the server dir), guarding against zip-slip. An optional third
+// arg { prefix = "overrides/" } extracts only entries under prefix, stripping
+// it from each destination — used to splat a pack's overrides/ tree into the
+// server root.
 func (inv *invocation) unzip(L *lua.LState) int {
 	inv.requireFS(L)
 	zipPath := inv.resolvePath(L, L.CheckString(1))
 	destDir := inv.resolvePath(L, L.CheckString(2))
+
+	var prefix string
+	if opts, ok := L.Get(3).(*lua.LTable); ok {
+		prefix = strField(opts, "prefix")
+	}
 
 	zr, err := zip.OpenReader(zipPath)
 	if err != nil {
@@ -605,7 +779,17 @@ func (inv *invocation) unzip(L *lua.LState) int {
 
 	dest := filepath.Clean(destDir)
 	for _, f := range zr.File {
-		target := filepath.Clean(filepath.Join(dest, f.Name))
+		name := filepath.ToSlash(f.Name)
+		if prefix != "" {
+			if !strings.HasPrefix(name, prefix) {
+				continue
+			}
+			name = name[len(prefix):]
+			if name == "" {
+				continue // the prefix directory entry itself
+			}
+		}
+		target := filepath.Clean(filepath.Join(dest, name))
 		if r, err := filepath.Rel(dest, target); err != nil || r == ".." || strings.HasPrefix(r, ".."+string(filepath.Separator)) {
 			inv.fail(L, fmt.Errorf("%w: %s", ErrPathEscape, f.Name))
 			return 0

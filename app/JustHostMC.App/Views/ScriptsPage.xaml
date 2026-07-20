@@ -41,6 +41,7 @@
                     Margin="0,24,0,0"
                     AddScriptsClick="OnImportProviderClick"
                     ItemsSource="{x:Bind ViewModel.Providers}"
+                    ScriptConfigured="OnConfigureClick"
                     ScriptRemoved="OnRemoveScript"
                     ScriptToggled="OnScriptToggled"
                     ShowInFolderClick="OnShowProvidersFolderClick">
@@ -53,6 +54,7 @@
                 <controls:ScriptSectionExpander
                     AddScriptsClick="OnImportParserClick"
                     ItemsSource="{x:Bind ViewModel.Parsers}"
+                    ScriptConfigured="OnConfigureClick"
                     ScriptRemoved="OnRemoveScript"
                     ScriptToggled="OnScriptToggled"
                     ShowInFolderClick="OnShowParsersFolderClick">
@@ -61,10 +63,24 @@
                     </controls:ScriptSectionExpander.HeaderContent>
                 </controls:ScriptSectionExpander>
 
+                <!--  Mod shop sources  -->
+                <controls:ScriptSectionExpander
+                    AddScriptsClick="OnImportShopClick"
+                    ItemsSource="{x:Bind ViewModel.Shops}"
+                    ScriptConfigured="OnConfigureClick"
+                    ScriptRemoved="OnRemoveScript"
+                    ScriptToggled="OnScriptToggled"
+                    ShowInFolderClick="OnShowShopsFolderClick">
+                    <controls:ScriptSectionExpander.HeaderContent>
+                        <TextBlock x:Uid="ScriptsShopsHeader" Style="{StaticResource BodyTextBlockStyle}" />
+                    </controls:ScriptSectionExpander.HeaderContent>
+                </controls:ScriptSectionExpander>
+
                 <!--  Automation scripts  -->
                 <controls:ScriptSectionExpander
                     AddScriptsClick="OnImportScriptClick"
                     ItemsSource="{x:Bind ViewModel.Scripts}"
+                    ScriptConfigured="OnConfigureClick"
                     ScriptRemoved="OnRemoveScript"
                     ScriptToggled="OnScriptToggled"
                     ShowInFolderClick="OnShowAutomationFolderClick">

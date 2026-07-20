@@ -37,9 +37,33 @@ public sealed partial class ServerItem : ObservableObject {
     [NotifyPropertyChangedFor(nameof(IsNeoForgeProvider))]
     [NotifyPropertyChangedFor(nameof(IsFabricProvider))]
     [NotifyPropertyChangedFor(nameof(IsTypeUnknown))]
+    [NotifyPropertyChangedFor(nameof(EffectiveLoader))]
     public partial string ProviderId {
         get; private set;
     } = "";
+
+    /// <summary>Effective mod loader recorded at install ("fabric"/"forge"/…);
+    /// empty for providers whose loader equals their id.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(EffectiveLoader))]
+    public partial string Loader {
+        get; private set;
+    } = "";
+
+    /// <summary>The loader to reason about compatibility with: the recorded
+    /// loader when set, else the provider id (which doubles as the loader for
+    /// plain providers like fabric/paper/forge).</summary>
+    public string EffectiveLoader => Loader.Length > 0 ? Loader : ProviderId;
+
+    /// <summary>Opaque modpack pack version ("packId/versionId"); empty for
+    /// normal servers.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsModpackServer))]
+    public partial string ProviderVersion { get; private set; } = "";
+
+    /// <summary>True for servers installed from a modpack — enables the
+    /// update/export modpack actions.</summary>
+    public bool IsModpackServer => ProviderVersion.Length > 0;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanStart))]
@@ -59,9 +83,7 @@ public sealed partial class ServerItem : ObservableObject {
     [NotifyPropertyChangedFor(nameof(NavigationAutomationName))]
     [NotifyPropertyChangedFor(nameof(NavigationStatusBrush))]
     [NotifyPropertyChangedFor(nameof(IsIncompleteInstallation))]
-    public partial ServerStatus Status {
-        get; private set;
-    }
+    public partial ServerStatus Status { get; private set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(EndpointText))]
@@ -222,14 +244,16 @@ public sealed partial class ServerItem : ObservableObject {
 
     /// <summary>Refreshes this item from a fresh server snapshot.</summary>
     public void Apply(Server proto) {
-        Name           = proto.Name;
-        McVersion      = proto.McVersion;
-        ProviderId     = proto.ProviderId;
-        Status         = proto.Status;
-        Port           = proto.Port;
-        MemoryMb       = proto.MemoryMb;
-        SortOrder      = proto.SortOrder;
-        CustomJavaArgs = proto.CustomJavaArgs;
+        Name            = proto.Name;
+        McVersion       = proto.McVersion;
+        ProviderId      = proto.ProviderId;
+        Loader          = proto.Loader;
+        ProviderVersion = proto.ProviderVersion;
+        Status          = proto.Status;
+        Port            = proto.Port;
+        MemoryMb        = proto.MemoryMb;
+        SortOrder       = proto.SortOrder;
+        CustomJavaArgs  = proto.CustomJavaArgs;
     }
 
     public void ApplyLocal(UpdateServerRequest request) {

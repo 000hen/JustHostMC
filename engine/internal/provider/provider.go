@@ -19,6 +19,16 @@ type Progress struct {
 type LaunchSpec struct {
 	JavaMajor int      // required Java feature version: 8 / 17 / 21 …
 	Args      []string // JVM/program args, e.g. ["-jar", "server.jar", "nogui"]
+	// McVersion, when non-empty, is the concrete Minecraft version the install
+	// resolved to; it overrides the request's version on the server record (a
+	// modpack provider takes an opaque "packId/versionId" and resolves the real
+	// MC version here). Loader is the effective mod loader ("fabric"/"forge"/…).
+	McVersion string
+	Loader    string
+	// PackVersion is the opaque provider pack version ("packId/versionId") a
+	// modpack provider echoes back so it can be persisted for later update and
+	// export; empty for normal providers.
+	PackVersion string
 }
 
 // JavaResolver resolves (downloading if needed) a java.exe for a Java major
@@ -34,6 +44,14 @@ type Provider interface {
 	// Install resolves and downloads files into dir, runs any installer, and
 	// returns the launch spec. progress may be nil.
 	Install(ctx context.Context, dir, version string, progress func(Progress)) (LaunchSpec, error)
+}
+
+// Updater is optionally implemented by providers that can move an installed
+// server to another version in place (e.g. a modpack manifest diff).
+// Implementations return ErrUpdateUnsupported when the underlying script has
+// no update() entry point.
+type Updater interface {
+	Update(ctx context.Context, dir, version, oldVersion string, progress func(Progress)) (LaunchSpec, error)
 }
 
 // report sends progress if a sink is set; it keeps call sites terse.

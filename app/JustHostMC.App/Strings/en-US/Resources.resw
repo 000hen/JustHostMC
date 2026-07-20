@@ -111,7 +111,7 @@
   <data name="CreateServerVersionError.Title" xml:space="preserve"><value>Could not load versions</value></data>
   <data name="CreateServerVersionError.Message" xml:space="preserve"><value>Check your internet connection and try selecting the server type again.</value></data>
   <data name="CreateServerAdvancedHeader.Text" xml:space="preserve"><value>Advanced settings</value></data>
-  <data name="CreateServerMemory.Header" xml:space="preserve"><value>Memory (MB)</value></data>
+  <data name="CreateServerMemory.Header" xml:space="preserve"><value>Memory (MB)</value><comment>Canonical duplicate value in this locale; semantic identifier: CreateServerMemory.Header.</comment></data>
   <data name="CreateServerMemoryHint.Text" xml:space="preserve"><value>Maximum heap memory for the Java process. 2048 MB is recommended for most servers.</value></data>
   <data name="CreateServerPort.Header" xml:space="preserve"><value>Port</value><comment>Canonical duplicate value in this locale; semantic identifier: CreateServerPort.Header.</comment></data>
   <data name="CreateServerPortHint.Text" xml:space="preserve"><value>Leave at 0 to auto-assign a free port. Use 25565 for the Minecraft default.</value></data>
@@ -126,6 +126,7 @@
   <data name="install.progress.extracting_jre" xml:space="preserve"><value>Extracting Java runtime</value></data>
   <data name="install.progress.downloading_installer" xml:space="preserve"><value>Downloading installer</value></data>
   <data name="install.progress.running_installer" xml:space="preserve"><value>Running installer</value></data>
+  <data name="shop.install.downloading" xml:space="preserve"><value>Downloading pack files</value></data>
   <data name="install.progress.done" xml:space="preserve"><value>Done.</value></data>
 
   <!-- Errors (mapped from ErrorCode / status) -->
@@ -156,7 +157,6 @@
   <data name="SettingsDialog.Title" xml:space="preserve"><value>Settings</value><comment>Same visible value as SettingsButton.Content; kept separate for this property or translation context.</comment></data>
   <data name="SettingsDialog.CloseButtonText" xml:space="preserve"><value>Close</value><comment>Same visible value as ConsoleDialog.CloseButtonText; kept separate for this property or translation context.</comment></data>
   <data name="SettingsCategoryEngine.Text" xml:space="preserve"><value>Engine &amp; Servers</value></data>
-  <data name="SettingsCategoryIntegrations.Text" xml:space="preserve"><value>Integrations</value></data>
   <data name="SettingsCategoryApp.Text" xml:space="preserve"><value>Application</value></data>
   <data name="SettingsRetentionHeader.Text" xml:space="preserve"><value>Log retention</value></data>
   <data name="SettingsRetentionHint.Text" xml:space="preserve"><value>Install and console logs are pruned automatically. Use 0 for no limit.</value></data>
@@ -327,6 +327,16 @@
   <data name="ServerOpenInstanceFolderMenuItem.Text" xml:space="preserve">
     <value>Open instance folder</value>
   </data>
+  <data name="ServerUpdateModpackMenuItem.Text" xml:space="preserve"><value>Update modpack…</value></data>
+  <data name="ServerExportModpackMenuItem.Text" xml:space="preserve"><value>Export modpack…</value></data>
+  <data name="Server_UpdateModpackBody" xml:space="preserve"><value>Pick a version for "{0}" (currently {1}). The world and your own files are kept; pack files are replaced.</value></data>
+  <data name="Server_ExportModpackPickerName" xml:space="preserve"><value>CurseForge modpack</value></data>
+  <data name="ImportModpack_DialogTitle" xml:space="preserve"><value>Import modpack</value><comment>Same visible value as HomeImportButtonLabel.Text; kept separate for dialog-title translation context.</comment></data>
+  <data name="ImportModpack_NameHeader" xml:space="preserve"><value>Server name</value><comment>Canonical duplicate value in this locale; semantic identifier: ImportModpack_NameHeader.</comment></data>
+  <data name="ImportModpack_MemoryHeader" xml:space="preserve"><value>Memory</value><comment>Canonical duplicate value in this locale; semantic identifier: ImportModpack_MemoryHeader.</comment></data>
+  <data name="shop.export.preparing" xml:space="preserve"><value>Preparing modpack export…</value></data>
+  <data name="shop.export.zipping" xml:space="preserve"><value>Packaging modpack…</value></data>
+  <data name="shop.export.done" xml:space="preserve"><value>Modpack exported.</value></data>
   <data name="PlayerOpButton.Label" xml:space="preserve">
     <value>OP</value>
   </data>
@@ -428,6 +438,14 @@
   <data name="ScriptsParsersHeader.Text" xml:space="preserve"><value>Mod Metadata Parsers</value></data>
   <data name="ScriptsParsersEmpty.Text" xml:space="preserve"><value>No parsers installed. Parsers read a mod or plugin jar's embedded metadata (name, version, authors, icon) for the server Mods panel.</value></data>
   <data name="Parsers_Formats" xml:space="preserve"><value>Reads: {formats}</value></data>
+  <data name="ScriptsShopsHeader.Text" xml:space="preserve"><value>Mod Shops</value></data>
+  <data name="ScriptsShopsEmpty.Text" xml:space="preserve"><value>No shop sources installed. Shop sources let you browse and download mods or plugins from a remote catalog such as Modrinth or CurseForge.</value></data>
+  <data name="Scripts_ShopNeedsKey" xml:space="preserve"><value>Requires an API key — set it in Settings.</value></data>
+  <data name="ScriptsConfigureButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Configure</value></data>
+  <data name="ScriptConfig_Save" xml:space="preserve"><value>Save</value><comment>Same visible value as SettingsSaveButton.Content; kept separate for script-configuration dialog context.</comment></data>
+  <data name="ScriptConfig_Cancel" xml:space="preserve"><value>Cancel</value><comment>Same visible value as Scripts_RemoveConfirmCancel; kept separate for script-configuration dialog context.</comment></data>
+  <data name="ScriptConfig_SecretSetPlaceholder" xml:space="preserve"><value>Leave blank to keep the current value</value></data>
+  <data name="ScriptConfig_SecretUnsetPlaceholder" xml:space="preserve"><value>Not set</value></data>
   <data name="ModsWebsiteLink.Content" xml:space="preserve"><value>Website</value></data>
   <data name="ScriptSectionShowInFolderButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Show scripts in folder</value></data>
   <data name="ScriptSectionShowInFolderButtonLabel.Text" xml:space="preserve"><value>Show in Folder</value></data>
@@ -487,6 +505,11 @@
   <data name="SettingsAboutRepo.Text" xml:space="preserve"><value>GitHub Repository</value></data>
   <data name="SettingsAboutIssues.Text" xml:space="preserve"><value>Report an Issue</value></data>
 <data name="ShopTitleBar.Title" xml:space="preserve"><value>Mod Shop</value><comment>Canonical Mod Shop window title; copied to Window.Title after XAML initialization.</comment></data>
+  <data name="ShopWindow_TitleModpacks" xml:space="preserve"><value>Modpack Shop</value></data>
+  <data name="HomeShopButtonLabel.Text" xml:space="preserve"><value>Modpack shop</value><comment>Home-page label for opening the modpack shop.</comment></data>
+  <data name="HomeImportButtonLabel.Text" xml:space="preserve"><value>Import modpack</value><comment>Canonical duplicate value in this locale; semantic identifier: HomeImportButtonLabel.Text.</comment></data>
+  <data name="Shop_DiscoverTitleGlobal" xml:space="preserve"><value>Start a new server from a modpack</value></data>
+  <data name="Shop_DiscoverSubtitleGlobal" xml:space="preserve"><value>Browse community modpacks. Installing one creates a brand-new server, fully set up.</value></data>
   <data name="ShopDiscoverTitle.Text" xml:space="preserve"><value>Find something brilliant for your server</value></data>
   <data name="ShopDiscoverSubtitle.Text" xml:space="preserve"><value>Explore community projects selected for this server. Compatibility filters are on by default, so what you see is ready to fit.</value></data>
   <data name="ShopDismissWelcome.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Dismiss</value><comment>Same visible value as InstallDismissButton.Content; kept separate for this property or translation context.</comment></data>
@@ -517,8 +540,8 @@
   <data name="shop.category.worldgen" xml:space="preserve"><value>World generation</value><comment>Canonical duplicate value in this locale; semantic identifier: shop.category.worldgen.</comment></data>
   <data name="ShopSearchBox.PlaceholderText" xml:space="preserve"><value>Search mods…</value></data>
   <data name="ShopBackButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Back</value></data>
-  <data name="ShopKeyMissingBar.Message" xml:space="preserve"><value>This source needs an API key. Add one in Settings to enable it.</value></data>
-<data name="ShopKeyMissingTooltip.Content" xml:space="preserve"><value>Needs an API key (see Settings)</value></data>
+  <data name="ShopKeyMissingBar.Message" xml:space="preserve"><value>This source needs an API key. Add one from the Scripts page (Configure the source) to enable it.</value></data>
+  <data name="ShopKeyMissingTooltip.Content" xml:space="preserve"><value>Needs an API key (Configure it on the Scripts page)</value></data>
   <data name="Shop_ResultSummary" xml:space="preserve"><value>{0} results for “{1}”</value></data>
   <data name="ShopSortCombo.Header" xml:space="preserve"><value>Sort by</value></data>
   <data name="ShopSortRelevance.Content" xml:space="preserve"><value>Relevance</value></data>
@@ -565,10 +588,23 @@
   <data name="shop.category.curseforge.world-editing-and-management" xml:space="preserve"><value>World Editing and Management</value></data>
   <data name="shop.category.curseforge.world-generators" xml:space="preserve"><value>World Generators</value></data>
   <data name="ShopInstallButton.Content" xml:space="preserve"><value>Install</value><comment>Canonical duplicate value in this locale; semantic identifier: ShopInstallButton.Content.</comment></data>
-  <data name="ShopInstallLatestButton.Content" xml:space="preserve"><value>Install latest release</value></data>
+  <data name="ShopInstallLatestButton.Content" xml:space="preserve"><value>Install latest release</value><comment>Canonical duplicate value in this locale; semantic identifier: ShopInstallLatestButton.Content.</comment></data>
   <data name="ShopNoVersions.Text" xml:space="preserve"><value>No compatible versions for this server. Relax the filters to see more.</value></data>
   <data name="Shop_ErrorNotFound" xml:space="preserve"><value>The source no longer lists this project or version.</value></data>
   <data name="Shop_ErrorNotDistributable" xml:space="preserve"><value>The author disallows third-party downloads for this file. Use “Open website” instead.</value></data>
+  <data name="Shop_CompatLoaderMismatch" xml:space="preserve"><value>Built for {modLoaders}; your server runs {serverLoader}.</value></data>
+  <data name="Shop_CompatVersionMismatch" xml:space="preserve"><value>Built for Minecraft {modVersions}; your server runs {serverVersion}.</value></data>
+  <data name="Shop_CompatProjectWarning" xml:space="preserve"><value>This project may not support your server ({serverLoader}, Minecraft {serverVersion}). Check the Versions tab.</value></data>
+  <data name="Shop_InstallButtonText" xml:space="preserve"><value>Install</value><comment>Same visible value as ShopInstallButton.Content; kept separate for programmatic action-label context.</comment></data>
+  <data name="Shop_InstallLatestButtonText" xml:space="preserve"><value>Install latest release</value><comment>Same visible value as ShopInstallLatestButton.Content; kept separate for programmatic action-label context.</comment></data>
+  <data name="Shop_CreateServerButton" xml:space="preserve"><value>Create server</value><comment>Same visible value as CreateServerButtonLabel.Text; kept separate for modpack action-label context.</comment></data>
+  <data name="Shop_CreateServerPromptBody" xml:space="preserve"><value>Create a new server from {0}.</value></data>
+  <data name="Shop_CreateServerNameLabel" xml:space="preserve"><value>Server name</value><comment>Same visible value as ImportModpack_NameHeader; kept separate for modpack creation context.</comment></data>
+  <data name="Shop_CreateServerMemoryLabel" xml:space="preserve"><value>Memory (MB)</value><comment>Same visible value as CreateServerMemory.Header; kept separate for modpack creation context.</comment></data>
+  <data name="Shop_CreateServerConfirm" xml:space="preserve"><value>Create</value><comment>Same visible value as CreateServerDialog.PrimaryButtonText; kept separate for modpack creation context.</comment></data>
+  <data name="Shop_ServerCreateStarted" xml:space="preserve"><value>Server creation started. Track progress in the main window.</value></data>
+  <data name="Shop_CreateServerFailed" xml:space="preserve"><value>Couldn't create the server.</value></data>
+  <data name="Shop_NoSources" xml:space="preserve"><value>No shop sources are available here.</value></data>
   <data name="Shop_ErrorKeyMissing" xml:space="preserve"><value>This source needs an API key. Add one in Settings.</value></data>
   <data name="Shop_ErrorServerRunning" xml:space="preserve"><value>Stop the server before installing mods.</value></data>
   <data name="shop.home.popular" xml:space="preserve"><value>Most downloaded</value></data>
@@ -584,10 +620,6 @@
   <data name="ModsExportAllLabel.Text" xml:space="preserve"><value>Download all</value></data>
   <data name="ModsBrowseLabel.Text" xml:space="preserve"><value>Browse</value></data>
   <data name="ModsUploadLabel.Text" xml:space="preserve"><value>Add custom jars</value></data>
-  <data name="SettingsShopHeader.Text" xml:space="preserve"><value>Mod shop</value><comment>Same visible value as ShopWindow.Title; kept separate for this property or translation context.</comment></data>
-  <data name="SettingsShopHint.Text" xml:space="preserve"><value>CurseForge requires a personal API key from console.curseforge.com. Modrinth needs no key.</value></data>
-  <data name="SettingsCurseForgeKey.Header" xml:space="preserve"><value>CurseForge API key</value></data>
-  <data name="SettingsShopKeySaveButton.Content" xml:space="preserve"><value>Save key</value></data>
   <!-- ContentDialog property resources. Runtime placeholders are formatted by each dialog wrapper after InitializeComponent. -->
   <data name="CloseBusyDialog.Title" xml:space="preserve"><value>Current task is running</value></data>
   <data name="CloseBusyDialog.PrimaryButtonText" xml:space="preserve"><value>Hide to system tray</value></data>
@@ -595,7 +627,7 @@
   <data name="CloseBusyDialog.CloseButtonText" xml:space="preserve"><value>Cancel</value><comment>Same visible value as Scripts_RemoveConfirmCancel; kept separate for this property or translation context.</comment></data>
   <data name="CloseBusyDialogBody.Text" xml:space="preserve"><value>Closing now interrupts the current task. You can keep JustHostMC running in the system tray or close it anyway.</value></data>
   <data name="CreateServerDialog.Title" xml:space="preserve"><value>Create server</value><comment>Same visible value as CreateServerButtonLabel.Text; kept separate for this property or translation context.</comment></data>
-  <data name="CreateServerDialog.PrimaryButtonText" xml:space="preserve"><value>Create</value></data>
+  <data name="CreateServerDialog.PrimaryButtonText" xml:space="preserve"><value>Create</value><comment>Canonical duplicate value in this locale; semantic identifier: CreateServerDialog.PrimaryButtonText.</comment></data>
   <data name="CreateServerDialog.CloseButtonText" xml:space="preserve"><value>Cancel</value><comment>Same visible value as Scripts_RemoveConfirmCancel; kept separate for this property or translation context.</comment></data>
   <data name="EditServerDialog.Title" xml:space="preserve"><value>Edit server</value><comment>Same visible value as HomeCardEditButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name; kept separate for this property or translation context.</comment></data>
   <data name="EditServerDialog.PrimaryButtonText" xml:space="preserve"><value>Save</value><comment>Same visible value as SettingsSaveButton.Content; kept separate for this property or translation context.</comment></data>
@@ -643,7 +675,6 @@
   <data name="ServerPerformanceSection.Description" xml:space="preserve"><value>Monitor server resource usage and network metrics</value></data>
   <data name="ServerPlayersEmptyDescriptionText.Text" xml:space="preserve"><value>No players online.</value></data>
   <data name="ServerPlayersActiveDescriptionText.Text" xml:space="preserve"><value>Manage online players, operators, and ban lists</value></data>
-  <data name="SettingsCurseForgeKeyBox.PlaceholderText" xml:space="preserve"><value>API Key</value></data>
   <data name="MainTitleBar.Title" xml:space="preserve"><value>JustHostMC</value><comment>Same visible value as AppDisplayName; kept separate for this property or translation context.</comment></data>
   <data name="ServerTeachingTipStartActionText.Text" xml:space="preserve"><value>Start server</value></data>
   <data name="ServerTeachingTipInstalledMessageText.Text" xml:space="preserve"><value>The server is ready to run.</value></data>
@@ -721,9 +752,6 @@
   <data name="SettingsBackendModeDocker.Text" xml:space="preserve"><value>Servers run in Docker containers on this PC.</value></data>
   <data name="SettingsBackendModeOnMachine.Text" xml:space="preserve"><value>Servers run directly on this PC (isolated with Windows Job Objects).</value></data>
   <data name="SettingsDockerUnavailable.Text" xml:space="preserve"><value>Docker was not detected. Start Docker Desktop to enable this option.</value></data>
-  <data name="SettingsShopKeyNone.Text" xml:space="preserve"><value>No CurseForge key is configured — the CurseForge tab stays disabled.</value></data>
-  <data name="SettingsShopKeyUser.Text" xml:space="preserve"><value>A personal CurseForge key is configured. Save an empty key to remove it.</value></data>
-  <data name="SettingsShopKeyBuiltin.Text" xml:space="preserve"><value>Using this build's bundled CurseForge key. A personal key overrides it.</value></data>
   <data name="SettingsStatusLoadFailed.Text" xml:space="preserve"><value>Could not load settings.</value></data>
   <data name="SettingsStatusSaved.Text" xml:space="preserve"><value>Settings saved.</value></data>
   <data name="SettingsStatusSaveFailed.Text" xml:space="preserve"><value>Could not save settings.</value></data>
@@ -737,6 +765,44 @@
   <data name="ShopLoadFailedBar.Message" xml:space="preserve"><value>Could not load results from this source.</value><comment>Canonical duplicate value in this locale; semantic identifier: ShopLoadFailedBar.Message.</comment></data>
   <data name="ShopStatusLoadFailed.Text" xml:space="preserve"><value>Could not load results from this source.</value><comment>Same visible value as ShopLoadFailedBar.Message; kept separate for this property or translation context.</comment></data>
   <data name="ShopInstallActionText.Text" xml:space="preserve"><value>Install</value><comment>Same visible value as ShopInstallButton.Content; kept separate for this property or translation context.</comment></data>
+  <data name="ShopCreateServerActionText.Text" xml:space="preserve"><value>Create server</value><comment>Localized action shown on a modpack version row.</comment></data>
   <data name="ShopStatusInstallDone.Text" xml:space="preserve"><value>Installed. The server's mod list has been updated.</value></data>
   <data name="ShopStatusInstallFailed.Text" xml:space="preserve"><value>Install failed.</value></data>
+  <!-- Local-file modpack import and per-source configuration dialogs. -->
+  <data name="ImportModpackContentDialog.Title" xml:space="preserve"><value>Import modpack</value><comment>Local modpack import dialog title.</comment></data>
+  <data name="ImportModpackContentDialog.PrimaryButtonText" xml:space="preserve"><value>Import</value><comment>Primary action for the local modpack import dialog.</comment></data>
+  <data name="ImportModpackContentDialog.CloseButtonText" xml:space="preserve"><value>Cancel</value><comment>Cancel action for the local modpack import dialog.</comment></data>
+  <data name="ImportModpackNameBox.Header" xml:space="preserve"><value>Server name</value><comment>Name field in the local modpack import dialog.</comment></data>
+  <data name="ImportModpackMemoryBox.Header" xml:space="preserve"><value>Memory (MB)</value><comment>Memory picker in the local modpack import dialog.</comment></data>
+  <data name="ImportModpackMemory2048Option.Content" xml:space="preserve"><value>2048 MB</value><comment>Memory choice in the local modpack import dialog.</comment></data>
+  <data name="ImportModpackMemory4096Option.Content" xml:space="preserve"><value>4096 MB</value><comment>Memory choice in the local modpack import dialog.</comment></data>
+  <data name="ImportModpackMemory6144Option.Content" xml:space="preserve"><value>6144 MB</value><comment>Memory choice in the local modpack import dialog.</comment></data>
+  <data name="ImportModpackMemory8192Option.Content" xml:space="preserve"><value>8192 MB</value><comment>Memory choice in the local modpack import dialog.</comment></data>
+  <data name="ImportModpackMemory12288Option.Content" xml:space="preserve"><value>12288 MB</value><comment>Memory choice in the local modpack import dialog.</comment></data>
+  <data name="ImportModpackMemory16384Option.Content" xml:space="preserve"><value>16384 MB</value><comment>Memory choice in the local modpack import dialog.</comment></data>
+  <data name="ScriptConfigContentDialog.Title" xml:space="preserve"><value>Configure {name}</value><comment>Per-source configuration dialog title; {name} is replaced at runtime.</comment></data>
+  <data name="ScriptConfigContentDialog.PrimaryButtonText" xml:space="preserve"><value>Save</value><comment>Primary action for the per-source configuration dialog.</comment></data>
+  <data name="ScriptConfigContentDialog.CloseButtonText" xml:space="preserve"><value>Cancel</value><comment>Cancel action for the per-source configuration dialog.</comment></data>
+  <!-- Modpack dialog and global-shop resources introduced by the unified source UI. -->
+  <data name="CreateShopServerDialog.Title" xml:space="preserve"><value>Create a server</value><comment>Modpack-shop create-server dialog title.</comment></data>
+  <data name="CreateShopServerDialog.PrimaryButtonText" xml:space="preserve"><value>Create</value><comment>Primary action for the modpack-shop create-server dialog.</comment></data>
+  <data name="CreateShopServerDialog.CloseButtonText" xml:space="preserve"><value>Cancel</value><comment>Cancel action for the modpack-shop create-server dialog.</comment></data>
+  <data name="CreateShopServerDialogIntro.Text" xml:space="preserve"><value>Create a new server from this modpack.</value><comment>Introductory text above the selected modpack name.</comment></data>
+  <data name="CreateShopServerNameBox.Header" xml:space="preserve"><value>Server name</value><comment>Name field in the modpack-shop create-server dialog.</comment></data>
+  <data name="CreateShopServerMemoryBox.Header" xml:space="preserve"><value>Memory (MB)</value><comment>Memory field in the modpack-shop create-server dialog.</comment></data>
+  <data name="ServerUpdateModpackDialog.Title" xml:space="preserve"><value>Update modpack</value><comment>Modpack update dialog title.</comment></data>
+  <data name="ServerUpdateModpackDialog.PrimaryButtonText" xml:space="preserve"><value>Update</value><comment>Primary action for the modpack update dialog.</comment></data>
+  <data name="ServerUpdateModpackDialog.CloseButtonText" xml:space="preserve"><value>Cancel</value><comment>Cancel action for the modpack update dialog.</comment></data>
+  <data name="ServerUpdateModpackIntro.Text" xml:space="preserve"><value>Choose the version to install.</value><comment>Introductory text in the modpack update dialog.</comment></data>
+  <data name="ServerUpdateModpackServerLabel.Text" xml:space="preserve"><value>Server</value><comment>Label for the server name in the modpack update dialog.</comment></data>
+  <data name="ServerUpdateModpackCurrentLabel.Text" xml:space="preserve"><value>Current version</value><comment>Label for the installed version in the modpack update dialog.</comment></data>
+  <data name="ServerUpdateModpackVersionBox.Header" xml:space="preserve"><value>New version</value><comment>Version picker in the modpack update dialog.</comment></data>
+  <data name="ServerUpdateModpackNoVersionsText.Text" xml:space="preserve"><value>No other versions are available.</value><comment>Empty state in the modpack update dialog.</comment></data>
+  <data name="ModpackShopTitleBar.Title" xml:space="preserve"><value>Modpack shop</value><comment>Title for a serverless shop window browsing modpacks.</comment></data>
+  <data name="ShopCompatLoaderMismatchIcon.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Loader compatibility warning</value><comment>Accessible name for the loader mismatch warning icon.</comment></data>
+  <data name="ShopCompatLoaderMismatchIcon.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>This project may target a different mod loader.</value><comment>Tooltip for the loader mismatch warning icon.</comment></data>
+  <data name="ShopCompatVersionMismatchIcon.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Minecraft version compatibility warning</value><comment>Accessible name for the version mismatch warning icon.</comment></data>
+  <data name="ShopCompatVersionMismatchIcon.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>This project may target a different Minecraft version.</value><comment>Tooltip for the version mismatch warning icon.</comment></data>
+  <data name="ShopDiscoverGlobalTitle.Text" xml:space="preserve"><value>Discover modpacks</value><comment>Heading for the serverless modpack shop home page.</comment></data>
+  <data name="ShopDiscoverGlobalSubtitle.Text" xml:space="preserve"><value>Choose a modpack to create a new server.</value><comment>Subtitle for the serverless modpack shop home page.</comment></data>
 </root>

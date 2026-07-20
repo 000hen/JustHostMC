@@ -62,14 +62,44 @@ type invocation struct {
 	report   func(provider.Progress)
 	lastErr  error // structured error stashed before a Lua RaiseError, for mapping
 
-	kv       KV     // jhmc.store backend (nil where no store is wired, e.g. providers)
-	scriptID string // id scoping jhmc.store access
+	kv       KV                // jhmc.store backend (nil where no store is wired, e.g. providers)
+	scriptID string            // id scoping jhmc.store access
+	config   map[string]string // typed config values surfaced as ctx.config / jhmc.config (nil = none)
+
+	// providerRole resolves versions/install/update from a global `provider`
+	// role table first (a multi-role source script) before falling back to the
+	// top-level globals (the legacy single-role layout).
+	providerRole bool
+}
+
+// providerFn resolves a provider entry point, preferring a function in the
+// global `provider` role table (when this invocation runs a source script) and
+// falling back to a top-level global (the legacy layout).
+func (inv *invocation) providerFn(L *lua.LState, name string) lua.LValue {
+	if inv.providerRole {
+		if tbl, ok := L.GetGlobal("provider").(*lua.LTable); ok {
+			if f := tbl.RawGetString(name); f.Type() == lua.LTFunction {
+				return f
+			}
+		}
+	}
+	return L.GetGlobal(name)
 }
 
 func (inv *invocation) emit(p provider.Progress) {
 	if inv.report != nil {
 		inv.report(p)
 	}
+}
+
+// configTable builds a Lua table of the invocation's typed config values for a
+// script's ctx.config (empty table when the invocation carries no config).
+func (inv *invocation) configTable(L *lua.LState) *lua.LTable {
+	t := L.NewTable()
+	for k, v := range inv.config {
+		t.RawSetString(k, lua.LString(v))
+	}
+	return t
 }
 
 // require raises a Lua error (caught by PCall) when kind is not granted.
@@ -91,6 +121,10 @@ func (inv *invocation) fail(L *lua.LState, err error) {
 func (inv *invocation) prepare(src string) (*lua.LState, error) {
 	L := newSandbox(inv.ctx)
 	L.SetGlobal("jhmc", inv.newJHMC(L))
+	if err := loadBuiltinLibs(L); err != nil {
+		L.Close()
+		return nil, err
+	}
 	if err := L.DoString(src); err != nil {
 		L.Close()
 		return nil, fmt.Errorf("load script: %w", err)
@@ -139,7 +173,7 @@ func (inv *invocation) versions(src string) ([]string, error) {
 	}
 	defer L.Close()
 
-	fn := L.GetGlobal("versions")
+	fn := inv.providerFn(L, "versions")
 	if fn.Type() != lua.LTFunction {
 		return nil, fmt.Errorf("script defines no versions() function")
 	}
@@ -161,21 +195,9 @@ func (inv *invocation) versions(src string) ([]string, error) {
 	return out, nil
 }
 
-// install loads src and calls install(ctx), returning the launch spec. dir is
-// the server directory; downloads and fs access are confined to it.
-func (inv *invocation) install(src, dir, version string) (provider.LaunchSpec, error) {
-	inv.baseDir = dir
-	L, err := inv.prepare(src)
-	if err != nil {
-		return provider.LaunchSpec{}, err
-	}
-	defer L.Close()
-
-	fn := L.GetGlobal("install")
-	if fn.Type() != lua.LTFunction {
-		return provider.LaunchSpec{}, fmt.Errorf("script defines no install() function")
-	}
-
+// installCtxTable builds the ctx table shared by install(ctx) and update(ctx):
+// dir/version, the step/log progress bridges, and the script config.
+func (inv *invocation) installCtxTable(L *lua.LState, dir, version string) *lua.LTable {
 	ictx := L.NewTable()
 	ictx.RawSetString("dir", lua.LString(dir))
 	ictx.RawSetString("version", lua.LString(version))
@@ -189,17 +211,17 @@ func (inv *invocation) install(src, dir, version string) (provider.LaunchSpec, e
 		inv.emit(provider.Progress{LogLine: L.CheckString(1)})
 		return 0
 	}))
+	ictx.RawSetString("config", inv.configTable(L))
+	return ictx
+}
 
-	if err := L.CallByParam(lua.P{Fn: fn, NRet: 1, Protect: true}, ictx); err != nil {
-		return provider.LaunchSpec{}, inv.mapErr(err)
-	}
-	ret := L.Get(-1)
-	L.Pop(1)
+// parseLaunchSpec converts the table returned by install()/update() into a
+// LaunchSpec.
+func parseLaunchSpec(ret lua.LValue, fnName string) (provider.LaunchSpec, error) {
 	spec, ok := ret.(*lua.LTable)
 	if !ok {
-		return provider.LaunchSpec{}, fmt.Errorf("install() must return a launch spec table")
+		return provider.LaunchSpec{}, fmt.Errorf("%s() must return a launch spec table", fnName)
 	}
-
 	major := 0
 	if n, ok := spec.RawGetString("java_major").(lua.LNumber); ok {
 		major = int(n)
@@ -210,7 +232,60 @@ func (inv *invocation) install(src, dir, version string) (provider.LaunchSpec, e
 			args = append(args, lua.LVAsString(v))
 		})
 	}
-	return provider.LaunchSpec{JavaMajor: major, Args: args}, nil
+	return provider.LaunchSpec{
+		JavaMajor:   major,
+		Args:        args,
+		McVersion:   strField(spec, "mc_version"),
+		Loader:      strField(spec, "loader"),
+		PackVersion: strField(spec, "pack_version"),
+	}, nil
+}
+
+// install loads src and calls install(ctx), returning the launch spec. dir is
+// the server directory; downloads and fs access are confined to it.
+func (inv *invocation) install(src, dir, version string) (provider.LaunchSpec, error) {
+	inv.baseDir = dir
+	L, err := inv.prepare(src)
+	if err != nil {
+		return provider.LaunchSpec{}, err
+	}
+	defer L.Close()
+
+	fn := inv.providerFn(L, "install")
+	if fn.Type() != lua.LTFunction {
+		return provider.LaunchSpec{}, fmt.Errorf("script defines no install() function")
+	}
+	ictx := inv.installCtxTable(L, dir, version)
+	if err := L.CallByParam(lua.P{Fn: fn, NRet: 1, Protect: true}, ictx); err != nil {
+		return provider.LaunchSpec{}, inv.mapErr(err)
+	}
+	ret := L.Get(-1)
+	L.Pop(1)
+	return parseLaunchSpec(ret, "install")
+}
+
+// update loads src and calls update(ctx) — the optional in-place move of an
+// installed server to another version. ctx additionally carries old_version.
+func (inv *invocation) update(src, dir, version, oldVersion string) (provider.LaunchSpec, error) {
+	inv.baseDir = dir
+	L, err := inv.prepare(src)
+	if err != nil {
+		return provider.LaunchSpec{}, err
+	}
+	defer L.Close()
+
+	fn := inv.providerFn(L, "update")
+	if fn.Type() != lua.LTFunction {
+		return provider.LaunchSpec{}, provider.ErrUpdateUnsupported
+	}
+	ictx := inv.installCtxTable(L, dir, version)
+	ictx.RawSetString("old_version", lua.LString(oldVersion))
+	if err := L.CallByParam(lua.P{Fn: fn, NRet: 1, Protect: true}, ictx); err != nil {
+		return provider.LaunchSpec{}, inv.mapErr(err)
+	}
+	ret := L.Get(-1)
+	L.Pop(1)
+	return parseLaunchSpec(ret, "update")
 }
 
 // mapErr recovers the structured error stashed by fail(), falling back to the

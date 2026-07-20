@@ -111,6 +111,13 @@ func (s *ModService) List(ctx context.Context, req *mcmanagerv1.ModListRequest) 
 		return nil, status.Errorf(codes.Internal, "read %s: %v", subdir, err)
 	}
 
+	// The effective loader is the server's recorded loader (set by providers that
+	// resolve one, e.g. a modpack), falling back to the provider id.
+	serverLoader := rec.Loader
+	if serverLoader == "" {
+		serverLoader = rec.ProviderID
+	}
+
 	files := make([]modFileInfo, 0, len(entries))
 	for _, e := range entries {
 		if e.IsDir() || !supportedModFile(e.Name(), kind) {
@@ -131,7 +138,7 @@ func (s *ModService) List(ctx context.Context, req *mcmanagerv1.ModListRequest) 
 	fresh := s.currentMetadataCache(req.ServerId, files)
 	for _, file := range files[offset:end] {
 		parsed := s.jarMetadata(ctx, req.ServerId, subdir, file.name, file.size, file.mtime, fresh)
-		meta := selectModMetadata(parsed, rec.ProviderID, rec.McVersion, kind)
+		meta := selectModMetadata(parsed, serverLoader, rec.McVersion, kind)
 		meta.Icon = nil
 		list.Files = append(list.Files, &mcmanagerv1.ModFile{
 			Name:      file.name,
@@ -253,7 +260,11 @@ func (s *ModService) GetIcon(ctx context.Context, req *mcmanagerv1.ModIconReques
 	}
 	s.metaCache[req.ServerId][modMetadataCacheKey(file)] = parsed
 	s.metaMu.Unlock()
-	meta := selectModMetadata(parsed, rec.ProviderID, rec.McVersion, kind)
+	serverLoader := rec.Loader
+	if serverLoader == "" {
+		serverLoader = rec.ProviderID
+	}
+	meta := selectModMetadata(parsed, serverLoader, rec.McVersion, kind)
 	if !meta.HasIcon || len(meta.Icon) == 0 {
 		return &mcmanagerv1.ModIcon{}, nil
 	}

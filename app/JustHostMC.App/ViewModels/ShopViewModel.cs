@@ -102,6 +102,16 @@ public sealed partial class ShopViewModel : ObservableObject {
 
         OnPropertyChanged(nameof(SelectedShopName));
         var categoryGeneration = Interlocked.Increment(ref _categoryGeneration);
+        OnPropertyChanged(nameof(SelectedShopIsModpack));
+        OnPropertyChanged(nameof(ShowVersionFilter));
+        OnPropertyChanged(nameof(ShowLoaderFilter));
+        // Modpacks browse unfiltered; clear any active compat filter so its
+        // chip (bound to Use*Filter) also disappears, not just the hidden
+        // toggle.
+        if (SelectedShopIsModpack) {
+            UseVersionFilter = false;
+            UseLoaderFilter  = false;
+        }
         CategoryFilters.Clear();
         if (value?.Id == "modrinth") {
             foreach (var id in ModrinthCategories)
@@ -164,21 +174,53 @@ public sealed partial class ShopViewModel : ObservableObject {
         foreach (var category in CategoryFilters) category.IsSelected = false;
     }
 
-    private string EffectiveVersion =>
-        UseVersionFilter ? Context.McVersion : "";
-    private string EffectiveLoader => UseLoaderFilter ? Context.Loader : "";
+    /// <summary>True when this window is browsing modpacks (installed as whole
+    /// servers). The context is authoritative because a merged source can also
+    /// advertise mod and plugin capabilities.</summary>
+    public bool SelectedShopIsModpack => Context.Kind == ModKind.Modpack;
 
-    /// <summary>Loads the shop list and selects the first ready
-    /// source.</summary>
+    /// <summary>Version/loader filter toggles only make sense for mod/plugin
+    /// shops.</summary>
+    public bool ShowVersionFilter => !SelectedShopIsModpack && HasVersionFilter;
+    public bool ShowLoaderFilter  => !SelectedShopIsModpack && HasLoaderFilter;
+
+    private ModKind EffectiveKind =>
+        SelectedShopIsModpack ? ModKind.Modpack : Context.Kind;
+
+    /// <summary>The shop-kind string a server-scoped browser filters sources
+    /// on: "plugin" for a Paper/Spigot server, "mod" otherwise. A merged source
+    /// (e.g. curseforge, whose Kinds are mod/plugin/modpack) still qualifies as
+    /// long as it carries this kind — it is no longer excluded merely for also
+    /// serving modpacks.</summary>
+    private string ServerBrowseKind =>
+        Context.Kind == ModKind.Plugin ? "plugin" : "mod";
+
+    // Modpacks pin their own MC version + loader, so a modpack shop always
+    // browses unfiltered regardless of the (hidden) toggle state.
+    private string EffectiveVersion =>
+        !SelectedShopIsModpack && UseVersionFilter ? Context.McVersion : "";
+    private string EffectiveLoader =>
+        !SelectedShopIsModpack && UseLoaderFilter ? Context.Loader : "";
+
+    /// <summary>Loads the shop list and selects the first ready source.
+    /// Modpack sources create brand-new servers, so they only appear in the
+    /// server-less shop; a server-scoped shop lists mod/plugin sources
+    /// only.</summary>
     public async Task LoadShopsAsync() {
         try {
             var daemon = await App.Current.DaemonReady;
             var list   = await daemon.Shop.ListAsync(new Empty());
+            var visible =
+                Context.IsServerScoped
+                    ? list.Shops.Where(s => s.Kinds.Contains(ServerBrowseKind))
+                          .ToArray()
+                    : list.Shops.Where(s => s.Kinds.Contains("modpack"))
+                          .ToArray();
             await RunOnUIAsync(() => {
                 Shops.Clear();
-                foreach (var shop in list.Shops) Shops.Add(shop);
-                SelectedShop = list.Shops.FirstOrDefault(s => s.Ready) ??
-                               list.Shops.FirstOrDefault();
+                foreach (var shop in visible) Shops.Add(shop);
+                SelectedShop = visible.FirstOrDefault(s => s.Ready) ??
+                               visible.FirstOrDefault();
             });
         } catch {
             await RunOnUIAsync(() => HasLoadFailure = true);
@@ -205,7 +247,7 @@ public sealed partial class ShopViewModel : ObservableObject {
                     ShopId    = shop.Id,
                     McVersion = EffectiveVersion,
                     Loader    = EffectiveLoader,
-                    Kind      = Context.Kind,
+                    Kind      = EffectiveKind,
                 },
                 deadline: DateTime.UtcNow.AddSeconds(30));
 
@@ -270,7 +312,7 @@ public sealed partial class ShopViewModel : ObservableObject {
                 Query     = Query,
                 McVersion = EffectiveVersion,
                 Loader    = EffectiveLoader,
-                Kind      = Context.Kind,
+                Kind      = EffectiveKind,
                 Sort      = Sort,
                 Offset    = offset,
                 Limit     = PageSize,
@@ -305,7 +347,7 @@ public sealed partial class ShopViewModel : ObservableObject {
                 Query     = text,
                 McVersion = EffectiveVersion,
                 Loader    = EffectiveLoader,
-                Kind      = Context.Kind,
+                Kind      = EffectiveKind,
                 Sort      = ShopSort.Relevance,
                 Offset    = 0,
                 Limit     = SuggestionCount,

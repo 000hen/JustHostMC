@@ -25,14 +25,15 @@ type ScriptService struct {
 	mgr     *automation.Manager
 	grants  *scripting.GrantStore
 	enabled *scripting.EnabledStore
+	config  *scripting.ConfigStore
 	dir     string // root dir where user scripts are persisted
 }
 
 // NewScriptService builds a ScriptService. dir is where imported user scripts are
 // stored; grants persists permission decisions; enabled persists which scripts
 // the user has turned on.
-func NewScriptService(mgr *automation.Manager, grants *scripting.GrantStore, enabled *scripting.EnabledStore, dir string) *ScriptService {
-	return &ScriptService{mgr: mgr, grants: grants, enabled: enabled, dir: dir}
+func NewScriptService(mgr *automation.Manager, grants *scripting.GrantStore, enabled *scripting.EnabledStore, config *scripting.ConfigStore, dir string) *ScriptService {
+	return &ScriptService{mgr: mgr, grants: grants, enabled: enabled, config: config, dir: dir}
 }
 
 func (s *ScriptService) List(_ context.Context, _ *mcmanagerv1.Empty) (*mcmanagerv1.ScriptList, error) {
@@ -129,6 +130,9 @@ func (s *ScriptService) Remove(_ context.Context, ref *mcmanagerv1.ProviderRef) 
 	if s.enabled != nil {
 		_ = s.enabled.Forget(ref.Id)
 	}
+	if s.config != nil {
+		_ = s.config.Forget(ref.Id)
+	}
 	_ = os.Remove(s.scriptPath(ref.Id))
 	return &mcmanagerv1.Empty{}, nil
 }
@@ -187,14 +191,42 @@ func (s *ScriptService) info(a *automation.Automation) *mcmanagerv1.ScriptInfo {
 	}
 	slices.Sort(granted)
 	return &mcmanagerv1.ScriptInfo{
-		Id:          meta.ID,
-		Name:        meta.Name,
-		Website:     meta.Website,
-		Description: meta.Description,
-		Version:     meta.Version,
-		Author:      meta.Author,
-		Enabled:     s.mgr.Enabled(meta.ID),
-		Permissions: perms,
-		Granted:     granted,
+		Id:            meta.ID,
+		Name:          meta.Name,
+		Website:       meta.Website,
+		Description:   meta.Description,
+		Version:       meta.Version,
+		Author:        meta.Author,
+		Enabled:       s.mgr.Enabled(meta.ID),
+		Permissions:   perms,
+		Granted:       granted,
+		ConfigOptions: configOptions(meta.Config),
 	}
+}
+
+func (s *ScriptService) GetConfig(_ context.Context, ref *mcmanagerv1.ProviderRef) (*mcmanagerv1.ScriptConfig, error) {
+	a, ok := s.mgr.Get(ref.Id)
+	if !ok {
+		return nil, errorStatus(codes.NotFound, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, "script not found", nil)
+	}
+	return getConfigView(ref.Id, a.Meta().Config, s.config), nil
+}
+
+func (s *ScriptService) SetConfig(_ context.Context, req *mcmanagerv1.SetConfigRequest) (*mcmanagerv1.ScriptConfig, error) {
+	a, ok := s.mgr.Get(req.Id)
+	if !ok {
+		return nil, errorStatus(codes.NotFound, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, "script not found", nil)
+	}
+	view, err := applyConfig(req.Id, a.Meta().Config, s.config, req)
+	if err != nil {
+		return nil, err
+	}
+	// Bounce an enabled script so its hooks pick up the new config on restart.
+	if s.mgr.Enabled(req.Id) {
+		s.mgr.Disable(req.Id)
+		if err := s.mgr.Enable(req.Id); err != nil {
+			return nil, errorStatus(codes.Internal, mcmanagerv1.ErrorCode_ERROR_CODE_UNSPECIFIED, err.Error(), nil)
+		}
+	}
+	return view, nil
 }

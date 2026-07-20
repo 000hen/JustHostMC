@@ -38,6 +38,7 @@ type LuaParser struct {
 	host     *Host
 	builtin  bool
 	grantsFn func() GrantSet
+	configFn func() map[string]string
 }
 
 // newLuaParser compiles source in a throwaway sandbox, validates its meta and
@@ -72,11 +73,25 @@ func (p *LuaParser) grants() GrantSet {
 	return nil
 }
 
+// config resolves the values the script sees as ctx.config / jhmc.config:
+// declared defaults merged with stored overrides. Returns nil (no config) when
+// the script declares none and none is stored.
+func (p *LuaParser) config() map[string]string {
+	var stored map[string]string
+	if p.configFn != nil {
+		stored = p.configFn()
+	}
+	if len(p.meta.Config) == 0 && len(stored) == 0 {
+		return nil
+	}
+	return EffectiveConfig(p.meta.Config, stored)
+}
+
 // Parse runs the script's parse(ctx) against one jar (path relative to
 // serverDir). matched=false means the parser did not recognize the jar
 // (returned nil); an error means the parser recognized-and-failed or is broken.
 func (p *LuaParser) Parse(ctx context.Context, serverDir, jarRel string) (meta ModMeta, matched bool, err error) {
-	inv := &invocation{ctx: ctx, host: p.host, granted: p.grants(), baseDir: serverDir}
+	inv := &invocation{ctx: ctx, host: p.host, granted: p.grants(), baseDir: serverDir, config: p.config()}
 	return inv.parseMod(p.source, jarRel)
 }
 
@@ -95,6 +110,7 @@ func (inv *invocation) parseMod(src, jarRel string) (ModMeta, bool, error) {
 	}
 	ctxTbl := L.NewTable()
 	ctxTbl.RawSetString("jar", lua.LString(jarRel))
+	ctxTbl.RawSetString("config", inv.configTable(L))
 	if err := L.CallByParam(lua.P{Fn: fn, NRet: 1, Protect: true}, ctxTbl); err != nil {
 		return ModMeta{}, false, inv.mapErr(err)
 	}

@@ -21,7 +21,15 @@ public sealed partial class Sparkline : UserControl {
             nameof(StrokeBrush), typeof(Brush), typeof(Sparkline),
             new PropertyMetadata(null, OnStrokeChanged));
 
-    public Sparkline() => InitializeComponent();
+    private INotifyCollectionChanged? _observableValues;
+    private bool _seriesSubscriptionAttached;
+    private bool _isLoaded;
+
+    public Sparkline() {
+        InitializeComponent();
+        Loaded += OnLoaded;
+        Unloaded += OnUnloaded;
+    }
 
     public object? Values {
         get => GetValue(ValuesProperty);
@@ -36,11 +44,12 @@ public sealed partial class Sparkline : UserControl {
     private static void OnValuesChanged(DependencyObject d,
                                         DependencyPropertyChangedEventArgs e) {
         var self = (Sparkline)d;
-        if (e.OldValue is INotifyCollectionChanged oldObservable)
-            oldObservable.CollectionChanged -= self.OnSeriesChanged;
-        if (e.NewValue is INotifyCollectionChanged newObservable)
-            newObservable.CollectionChanged += self.OnSeriesChanged;
-        self.Redraw();
+        self.DetachSeries();
+        self._observableValues = e.NewValue as INotifyCollectionChanged;
+        if (self._isLoaded) {
+            self.AttachSeries();
+            self.Redraw();
+        }
     }
 
     private static void OnStrokeChanged(DependencyObject d,
@@ -53,7 +62,38 @@ public sealed partial class Sparkline : UserControl {
     private void OnSizeChanged(object sender,
                                SizeChangedEventArgs e) => Redraw();
 
+    private void OnLoaded(object sender, RoutedEventArgs e) {
+        _isLoaded = true;
+        AttachSeries();
+        Redraw();
+    }
+
+    private void OnUnloaded(object sender, RoutedEventArgs e) {
+        _isLoaded = false;
+        DetachSeries();
+    }
+
+    private void AttachSeries() {
+        if (_seriesSubscriptionAttached || _observableValues is null)
+            return;
+
+        _observableValues.CollectionChanged += OnSeriesChanged;
+        _seriesSubscriptionAttached = true;
+    }
+
+    private void DetachSeries() {
+        if (!_seriesSubscriptionAttached)
+            return;
+
+        if (_observableValues is not null)
+            _observableValues.CollectionChanged -= OnSeriesChanged;
+        _seriesSubscriptionAttached = false;
+    }
+
     private void Redraw() {
+        if (!_isLoaded)
+            return;
+
         Line.Points.Clear();
 
         double width  = ActualWidth;

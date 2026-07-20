@@ -9,7 +9,7 @@ namespace JustHostMC.App.ViewModels;
 /// cref="MainViewModel"/> (the single source of the live server list) and
 /// raises navigation requests that the shell window fulfills by changing the
 /// NavigationView selection.</summary>
-public sealed class NavShellViewModel : ObservableObject {
+public sealed class NavShellViewModel : ObservableObject, IAsyncDisposable {
     private readonly Dictionary<string, ServerViewModelCache> _serverVmCache =
         new();
 
@@ -58,5 +58,17 @@ public sealed class NavShellViewModel : ObservableObject {
     public async Task EvictServerCacheAsync(string serverId) {
         if (_serverVmCache.Remove(serverId, out var cache))
             await cache.DisposeAsync();
+    }
+
+    /// <summary>Tears down cached server view models and the shared main view
+    /// model when the navigation shell closes.</summary>
+    public async ValueTask DisposeAsync() {
+        var caches = _serverVmCache.Values.ToArray();
+        _serverVmCache.Clear();
+
+        var cacheDisposals =
+            caches.Select(cache => cache.DisposeAsync().AsTask()).ToArray();
+        var mainDisposal = Main.DisposeAsync().AsTask();
+        await Task.WhenAll(cacheDisposals.Append(mainDisposal));
     }
 }

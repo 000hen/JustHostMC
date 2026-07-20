@@ -151,7 +151,7 @@ public sealed partial class MainWindow : Window {
         foreach (var server in _trackedServers.Values.ToList())
             UntrackServer(server);
 
-        await Shell.Main.DisposeAsync();
+        await Shell.DisposeAsync();
     }
 
     private IntPtr WindowSubclassProc(IntPtr hWnd, uint uMsg, IntPtr wParam,

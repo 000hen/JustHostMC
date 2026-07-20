@@ -190,8 +190,11 @@ public sealed partial class ShopDetailViewModel : ObservableObject {
             var compatMessage = ProjectCompatText(projectCompat);
             await RunOnUIAsync(() => {
                 if (detail.Project is not null &&
-                    detail.Project.Title.Length > 0)
+                    detail.Project.Title.Length > 0) {
+                    if (string.IsNullOrWhiteSpace(detail.Project.Author))
+                        detail.Project.Author = Card.Author;
                     Card = new ShopProjectItem(detail.Project);
+                }
                 WebsiteUrl = detail.Links?.Website ?? "";
                 Gallery.Clear();
                 foreach (var image in detail.Gallery)

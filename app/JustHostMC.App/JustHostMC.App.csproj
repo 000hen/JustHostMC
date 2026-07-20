@@ -61,7 +61,6 @@
        dependency the deployment resolves). A RuntimeIdentifier is required for a
        self-contained build; map it from the (always-explicit) WinUI platform. -->
   <PropertyGroup Condition="'$(WindowsPackageType)' != 'MSIX'">
-    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' And '$(Platform)' == 'x64'">win-x64</RuntimeIdentifier>
     <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' And '$(Platform)' == 'x86'">win-x86</RuntimeIdentifier>
     <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' And '$(Platform)' == 'ARM64'">win-arm64</RuntimeIdentifier>
@@ -104,10 +103,7 @@
        MSIX payload. -->
   <Import Project="..\Engine.targets" />
   <ItemGroup>
-    <Content Include="..\..\build\engine.exe" Link="engine\engine.exe"
-             CopyToOutputDirectory="PreserveNewest"
-             CopyToPublishDirectory="PreserveNewest"
-             Visible="false" />
+    <Content Include="..\..\build\engine.exe" Link="engine\engine.exe" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Visible="false" />
   </ItemGroup>
 
   <!-- MSIX tooling discovers manifest assets for packages, but unpackaged builds
@@ -156,6 +152,26 @@
     <AppxBundleAutoResourcePackageQualifiers>Scale|DXFeatureLevel</AppxBundleAutoResourcePackageQualifiers>
     <AppxDefaultResourceQualifiers>Language=en-US;zh-TW</AppxDefaultResourceQualifiers>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <WindowsAppSDKSelfContained>false</WindowsAppSDKSelfContained>
+
+    <PublishAot>false</PublishAot>
+    <PublishSingleFile>false</PublishSingleFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <SelfContained>false</SelfContained>
+    <WindowsAppSDKSelfContained>false</WindowsAppSDKSelfContained>
+
+    <PublishAot>false</PublishAot>
+    <IsAotCompatible>false</IsAotCompatible>
+    <PublishSingleFile>false</PublishSingleFile>
+
+    <Optimize>true</Optimize>
+    <DebugType>embedded</DebugType>
+    <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
 
   <!-- Embed Git info -->
